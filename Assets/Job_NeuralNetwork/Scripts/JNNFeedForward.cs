@@ -185,6 +185,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
         }
 
         // EXECUTION ***************************************************************************************************
+        #region Execution
         public void ComputeFeedForward(NativeArray<double> inputs, out double[] results)
         {
             networkInputs = inputs;
@@ -354,7 +355,10 @@ namespace Assets.Job_NeuralNetwork.Scripts
                 outputs.Dispose();
             }
         }
+        #endregion
 
+        // WEIGHT SETTING **********************************************************************************************
+        #region Weights
         public void SetWeights()
         {
 
@@ -364,8 +368,11 @@ namespace Assets.Job_NeuralNetwork.Scripts
         {
 
         }
+        #endregion
 
-        public void BackPropagate(double[] costs, float learningRate, double[] tValues)
+        // BACKPROPAGATION ********************************************************************************************
+        #region BackPropagation
+        public void BackPropagate(double[] costs, float learningRate)
         {
             // Computing gradient descent
             
@@ -373,8 +380,6 @@ namespace Assets.Job_NeuralNetwork.Scripts
             {
                 for (int i = 0; i < outputLayer.Length; ++i)
                 {
-                    double error = outputLayer[i].output - tValues[i];
-
                     outputLayer[i].grad = costs[i] * JNNMath.ComputeActivation(OutputLayer.ActivationFunction, true, outputLayer[i].output);
                 }
             }
@@ -475,8 +480,9 @@ namespace Assets.Job_NeuralNetwork.Scripts
                 }
             }
         }
+        #endregion
 
-        // ***********************************************************************
+        // SERIALISATION **********************************************************************************************
         #region Serialisation
 
         public struct NetworkData
@@ -516,6 +522,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
 
         #endregion
 
+        // UTILS ******************************************************************************************************
         #region Utils
         public NativeArray<double> GetRandomValues()
         {

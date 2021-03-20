@@ -72,8 +72,6 @@ namespace Assets.Job_NeuralNetwork.Scripts
         public int DecayStep;
 
         // **************************************************************************************
-        private double[] errorBatch;
-
         public double[][] TestingDataX;
         public double[][] TestingDataY;
 
@@ -83,6 +81,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
         public double[] runWantedOutpus;
 
         public List<LearningData> TrainingDatas = new List<LearningData>();
+
 
         public void Start()
         {
@@ -107,7 +106,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
 
                 for(int k = 0; k < 3; ++k)
                 {
-                    TestingDataY[i][k] = data[4+k];
+                    TestingDataY[i][k] = k; //data[4+k];
                 }
             }
 
@@ -137,14 +136,10 @@ namespace Assets.Job_NeuralNetwork.Scripts
             // ********************************* Convolve and Pool
 
             // ********************************* Flattenning 
-            int countBatch = 0;
-            errorBatch = new double[FFNetwork.OutputLayer.NeuronsCount];
-
             for (int i = 0; i < runs; ++i)
             {
                 int index = UnityEngine.Random.Range(0, 149);
                 runInputs = TestingDataX[index];
-
 
                 runWantedOutpus = TestingDataY[index];
 
@@ -156,10 +151,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
                 double[] errors = ComputeError(runResults, testValues);
 
                 GetLearningData(errors, runResults, testValues);
-                FFNetwork.BackPropagate(errors, LearningRate, testValues);
-
-
-
+                FFNetwork.BackPropagate(errors, LearningRate);
 
                 currentEpoch++;
 
@@ -169,7 +161,6 @@ namespace Assets.Job_NeuralNetwork.Scripts
                 }
 
                 yield return delay;
-
             }
         }
 
