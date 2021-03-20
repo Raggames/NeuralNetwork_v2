@@ -22,7 +22,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
             Sinusoid,
             Gaussian,
         }
-
+       
         public static double ComputeActivation(ActivationFunctions type, bool derivative, double x, double[] a = null) 
         {
             double result = 0;
@@ -61,17 +61,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
                     }
 
                     break;
-                case ActivationFunctions.Softmax:
-                    if (!derivative)
-                    {
-
-                    }
-                    else
-                    {
-
-                    }
-
-                    break;
+               
                 case ActivationFunctions.Tanh:
                     if (!derivative)
                     {
@@ -108,22 +98,22 @@ namespace Assets.Job_NeuralNetwork.Scripts
                 case ActivationFunctions.PReLU:
                     if (!derivative)
                     {
-                        result = PReLU(x, a[0]);
+                        result = PReLU(x, 0.1f);
                     }
                     else
                     {
-                        result = DPReLU(x, a[0]);
+                        result = DPReLU(x, 0.1f);
                     }
 
                     break;
                 case ActivationFunctions.ELU:
                     if (!derivative)
                     {
-                        result = ELU(x, a[0]);
+                        result = ELU(x, 0.1f);
                     }
                     else
                     {
-                        result = DELU(x, a[0]);
+                        result = DELU(x, 0.1f);
                     }
 
                     break;
@@ -144,7 +134,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
 
         public static double Logistic(double x)
         {
-            return 1 / (1 + Math.Pow(Math.E, -x));
+            return 1 / (1 + Math.Exp(-x));
         }
 
         public static double DLogistic(double x)
@@ -154,7 +144,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
 
         public static double Tanh(double x)
         {
-            return 2 / (1 + Math.Pow(Math.E, -(2 * x))) - 1;
+            return Math.Tanh(x);
         }
 
         public static double DTanh(double x)
@@ -202,5 +192,26 @@ namespace Assets.Job_NeuralNetwork.Scripts
         {
             return x < 0 ? ELU(x, a) + a : 1;
         }
+
+        public static double[] Softmax(double[] oSums)
+        {
+            // does all output nodes at once so scale doesn't have to be re-computed each time
+            // 1. determine max output sum
+            double max = oSums[0];
+            for (int i = 0; i < oSums.Length; ++i)
+                if (oSums[i] > max) max = oSums[i];
+
+            // 2. determine scaling factor -- sum of exp(each val - max)
+            double scale = 0.0;
+            for (int i = 0; i < oSums.Length; ++i)
+                scale += Math.Exp(oSums[i] - max);
+
+            double[] result = new double[oSums.Length];
+            for (int i = 0; i < oSums.Length; ++i)
+                result[i] = Math.Exp(oSums[i] - max) / scale;
+
+            return result; // now scaled so that xi sum to 1.0
+        }
+
     }
 }
