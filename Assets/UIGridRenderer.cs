@@ -25,7 +25,7 @@ public class UIGridRenderer : Graphic
         cellHeight = height / (float)gridSize.y;
 
         int count = 0;
-
+/*
         for(int x = 0; x < gridSize.x; ++x)
         {
             for(int y = 0; y < gridSize.y; ++y)
@@ -33,7 +33,7 @@ public class UIGridRenderer : Graphic
                 DrawCell(x, y, count, vh);
                 count++;
             }
-        }
+        }*/
 
 
     }

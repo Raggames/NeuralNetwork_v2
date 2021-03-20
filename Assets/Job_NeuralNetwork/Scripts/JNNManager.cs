@@ -13,14 +13,17 @@ namespace Assets.Job_NeuralNetwork.Scripts
     {
         public JNN Network;
 
+        public UILineRenderer LearningRateGraph;
+        public UILineRenderer LossGraph;
+
         // *************************************************************************************
         [Header("Training Parameters")] 
 
         public int Epochs; // trainData lenght
-        [ReadOnly] public int currentEpoch;
+        public int currentEpoch;
         public int BatchSize; // every nbr of runs would you want to compute error
 
-        public float LearningRate;
+        [Range(0.00001f, 0.5f)] public float LearningRate;
         public double Momentum;
 
         public double WeightDecay = 0.0001f;
@@ -227,6 +230,9 @@ namespace Assets.Job_NeuralNetwork.Scripts
                 ActualLoss = CurrentLoss,
             };
             TrainingDatas.Add(data);
+
+            LearningRateGraph.points.Add(new Vector2(currentEpoch, LearningRate*100));
+            LossGraph.points.Add(new Vector2(currentEpoch, (float)(CurrentLoss*100)));
 
             if(CurrentLoss <= BestLoss)
             {
