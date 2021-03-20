@@ -26,7 +26,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
                 light.intensity =  10*(float)output;
             }
         }
-        public double error;
+        public double grad;
 
         public Light light;
 
@@ -49,7 +49,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
                 Bias = instance.Bias;
                 PreviousDelta = instance.PreviousDelta;
                 output = instance.output;
-                error = instance.error;
+                error = instance.grad;
             }
         }
 

@@ -134,22 +134,34 @@ namespace Assets.Job_NeuralNetwork.Scripts
 
         public static double Logistic(double x)
         {
-            return 1 / (1 + Math.Exp(-x));
+            double result = 0;
+            
+            if (x > 45)
+            {
+                result = 1;
+            }
+            else
+            {
+                result = 1 / (1 + Math.Exp(-x));
+            }
+            return result;
         }
 
         public static double DLogistic(double x)
         {
-            return Logistic(x) * (1 - Logistic(x));
+            return x * (1 - x);
         }
 
         public static double Tanh(double x)
         {
-            return Math.Tanh(x);
+            if (x < -20.0) return -1.0; // approximation is correct to 30 decimals
+            else if (x > 20.0) return 1.0;
+            else return Math.Tanh(x);
         }
 
         public static double DTanh(double x)
         {
-            return 1 - Math.Pow(Tanh(x), 2);
+            return (1 - x) * (1 +x);
         }
 
         public static double Sinusoid(double x)

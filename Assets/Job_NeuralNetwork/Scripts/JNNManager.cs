@@ -51,15 +51,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
         public double BestLoss;
         public double CurrentLoss;
 
-        public enum TrainingMode
-        {
-            Online,
-            Batch,
-        }
-        [Header("Training Mode")]
-
-        public TrainingMode trainingMode;
-
+      
         private WaitForSeconds delay;
         public float DelayBetweenEpochs = 0.05f;
         private Coroutine TrainingCoroutine;
@@ -152,6 +144,8 @@ namespace Assets.Job_NeuralNetwork.Scripts
             {
                 int index = UnityEngine.Random.Range(0, 149);
                 runInputs = TestingDataX[index];
+
+
                 runWantedOutpus = TestingDataY[index];
 
                 NativeArray<double> inputTest = FFNetwork.ToNativeArray(TestingDataX[index]);
@@ -161,39 +155,10 @@ namespace Assets.Job_NeuralNetwork.Scripts
 
                 double[] errors = ComputeError(runResults, testValues);
 
-                if (trainingMode == TrainingMode.Batch)
-                {
-                    countBatch++;
+                GetLearningData(errors, runResults, testValues);
+                FFNetwork.BackPropagate(errors, LearningRate, testValues);
 
-                    for (int b = 0; b < errorBatch.Length; ++b)
-                    {
-                        errorBatch[b] += errors[b];
-                    }
 
-                    if (countBatch > BatchSize)
-                    {
-                        for (int b = 0; b < errorBatch.Length; ++b)
-                        {
-                            errorBatch[b] /= errorBatch.Length;
-                        }
-                        GetLearningData(errorBatch, null, null); // <= sur la moyenne des erreurs, UNIQUEMENT MEAN SQUARRED OR ABSOLUTE
-
-                        // Backpropagate
-                        FFNetwork.BackPropagate(errorBatch, LearningRate);
-
-                        countBatch = 0;
-
-                        for (int b = 0; b < errorBatch.Length; ++b)
-                        {
-                            errorBatch[b] = 0;
-                        }
-                    }
-                }
-                else
-                {
-                    GetLearningData(errors, runResults, testValues);
-                    FFNetwork.BackPropagate(errors, LearningRate);
-                }
 
 
                 currentEpoch++;
@@ -236,7 +201,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
             double[] cost = new double[runResults.Length];
             for (int i = 0; i < runResults.Length; ++i)
             {
-                cost[i] = runResults[i] - testValues[i];
+                cost[i] = testValues[i] - runResults[i];
             }
             return cost;
         }
@@ -310,7 +275,8 @@ namespace Assets.Job_NeuralNetwork.Scripts
 
             if (BestLoss <= TargetLoss)
             {
-                StopCoroutine(TrainingCoroutine);
+              
+              //  StopCoroutine(TrainingCoroutine);
                 Debug.LogError("Training stopped : goal achieved");
 
             }

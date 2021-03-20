@@ -365,7 +365,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
 
         }
 
-        public void BackPropagate(double[] costs, float learningRate)
+        public void BackPropagate(double[] costs, float learningRate, double[] tValues)
         {
             // Computing gradient descent
             
@@ -373,8 +373,9 @@ namespace Assets.Job_NeuralNetwork.Scripts
             {
                 for (int i = 0; i < outputLayer.Length; ++i)
                 {
-                    outputLayer[i].error = costs[i] * JNNMath.ComputeActivation(OutputLayer.ActivationFunction, true, outputLayer[i].output);
-                    Debug.Log("oErr" + outputLayer[i].error);
+                    double error = outputLayer[i].output - tValues[i];
+
+                    outputLayer[i].grad = costs[i] * JNNMath.ComputeActivation(OutputLayer.ActivationFunction, true, outputLayer[i].output);
                 }
             }
             else
@@ -387,8 +388,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
 
                 for (int i = 0; i < outputLayer.Length; ++i)
                 {
-                    outputLayer[i].error = costs[i] * JNNMath.ComputeActivation(ActivationFunctions.Sigmoid, true, outputLayer[i].output);
-                    Debug.Log("oErr" + outputLayer[i].error);
+                    outputLayer[i].grad = costs[i] * JNNMath.ComputeActivation(ActivationFunctions.Sigmoid, true, outputLayer[i].output);
                 }
             }
            
@@ -401,12 +401,10 @@ namespace Assets.Job_NeuralNetwork.Scripts
                         double sum = 0f;
                         for (int k = 0; k < outputLayer.Length; ++k)
                         {
-                            sum += hiddenLayers[i][j].Weight * outputLayer[k].error;
+                            sum += hiddenLayers[i][j].Weight * outputLayer[k].grad;
                         }
 
-                        hiddenLayers[i][j].error = sum * JNNMath.ComputeActivation(HiddenLayers[i].ActivationFunction, true, hiddenLayers[i][j].output);
-                        Debug.Log("hErr" + hiddenLayers[i][j].error);
-
+                        hiddenLayers[i][j].grad = sum * JNNMath.ComputeActivation(HiddenLayers[i].ActivationFunction, true, hiddenLayers[i][j].output);
                     }
                 }
                 else
@@ -416,25 +414,14 @@ namespace Assets.Job_NeuralNetwork.Scripts
                         double sum = 0f;
                         for (int k = 0; k < hiddenLayers[i+1].Length; ++k)
                         {
-                            sum += hiddenLayers[i][j].Weight * hiddenLayers[i+1][k].error;
+                            sum += hiddenLayers[i][j].Weight * hiddenLayers[i+1][k].grad;
                         }
 
-                        hiddenLayers[i][j].error = sum * JNNMath.ComputeActivation(HiddenLayers[i].ActivationFunction, true, hiddenLayers[i][j].output);
+                        hiddenLayers[i][j].grad = sum * JNNMath.ComputeActivation(HiddenLayers[i].ActivationFunction, true, hiddenLayers[i][j].output);
                     }
                 }
             }
-            // On ne compute rien dans la InputLayer => elle envoie juste les données à la hidden
-           /* for (int i = 0; i < inputLayer.Length; ++i)
-            {
-                double sum = 0f;
-                for (int k = 0; k < hiddenLayers[0].Length; ++k)
-                {
-                    sum += hiddenLayers[0][k].error * inputLayer[i].Weight;
-                }
-
-                inputLayer[i].error = sum * inputLayer[i].output;
-            }*/
-
+           
             // Now calling weight and bias update on network
             UpdateWeights(learningRate);
         }
@@ -444,10 +431,9 @@ namespace Assets.Job_NeuralNetwork.Scripts
             // Update Output Bias
             for (int i = 0; i < outputLayer.Length; ++i)
             {
-                double delta = learningRate * outputLayer[i].error;
-                Debug.Log("dO b" + delta);
-                outputLayer[i].Bias -= delta;
-                outputLayer[i].Bias -= outputLayer[i].PreviousDelta * momentum;
+                double delta = learningRate * outputLayer[i].grad;
+                outputLayer[i].Bias += delta;
+                outputLayer[i].Bias += outputLayer[i].PreviousDelta * momentum;
                 outputLayer[i].Bias -= weightDecay * outputLayer[i].Bias;
                 outputLayer[i].PreviousDelta = delta;
             }
@@ -455,26 +441,22 @@ namespace Assets.Job_NeuralNetwork.Scripts
             // Update Output Weight
             for (int i = 0; i < outputLayer.Length; ++i)
             {
-                double delta = learningRate * outputLayer[i].error * outputLayer[i].Weight;
-                Debug.Log("d0 h" + delta);
-                outputLayer[i].Weight -= delta;
-                outputLayer[i].Weight -= outputLayer[i].PreviousDelta * momentum;
+                double delta = learningRate * outputLayer[i].grad * outputLayer[i].Weight;
+                outputLayer[i].Weight += delta;
+                outputLayer[i].Weight += outputLayer[i].PreviousDelta * momentum;
                 outputLayer[i].Weight -= weightDecay * outputLayer[i].Weight;
                 outputLayer[i].PreviousDelta = delta;
             }
             
 
             // Update Hidden Weights
-
             for (int i = 0; i < hiddenLayers.Count; ++i)
             {
                 for (int k = 0; k < hiddenLayers[i].Length; ++k)
                 {
-                    double delta = learningRate * hiddenLayers[i][k].error * hiddenLayers[i][k].Weight;
-                    Debug.Log("dH W" + delta);
-
-                    hiddenLayers[i][k].Weight -= delta;
-                    hiddenLayers[i][k].Weight -= hiddenLayers[i][k].PreviousDelta * momentum;
+                    double delta = learningRate * hiddenLayers[i][k].grad * hiddenLayers[i][k].Weight;
+                    hiddenLayers[i][k].Weight += delta;
+                    hiddenLayers[i][k].Weight += hiddenLayers[i][k].PreviousDelta * momentum;
                     hiddenLayers[i][k].Weight -= weightDecay * hiddenLayers[i][k].Weight;
                     hiddenLayers[i][k].PreviousDelta = delta;
                 }
@@ -485,17 +467,13 @@ namespace Assets.Job_NeuralNetwork.Scripts
             {
                 for (int k = 0; k < hiddenLayers[i].Length; ++k)
                 {
-                    double delta = learningRate * hiddenLayers[i][k].error;
-                    Debug.Log("dH b" + delta);
-
-                    hiddenLayers[i][k].Bias -= delta;
-                    hiddenLayers[i][k].Bias -= hiddenLayers[i][k].PreviousDelta * momentum;
+                    double delta = learningRate * hiddenLayers[i][k].grad;
+                    hiddenLayers[i][k].Bias += delta;
+                    hiddenLayers[i][k].Bias += hiddenLayers[i][k].PreviousDelta * momentum;
                     hiddenLayers[i][k].Bias -= weightDecay * hiddenLayers[i][k].Bias;
                     hiddenLayers[i][k].PreviousDelta = delta;
                 }
             }
-
-            
         }
 
         // ***********************************************************************
@@ -561,7 +539,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
 
         public double GetRandomWeight()
         {
-            return UnityEngine.Random.Range(-0.1f, 0.1f);
+            return UnityEngine.Random.Range(-1f, 1f);
         }
 
 
