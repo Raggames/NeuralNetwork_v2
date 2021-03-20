@@ -184,7 +184,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
         }
 
         // EXECUTION ***************************************************************************************************
-        public void ExecuteForward(NativeArray<double> inputs, out double[] results)
+        public void ComputeFeedForward(NativeArray<double> inputs, out double[] results)
         {
             networkInputs = inputs;
             //layerOutputs = new NativeArray<double>(hiddenLayers[0].Length, Allocator.Persistent);

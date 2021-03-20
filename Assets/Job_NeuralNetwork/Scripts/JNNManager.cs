@@ -17,7 +17,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
         public UILineRenderer LossGraph;
 
         // *************************************************************************************
-        [Header("Training Parameters")] 
+        [Header("Training Parameters")]
 
         public int Epochs; // trainData lenght
         public int currentEpoch;
@@ -32,7 +32,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
         {
             MeanSquarredError, // Regression
             MeanAbsoluteError,
-            CrossEntropy, // Binary Classification
+            MeanCrossEntropy, // Binary Classification
             HingeLoss, // Binary Classification
             MultiClassCrossEntropy, // Multiclass Classification
         }
@@ -57,6 +57,20 @@ namespace Assets.Job_NeuralNetwork.Scripts
         private Coroutine TrainingCoroutine;
 
 
+        [Header("Learning Rate Decay")]
+        public LRDecayMode LearningRateDecayMode;
+        public enum LRDecayMode
+        {
+            None,
+            Linear,
+            Exponential,
+            Step,
+            BatchStep,
+
+        }
+        public float DecayRate = 0.95f;
+        public int DecayStep;
+
         // **************************************************************************************
         private double[] errorBatch;
 
@@ -67,7 +81,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
         public double[] runInputs;
         public double[] runResults;
         public double[] runWantedOutpus;
-    
+
         public List<LearningData> TrainingDatas = new List<LearningData>();
 
         public void Start()
@@ -78,7 +92,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
 
             TestingDataX = new double[20][];
             TestingDataY = new double[20][];
-            for(int i = 0; i < TestingDataX.Length; ++i)
+            for (int i = 0; i < TestingDataX.Length; ++i)
             {
                 TestingDataX[i] = new double[2];
                 TestingDataY[i] = new double[1];
@@ -112,7 +126,6 @@ namespace Assets.Job_NeuralNetwork.Scripts
         }
 
 
-
         private IEnumerator RunDelayed(int runs)
         {
             int countBatch = 0;
@@ -125,15 +138,16 @@ namespace Assets.Job_NeuralNetwork.Scripts
                 runWantedOutpus = TestingDataY[index];
                 NativeArray<double> inputTest = Network.ToNativeArray(TestingDataX[index]);
                 double[] testValues = TestingDataY[index]; // testValues for each output neuron.
-               
-                Network.ExecuteForward(inputTest, out runResults);
+
+                Network.ComputeFeedForward(inputTest, out runResults);
+
                 double[] errors = ComputeError(runResults, testValues);
 
                 if (trainingMode == TrainingMode.Batch)
                 {
                     countBatch++;
-                             
-                    for(int b = 0; b < errorBatch.Length; ++b)
+
+                    for (int b = 0; b < errorBatch.Length; ++b)
                     {
                         errorBatch[b] += errors[b];
                     }
@@ -144,7 +158,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
                         {
                             errorBatch[b] /= errorBatch.Length;
                         }
-                        GetLearningData(errorBatch); // <= sur la moyenne des erreurs
+                        GetLearningData(errorBatch, null, null); // <= sur la moyenne des erreurs, UNIQUEMENT MEAN SQUARRED OR ABSOLUTE
 
                         // Backpropagate
                         Network.BackPropagate(errorBatch, LearningRate);
@@ -159,12 +173,18 @@ namespace Assets.Job_NeuralNetwork.Scripts
                 }
                 else
                 {
-                    GetLearningData(errors);
+                    GetLearningData(errors, runResults, testValues);
                     Network.BackPropagate(errors, LearningRate);
                 }
 
 
                 currentEpoch++;
+
+                if(LearningRateDecayMode != LRDecayMode.None)
+                {
+                    ComputeLearningRateDecay();
+                }
+
                 yield return delay;
 
             }
@@ -180,7 +200,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
             return cost;
         }
 
-        private double ComputeLoss(double[] errors)
+        private double ComputeLoss(double[] errors, double[] outputs = null, double[] testValues = null)
         {
             double lossResult = 0f;
 
@@ -197,6 +217,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
                     break;
 
                 case LossFunctions.MeanAbsoluteError:
+
                     for (int i = 0; i < errors.Length; ++i)
                     {
                         lossResult += Math.Abs(errors[i]);
@@ -205,7 +226,14 @@ namespace Assets.Job_NeuralNetwork.Scripts
                     lossResult /= errors.Length;
                     break;
 
-                case LossFunctions.CrossEntropy:
+                case LossFunctions.MeanCrossEntropy:
+
+                    for(int i = 0; i < outputs.Length; ++i)
+                    {
+                        lossResult += Math.Log(outputs[i]) * testValues[i];
+                    }
+                    lossResult = -1.0f * lossResult / outputs.Length;
+
                     break;
 
                 case LossFunctions.HingeLoss:
@@ -218,10 +246,10 @@ namespace Assets.Job_NeuralNetwork.Scripts
             return lossResult;
         }
 
-        private void GetLearningData(double[] errors)
+        private void GetLearningData(double[] errors, double[] outputs, double[] testValues)
         {
-            CurrentLoss = ComputeLoss(errors);
-
+            CurrentLoss = ComputeLoss(errors, outputs, testValues);
+/*
             LearningData data = new LearningData
             {
                 Epoch = currentEpoch,
@@ -229,7 +257,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
                 BestLoss = BestLoss,
                 ActualLoss = CurrentLoss,
             };
-            TrainingDatas.Add(data);
+            TrainingDatas.Add(data);*/
 
             LearningRateGraph.points.Add(new Vector2(currentEpoch, LearningRate*100));
             LossGraph.points.Add(new Vector2(currentEpoch, (float)(CurrentLoss*100)));
@@ -246,6 +274,30 @@ namespace Assets.Job_NeuralNetwork.Scripts
 
             }
         }
+
+        public void ComputeLearningRateDecay()
+        {
+            switch (LearningRateDecayMode)
+            {
+                case LRDecayMode.Linear:
+                    LearningRate -= LearningRate*DecayRate;
+
+                    break;
+                case LRDecayMode.Exponential:
+                    LearningRate = (float)(DecayRate * Math.Exp(currentEpoch) * LearningRate);
+
+                    break;
+                case LRDecayMode.Step:
+                    LearningRate = (float)(DecayRate / Math.Sqrt((double)currentEpoch)) * LearningRate;
+
+                    break;
+                case LRDecayMode.BatchStep:
+                    LearningRate = (float)(DecayRate / Math.Sqrt((double)(currentEpoch/BatchSize))) * LearningRate;
+
+                    break;
+            }
+        }
+
 
         public struct LearningData
         {
