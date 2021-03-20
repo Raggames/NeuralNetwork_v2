@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
-using static Assets.Job_NeuralNetwork.Scripts.JNN;
+using static Assets.Job_NeuralNetwork.Scripts.JNNFeedForward;
 
 namespace Assets.Job_NeuralNetwork.Scripts
 {

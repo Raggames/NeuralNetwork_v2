@@ -8,7 +8,7 @@ using static Assets.Job_NeuralNetwork.Scripts.JNNMath;
 namespace Assets.Job_NeuralNetwork.Scripts
 {
     [Serializable]
-    public class JNNLayer
+    public class JNNFeedForwardLayer 
     {
         public ActivationFunctions ActivationFunction;
 

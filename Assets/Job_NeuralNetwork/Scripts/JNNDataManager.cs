@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace Assets.Job_NeuralNetwork.Scripts
 {
-    public class JNNDataManager
+    public class JNNDataManager : MonoBehaviour
     {
-        public double[] TestingData(int index)
+        public double[] GetDataEntry(int atIndex)
         {
             double[][] allData = new double[150][];
             allData[0] = new double[] { 5.1, 3.5, 1.4, 0.2, 0, 0, 1 }; // sepal length, width, petal length, width
@@ -176,7 +177,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
             allData[148] = new double[] { 6.2, 3.4, 5.4, 2.3, 1, 0, 0 };
             allData[149] = new double[] { 5.9, 3.0, 5.1, 1.8, 1, 0, 0 };
 
-            return allData[index];
+            return allData[atIndex];
         }
 
         public double[][] DataNormalizer(double[][] allData)

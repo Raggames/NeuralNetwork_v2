@@ -13,7 +13,7 @@ using static Assets.Job_NeuralNetwork.Scripts.JNNMath;
 
 namespace Assets.Job_NeuralNetwork.Scripts
 {
-    public class JNN : MonoBehaviour
+    public class JNNFeedForward : MonoBehaviour
     {
         private JNNManager jnnManager;
         [Header("DONN Architecture")]
@@ -22,9 +22,9 @@ namespace Assets.Job_NeuralNetwork.Scripts
         public int OutputLayerNeurons;*/
 
         [SerializeField]
-        public JNNLayer InputLayer;
-        public List<JNNLayer> HiddenLayers = new List<JNNLayer>();
-        public JNNLayer OutputLayer;
+        public JNNFeedForwardLayer InputLayer;
+        public List<JNNFeedForwardLayer> HiddenLayers = new List<JNNFeedForwardLayer>();
+        public JNNFeedForwardLayer OutputLayer;
 
         JNNNeuron[] inputLayer;
         List<JNNNeuron[]> hiddenLayers;
@@ -93,7 +93,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
 
                 neuronComponent.Layer = layer;
                 neuronComponent.ID = SetID(layer, i);
-                neuronComponent.Weight = GetRandomValue();
+                neuronComponent.Weight = GetRandomWeight();
                
                 indexor++;
 
@@ -133,7 +133,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
                     int layer = 2 + i;
                     neuronComponent.Layer = layer;
                     neuronComponent.ID = SetID(layer, j);
-                    neuronComponent.Weight = GetRandomValue();
+                    neuronComponent.Weight = GetRandomWeight();
                    
 
                     indexor++;
@@ -171,7 +171,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
 
                 neuronComponent.Layer = layer;
                 neuronComponent.ID = SetID(layer, i);
-                neuronComponent.Weight = GetRandomValue();
+                neuronComponent.Weight = GetRandomWeight();
                 
                 indexor++;
             }
@@ -204,7 +204,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
             //layerOutputs.Dispose();
         }
 
-        public void ComputeLayer(JNNNeuron[] layer, NativeArray<double> inputs, out NativeArray<double> outputData, JNNLayer layerData, bool lastLayer = false)
+        public void ComputeLayer(JNNNeuron[] layer, NativeArray<double> inputs, out NativeArray<double> outputData, JNNFeedForwardLayer layerData, bool lastLayer = false)
         {
             // On crée des Array temporaires (TempJob) pour stocker les données et les communiquer au Job. Les inputs de la couche précédente, ainsi que la layer à traiter pour récuperer Weight et biais sur chaque neurone
             NativeArray<JNNNeuron.NeuronData> neuronsData = new NativeArray<JNNNeuron.NeuronData>(layer.Length, Allocator.TempJob);
@@ -494,9 +494,9 @@ namespace Assets.Job_NeuralNetwork.Scripts
             return inputs;
         }
 
-        public double GetRandomValue()
+        public double GetRandomWeight()
         {
-            return UnityEngine.Random.Range(0f, 0.02f);
+            return UnityEngine.Random.Range(0f, 0.1f);
         }
 
 

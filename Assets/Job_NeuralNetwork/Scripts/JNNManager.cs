@@ -11,8 +11,16 @@ namespace Assets.Job_NeuralNetwork.Scripts
 {
     public class JNNManager : MonoBehaviour
     {
-        public JNN Network;
+        [Header("Data Manager")]
+        public JNNDataManager DataManager;
 
+        [Header("Convolutionnal And Pooling Layers")]
+        public List<JNNCPLayer> CPLayers = new List<JNNCPLayer>(); // Convolve and Pool
+
+        [Header("Feed Forward Network")]
+        public JNNFeedForward FFNetwork;
+
+        [Header("Graph Rendering")]
         public UILineRenderer LearningRateGraph;
         public UILineRenderer LossGraph;
 
@@ -62,7 +70,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
         public enum LRDecayMode
         {
             None,
-            Linear,
+            Decay,
             Exponential,
             Step,
             BatchStep,
@@ -88,24 +96,30 @@ namespace Assets.Job_NeuralNetwork.Scripts
         {
             delay = new WaitForSeconds(DelayBetweenEpochs);
 
-            Network.CreateNetwork(this);
+            FFNetwork.CreateNetwork(this);
 
-            TestingDataX = new double[20][];
-            TestingDataY = new double[20][];
+            TestingDataX = new double[150][];
+            TestingDataY = new double[150][];
+
             for (int i = 0; i < TestingDataX.Length; ++i)
             {
-                TestingDataX[i] = new double[2];
-                TestingDataY[i] = new double[1];
-                double test1 = UnityEngine.Random.Range(0.01f, 1f);
-                double test2 = UnityEngine.Random.Range(0.01f, 1f);
-                double test3 = 0.25f;
-                TestingDataX[i][0] = test1;
-                TestingDataX[i][1] = test2;
-                TestingDataY[i][0] = test3;
+                TestingDataX[i] = new double[4];
+                TestingDataY[i] = new double[3];
 
+                double[] data = DataManager.GetDataEntry(i);
+
+                for(int j = 0; j < 4; ++j)
+                {
+                    TestingDataX[i][j] = data[j];
+                }
+
+                for(int k = 0; k < 3; ++k)
+                {
+                    TestingDataY[i][k] = data[4+k];
+                }
             }
 
-            BestLoss = 1;
+            BestLoss = 10;
 
             RunTest();
         }
@@ -125,21 +139,25 @@ namespace Assets.Job_NeuralNetwork.Scripts
 
         }
 
-
         private IEnumerator RunDelayed(int runs)
         {
+
+            // ********************************* Convolve and Pool
+
+            // ********************************* Flattenning 
             int countBatch = 0;
-            errorBatch = new double[Network.OutputLayer.NeuronsCount];
+            errorBatch = new double[FFNetwork.OutputLayer.NeuronsCount];
 
             for (int i = 0; i < runs; ++i)
             {
-                int index = UnityEngine.Random.Range(0, 19);
+                int index = UnityEngine.Random.Range(0, 149);
                 runInputs = TestingDataX[index];
                 runWantedOutpus = TestingDataY[index];
-                NativeArray<double> inputTest = Network.ToNativeArray(TestingDataX[index]);
+
+                NativeArray<double> inputTest = FFNetwork.ToNativeArray(TestingDataX[index]);
                 double[] testValues = TestingDataY[index]; // testValues for each output neuron.
 
-                Network.ComputeFeedForward(inputTest, out runResults);
+                FFNetwork.ComputeFeedForward(inputTest, out runResults);
 
                 double[] errors = ComputeError(runResults, testValues);
 
@@ -161,7 +179,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
                         GetLearningData(errorBatch, null, null); // <= sur la moyenne des erreurs, UNIQUEMENT MEAN SQUARRED OR ABSOLUTE
 
                         // Backpropagate
-                        Network.BackPropagate(errorBatch, LearningRate);
+                        FFNetwork.BackPropagate(errorBatch, LearningRate);
 
                         countBatch = 0;
 
@@ -174,7 +192,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
                 else
                 {
                     GetLearningData(errors, runResults, testValues);
-                    Network.BackPropagate(errors, LearningRate);
+                    FFNetwork.BackPropagate(errors, LearningRate);
                 }
 
 
@@ -187,6 +205,29 @@ namespace Assets.Job_NeuralNetwork.Scripts
 
                 yield return delay;
 
+            }
+        }
+
+        public void ComputeLearningRateDecay()
+        {
+            switch (LearningRateDecayMode)
+            {
+                case LRDecayMode.Decay:
+                    LearningRate -= LearningRate * DecayRate;
+
+                    break;
+                case LRDecayMode.Exponential:
+                    LearningRate = (float)(DecayRate * Math.Exp(currentEpoch) * LearningRate);
+
+                    break;
+                case LRDecayMode.Step:
+                    LearningRate = (float)(DecayRate / Math.Sqrt((double)currentEpoch)) * LearningRate;
+
+                    break;
+                case LRDecayMode.BatchStep:
+                    LearningRate = (float)(DecayRate / Math.Sqrt((double)(currentEpoch / BatchSize))) * LearningRate;
+
+                    break;
             }
         }
 
@@ -274,30 +315,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
 
             }
         }
-
-        public void ComputeLearningRateDecay()
-        {
-            switch (LearningRateDecayMode)
-            {
-                case LRDecayMode.Linear:
-                    LearningRate -= LearningRate*DecayRate;
-
-                    break;
-                case LRDecayMode.Exponential:
-                    LearningRate = (float)(DecayRate * Math.Exp(currentEpoch) * LearningRate);
-
-                    break;
-                case LRDecayMode.Step:
-                    LearningRate = (float)(DecayRate / Math.Sqrt((double)currentEpoch)) * LearningRate;
-
-                    break;
-                case LRDecayMode.BatchStep:
-                    LearningRate = (float)(DecayRate / Math.Sqrt((double)(currentEpoch/BatchSize))) * LearningRate;
-
-                    break;
-            }
-        }
-
+             
 
         public struct LearningData
         {
