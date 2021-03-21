@@ -31,7 +31,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
             
             for(int i = 0; i < neuronsData.Weights.Length; ++i) 
             {
-                double axonOutput = inputSignal * neurons Data.Weights[i];
+                double axonOutput = inputSignal * neuronsData.Weights[i];
                 Outputs[index + i] = axonOutput;
             } 
              
