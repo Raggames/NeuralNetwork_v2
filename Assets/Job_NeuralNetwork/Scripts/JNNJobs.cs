@@ -6,9 +6,38 @@ using System.Threading.Tasks;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Jobs;
-
+  
 namespace Assets.Job_NeuralNetwork.Scripts
 {
+    [BurstCompile] 
+    public struct AxonBasedLinearJob : IJobParallelFor
+    {
+        public NativeArray<JNNNeuron.NeuronData> neuronsData;
+        [ReadOnly] public NativeArray<double> Inputs;
+        public NativeArray<double> Outputs;
+        
+
+        public void Execute(int index) 
+        {
+            double inputSignal = 0;
+             
+            for (int i = 0; i < Inputs.Length; ++i)
+            {
+                inputSignal += inputs[i];
+            } 
+            inputSignal += neuronsData(index).Bias;
+            inputSignal /= Inputs.Length;
+             // Transformation Function Here 
+            
+            for(int i = 0; i < neuronsData.Weights.Length; ++i) 
+            {
+                double axonOutput = inputSignal * neurons Data.Weights[i];
+                Outputs[index + i] = axonOutput;
+            } 
+             
+        } 
+    } 
+
     [BurstCompile]
     public struct LinearJob : IJobParallelFor
     {
