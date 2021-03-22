@@ -405,6 +405,26 @@ namespace Assets.Job_NeuralNetwork.Scripts
                 hiddenLayerGradients[i, 0] = derivative; 
             }
 
+            for(int i = 0; i < inputLayerWeights.GetLength(0); ++i)
+            {
+                double gradientSignal = 0f;
+                for(int j = 0; j < inputLayerWeights.GetLength(1); ++j) 
+                {
+                    double gradient = hiddenLayerGradients[j, 0] * inputLayerWeights[i, j];
+                    double delta = gradient * learningRate;
+
+                    inputLayerWeights[i, j] += delta;
+                    inputLayerWeights[i, j] += inputLayerPreviousDelta[i, j] * momentum;
+                    inputLayerWeights[i, j] -= weightDecay * inputLayerWeights[i, j];
+                    inputLayerWeights[i, j] = delta;
+
+                    gradientSignal += gradient; // or delta ?
+                }
+                gradientSignal /= inputLayerWeights.GetLength(1);
+
+                //double derivative = JNNMath.ComputeActivation(InputLayer.ActivationFunction, true, gradientSignal);
+            }
+
             // Now calling weight and bias update on network
             UpdateWeights(learningRate);
         }

@@ -88,6 +88,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
             delay = new WaitForSeconds(DelayBetweenEpochs);
 
             FFNetwork.CreateNetwork(this);
+            DataManager.Init();
 
             TestingDataX = new double[150][];
             TestingDataY = new double[150][];
