@@ -373,7 +373,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
                 outputLayerWeights[i, 0] -= weightDecay * outputLayerWeights[i, 0];
                 outputLayerPreviousDelta[i, 0] = delta;
 
-                outputLayerBias[i] += delta;
+                outputLayerBias[i] += gradient * learningRate;
                 outputLayerBias[i] += outputLayerPreviousDelta[i, 0] * momentum;
                 outputLayerBias[i] -= weightDecay * outputLayerWeights[i, 0];
 
@@ -394,6 +394,10 @@ namespace Assets.Job_NeuralNetwork.Scripts
                     hiddenLayerWeights[i, j] += hiddenLayerPreviousDelta[i, j] * momentum;
                     hiddenLayerWeights[i, j] -= weightDecay * hiddenLayerWeights[i, j];
                     hiddenLayerPreviousDelta[i, j] = delta;
+
+                    hiddenLayerBias[i] += gradient * learningRate;
+                    hiddenLayerBias[i] += hiddenLayerPreviousDelta[i, 0] * momentum;
+                    hiddenLayerBias[i] -= weightDecay * hiddenLayerWeights[i, j];
 
                     gradientSignal += gradient; // or delta ?
                 }
