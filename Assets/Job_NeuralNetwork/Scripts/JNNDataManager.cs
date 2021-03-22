@@ -14,7 +14,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
         public void Init()
         {
             DATA = data();
-            DATA = NormalizeData(DATA);
+            DATA = NormalizeData(DATA, 4);
         }
 
         public double[] GetDataEntry(int atIndex)
@@ -22,7 +22,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
             return DATA[atIndex];
         }
 
-        public double[][] NormalizeData(double[][] allData)
+        public double[][] NormalizeData(double[][] allData, int columnsToNorm)
         {
             double[][] normalizedData = allData;
             double minValue = int.MaxValue;
@@ -44,8 +44,11 @@ namespace Assets.Job_NeuralNetwork.Scripts
             {
                 for(int j = 0; j < normalizedData[i].Length; ++j)
                 {
-                    double nVal = (normalizedData[i][j] - minValue) / delta;
-                    normalizedData[i][j] = nVal;
+                    if(j < columnsToNorm)
+                    {
+                        double nVal = (normalizedData[i][j] - minValue) / delta;
+                        normalizedData[i][j] = nVal;
+                    }
                 }
             }
 

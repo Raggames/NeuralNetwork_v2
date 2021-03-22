@@ -118,6 +118,12 @@ namespace Assets.Job_NeuralNetwork.Scripts
                     }
 
                     break;
+                case ActivationFunctions.Softmax:
+                    if (derivative)
+                    {
+                        result = DLogistic(x);
+                    }
+                    break;
             }
             return result;
 

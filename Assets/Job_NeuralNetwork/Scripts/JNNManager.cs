@@ -102,12 +102,12 @@ namespace Assets.Job_NeuralNetwork.Scripts
 
                 for(int j = 0; j < 4; ++j)
                 {
-                    TestingDataX[i][j] = data[j];
+                    TestingDataX[i][j] = 1;// data[j];
                 }
 
                 for(int k = 0; k < 3; ++k)
                 {
-                    TestingDataY[i][k] = data[4+k];
+                    TestingDataY[i][k] = 0;//data[4+k];
                 }
             }
 
@@ -139,7 +139,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
             // ********************************* Flattenning 
             for (int i = 0; i < runs; ++i)
             {
-                int index = UnityEngine.Random.Range(0, 149);
+                int index = i % 149; //UnityEngine.Random.Range(0, 149);
                 runInputs = TestingDataX[index];
 
                 runWantedOutpus = TestingDataY[index];
@@ -190,7 +190,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
             double[] cost = new double[runResults.Length];
             for (int i = 0; i < runResults.Length; ++i)
             {
-                cost[i] = testValues[i] - runResults[i];
+                cost[i] = runResults[i] - testValues[i];
             }
             return cost;
         }

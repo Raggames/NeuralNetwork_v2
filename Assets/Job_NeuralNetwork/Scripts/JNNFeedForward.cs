@@ -135,7 +135,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
                 {
                     double valueToHidden = inputLayerNeuronInput[i, 0] * inputLayerWeights[i, j];
 
-                    hiddenLayerNeuronInput[j, i] = valueToHidden;
+                    hiddenLayerNeuronInput[j, i] = JNNMath.ComputeActivation(InputLayer.ActivationFunction, false, valueToHidden);
                 }
             }
 
@@ -149,13 +149,11 @@ namespace Assets.Job_NeuralNetwork.Scripts
                 signal += hiddenLayerBias[i];
                 signal /= hiddenLayerNeuronInput.GetLength(0);
 
-                signal = JNNMath.ComputeActivation(HiddenLayers[0].ActivationFunction, false, signal);  // Fonction de transformation ici;
-
                 // pour chaque neurone, signal calculé 
-
                 for (int j = 0; j < hiddenLayerWeights.GetLength(1); ++j) // cette dimension est égale au neurones d'output
                 {
                     double value = signal * hiddenLayerWeights[i, j];
+                    value = JNNMath.ComputeActivation(HiddenLayers[0].ActivationFunction, false, value);  // Fonction de transformation ici;
                     outputLayerNeuronInput[j, i] = value;
                 }
             }
@@ -170,23 +168,25 @@ namespace Assets.Job_NeuralNetwork.Scripts
                 signal += outputLayerBias[i];
                 signal /= outputLayerNeuronInput.GetLength(0);
 
-                signal = JNNMath.ComputeActivation(HiddenLayers[0].ActivationFunction, false, signal);  // Fonction de transformation ici;
-
                 for (int j = 0; j < outputLayerWeights.GetLength(1); ++j) // cette dimension est égale au neurones d'output
                 {
                     double value = signal * hiddenLayerWeights[i, j];
+                    if (OutputLayer.ActivationFunction != ActivationFunctions.Softmax)
+                    {
+                        value = JNNMath.ComputeActivation(OutputLayer.ActivationFunction, false, value);  // Fonction de transformation ici;
+                    }
                     networkOutputs[i] = value;
                 }
+            }
+            if(OutputLayer.ActivationFunction == ActivationFunctions.Softmax)
+            {
+                networkOutputs = Softmax(networkOutputs);
             }
             results = networkOutputs;
         }
 
         public void ComputeLayer(double[,] layer, double[] inputs, double[] bias, JNNFeedForwardLayer layerData, int nextLayerNeuronsCount, bool lastLayer = false)
         {
-
-           
-
-
             #region oldstuff
             // On créer le job de traitement de la couche et on y passe sa data.
             /* switch (layerData.ActivationFunction)
@@ -340,9 +340,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
          }
             */
             #endregion
-
         }
-
 
         // WEIGHT SETTING **********************************************************************************************
         #region Weights
@@ -365,9 +363,11 @@ namespace Assets.Job_NeuralNetwork.Scripts
             // Computing gradient descent
             for(int i = 0; i < outputLayerWeights.GetLength(0); ++i)
             {
-                double gradient = costs[i] * outputLayerWeights[i, 0];
-                double delta = gradient * learningRate;
+                double derivative = JNNMath.ComputeActivation(OutputLayer.ActivationFunction, true, networkOutputs[i]);
 
+                double gradient = costs[i] * derivative;
+                double delta = gradient * learningRate * outputLayerWeights[i, 0];
+                
                 outputLayerWeights[i, 0] += delta;
                 outputLayerWeights[i, 0] += outputLayerPreviousDelta[i, 0] * momentum;
                 outputLayerWeights[i, 0] -= weightDecay * outputLayerWeights[i, 0];
@@ -377,8 +377,6 @@ namespace Assets.Job_NeuralNetwork.Scripts
                 outputLayerBias[i] += outputLayerPreviousDelta[i, 0] * momentum;
                 outputLayerBias[i] -= weightDecay * outputLayerWeights[i, 0];
 
-                double derivative = JNNMath.ComputeActivation(OutputLayer.ActivationFunction, true, gradient);
-
                 outputLayerGradients[i, 0] = derivative;
             }
 
@@ -387,9 +385,10 @@ namespace Assets.Job_NeuralNetwork.Scripts
                 double gradientSignal = 0f;
                 for(int j = 0; j < hiddenLayerWeights.GetLength(1); ++j)
                 {
+                    double derivative = JNNMath.ComputeActivation(HiddenLayers[0].ActivationFunction, true, outputLayerNeuronInput[j, i]);
 
-                    double gradient = outputLayerGradients[j, 0] * hiddenLayerWeights[i, j];
-                    double delta = gradient * learningRate;
+                    double gradient = outputLayerGradients[j, 0] * derivative;
+                    double delta = gradient * learningRate * hiddenLayerWeights[i, j];
 
                     hiddenLayerWeights[i, j] += delta;
                     hiddenLayerWeights[i, j] += hiddenLayerPreviousDelta[i, j] * momentum;
@@ -400,29 +399,23 @@ namespace Assets.Job_NeuralNetwork.Scripts
                 }
                 gradientSignal /= hiddenLayerWeights.GetLength(1);
 
-                double derivative = JNNMath.ComputeActivation(HiddenLayers[0].ActivationFunction, true, gradientSignal);
-
-                hiddenLayerGradients[i, 0] = derivative; 
+                hiddenLayerGradients[i, 0] = gradientSignal; 
             }
 
             for(int i = 0; i < inputLayerWeights.GetLength(0); ++i)
             {
-                double gradientSignal = 0f;
                 for(int j = 0; j < inputLayerWeights.GetLength(1); ++j) 
                 {
-                    double gradient = hiddenLayerGradients[j, 0] * inputLayerWeights[i, j];
-                    double delta = gradient * learningRate;
+                    double derivative = JNNMath.ComputeActivation(InputLayer.ActivationFunction, true, hiddenLayerNeuronInput[j, i]);
+
+                    double gradient = hiddenLayerGradients[j, 0] * derivative; 
+                    double delta = gradient * learningRate * inputLayerWeights[i, j];
 
                     inputLayerWeights[i, j] += delta;
                     inputLayerWeights[i, j] += inputLayerPreviousDelta[i, j] * momentum;
                     inputLayerWeights[i, j] -= weightDecay * inputLayerWeights[i, j];
                     inputLayerWeights[i, j] = delta;
-
-                    gradientSignal += gradient; // or delta ?
                 }
-                gradientSignal /= inputLayerWeights.GetLength(1);
-
-                //double derivative = JNNMath.ComputeActivation(InputLayer.ActivationFunction, true, gradientSignal);
             }
 
             // Now calling weight and bias update on network
@@ -546,7 +539,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
 
         public double GetRandomWeight()
         {
-            return UnityEngine.Random.Range(-0.1f, 0.1f);
+            return UnityEngine.Random.Range(0.001f, 0.01f);
         }
 
 

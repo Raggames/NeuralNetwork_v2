@@ -395,7 +395,7 @@ MonoBehaviour:
   Epochs: 100000
   currentEpoch: 0
   BatchSize: 1
-  LearningRate: 0.303
+  LearningRate: 0.004
   Momentum: 0.001
   WeightDecay: 0.0001
   LossFunction: 1
@@ -1354,7 +1354,7 @@ MonoBehaviour:
   - ActivationFunction: 5
     NeuronsCount: 7
   OutputLayer:
-    ActivationFunction: 5
+    ActivationFunction: 7
     NeuronsCount: 3
   inputLayerBias: []
   hiddenLayerBias: []
