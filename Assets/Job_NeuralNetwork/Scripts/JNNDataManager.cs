@@ -9,7 +9,53 @@ namespace Assets.Job_NeuralNetwork.Scripts
 {
     public class JNNDataManager : MonoBehaviour
     {
+        public double[][] DATA;
+
+        public void Init()
+        {
+            DATA = data();
+            DATA = NormalizeData(DATA, 4);
+        }
+
         public double[] GetDataEntry(int atIndex)
+        {
+            return DATA[atIndex];
+        }
+
+        public double[][] NormalizeData(double[][] allData, int columnsToNorm)
+        {
+            double[][] normalizedData = allData;
+            double minValue = int.MaxValue;
+            double maxValue = 0;
+
+            
+            for(int i = 0; i < normalizedData.Length; ++i)
+            {
+                double minTemp = normalizedData[i].Min();
+                minValue = minTemp < minValue ? minTemp : minValue;
+
+                double maxTemp = normalizedData[i].Max();
+                maxValue = maxTemp > maxValue ? maxTemp : maxValue;
+            }
+
+            double delta = maxValue - minValue;
+
+            for(int i = 0; i < normalizedData.Length; ++i)
+            {
+                for(int j = 0; j < normalizedData[i].Length; ++j)
+                {
+                    if(j < columnsToNorm)
+                    {
+                        double nVal = (normalizedData[i][j] - minValue) / delta;
+                        normalizedData[i][j] = nVal;
+                    }
+                }
+            }
+
+            return normalizedData;
+        }
+
+        double[][] data()
         {
             double[][] allData = new double[150][];
             allData[0] = new double[] { 5.1, 3.5, 1.4, 0.2, 0, 0, 1 }; // sepal length, width, petal length, width
@@ -177,41 +223,8 @@ namespace Assets.Job_NeuralNetwork.Scripts
             allData[148] = new double[] { 6.2, 3.4, 5.4, 2.3, 1, 0, 0 };
             allData[149] = new double[] { 5.9, 3.0, 5.1, 1.8, 1, 0, 0 };
 
+            return allData;
 
-
-            return allData[atIndex];
-        }
-
-
-
-        public double[][] DataNormalizer(double[][] allData)
-        {
-            double[][] normalizedData = allData;
-            double minValue = int.MaxValue;
-            double maxValue = 0;
-
-            
-            for(int i = 0; i < normalizedData.Length; ++i)
-            {
-                double minTemp = normalizedData[i].Min();
-                minValue = minTemp < minValue ? minTemp : minValue;
-
-                double maxTemp = normalizedData[i].Max();
-                maxValue = maxTemp > maxValue ? maxTemp : maxValue;
-            }
-
-            double delta = maxValue - minValue;
-
-            for(int i = 0; i < normalizedData.Length; ++i)
-            {
-                for(int j = 0; j < normalizedData[i].Length; ++j)
-                {
-                    double nVal = (normalizedData[i][j] - minValue) / delta;
-                    normalizedData[i][j] = nVal;
-                }
-            }
-
-            return normalizedData;
         }
 
         private void stock()

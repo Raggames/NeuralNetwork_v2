@@ -88,25 +88,34 @@ namespace Assets.Job_NeuralNetwork.Scripts
             delay = new WaitForSeconds(DelayBetweenEpochs);
 
             FFNetwork.CreateNetwork(this);
+            DataManager.Init();
 
             TestingDataX = new double[150][];
             TestingDataY = new double[150][];
 
             for (int i = 0; i < TestingDataX.Length; ++i)
             {
-                TestingDataX[i] = new double[4];
-                TestingDataY[i] = new double[3];
+                TestingDataX[i] = new double[2];
+                TestingDataY[i] = new double[2];
 
                 double[] data = DataManager.GetDataEntry(i);
 
-                for(int j = 0; j < 4; ++j)
+                for(int j = 0; j < 2; ++j)
                 {
-                    TestingDataX[i][j] = data[j];
+                    TestingDataX[i][j] =  data[j];
                 }
 
-                for(int k = 0; k < 3; ++k)
+                for(int k = 0; k < 2; ++k)
                 {
-                    TestingDataY[i][k] = k; //data[4+k];
+                    if(k == 0)
+                    {
+                        TestingDataY[i][k] = data[0] - data[1] > 0.25f ? 1 : 0;
+
+                    }
+                    else
+                    {
+                        TestingDataY[i][k] = data[0] - data[1] <= 0.25f ? 1 : 0;
+                    }
                 }
             }
 
@@ -138,19 +147,16 @@ namespace Assets.Job_NeuralNetwork.Scripts
             // ********************************* Flattenning 
             for (int i = 0; i < runs; ++i)
             {
-                int index = UnityEngine.Random.Range(0, 149);
+                int index = UnityEngine.Random.Range(0, 149); // i % 149;
                 runInputs = TestingDataX[index];
 
                 runWantedOutpus = TestingDataY[index];
+                             
+                FFNetwork.ComputeFeedForward(TestingDataX[index], out runResults);
 
-                NativeArray<double> inputTest = FFNetwork.ToNativeArray(TestingDataX[index]);
-                double[] testValues = TestingDataY[index]; // testValues for each output neuron.
+                double[] errors = ComputeError(runResults, TestingDataY[index]);
 
-                FFNetwork.ComputeFeedForward(inputTest, out runResults);
-
-                double[] errors = ComputeError(runResults, testValues);
-
-                GetLearningData(errors, runResults, testValues);
+                GetLearningData(errors, runResults, TestingDataY[index]);
                 FFNetwork.BackPropagate(errors, LearningRate);
 
                 currentEpoch++;
@@ -192,7 +198,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
             double[] cost = new double[runResults.Length];
             for (int i = 0; i < runResults.Length; ++i)
             {
-                cost[i] = testValues[i] - runResults[i];
+                cost[i] = runResults[i] - testValues[i];
             }
             return cost;
         }

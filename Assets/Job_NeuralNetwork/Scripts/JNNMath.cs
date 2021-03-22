@@ -11,6 +11,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
     {
         public enum ActivationFunctions
         {
+            AxonsLinear,
             Linear,
             ReLU,
             PReLU,
@@ -116,6 +117,12 @@ namespace Assets.Job_NeuralNetwork.Scripts
                         result = DELU(x, 0.1f);
                     }
 
+                    break;
+                case ActivationFunctions.Softmax:
+                    if (derivative)
+                    {
+                        result = DLogistic(x);
+                    }
                     break;
             }
             return result;
