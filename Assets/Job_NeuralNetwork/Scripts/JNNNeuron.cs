@@ -13,7 +13,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
         public int Layer;
         public int ID;
 
-        public double Weight;
+        public double[] Weights;
         public double Bias;
         public double PreviousDelta;
 
@@ -35,7 +35,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
             public int Layer;
             public int ID;
 
-            public double Weight;
+            public double[] Weights;
             public double Bias;
             public double PreviousDelta;
             public double output;
@@ -45,7 +45,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
             {
                 Layer = instance.Layer;
                 ID = instance.ID;
-                Weight = instance.Weight;
+                Weights = instance.Weights;
                 Bias = instance.Bias;
                 PreviousDelta = instance.PreviousDelta;
                 output = instance.output;

@@ -402,7 +402,6 @@ MonoBehaviour:
   TargetLoss: 0.01
   BestLoss: 0
   CurrentLoss: 0
-  trainingMode: 0
   DelayBetweenEpochs: 0.001
   LearningRateDecayMode: 1
   DecayRate: 0.0003
@@ -1349,16 +1348,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   InputLayer:
-    ActivationFunction: 0
+    ActivationFunction: 1
     NeuronsCount: 4
   HiddenLayers:
-  - ActivationFunction: 1
-    NeuronsCount: 64
-  - ActivationFunction: 4
-    NeuronsCount: 32
+  - ActivationFunction: 5
+    NeuronsCount: 7
   OutputLayer:
-    ActivationFunction: 4
+    ActivationFunction: 5
     NeuronsCount: 3
+  inputLayerBias: []
+  hiddenLayerBias: []
+  outputLayerBias: []
   neuronPrefab: {fileID: 1517891344537993681, guid: 28b6cbfb771f74e44bb6265b686ceb99,
     type: 3}
   ScaleXY: 2

@@ -12,33 +12,33 @@ namespace Assets.Job_NeuralNetwork.Scripts
     [BurstCompile] 
     public struct AxonBasedLinearJob : IJobParallelFor
     {
-        public NativeArray<JNNNeuron.NeuronData> neuronsData;
+        [ReadOnly] public NativeArray<double> Weights;
+        [ReadOnly] public NativeArray<double> Bias;
         [ReadOnly] public NativeArray<double> Inputs;
         public NativeArray<double> Outputs;
         
-
         public void Execute(int index) 
         {
             double inputSignal = 0;
              
             for (int i = 0; i < Inputs.Length; ++i)
             {
-                inputSignal += inputs[i];
-            } 
-            inputSignal += neuronsData(index).Bias;
+                inputSignal += Inputs[index + i];// Index = Neuron, but inputs are flatenned
+            }
+            inputSignal += Bias[index];
             inputSignal /= Inputs.Length;
              // Transformation Function Here 
             
-            for(int i = 0; i < neuronsData.Weights.Length; ++i) 
+            /*for(int i = 0; i < Outputs.Length; ++i) 
             {
-                double axonOutput = inputSignal * neuronsData.Weights[i];
+                double axonOutput = inputSignal * neuronsData[index].Weights[i];
                 Outputs[index + i] = axonOutput;
             } 
-             
+             */
         } 
     } 
 
-    [BurstCompile]
+    /*[BurstCompile]
     public struct LinearJob : IJobParallelFor
     {
         public NativeArray<JNNNeuron.NeuronData> dataArray;
@@ -51,7 +51,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
             double value = 0;
             for (int i = 0; i < inputs.Length; ++i)
             {
-                value += inputs[i] * dataArray[index].Weight;
+                value += inputs[i] * dataArray[index].Weights;
             }
             value += dataArray[index].Bias;
             value /= inputs.Length;
@@ -73,7 +73,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
             double value = 0;
             for (int i = 0; i < inputs.Length; ++i)
             {
-                value += inputs[i] * dataArray[index].Weight;
+                value += inputs[i] * dataArray[index].Weights;
             }
             value += dataArray[index].Bias;
             value /= inputs.Length;
@@ -96,7 +96,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
             double value = 0;
             for (int i = 0; i < inputs.Length; ++i)
             {
-                value += inputs[i] * dataArray[index].Weight;
+                value += inputs[i] * dataArray[index].Weights;
             }
             value += dataArray[index].Bias;
             value /= inputs.Length;
@@ -119,7 +119,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
             double value = 0;
             for (int i = 0; i < inputs.Length; ++i)
             {
-                value += inputs[i] * dataArray[index].Weight;
+                value += inputs[i] * dataArray[index].Weights;
             }
             value += dataArray[index].Bias;
             value /= inputs.Length;
@@ -142,7 +142,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
             double value = 0;
             for (int i = 0; i < inputs.Length; ++i)
             {
-                value += inputs[i] * dataArray[index].Weight;
+                value += inputs[i] * dataArray[index].Weights;
             }
             value += dataArray[index].Bias;
             value /= inputs.Length;
@@ -165,7 +165,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
             double value = 0;
             for (int i = 0; i < inputs.Length; ++i)
             {
-                value += inputs[i] * dataArray[index].Weight;
+                value += inputs[i] * dataArray[index].Weights;
             }
             value += dataArray[index].Bias;
             value /= inputs.Length;
@@ -173,5 +173,5 @@ namespace Assets.Job_NeuralNetwork.Scripts
             value = JNNMath.PReLU(value, 0.1f);
             outputs[index] = value;
         }
-    }
+    }*/
 }

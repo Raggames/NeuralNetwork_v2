@@ -106,7 +106,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
 
                 for(int k = 0; k < 3; ++k)
                 {
-                    TestingDataY[i][k] = k; //data[4+k];
+                    TestingDataY[i][k] = data[4+k];
                 }
             }
 
@@ -142,15 +142,12 @@ namespace Assets.Job_NeuralNetwork.Scripts
                 runInputs = TestingDataX[index];
 
                 runWantedOutpus = TestingDataY[index];
+                             
+                FFNetwork.ComputeFeedForward(TestingDataX[index], out runResults);
 
-                NativeArray<double> inputTest = FFNetwork.ToNativeArray(TestingDataX[index]);
-                double[] testValues = TestingDataY[index]; // testValues for each output neuron.
+                double[] errors = ComputeError(runResults, TestingDataY[index]);
 
-                FFNetwork.ComputeFeedForward(inputTest, out runResults);
-
-                double[] errors = ComputeError(runResults, testValues);
-
-                GetLearningData(errors, runResults, testValues);
+                GetLearningData(errors, runResults, TestingDataY[index]);
                 FFNetwork.BackPropagate(errors, LearningRate);
 
                 currentEpoch++;
