@@ -169,15 +169,88 @@ namespace Assets.Job_NeuralNetwork.Scripts
 
         // WEIGHT SETTING **********************************************************************************************
         #region Weights
-        public void SetWeights()
-        {
 
+        private double[] dnaSave;
+       
+        public void LoadAndSetWeights()
+        {
+            NetworkData data = JNN_Load(saveName);
+
+            dnaSave = data.dnaSave;
+            int p = 0;
+            for (int i = 0; i < hiddenLayerWeights.GetLength(0); ++i)
+            {
+                for (int j = 0; j < hiddenLayerWeights.GetLength(1); ++j)
+                {
+                    hiddenLayerWeights[i, j] = dnaSave[p++];
+                    
+                }
+            }
+            for (int i = 0; i < hiddenLayerBias.Length; ++i)
+            {
+                hiddenLayerBias[i] = dnaSave[p++];
+            }
+            for (int i = 0; i < outputLayerWeights.GetLength(0); ++i)
+            {
+                for (int j = 0; j < outputLayerWeights.GetLength(1); ++j)
+                {
+                    outputLayerWeights[i, j] = dnaSave[p++];
+                }
+            }
+            for (int i = 0; i < outputLayerBias.Length; ++i)
+            {
+                outputLayerBias[i] = dnaSave[p++];
+            }
+
+            jnnManager.LearningRate = (float)data.learningRate;
+            jnnManager.Momentum = data.momentum;
+            jnnManager.WeightDecay = data.weightDecay;
         }
 
-        public void GetWeights()
+        public void GetAndSaveWeights(double learningRate, double momentum, double weightDecay , double currentLoss, double accuracy)
         {
+            int p = 0;
+            int dnaLength = (hiddenLayerWeights.GetLength(0) * hiddenLayerWeights.GetLength(1)) + hiddenLayerBias.Length + (outputLayerWeights.GetLength(0) * outputLayerWeights.GetLength(1)) + outputLayerBias.Length;
+            double[] weights = new double[dnaLength];
 
+            for (int i = 0; i < hiddenLayerWeights.GetLength(0); ++i)
+            {
+                for (int j = 0; j < hiddenLayerWeights.GetLength(1); ++j)
+                {
+                    weights[p++] = hiddenLayerWeights[i, j];
+                }
+            }
+            for(int i = 0; i < hiddenLayerBias.Length; ++i)
+            {
+                weights[p++] = hiddenLayerBias[i];
+            }
+            for (int i = 0; i < outputLayerWeights.GetLength(0); ++i)
+            {
+                for (int j = 0; j < outputLayerWeights.GetLength(1); ++j)
+                {
+                    weights[p++] = outputLayerWeights[i, j];
+                }
+            }
+            for(int i = 0; i < outputLayerBias.Length; ++i)
+            {
+                weights[p++] = outputLayerBias[i];
+            }
+
+            string version = "DNA_Architecture_" + InputLayer.NeuronsCount.ToString() + "_" + HiddenLayers[0].NeuronsCount.ToString() + "_" + OutputLayer.NeuronsCount.ToString() + "_cEpoch_" + jnnManager.currentEpoch.ToString();
+
+            NetworkData data = new NetworkData
+            {
+                Version = version,
+                dnaSave = weights,
+                learningRate = learningRate,
+                momentum = momentum,
+                weightDecay = weightDecay,
+                currentLoss = currentLoss,
+                accuracy = accuracy,
+            };
+            JNN_Save(data);
         }
+
         #endregion
 
         // BACKPROPAGATION ********************************************************************************************
@@ -253,12 +326,15 @@ namespace Assets.Job_NeuralNetwork.Scripts
 
         public struct NetworkData
         {
-            public int Version;
+            public string Version;
 
-            public double[] weights;
-            public double[] bias;
-            public double[] momentum;
+            public double learningRate;
+            public double momentum;
+            public double weightDecay;
+            public double currentLoss;
+            public double accuracy;
 
+            public double[] dnaSave;
         }
 
         public string saveName;
@@ -274,9 +350,9 @@ namespace Assets.Job_NeuralNetwork.Scripts
 
         private void JNN_Save(NetworkData data)
         {
-          
+            saveName = data.Version;
             // Serialize
-            JNNSerializer.Save(data, CreateSaveName(data.Version));
+            JNNSerializer.Save(data, data.Version);
         }
 
         private NetworkData JNN_Load(string fileName)

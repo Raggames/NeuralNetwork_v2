@@ -31,6 +31,8 @@ namespace Assets.Job_NeuralNetwork.Scripts
         public int currentEpoch;
         public int BatchSize; // every nbr of runs would you want to compute error
 
+        public int AutoSaveEveryEpochs = 5000;
+
         [Range(0.00001f, 0.5f)] public float LearningRate;
         public double Momentum;
 
@@ -82,6 +84,9 @@ namespace Assets.Job_NeuralNetwork.Scripts
 
         public List<LearningData> TrainingDatas = new List<LearningData>();
 
+        public float Accuracy;
+        private int correctRuns;
+        private int wrongRuns;
 
         public void Start()
         {
@@ -113,21 +118,17 @@ namespace Assets.Job_NeuralNetwork.Scripts
 
             BestLoss = 10;
 
-            RunTest();
-        }
-
-        public void RunTest()
-        {
-            TrainingCoroutine = StartCoroutine(RunDelayed(Epochs));
+            Train();
         }
 
         public void Train()
         {
-
+            TrainingCoroutine = StartCoroutine(RunDelayed(Epochs));
         }
-
+            
         public void Execute()
         {
+            FFNetwork.LoadAndSetWeights();
 
         }
 
@@ -137,6 +138,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
             // ********************************* Convolve and Pool
 
             // ********************************* Flattenning 
+            int count = 0;
             for (int i = 0; i < runs; ++i)
             {
                 int index = UnityEngine.Random.Range(0, 149); // i % 149;
@@ -148,18 +150,29 @@ namespace Assets.Job_NeuralNetwork.Scripts
 
                 double[] errors = ComputeError(runResults, TestingDataY[index]);
 
+                ComputeAccuracy(TestingDataY[index], runResults);
+
                 GetLearningData(errors, runResults, TestingDataY[index]);
                 FFNetwork.BackPropagate(errors, LearningRate);
 
                 currentEpoch++;
+                count++;
 
                 if(LearningRateDecayMode != LRDecayMode.None)
                 {
                     ComputeLearningRateDecay();
                 }
 
+                if(count >= AutoSaveEveryEpochs)
+                {
+                    FFNetwork.GetAndSaveWeights(LearningRate, Momentum, WeightDecay, CurrentLoss, Accuracy);
+                    count = 0;
+                }
+
                 yield return delay;
             }
+
+            FFNetwork.GetAndSaveWeights(LearningRate, Momentum, WeightDecay , CurrentLoss, Accuracy);
         }
 
         public void ComputeLearningRateDecay()
@@ -241,18 +254,44 @@ namespace Assets.Job_NeuralNetwork.Scripts
             return lossResult;
         }
 
+        private void ComputeAccuracy(double[] tValues, double[] results)
+        {
+            int index = MaxIndex(results);
+            int tMaxIndex = MaxIndex(tValues);
+            if (index.Equals(tMaxIndex))
+            {
+                correctRuns++;
+            }
+            else
+            {
+                wrongRuns++;
+            }
+
+            Accuracy = (float)correctRuns / (float)wrongRuns * 100f;
+        }
+
+       
+
+        private static int MaxIndex(double[] vector) // helper for Accuracy()
+        {
+            // index of largest value
+            int bigIndex = 0;
+            double biggestVal = vector[0];
+            for (int i = 0; i < vector.Length; ++i)
+            {
+                if (vector[i] > biggestVal)
+                {
+                    biggestVal = vector[i]; bigIndex = i;
+                }
+            }
+            return bigIndex;
+        }
+
+
+        // LEARNING DATA ****************************************************************************************
         private void GetLearningData(double[] errors, double[] outputs, double[] testValues)
         {
             CurrentLoss = ComputeLoss(errors, outputs, testValues);
-/*
-            LearningData data = new LearningData
-            {
-                Epoch = currentEpoch,
-                LearningRate = LearningRate,
-                BestLoss = BestLoss,
-                ActualLoss = CurrentLoss,
-            };
-            TrainingDatas.Add(data);*/
 
             LearningRateGraph.points.Add(new Vector2(currentEpoch, LearningRate*100));
             LossGraph.points.Add(new Vector2(currentEpoch, (float)(CurrentLoss*100)));
@@ -271,7 +310,6 @@ namespace Assets.Job_NeuralNetwork.Scripts
             }
         }
              
-
         public struct LearningData
         {
             public int Epoch;
