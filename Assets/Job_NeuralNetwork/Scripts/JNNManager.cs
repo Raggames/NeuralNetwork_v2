@@ -95,27 +95,19 @@ namespace Assets.Job_NeuralNetwork.Scripts
 
             for (int i = 0; i < TestingDataX.Length; ++i)
             {
-                TestingDataX[i] = new double[2];
-                TestingDataY[i] = new double[2];
+                TestingDataX[i] = new double[4];
+                TestingDataY[i] = new double[3];
 
                 double[] data = DataManager.GetDataEntry(i);
 
-                for(int j = 0; j < 2; ++j)
+                for(int j = 0; j < 4; ++j)
                 {
                     TestingDataX[i][j] =  data[j];
                 }
 
-                for(int k = 0; k < 2; ++k)
+                for(int k = 0; k < 3; ++k)
                 {
-                    if(k == 0)
-                    {
-                        TestingDataY[i][k] = data[0] - data[1] > 0.25f ? 1 : 0;
-
-                    }
-                    else
-                    {
-                        TestingDataY[i][k] = data[0] - data[1] <= 0.25f ? 1 : 0;
-                    }
+                    TestingDataY[i][k] = data[4 + k];
                 }
             }
 
@@ -198,7 +190,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
             double[] cost = new double[runResults.Length];
             for (int i = 0; i < runResults.Length; ++i)
             {
-                cost[i] = runResults[i] - testValues[i];
+                cost[i] = testValues[i] - runResults[i];
             }
             return cost;
         }

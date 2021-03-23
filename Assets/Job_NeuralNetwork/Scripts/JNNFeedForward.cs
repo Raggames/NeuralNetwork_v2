@@ -26,34 +26,38 @@ namespace Assets.Job_NeuralNetwork.Scripts
         public List<JNNFeedForwardLayer> HiddenLayers = new List<JNNFeedForwardLayer>();
         public JNNFeedForwardLayer OutputLayer;
 
-        /*   JNNNeuron[] inputLayer;
-           List<JNNNeuron[]> hiddenLayers;
-           JNNNeuron[] outputLayer;*/
+        // Inputs
 
-        public double[,] inputLayerNeuronInput;
-        public double[,] inputLayerWeights;
-        public double[,] inputLayerPreviousDelta;
-        public double[,] inputLayerGradients;
-        public double[] inputLayerBias;
+        public double[] networkInputs;
 
+        // Input to Hidden / Hidden to Hidden
+        public double[] hiddenLayerOutputs;
 
-        public double[,] hiddenLayerNeuronInput;
         public double[,] hiddenLayerWeights;
-        public double[,] hiddenLayerPreviousDelta;
-        public double[,] hiddenLayerGradients;
         public double[] hiddenLayerBias;
 
-        public double[,] outputLayerNeuronInput;
+        public double[,] hiddenLayerPreviousWeightDelta;
+        public double[] hiddenLayerPreviousBiasDelta;
+
+        public double[] hiddenLayerGradients;
+
+        // Hidden to Output
+
         public double[,] outputLayerWeights;
-        public double[,] outputLayerPreviousDelta;
-        public double[,] outputLayerGradients;
         public double[] outputLayerBias;
 
+        public double[,] outputLayerPreviousWeightDelta;
+        public double[] outputLayerPreviousBiasDelta;
 
-        public GameObject neuronPrefab;
+        public double[] outputLayerGradients;
+
+
+        private double[] networkOutputs;
 
         private double momentum;
         private double weightDecay;
+        private double biasRate = 1f;
+
 
         [Header("DONN Rendering")]
         public int ScaleXY = 1;
@@ -62,7 +66,6 @@ namespace Assets.Job_NeuralNetwork.Scripts
         // JOB
         public JobHandle handle;
 
-        private double[] networkOutputs;
 
         // CREATING NETWORK ********************************************************************************************
         public void CreateNetwork(JNNManager manager)
@@ -72,34 +75,26 @@ namespace Assets.Job_NeuralNetwork.Scripts
             weightDecay = manager.WeightDecay;
 
             // Creating Arrays
-            inputLayerNeuronInput = new double[InputLayer.NeuronsCount, 1];
-            inputLayerWeights = new double[InputLayer.NeuronsCount, HiddenLayers[0].NeuronsCount];
-            inputLayerPreviousDelta = new double[InputLayer.NeuronsCount, HiddenLayers[0].NeuronsCount];
-            inputLayerGradients = new double[InputLayer.NeuronsCount, 1];
-            inputLayerBias = new double[InputLayer.NeuronsCount];
+            networkInputs = new double[InputLayer.NeuronsCount];
 
-            hiddenLayerNeuronInput = new double[HiddenLayers[0].NeuronsCount, InputLayer.NeuronsCount];
-            hiddenLayerWeights = new double[HiddenLayers[0].NeuronsCount, OutputLayer.NeuronsCount];
-            hiddenLayerPreviousDelta = new double[HiddenLayers[0].NeuronsCount, OutputLayer.NeuronsCount];
-            hiddenLayerGradients = new double[HiddenLayers[0].NeuronsCount, 1];
+            hiddenLayerWeights = MakeMatrix(InputLayer.NeuronsCount, HiddenLayers[0].NeuronsCount);
             hiddenLayerBias = new double[HiddenLayers[0].NeuronsCount];
 
-            outputLayerNeuronInput = new double[OutputLayer.NeuronsCount, HiddenLayers[0].NeuronsCount];
-            outputLayerWeights = new double[OutputLayer.NeuronsCount, 1];
-            outputLayerPreviousDelta = new double[OutputLayer.NeuronsCount, 1];
-            outputLayerGradients = new double[OutputLayer.NeuronsCount, 1];
+            hiddenLayerPreviousWeightDelta = MakeMatrix(InputLayer.NeuronsCount, HiddenLayers[0].NeuronsCount);
+            hiddenLayerPreviousBiasDelta = new double[HiddenLayers[0].NeuronsCount];
+            hiddenLayerGradients = new double[HiddenLayers[0].NeuronsCount];
+            hiddenLayerOutputs = new double[HiddenLayers[0].NeuronsCount];
+
+
+            outputLayerWeights = MakeMatrix(HiddenLayers[0].NeuronsCount, OutputLayer.NeuronsCount);
             outputLayerBias = new double[OutputLayer.NeuronsCount];
 
-            // Initialize Random Weights
+            outputLayerPreviousWeightDelta = MakeMatrix(HiddenLayers[0].NeuronsCount, OutputLayer.NeuronsCount);
+            outputLayerPreviousBiasDelta = new double[OutputLayer.NeuronsCount];
+            outputLayerGradients = new double[OutputLayer.NeuronsCount];
+            networkOutputs = new double[HiddenLayers[0].NeuronsCount];
 
-            for (int i = 0; i < inputLayerWeights.GetLength(0); ++i)
-            {
-                for (int j = 0; j < inputLayerWeights.GetLength(1); ++j)
-                {
-                    inputLayerWeights[i, j] = GetRandomWeight();
-                }
-                inputLayerBias[i] = GetRandomWeight();
-            }
+            // Initialize Random Weights
 
             for (int i = 0; i < hiddenLayerWeights.GetLength(0); ++i)
             {
@@ -107,13 +102,24 @@ namespace Assets.Job_NeuralNetwork.Scripts
                 {
                     hiddenLayerWeights[i, j] = GetRandomWeight();
                 }
+            }
+
+            for(int i = 0; i < hiddenLayerBias.Length; ++i)
+            {
                 hiddenLayerBias[i] = GetRandomWeight();
             }
 
             for (int i = 0; i < outputLayerWeights.GetLength(0); ++i)
             {
+                for (int j = 0; j < outputLayerWeights.GetLength(1); ++j)
+                {
+                    outputLayerWeights[i, j] = GetRandomWeight();
+                }
+            }
+
+            for(int i = 0; i < outputLayerBias.Length; ++i)
+            {
                 outputLayerBias[i] = GetRandomWeight();
-                outputLayerWeights[i, 0] = GetRandomWeight();
             }
 
             networkOutputs = new double[OutputLayer.NeuronsCount];
@@ -123,224 +129,43 @@ namespace Assets.Job_NeuralNetwork.Scripts
         #region Execution
         public void ComputeFeedForward(double[] inputs, out double[] results)
         {
-            for(int i = 0; i < inputLayerNeuronInput.GetLength(0); ++i)
+            networkInputs = inputs;
+
+            double[] hiddenSums = new double[HiddenLayers[0].NeuronsCount];
+            double[] outputSums = new double[OutputLayer.NeuronsCount];
+
+            for (int i = 0; i < hiddenLayerWeights.GetLength(1); ++i)
             {
-                inputLayerNeuronInput[i, 0] = inputs[i];
+                for (int j = 0; j < networkInputs.Length; ++j)
+                {
+                    hiddenSums[i] += inputs[j] * hiddenLayerWeights[j, i];
+                }
+                hiddenSums[i] += hiddenLayerBias[i];
+                hiddenLayerOutputs[i] = JNNMath.ComputeActivation(HiddenLayers[0].ActivationFunction, false, hiddenSums[i]);
             }
 
-            for (int i = 0; i < inputLayerWeights.GetLength(0); ++i)
+            for (int i = 0; i < outputLayerWeights.GetLength(1); ++i)
             {
-                // i = NeuronIndex in layer 
-                for (int j = 0; j < inputLayerWeights.GetLength(1); ++j)
+                for (int j = 0; j < hiddenLayerOutputs.Length; ++j)
                 {
-                    double valueToHidden = inputLayerNeuronInput[i, 0] * inputLayerWeights[i, j];
+                    outputSums[i] += hiddenLayerOutputs[j] * outputLayerWeights[j, i];
+                }
+                outputSums[i] += outputLayerBias[i];
 
-                    hiddenLayerNeuronInput[j, i] = JNNMath.ComputeActivation(InputLayer.ActivationFunction, false, valueToHidden);
+                if (OutputLayer.ActivationFunction != ActivationFunctions.Softmax)
+                {
+                    networkOutputs[i] = JNNMath.ComputeActivation(OutputLayer.ActivationFunction, false, outputSums[i]);  // Fonction de transformation ici;
                 }
             }
 
-            for (int i = 0; i < hiddenLayerNeuronInput.GetLength(0); ++i)
+            if (OutputLayer.ActivationFunction == ActivationFunctions.Softmax)
             {
-                double signal = 0f;
-                for (int j = 0; j < hiddenLayerNeuronInput.GetLength(1); ++j)
-                {
-                    signal += hiddenLayerNeuronInput[i, j];
-                }
-                signal += hiddenLayerBias[i];
-                signal /= hiddenLayerNeuronInput.GetLength(0);
-
-                // pour chaque neurone, signal calculé 
-                for (int j = 0; j < hiddenLayerWeights.GetLength(1); ++j) // cette dimension est égale au neurones d'output
-                {
-                    double value = signal * hiddenLayerWeights[i, j];
-                    value = JNNMath.ComputeActivation(HiddenLayers[0].ActivationFunction, false, value);  // Fonction de transformation ici;
-                    outputLayerNeuronInput[j, i] = value;
-                }
+                networkOutputs = Softmax(outputSums);
             }
 
-            for (int i = 0; i < outputLayerNeuronInput.GetLength(0); ++i)
-            {
-                double signal = 0f;
-                for (int j = 0; j < outputLayerNeuronInput.GetLength(1); ++j)
-                {
-                    signal += outputLayerNeuronInput[i, j];
-                }
-                signal += outputLayerBias[i];
-                signal /= outputLayerNeuronInput.GetLength(0);
-
-                for (int j = 0; j < outputLayerWeights.GetLength(1); ++j) // cette dimension est égale au neurones d'output
-                {
-                    double value = signal * hiddenLayerWeights[i, j];
-                    if (OutputLayer.ActivationFunction != ActivationFunctions.Softmax)
-                    {
-                        value = JNNMath.ComputeActivation(OutputLayer.ActivationFunction, false, value);  // Fonction de transformation ici;
-                    }
-                    networkOutputs[i] = value;
-                }
-            }
-            if(OutputLayer.ActivationFunction == ActivationFunctions.Softmax)
-            {
-                networkOutputs = Softmax(networkOutputs);
-            }
             results = networkOutputs;
         }
-
-        public void ComputeLayer(double[,] layer, double[] inputs, double[] bias, JNNFeedForwardLayer layerData, int nextLayerNeuronsCount, bool lastLayer = false)
-        {
-            #region oldstuff
-            // On créer le job de traitement de la couche et on y passe sa data.
-            /* switch (layerData.ActivationFunction)
-             {
-                 case ActivationFunctions.AxonsLinear:
-                     AxonBasedLinearJob axonLinearJob = new AxonBasedLinearJob
-                     {
-                         Weights = flattenedWeights,
-                         Bias = bias,
-                         Inputs = inputs,
-                         Outputs = outputs,
-                     };
-                     handle = axonLinearJob.Schedule(flattenedWeights.Length, layer.GetLength(1));
-
-                     handle.Complete();
-                     break;*/
-            /* case ActivationFunctions.Linear:
-                 LinearJob linearJob = new LinearJob
-                 {
-                     dataArray = neuronsData,
-                     inputs = inputs,
-                     outputs = outputs,
-                 };
-
-                 // On Schedule le Job. On peux utiliser => layerJob.Run(neuronsData.Length); pour traiter le Job en mainthread et debugger.
-                 handle = linearJob.Schedule(neuronsData.Length, 1);
-
-                 handle.Complete();
-
-                 break;
-             case ActivationFunctions.Sigmoid:
-                 SigmoidJob sigmoidJob = new SigmoidJob
-                 {
-                     dataArray = neuronsData,
-                     inputs = inputs,
-                     outputs = outputs,
-                 };
-
-                 // On Schedule le Job. On peux utiliser => layerJob.Run(neuronsData.Length); pour traiter le Job en mainthread et debugger.
-                 handle = sigmoidJob.Schedule(neuronsData.Length, 1);
-
-                 handle.Complete();
-                 break;
-
-             case ActivationFunctions.Tanh:
-                 TanhJob tanhJob = new TanhJob
-                 {
-                     dataArray = neuronsData,
-                     inputs = inputs,
-                     outputs = outputs,
-                 };
-
-                 // On Schedule le Job. On peux utiliser => layerJob.Run(neuronsData.Length); pour traiter le Job en mainthread et debugger.
-                 handle = tanhJob.Schedule(neuronsData.Length, 1);
-
-                 handle.Complete();
-                 break;
-
-             case ActivationFunctions.Sinusoid:
-                 SinusoidJob sinusoidJob = new SinusoidJob
-                 {
-                     dataArray = neuronsData,
-                     inputs = inputs,
-                     outputs = outputs,
-                 };
-
-                 // On Schedule le Job. On peux utiliser => layerJob.Run(neuronsData.Length); pour traiter le Job en mainthread et debugger.
-                 handle = sinusoidJob.Schedule(neuronsData.Length, 1);
-
-                 handle.Complete();
-                 break;
-
-             case ActivationFunctions.ReLU:
-                 ReLUJob reLUJob = new ReLUJob
-                 {
-                     dataArray = neuronsData,
-                     inputs = inputs,
-                     outputs = outputs,
-                 };
-
-                 // On Schedule le Job. On peux utiliser => layerJob.Run(neuronsData.Length); pour traiter le Job en mainthread et debugger.
-                 handle = reLUJob.Schedule(neuronsData.Length, 1);
-
-                 handle.Complete();
-                 break;
-             case ActivationFunctions.PReLU:
-                 PReLUJob PreLUJob = new PReLUJob
-                 {
-                     dataArray = neuronsData,
-                     inputs = inputs,
-                     outputs = outputs,
-                 };
-
-                 // On Schedule le Job. On peux utiliser => layerJob.Run(neuronsData.Length); pour traiter le Job en mainthread et debugger.
-                 handle = PreLUJob.Schedule(neuronsData.Length, 1);
-
-                 handle.Complete();
-                 break;
-             case ActivationFunctions.Softmax:
-                 LinearJob beforeSoftMax = new LinearJob
-                 {
-                     dataArray = neuronsData,
-                     inputs = inputs,
-                     outputs = outputs,
-                 };
-
-                 // On Schedule le Job. On peux utiliser => layerJob.Run(neuronsData.Length); pour traiter le Job en mainthread et debugger.
-                 handle = beforeSoftMax.Schedule(neuronsData.Length, 1);
-
-                 handle.Complete();
-
-                 double[] results = JNNMath.Softmax(outputs.ToArray());
-                 for(int i = 0; i < results.Length; ++i)
-                 {
-                     outputs[i] = results[i];
-                 }
-
-                 break;
-
-          }
-
-         // On sort les données de la couche
-         outputData = outputs;
-
-         for(int i = 0; i < layer.Length; ++i)
-         {
-             if(outputData[i] == 0)
-             {
-                 Debug.LogError(0);
-             }
-             layer[i].Output = outputData[i];
-         }
-
-         // Utilisation des arrays terminée, on rend la mémoire allouée.
-         neuronsData.Dispose();
-         inputs.Dispose();
-
-         // Le run est fini, les données ont traversé toutes les couches. On sort les résultats et on Dispose() les outputs.
-         if (lastLayer)
-         {
-             networkOutputs = new double[outputs.Length];
-
-             for (int i = 0; i < outputs.Length; ++i)
-             {
-                 networkOutputs[i] = outputs[i];
-             }
-
-             outputs.Dispose();
-
-            
-         }
-            */
-            #endregion
-        }
+        #endregion
 
         // WEIGHT SETTING **********************************************************************************************
         #region Weights
@@ -359,125 +184,69 @@ namespace Assets.Job_NeuralNetwork.Scripts
         #region BackPropagation
         public void BackPropagate(double[] costs, float learningRate)
         {
-
-            // Computing gradient descent
-            for(int i = 0; i < outputLayerWeights.GetLength(0); ++i)
+            for (int i = 0; i < outputLayerGradients.Length; ++i)
             {
                 double derivative = JNNMath.ComputeActivation(OutputLayer.ActivationFunction, true, networkOutputs[i]);
-
-                double gradient = costs[i] * derivative;
-                double delta = gradient * learningRate * outputLayerWeights[i, 0];
-                
-                outputLayerWeights[i, 0] += delta;
-                outputLayerWeights[i, 0] += outputLayerPreviousDelta[i, 0] * momentum;
-                outputLayerWeights[i, 0] -= weightDecay * outputLayerWeights[i, 0];
-                outputLayerPreviousDelta[i, 0] = delta;
-
-                outputLayerBias[i] += gradient * learningRate;
-                outputLayerBias[i] += outputLayerPreviousDelta[i, 0] * momentum;
-                outputLayerBias[i] -= weightDecay * outputLayerWeights[i, 0];
-
-                outputLayerGradients[i, 0] = derivative;
+                outputLayerGradients[i] = derivative * costs[i];
             }
 
-            for(int i = 0; i < hiddenLayerWeights.GetLength(0); ++i)
+            for (int i = 0; i < hiddenLayerGradients.Length; ++i)
             {
-                double gradientSignal = 0f;
-                for(int j = 0; j < hiddenLayerWeights.GetLength(1); ++j)
+                double derivative = JNNMath.ComputeActivation(HiddenLayers[0].ActivationFunction, true, hiddenLayerOutputs[i]);
+                double sum = 0.0;
+                for (int j = 0; j < networkOutputs.Length; ++j)
                 {
-                    double derivative = JNNMath.ComputeActivation(HiddenLayers[0].ActivationFunction, true, outputLayerNeuronInput[j, i]);
+                    double x = outputLayerGradients[j] * outputLayerWeights[i, j];
+                    sum += x;
+                }
+                hiddenLayerGradients[i] = derivative * sum;
+            }
 
-                    double gradient = outputLayerGradients[j, 0] * derivative;
-                    double delta = gradient * learningRate * hiddenLayerWeights[i, j];
-
+            for (int i = 0; i < hiddenLayerWeights.GetLength(0); ++i) 
+            {
+                for (int j = 0; j < hiddenLayerWeights.GetLength(1); ++j) 
+                {
+                    double delta = learningRate * hiddenLayerGradients[j] * networkInputs[i]; 
                     hiddenLayerWeights[i, j] += delta;
-                    hiddenLayerWeights[i, j] += hiddenLayerPreviousDelta[i, j] * momentum;
+                    hiddenLayerWeights[i, j] += momentum * hiddenLayerPreviousWeightDelta[i, j];
                     hiddenLayerWeights[i, j] -= weightDecay * hiddenLayerWeights[i, j];
-                    hiddenLayerPreviousDelta[i, j] = delta;
-
-                    hiddenLayerBias[i] += gradient * learningRate;
-                    hiddenLayerBias[i] += hiddenLayerPreviousDelta[i, 0] * momentum;
-                    hiddenLayerBias[i] -= weightDecay * hiddenLayerWeights[i, j];
-
-                    gradientSignal += gradient; // or delta ?
+                    hiddenLayerWeights[i, j] = delta; 
                 }
-                gradientSignal /= hiddenLayerWeights.GetLength(1);
-
-                hiddenLayerGradients[i, 0] = gradientSignal; 
             }
 
-            for(int i = 0; i < inputLayerWeights.GetLength(0); ++i)
+            for (int i = 0; i < hiddenLayerBias.Length; ++i)
             {
-                for(int j = 0; j < inputLayerWeights.GetLength(1); ++j) 
+                double delta = learningRate * hiddenLayerGradients[i] * biasRate;
+                hiddenLayerBias[i] += delta;
+                hiddenLayerBias[i] += momentum * hiddenLayerPreviousBiasDelta[i];
+                hiddenLayerBias[i] -= weightDecay * hiddenLayerBias[i];                                                               
+                hiddenLayerPreviousBiasDelta[i] = delta; 
+            }
+
+            for (int i = 0; i < outputLayerWeights.GetLength(0); ++i)
+            {
+                for (int j = 0; j < outputLayerWeights.GetLength(1); ++j)
                 {
-                    double derivative = JNNMath.ComputeActivation(InputLayer.ActivationFunction, true, hiddenLayerNeuronInput[j, i]);
-
-                    double gradient = hiddenLayerGradients[j, 0] * derivative; 
-                    double delta = gradient * learningRate * inputLayerWeights[i, j];
-
-                    inputLayerWeights[i, j] += delta;
-                    inputLayerWeights[i, j] += inputLayerPreviousDelta[i, j] * momentum;
-                    inputLayerWeights[i, j] -= weightDecay * inputLayerWeights[i, j];
-                    inputLayerWeights[i, j] = delta;
+                    double delta = learningRate * outputLayerGradients[j] * hiddenLayerOutputs[i];
+                    outputLayerWeights[i,j] += delta;
+                    outputLayerWeights[i, j] += momentum * outputLayerPreviousWeightDelta[i,j];
+                    outputLayerWeights[i, j] -= weightDecay * outputLayerWeights[i, j];                                               
+                    outputLayerPreviousWeightDelta[i,j] = delta;
                 }
             }
 
-            // Now calling weight and bias update on network
-            UpdateWeights(learningRate);
-        }
+            for (int i = 0; i < outputLayerBias.Length; ++i)
+            {
+                double delta = learningRate * outputLayerGradients[i] * biasRate;
+                outputLayerBias[i] += delta;
+                outputLayerBias[i] += momentum * outputLayerPreviousBiasDelta[i]; 
+                outputLayerBias[i] -= weightDecay * outputLayerBias[i];                                         
+                outputLayerPreviousBiasDelta[i] = delta; 
+            }
+        } 
+   
+        #endregion
         
-        public void UpdateWeights(float learningRate)
-        {
-
-           /* // Update Output Bias
-            for (int i = 0; i < outputLayer.Length; ++i)
-            {
-                double delta = learningRate * outputLayer[i].grad;
-                outputLayer[i].Bias += delta;
-                outputLayer[i].Bias += outputLayer[i].PreviousDelta * momentum;
-                outputLayer[i].Bias -= weightDecay * outputLayer[i].Bias;
-                outputLayer[i].PreviousDelta = delta;
-            }
-
-            // Update Output Weight
-            for (int i = 0; i < outputLayer.Length; ++i)
-            {
-                double delta = learningRate * outputLayer[i].grad * outputLayer[i].Weight;
-                outputLayer[i].Weight += delta;
-                outputLayer[i].Weight += outputLayer[i].PreviousDelta * momentum;
-                outputLayer[i].Weight -= weightDecay * outputLayer[i].Weight;
-                outputLayer[i].PreviousDelta = delta;
-            }
-            
-
-            // Update Hidden Weights
-            for (int i = 0; i < hiddenLayers.Count; ++i)
-            {
-                for (int k = 0; k < hiddenLayers[i].Length; ++k)
-                {
-                    double delta = learningRate * hiddenLayers[i][k].grad * hiddenLayers[i][k].Weight;
-                    hiddenLayers[i][k].Weight += delta;
-                    hiddenLayers[i][k].Weight += hiddenLayers[i][k].PreviousDelta * momentum;
-                    hiddenLayers[i][k].Weight -= weightDecay * hiddenLayers[i][k].Weight;
-                    hiddenLayers[i][k].PreviousDelta = delta;
-                }
-            }
-
-            // Update Hidden Bias
-            for (int i = 0; i < hiddenLayers.Count; ++i)
-            {
-                for (int k = 0; k < hiddenLayers[i].Length; ++k)
-                {
-                    double delta = learningRate * hiddenLayers[i][k].grad;
-                    hiddenLayers[i][k].Bias += delta;
-                    hiddenLayers[i][k].Bias += hiddenLayers[i][k].PreviousDelta * momentum;
-                    hiddenLayers[i][k].Bias -= weightDecay * hiddenLayers[i][k].Bias;
-                    hiddenLayers[i][k].PreviousDelta = delta;
-                }
-            }*/
-        }
-        #endregion
-        #endregion
 
         // SERIALISATION **********************************************************************************************
         #region Serialisation
@@ -546,6 +315,11 @@ namespace Assets.Job_NeuralNetwork.Scripts
             return UnityEngine.Random.Range(0.001f, 0.01f);
         }
 
+        public static double[,] MakeMatrix(int x, int y)
+        {
+            double[,] matrix = new double[x, y];
+            return matrix;
+        }
 
         public static int SetID(int Layer, int index)
         {
