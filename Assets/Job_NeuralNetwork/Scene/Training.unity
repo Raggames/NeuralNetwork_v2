@@ -395,20 +395,22 @@ MonoBehaviour:
   Epochs: 100000
   currentEpoch: 0
   BatchSize: 1
-  LearningRate: 0.004
-  Momentum: 0
-  WeightDecay: 0
+  AutoSaveEveryEpochs: 500
+  LearningRate: 0.012
+  Momentum: 0.01
+  WeightDecay: 0.0001
   LossFunction: 1
   TargetLoss: 0.01
   BestLoss: 0
   CurrentLoss: 0
   DelayBetweenEpochs: 0.001
   LearningRateDecayMode: 1
-  DecayRate: 0.0003
+  DecayRate: 0.00001
   DecayStep: 1
   runInputs: []
   runResults: []
   runWantedOutpus: []
+  Accuracy: 0
 --- !u!4 &174581764
 Transform:
   m_ObjectHideFlags: 0
@@ -1348,19 +1350,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   InputLayer:
-    ActivationFunction: 6
-    NeuronsCount: 2
+    ActivationFunction: 1
+    NeuronsCount: 4
   HiddenLayers:
   - ActivationFunction: 8
-    NeuronsCount: 4
+    NeuronsCount: 7
   OutputLayer:
-    ActivationFunction: 5
-    NeuronsCount: 2
-  inputLayerBias: []
+    ActivationFunction: 7
+    NeuronsCount: 3
+  networkInputs: []
+  hiddenLayerOutputs: []
   hiddenLayerBias: []
+  hiddenLayerPreviousBiasDelta: []
+  hiddenLayerGradients: []
   outputLayerBias: []
-  neuronPrefab: {fileID: 1517891344537993681, guid: 28b6cbfb771f74e44bb6265b686ceb99,
-    type: 3}
+  outputLayerPreviousBiasDelta: []
+  outputLayerGradients: []
   ScaleXY: 2
   ScaleZ: 4
   saveName: Donn_1_
