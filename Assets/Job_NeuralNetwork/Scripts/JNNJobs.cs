@@ -10,31 +10,15 @@ using Unity.Jobs;
 namespace Assets.Job_NeuralNetwork.Scripts
 {
     [BurstCompile] 
-    public struct AxonBasedLinearJob : IJobParallelFor
+    public struct ComputeWeightsJob : IJobParallelFor
     {
         [ReadOnly] public NativeArray<double> Weights;
-        [ReadOnly] public NativeArray<double> Bias;
         [ReadOnly] public NativeArray<double> Inputs;
         public NativeArray<double> Outputs;
         
         public void Execute(int index) 
         {
-            double inputSignal = 0;
-             
-            for (int i = 0; i < Inputs.Length; ++i)
-            {
-                inputSignal += Inputs[index + i];// Index = Neuron, but inputs are flatenned
-            }
-            inputSignal += Bias[index];
-            inputSignal /= Inputs.Length;
-             // Transformation Function Here 
-            
-            /*for(int i = 0; i < Outputs.Length; ++i) 
-            {
-                double axonOutput = inputSignal * neuronsData[index].Weights[i];
-                Outputs[index + i] = axonOutput;
-            } 
-             */
+            Outputs[index] = Weights[index] * Inputs[index];            
         } 
     } 
 

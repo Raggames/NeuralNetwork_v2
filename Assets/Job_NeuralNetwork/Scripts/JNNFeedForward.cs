@@ -104,7 +104,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
                 }
             }
 
-            for(int i = 0; i < hiddenLayerBias.Length; ++i)
+            for (int i = 0; i < hiddenLayerBias.Length; ++i)
             {
                 hiddenLayerBias[i] = GetRandomWeight();
             }
@@ -117,7 +117,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
                 }
             }
 
-            for(int i = 0; i < outputLayerBias.Length; ++i)
+            for (int i = 0; i < outputLayerBias.Length; ++i)
             {
                 outputLayerBias[i] = GetRandomWeight();
             }
@@ -165,13 +165,92 @@ namespace Assets.Job_NeuralNetwork.Scripts
 
             results = networkOutputs;
         }
+        // Job Computing **********************************************************************************************
+
+        public void JobComputeFeedForward(double[] inputs, out double[] results)
+        {
+            double[] layerResult = new double[HiddenLayers[0].NeuronsCount];
+            JobComputeLayer(inputs, out layerResult, hiddenLayerWeights, hiddenLayerBias, HiddenLayers[0]);
+            JobComputeLayer(layerResult, out networkOutputs, outputLayerWeights, outputLayerBias, OutputLayer);
+
+            results = networkOutputs;
+        }
+
+        private void JobComputeLayer(double[] inputs, out double[] outputs, double[,] weights, double[] bias, JNNFeedForwardLayer layerData)
+        {
+            NativeArray<double> inputsJob = new NativeArray<double>(inputs.Length * layerData.NeuronsCount, Allocator.TempJob);
+            NativeArray<double> layerOutputJob = new NativeArray<double>(weights.GetLength(0) * weights.GetLength(1), Allocator.TempJob);
+            NativeArray<double> weightsJob = new NativeArray<double>(weights.GetLength(0) * weights.GetLength(1), Allocator.TempJob);
+
+            int k = 0;
+            for (int i = 0; i < weights.GetLength(0); ++i)
+            {
+                for (int j = 0; j < weights.GetLength(1); ++j)
+                {
+                    weightsJob[k++] = weights[i, j];
+                }
+            }
+
+            for (int i = 0; i < inputsJob.Length; ++i)
+            {
+                inputsJob[i] = inputs[i % inputs.Length];
+            }
+
+            ComputeWeightsJob computeWeightsJob = new ComputeWeightsJob
+            {
+                Inputs = inputsJob,
+                Outputs = layerOutputJob,
+                Weights = weightsJob,
+            };
+
+            JobHandle handle = computeWeightsJob.Schedule(weightsJob.Length, 1);
+
+            handle.Complete();
+
+            double[] results = new double[layerData.NeuronsCount];
+
+            int index = 0;
+            int pointer = 0;
+            for (int i = 0; i < layerOutputJob.Length; ++i)
+            {
+                if (index < inputs.Length)
+                {
+                    results[pointer] += layerOutputJob[i];
+                    index++;
+                }
+                if (index == inputs.Length)
+                {
+                    double value = results[pointer];
+                    value += bias[pointer];
+                    value /= inputs.Length;
+
+                    if (layerData.ActivationFunction != ActivationFunctions.Softmax)
+                    {
+                        value = JNNMath.ComputeActivation(layerData.ActivationFunction, false, value);
+                    }
+                    results[pointer] = value;
+
+                    index = 0;
+                    pointer++;
+                }
+            }
+            if (layerData.ActivationFunction == ActivationFunctions.Softmax)
+            {
+                results = Softmax(results);
+            }
+            outputs = results;
+
+            layerOutputJob.Dispose();
+            inputsJob.Dispose();
+            weightsJob.Dispose();
+        }
         #endregion
 
         // WEIGHT SETTING **********************************************************************************************
         #region Weights
 
         private double[] dnaSave;
-       
+
         public void LoadAndSetWeights()
         {
             NetworkData data = JNN_Load(saveName);
@@ -183,7 +262,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
                 for (int j = 0; j < hiddenLayerWeights.GetLength(1); ++j)
                 {
                     hiddenLayerWeights[i, j] = dnaSave[p++];
-                    
+
                 }
             }
             for (int i = 0; i < hiddenLayerBias.Length; ++i)
@@ -207,7 +286,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
             jnnManager.WeightDecay = data.weightDecay;
         }
 
-        public void GetAndSaveWeights(double learningRate, double momentum, double weightDecay , double currentLoss, double accuracy)
+        public void GetAndSaveWeights(double learningRate, double momentum, double weightDecay, double currentLoss, double accuracy)
         {
             int p = 0;
             int dnaLength = (hiddenLayerWeights.GetLength(0) * hiddenLayerWeights.GetLength(1)) + hiddenLayerBias.Length + (outputLayerWeights.GetLength(0) * outputLayerWeights.GetLength(1)) + outputLayerBias.Length;
@@ -220,7 +299,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
                     weights[p++] = hiddenLayerWeights[i, j];
                 }
             }
-            for(int i = 0; i < hiddenLayerBias.Length; ++i)
+            for (int i = 0; i < hiddenLayerBias.Length; ++i)
             {
                 weights[p++] = hiddenLayerBias[i];
             }
@@ -231,7 +310,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
                     weights[p++] = outputLayerWeights[i, j];
                 }
             }
-            for(int i = 0; i < outputLayerBias.Length; ++i)
+            for (int i = 0; i < outputLayerBias.Length; ++i)
             {
                 weights[p++] = outputLayerBias[i];
             }
@@ -253,7 +332,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
 
         #endregion
 
-        // BACKPROPAGATION ********************************************************************************************
+        // BACKPROPAGATION *********************************************************************************************
         #region BackPropagation
         public void BackPropagate(double[] costs, float learningRate)
         {
@@ -275,15 +354,15 @@ namespace Assets.Job_NeuralNetwork.Scripts
                 hiddenLayerGradients[i] = derivative * sum;
             }
 
-            for (int i = 0; i < hiddenLayerWeights.GetLength(0); ++i) 
+            for (int i = 0; i < hiddenLayerWeights.GetLength(0); ++i)
             {
-                for (int j = 0; j < hiddenLayerWeights.GetLength(1); ++j) 
+                for (int j = 0; j < hiddenLayerWeights.GetLength(1); ++j)
                 {
-                    double delta = learningRate * hiddenLayerGradients[j] * networkInputs[i]; 
+                    double delta = learningRate * hiddenLayerGradients[j] * networkInputs[i];
                     hiddenLayerWeights[i, j] += delta;
                     hiddenLayerWeights[i, j] += momentum * hiddenLayerPreviousWeightDelta[i, j];
                     hiddenLayerWeights[i, j] -= weightDecay * hiddenLayerWeights[i, j];
-                    hiddenLayerWeights[i, j] = delta; 
+                    hiddenLayerWeights[i, j] = delta;
                 }
             }
 
@@ -292,8 +371,8 @@ namespace Assets.Job_NeuralNetwork.Scripts
                 double delta = learningRate * hiddenLayerGradients[i] * biasRate;
                 hiddenLayerBias[i] += delta;
                 hiddenLayerBias[i] += momentum * hiddenLayerPreviousBiasDelta[i];
-                hiddenLayerBias[i] -= weightDecay * hiddenLayerBias[i];                                                               
-                hiddenLayerPreviousBiasDelta[i] = delta; 
+                hiddenLayerBias[i] -= weightDecay * hiddenLayerBias[i];
+                hiddenLayerPreviousBiasDelta[i] = delta;
             }
 
             for (int i = 0; i < outputLayerWeights.GetLength(0); ++i)
@@ -301,10 +380,10 @@ namespace Assets.Job_NeuralNetwork.Scripts
                 for (int j = 0; j < outputLayerWeights.GetLength(1); ++j)
                 {
                     double delta = learningRate * outputLayerGradients[j] * hiddenLayerOutputs[i];
-                    outputLayerWeights[i,j] += delta;
-                    outputLayerWeights[i, j] += momentum * outputLayerPreviousWeightDelta[i,j];
-                    outputLayerWeights[i, j] -= weightDecay * outputLayerWeights[i, j];                                               
-                    outputLayerPreviousWeightDelta[i,j] = delta;
+                    outputLayerWeights[i, j] += delta;
+                    outputLayerWeights[i, j] += momentum * outputLayerPreviousWeightDelta[i, j];
+                    outputLayerWeights[i, j] -= weightDecay * outputLayerWeights[i, j];
+                    outputLayerPreviousWeightDelta[i, j] = delta;
                 }
             }
 
@@ -312,14 +391,14 @@ namespace Assets.Job_NeuralNetwork.Scripts
             {
                 double delta = learningRate * outputLayerGradients[i] * biasRate;
                 outputLayerBias[i] += delta;
-                outputLayerBias[i] += momentum * outputLayerPreviousBiasDelta[i]; 
-                outputLayerBias[i] -= weightDecay * outputLayerBias[i];                                         
-                outputLayerPreviousBiasDelta[i] = delta; 
+                outputLayerBias[i] += momentum * outputLayerPreviousBiasDelta[i];
+                outputLayerBias[i] -= weightDecay * outputLayerBias[i];
+                outputLayerPreviousBiasDelta[i] = delta;
             }
-        } 
-   
+        }
+
         #endregion
-        
+
 
         // SERIALISATION **********************************************************************************************
         #region Serialisation
@@ -384,6 +463,16 @@ namespace Assets.Job_NeuralNetwork.Scripts
                 inputs[i] = arrayIn[i];
             }
             return inputs;
+        }
+
+        public double[] FromNativeArray(NativeArray<double> arrayIn)
+        {
+            double[] results = new double[arrayIn.Length];
+            for (int i = 0; i < results.Length; ++i)
+            {
+                results[i] = arrayIn[i];
+            }
+            return results;
         }
 
         public double GetRandomWeight()
