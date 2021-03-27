@@ -12,5 +12,9 @@ namespace Assets.Job_NeuralNetwork.Scripts
         public int matrixDim = 3;
 
         protected double[][] convertedMatrix;
+
+        public Texture2D textureIn;
+        public Texture2D textureOut;
+
     }
 }

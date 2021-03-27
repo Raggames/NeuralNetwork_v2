@@ -120,7 +120,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
 
             Train();
         }
-
+               
         public void Train()
         {
             TrainingCoroutine = StartCoroutine(RunDelayed(Epochs));

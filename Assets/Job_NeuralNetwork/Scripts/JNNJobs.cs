@@ -20,8 +20,8 @@ namespace Assets.Job_NeuralNetwork.Scripts
         {
             Outputs[index] = Weights[index] * Inputs[index];            
         } 
-    } 
-
+    }
+       
     /*[BurstCompile]
     public struct LinearJob : IJobParallelFor
     {
