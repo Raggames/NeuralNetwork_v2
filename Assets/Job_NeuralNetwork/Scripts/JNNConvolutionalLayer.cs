@@ -12,6 +12,8 @@ namespace Assets.Job_NeuralNetwork.Scripts
         private double[,] pointer;
         private double[,] convertedMatrix;
 
+        public GameObject planeTest;
+
         private void Start()
         {
             TranslateToMatrix();
@@ -26,7 +28,8 @@ namespace Assets.Job_NeuralNetwork.Scripts
                 for (int j = 0; j < pixels.GetLength(1); ++j)
                 {
                     var pix = textureIn.GetPixel(i, j);
-                    pixels[i, j] = (pix.r + pix.g + pix.b)/3;
+                    float value = (pix.r + pix.g + pix.b) / 3;
+                    pixels[i, j] = value;
                 }
             }
 
@@ -56,18 +59,32 @@ namespace Assets.Job_NeuralNetwork.Scripts
                 }
             }
 
-           // textureOut = new Texture2D(convertedMatrixSizeX, convertedMatrixSizeY);
+            textureOut = new Texture2D(convertedMatrixSizeX, convertedMatrixSizeY);
+            textureOut.name = "test";
 
             for (int h = 0; h < convertedMatrixSizeX; ++h)
             {
                 for (int i = 0; i < convertedMatrixSizeY; ++i)
                 {
-                    var color = new Color();
-                    color.a = (float)convertedMatrix[h, i];
+                    Color color = new Color();
+                    float value = (float)convertedMatrix[h, i];
+
+                    color.r = value;
+                    color.g = value;
+                    color.b = value;
+                    color.a = value;
+
                     textureOut.SetPixel(h, i, color);
                 }
             }
+
+            planeTest.GetComponent<Renderer>().material.SetTexture(textureOut.name, textureOut);
         }
+
+        private double[,] filterMatrixContour =
+         new double[,] { { 1, 0, -1, },
+                        { 0, 0, 0, },
+                        { -1, 0, 1, }, };
 
         protected void ToKernelFilter(double[,] input, int H, int I)
         {
@@ -78,11 +95,11 @@ namespace Assets.Job_NeuralNetwork.Scripts
             {
                 for(int j = 0; j < input.GetLength(1); ++j)
                 {
-                    output += index % 2 == 0 ? input[i, j] : 0;
+                    output +=  input[i, j] * filterMatrixContour[i, j];
                     index++;
                 }
             }
-            if(convertedMatrix.GetLength(0) < H && convertedMatrix.GetLength(1) < I)
+            if(H < convertedMatrix.GetLength(0) && I < convertedMatrix.GetLength(1))
             {
                 convertedMatrix[H, I] = output;
             }
