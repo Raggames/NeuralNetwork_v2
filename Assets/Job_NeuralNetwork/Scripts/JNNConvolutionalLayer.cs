@@ -26,7 +26,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
                 for (int j = 0; j < pixels.GetLength(1); ++j)
                 {
                     var pix = textureIn.GetPixel(i, j);
-                    pixels[i, j] = pix.a;
+                    pixels[i, j] = (pix.r + pix.g + pix.b)/3;
                 }
             }
 
@@ -49,14 +49,14 @@ namespace Assets.Job_NeuralNetwork.Scripts
                     {
                         for (int k = 0; k < matrixDim; ++k)
                         {
-                            pointer[j, k] = MatrixIn[h + j, i + k];
+                            pointer[j, k] = MatrixIn[i + j, h + k];
                         }
                     }
                     ToKernelFilter(pointer, h, i);
                 }
             }
 
-            textureOut = new Texture2D(convertedMatrixSizeX, convertedMatrixSizeY);
+           // textureOut = new Texture2D(convertedMatrixSizeX, convertedMatrixSizeY);
 
             for (int h = 0; h < convertedMatrixSizeX; ++h)
             {
@@ -78,12 +78,15 @@ namespace Assets.Job_NeuralNetwork.Scripts
             {
                 for(int j = 0; j < input.GetLength(1); ++j)
                 {
-                    output += input[i, j] % 2 == 0 ? input[i, j] : 0;
+                    output += index % 2 == 0 ? input[i, j] : 0;
                     index++;
                 }
             }
-            convertedMatrix[H, I] = output;
-            
+            if(convertedMatrix.GetLength(0) < H && convertedMatrix.GetLength(1) < I)
+            {
+                convertedMatrix[H, I] = output;
+            }
+
         }
     }
 }
