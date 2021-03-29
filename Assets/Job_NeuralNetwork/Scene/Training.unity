@@ -202,7 +202,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &53852550
 Transform:
   m_ObjectHideFlags: 0
@@ -392,10 +392,12 @@ MonoBehaviour:
   FFNetwork: {fileID: 1824929361}
   LearningRateGraph: {fileID: 1118973735}
   LossGraph: {fileID: 799920601}
+  Mode: 0
+  Save: 0
+  AutoSaveEveryEpochs: 500
   Epochs: 3000000
   currentEpoch: 0
   BatchSize: 1
-  AutoSaveEveryEpochs: 500
   LearningRate: 0.1
   Momentum: 0.01
   WeightDecay: 0.0001
@@ -411,6 +413,8 @@ MonoBehaviour:
   runResults: []
   runWantedOutpus: []
   Accuracy: 0
+  correctRuns: 0
+  wrongRuns: 0
 --- !u!4 &174581764
 Transform:
   m_ObjectHideFlags: 0
@@ -1612,7 +1616,7 @@ MonoBehaviour:
   outputLayerGradients: []
   ScaleXY: 2
   ScaleZ: 4
-  saveName: Donn_1_
+  saveName: DNA_Architecture_4_7_3_cEpoch_263500
 --- !u!4 &1824929362
 Transform:
   m_ObjectHideFlags: 0

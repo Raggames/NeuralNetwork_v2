@@ -25,13 +25,22 @@ namespace Assets.Job_NeuralNetwork.Scripts
         public UILineRenderer LossGraph;
 
         // *************************************************************************************
+        [Header("RunMode")]
+        public RunningMode Mode;
+        public enum RunningMode
+        {
+            Train,
+            Execute,
+        }
+        [Header("Save Management")]
+        public bool Save;
+        public int AutoSaveEveryEpochs = 5000;
+
         [Header("Training Parameters")]
 
         public int Epochs; // trainData lenght
         public int currentEpoch;
         public int BatchSize; // every nbr of runs would you want to compute error
-
-        public int AutoSaveEveryEpochs = 5000;
 
         [Range(0.00001f, 0.5f)] public float LearningRate;
         public double Momentum;
@@ -46,17 +55,23 @@ namespace Assets.Job_NeuralNetwork.Scripts
             HingeLoss, // Binary Classification
             MultiClassCrossEntropy, // Multiclass Classification
         }
-        [Header("Loss Functions")]
+        [Header("Loss and Accuracy Parameters")]
         public LossFunctions LossFunction;
 
-        public float TargetLoss = 0.01f; // précision voulue
+        public float TargetAccuracy = 99.9f; // précision voulue
+        public float Accuracy;
+
+
+        public int correctRuns;
+        public int wrongRuns;
+
         public double BestLoss;
         public double CurrentLoss;
 
       
         private WaitForSeconds delay;
         public float DelayBetweenEpochs = 0.05f;
-        private Coroutine TrainingCoroutine;
+        private Coroutine ExecutionCoroutine;
 
 
         [Header("Learning Rate Decay")]
@@ -84,15 +99,12 @@ namespace Assets.Job_NeuralNetwork.Scripts
 
         public List<LearningData> TrainingDatas = new List<LearningData>();
 
-        public float Accuracy;
-        private int correctRuns;
-        private int wrongRuns;
-
         public void Start()
         {
             delay = new WaitForSeconds(DelayBetweenEpochs);
 
             FFNetwork.CreateNetwork(this);
+         
             DataManager.Init();
 
             TestingDataX = new double[150][];
@@ -118,21 +130,52 @@ namespace Assets.Job_NeuralNetwork.Scripts
 
             BestLoss = 10;
 
-            Train();
+            if(Mode == RunningMode.Train)
+            {
+                Train();
+
+            }
+            else
+            {
+                Execute();
+            }
         }
                
         public void Train()
         {
-            TrainingCoroutine = StartCoroutine(RunDelayed(Epochs));
+            ExecutionCoroutine = StartCoroutine(DoTraining(Epochs));
         }
             
         public void Execute()
         {
             FFNetwork.LoadAndSetWeights();
-
+            ExecutionCoroutine = StartCoroutine(DoExecuting(Epochs));
         }
 
-        private IEnumerator RunDelayed(int runs)
+        private IEnumerator DoExecuting(int runs)
+        {
+            // ********************************* Flattenning 
+            int count = 0;
+            for (int i = 0; i < runs; ++i)
+            {
+                int index = UnityEngine.Random.Range(0, 149); // i % 149;
+                runInputs = TestingDataX[index];
+
+                runWantedOutpus = TestingDataY[index];
+
+                //FFNetwork.ComputeFeedForward(TestingDataX[index], out runResults);
+                FFNetwork.JobComputeFeedForward(TestingDataX[index], out runResults);
+
+                ComputeAccuracy(TestingDataY[index], runResults);
+
+                currentEpoch++;
+                count++;
+
+                yield return delay;
+            }
+        }
+
+        private IEnumerator DoTraining(int runs)
         {
 
             // ********************************* Convolve and Pool
@@ -268,7 +311,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
                 wrongRuns++;
             }
 
-            Accuracy = (float)correctRuns / (float)wrongRuns * 100f;
+            Accuracy = (float)correctRuns / (float)(wrongRuns + correctRuns)  * 100f;
         }
 
        
@@ -302,10 +345,10 @@ namespace Assets.Job_NeuralNetwork.Scripts
                 BestLoss = CurrentLoss;
             }
 
-            if (BestLoss <= TargetLoss)
+            if (Accuracy >= TargetAccuracy)
             {
               
-              //  StopCoroutine(TrainingCoroutine);
+                StopCoroutine(ExecutionCoroutine);
                 Debug.LogError("Training stopped : goal achieved");
 
             }
