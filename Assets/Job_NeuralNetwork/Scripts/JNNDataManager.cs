@@ -14,7 +14,8 @@ namespace Assets.Job_NeuralNetwork.Scripts
         public void Init()
         {
             DATA = data();
-            DATA = NormalizeData(DATA, 4);
+            //DATA = NormalizeData(DATA, 4);
+            Normalize(DATA, new int[] { 0, 1, 2, 3 });
         }
 
         public double[] GetDataEntry(int atIndex)
@@ -54,6 +55,26 @@ namespace Assets.Job_NeuralNetwork.Scripts
 
             return normalizedData;
         }
+
+        static void Normalize(double[][] dataMatrix, int[] cols)
+        {
+            // normalize specified cols by computing (x - mean) / sd for each value
+            foreach (int col in cols)
+            {
+                double sum = 0.0;
+                for (int i = 0; i < dataMatrix.Length; ++i)
+                    sum += dataMatrix[i][col];
+                double mean = sum / dataMatrix.Length;
+                sum = 0.0;
+                for (int i = 0; i < dataMatrix.Length; ++i)
+                    sum += (dataMatrix[i][col] - mean) * (dataMatrix[i][col] - mean);
+                // thanks to Dr. W. Winfrey, Concord Univ., for catching bug in original code
+                double sd = Math.Sqrt(sum / (dataMatrix.Length - 1));
+                for (int i = 0; i < dataMatrix.Length; ++i)
+                    dataMatrix[i][col] = (dataMatrix[i][col] - mean) / sd;
+            }
+        }
+
 
         double[][] data()
         {

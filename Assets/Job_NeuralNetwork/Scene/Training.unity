@@ -370,7 +370,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &174581763
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -392,20 +392,20 @@ MonoBehaviour:
   FFNetwork: {fileID: 1824929361}
   LearningRateGraph: {fileID: 1118973735}
   LossGraph: {fileID: 799920601}
-  Epochs: 100000
+  Epochs: 3000000
   currentEpoch: 0
   BatchSize: 1
   AutoSaveEveryEpochs: 500
-  LearningRate: 0.012
+  LearningRate: 0.1
   Momentum: 0.01
   WeightDecay: 0.0001
   LossFunction: 1
   TargetLoss: 0.01
   BestLoss: 0
   CurrentLoss: 0
-  DelayBetweenEpochs: 0.001
+  DelayBetweenEpochs: 0.0000001
   LearningRateDecayMode: 1
-  DecayRate: 0.00001
+  DecayRate: 0
   DecayStep: 1
   runInputs: []
   runResults: []
@@ -769,7 +769,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &904331486
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1266,7 +1266,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1448178066
 MonoBehaviour:
   m_ObjectHideFlags: 0

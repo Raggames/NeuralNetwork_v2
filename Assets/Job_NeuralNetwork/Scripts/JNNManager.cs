@@ -146,8 +146,8 @@ namespace Assets.Job_NeuralNetwork.Scripts
 
                 runWantedOutpus = TestingDataY[index];
 
-                //FFNetwork.ComputeFeedForward(TestingDataX[index], out runResults);
-                FFNetwork.JobComputeFeedForward(TestingDataX[index], out runResults);
+                FFNetwork.ComputeFeedForward(TestingDataX[index], out runResults);
+                //FFNetwork.JobComputeFeedForward(TestingDataX[index], out runResults);
 
                 double[] errors = ComputeError(runResults, TestingDataY[index]);
 
