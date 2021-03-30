@@ -9,13 +9,16 @@ namespace Assets.Job_NeuralNetwork.Scripts
 {
     public abstract class GeneticInstanceController : MonoBehaviour
     {
-        protected NetworkInstanceGeneticEntity geneticEntity;
         protected GeneticEvolutionManager evolutionManager;
-        public void Init(NetworkInstanceGeneticEntity GeneticEntity, GeneticEvolutionManager EvolutionManager)
+        protected GeneticBrain geneticBrain;
+
+        public void Init(GeneticBrain GeneticEntity, GeneticEvolutionManager EvolutionManager)
         {
-            geneticEntity = GeneticEntity;
             evolutionManager = EvolutionManager;
+            geneticBrain = GeneticEntity;
         }
+
+        public abstract void StartExecution();
 
         public abstract GeneticEvaluationData ComputeEvaluationData();
 

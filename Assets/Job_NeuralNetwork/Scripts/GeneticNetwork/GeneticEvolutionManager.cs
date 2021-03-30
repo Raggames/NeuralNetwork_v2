@@ -14,9 +14,9 @@ namespace Assets.Job_NeuralNetwork.Scripts
         private List<GeneticEvaluationData> InstancesData = new List<GeneticEvaluationData>();
 
         [Header("Instances")]
-        public NetworkInstanceGeneticEntity instancePrefab;
+        public GeneticBrain instancePrefab;
 
-        public List<NetworkInstanceGeneticEntity> NetworkInstances = new List<NetworkInstanceGeneticEntity>();
+        public List<GeneticInstanceController> NetworkInstances = new List<GeneticInstanceController>();
 
         public int InstancesToRun;
         public int TrainingEpochs;
@@ -27,7 +27,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
             for(int i = 0; i < InstancesToRun; ++i)
             {
                 var nn = Instantiate(instancePrefab, transform);
-                NetworkInstances.Add(nn);
+                NetworkInstances.Add(nn.GetComponent<GeneticInstanceController>());
                 nn.CreateInstance();
             }
 
@@ -40,7 +40,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
             {
                 for(int j = 0; j < InstancesToRun; ++j)
                 {
-                    NetworkInstances[j].StartExecuting();
+                    NetworkInstances[j].StartExecution();
                 }
 
 

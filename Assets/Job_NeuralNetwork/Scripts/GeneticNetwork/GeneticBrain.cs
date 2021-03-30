@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace Assets.Job_NeuralNetwork.Scripts
 {
-    public class NetworkInstanceGeneticEntity : MonoBehaviour
+    public class GeneticBrain : MonoBehaviour
     {
         [Header("Feed Forward Network")]
         public NeuralNetwork FFNetwork;
@@ -85,7 +85,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
            
         }
 
-        public void Update()
+        public void Update() // A METTRE DANS CONTROLLER
         {
             if (IsExecuting)
             {

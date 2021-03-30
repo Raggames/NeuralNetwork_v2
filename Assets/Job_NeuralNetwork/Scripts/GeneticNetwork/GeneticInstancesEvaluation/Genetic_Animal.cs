@@ -21,6 +21,7 @@ namespace Assets.Job_NeuralNetwork.Scripts.GeneticNetwork.GeneticInstancesEvalua
 
         public int CurrentLife;
         public int CurrentHunger;
+        public int CurrentWaterNeed;
         public int CurrentFear;
                
         [Header("Evaluation Parameters")] // Some more meta-parameters to evaluate fitness to an entity in its environnement
@@ -28,6 +29,11 @@ namespace Assets.Job_NeuralNetwork.Scripts.GeneticNetwork.GeneticInstancesEvalua
         public float FoodEaten; // amount of currentHunger --
         public float NumberOfChilds;
 
+
+        public override void StartExecution()
+        {
+            IsAlive = true;
+        }
 
         // NeuralNetwork Computes Controller parameters to output a decision with is controlled here
         #region Decisions
@@ -38,10 +44,42 @@ namespace Assets.Job_NeuralNetwork.Scripts.GeneticNetwork.GeneticInstancesEvalua
 
         #endregion
 
+        #region Actions
+        public void SearchForFood() // Could be a prey or vegetables
+        {
+
+        }
+
+        public void SearchForWater()
+        {
+
+        }
+
+        public void SearchForPartner()
+        {
+
+        }
+
+        public void Attack()
+        {
+
+        }
+
+        public void Flee()
+        {
+
+        }
+
+        public void Wait()
+        {
+
+        }
+        #endregion
+
         public override GeneticEvaluationData ComputeEvaluationData()
         {
             GeneticEvaluationData data = new GeneticEvaluationData();
-            data.networkInstanceID = geneticEntity.UniqueID;
+            data.networkInstanceID = geneticBrain.UniqueID;
 
             double[] evaluate = new double[] // we evaluate fitness on DNA Parameters AND meta-parameters 
             {
