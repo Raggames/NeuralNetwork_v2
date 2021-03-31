@@ -29,29 +29,28 @@ namespace Assets.Job_NeuralNetwork.Scripts
 
         // Inputs
 
-        public double[] networkInputs;
+        protected double[] networkInputs;
 
         // Input to Hidden / Hidden to Hidden
-        public double[] hiddenLayerOutputs;
+        protected double[] hiddenLayerOutputs;
 
-        public double[,] hiddenLayerWeights;
-        public double[] hiddenLayerBias;
+        protected double[,] hiddenLayerWeights;
+        protected double[] hiddenLayerBias;
 
-        public double[,] hiddenLayerPreviousWeightDelta;
-        public double[] hiddenLayerPreviousBiasDelta;
+        protected double[,] hiddenLayerPreviousWeightDelta;
+        protected double[] hiddenLayerPreviousBiasDelta;
 
-        public double[] hiddenLayerGradients;
+        protected double[] hiddenLayerGradients;
 
         // Hidden to Output
 
-        public double[,] outputLayerWeights;
-        public double[] outputLayerBias;
+        protected double[,] outputLayerWeights;
+        protected double[] outputLayerBias;
 
-        public double[,] outputLayerPreviousWeightDelta;
-        public double[] outputLayerPreviousBiasDelta;
+        protected double[,] outputLayerPreviousWeightDelta;
+        protected double[] outputLayerPreviousBiasDelta;
 
-        public double[] outputLayerGradients;
-
+        protected double[] outputLayerGradients;
 
         private double[] networkOutputs;
 
@@ -69,7 +68,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
 
 
         // CREATING NETWORK ********************************************************************************************
-        public void CreateNetwork(BackPropagationBrain backPropManager = null, GeneticBrain genManager = null)
+        public void CreateNetwork(BackPropagationBrain backPropManager, GeneticBrain genManager)
         {
             if(backPropManager != null)
             {
@@ -80,8 +79,8 @@ namespace Assets.Job_NeuralNetwork.Scripts
             else
             {
                 geneticManager = genManager;
-                momentum = genManager.Momentum;
-                weightDecay = genManager.WeightDecay;
+                momentum = 0;
+                weightDecay = 0;
             }
             
 
@@ -260,41 +259,103 @@ namespace Assets.Job_NeuralNetwork.Scripts
         // WEIGHT SETTING **********************************************************************************************
         #region Weights
 
-        private double[] dnaSave;
+        private double[] dnaTemp;
 
-        public void LoadAndSetWeights()
+        public void SetWeights(double[] fromWeights)
         {
-            NetworkData data = JNN_Load(saveName);
-
-            dnaSave = data.dnaSave;
+            dnaTemp = fromWeights;
             int p = 0;
             for (int i = 0; i < hiddenLayerWeights.GetLength(0); ++i)
             {
                 for (int j = 0; j < hiddenLayerWeights.GetLength(1); ++j)
                 {
-                    hiddenLayerWeights[i, j] = dnaSave[p++];
+                    hiddenLayerWeights[i, j] = dnaTemp[p++];
 
                 }
             }
             for (int i = 0; i < hiddenLayerBias.Length; ++i)
             {
-                hiddenLayerBias[i] = dnaSave[p++];
+                hiddenLayerBias[i] = dnaTemp[p++];
             }
             for (int i = 0; i < outputLayerWeights.GetLength(0); ++i)
             {
                 for (int j = 0; j < outputLayerWeights.GetLength(1); ++j)
                 {
-                    outputLayerWeights[i, j] = dnaSave[p++];
+                    outputLayerWeights[i, j] = dnaTemp[p++];
                 }
             }
             for (int i = 0; i < outputLayerBias.Length; ++i)
             {
-                outputLayerBias[i] = dnaSave[p++];
+                outputLayerBias[i] = dnaTemp[p++];
+            }
+
+        }
+
+        public void LoadAndSetWeights()
+        {
+            NetworkData data = JNN_Load(saveName);
+
+            dnaTemp = data.dnaSave;
+            int p = 0;
+            for (int i = 0; i < hiddenLayerWeights.GetLength(0); ++i)
+            {
+                for (int j = 0; j < hiddenLayerWeights.GetLength(1); ++j)
+                {
+                    hiddenLayerWeights[i, j] = dnaTemp[p++];
+
+                }
+            }
+            for (int i = 0; i < hiddenLayerBias.Length; ++i)
+            {
+                hiddenLayerBias[i] = dnaTemp[p++];
+            }
+            for (int i = 0; i < outputLayerWeights.GetLength(0); ++i)
+            {
+                for (int j = 0; j < outputLayerWeights.GetLength(1); ++j)
+                {
+                    outputLayerWeights[i, j] = dnaTemp[p++];
+                }
+            }
+            for (int i = 0; i < outputLayerBias.Length; ++i)
+            {
+                outputLayerBias[i] = dnaTemp[p++];
             }
 
             backpropagationManager.LearningRate = (float)data.learningRate;
             backpropagationManager.Momentum = data.momentum;
             backpropagationManager.WeightDecay = data.weightDecay;
+        }
+
+        public double[] GetWeights()
+        {
+            int p = 0;
+            int dnaLength = (hiddenLayerWeights.GetLength(0) * hiddenLayerWeights.GetLength(1)) + hiddenLayerBias.Length + (outputLayerWeights.GetLength(0) * outputLayerWeights.GetLength(1)) + outputLayerBias.Length;
+            double[] weights = new double[dnaLength];
+
+            for (int i = 0; i < hiddenLayerWeights.GetLength(0); ++i)
+            {
+                for (int j = 0; j < hiddenLayerWeights.GetLength(1); ++j)
+                {
+                    weights[p++] = hiddenLayerWeights[i, j];
+                }
+            }
+            for (int i = 0; i < hiddenLayerBias.Length; ++i)
+            {
+                weights[p++] = hiddenLayerBias[i];
+            }
+            for (int i = 0; i < outputLayerWeights.GetLength(0); ++i)
+            {
+                for (int j = 0; j < outputLayerWeights.GetLength(1); ++j)
+                {
+                    weights[p++] = outputLayerWeights[i, j];
+                }
+            }
+            for (int i = 0; i < outputLayerBias.Length; ++i)
+            {
+                weights[p++] = outputLayerBias[i];
+            }
+
+            return weights;
         }
 
         public void GetAndSaveWeights(double learningRate, double momentum, double weightDecay, double currentLoss = 0, double accuracy = 0)

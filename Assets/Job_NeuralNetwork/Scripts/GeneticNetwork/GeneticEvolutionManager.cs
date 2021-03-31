@@ -12,9 +12,9 @@ namespace Assets.Job_NeuralNetwork.Scripts
     {
         private int setID = 0;
         [Header("Instances")]
-        public GeneticBrain instancePrefab;
+        public GameObject instancePrefab;
 
-        public List<GeneticInstanceController> NetworkInstances = new List<GeneticInstanceController>();
+        public List<GeneticInstanceController> EntitiesInstances = new List<GeneticInstanceController>();
 
         public int EntitiesToCreate;
         public int GenerationCount;
@@ -23,6 +23,9 @@ namespace Assets.Job_NeuralNetwork.Scripts
         [Header("Entities Data Management")]
         private List<GeneticEvaluationData> InstancesData = new List<GeneticEvaluationData>();
 
+        [Header("Entites Mutation And Reproduction")]
+        public float NeuralCrossoverRate = 0.05f; //learning Rate
+        public float TraitsCrossoverRate = 0.1f; 
         // ***************************************************************************************************
         private void Start()
         {
@@ -34,13 +37,13 @@ namespace Assets.Job_NeuralNetwork.Scripts
             StartTraining();
         }
 
-        public GeneticInstanceController CreateEntity(List<Gene> genoma = null)
+        public GeneticInstanceController CreateEntity(List<Gene> traitsDna = null, double[] neuralDna = null)
         {
-            var nn = Instantiate(instancePrefab, transform);
-            var controller = nn.GetComponent<GeneticInstanceController>();
-            NetworkInstances.Add(controller);
-            controller.Init(nn, this, genoma);
-            nn.CreateInstance();
+            var go = Instantiate(instancePrefab, transform);
+         
+            var controller = go.GetComponent<GeneticInstanceController>();
+            EntitiesInstances.Add(controller);
+            controller.Init(this, traitsDna, neuralDna);
 
             return controller;
         }
@@ -49,7 +52,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
         {
             for (int j = 0; j < EntitiesToCreate; ++j)
             {
-                NetworkInstances[j].Born();
+                EntitiesInstances[j].Born();
             }
         }
         // *******************************************************************************
@@ -57,17 +60,26 @@ namespace Assets.Job_NeuralNetwork.Scripts
                 
         public void Request_ComputeReproduction(GeneticInstanceController male, GeneticInstanceController female)
         {
+            // First Compute Crossover on physical Traits Genes
             List<Gene> childGenoma = new List<Gene>();
-
             for(int i = 0; i < male.Traits.Count; ++i) // asusming A and B have same Traits List (in order and lenght)
             {
               childGenoma.Add(CrossOver(male.Traits[i], female.Traits[i]));
             }
 
-            var childThinkRate = CrossOver(male.ThinkRate, female.ThinkRate);
-            GeneticInstanceController child = CreateEntity(childGenoma);
-            child.ThinkRate = childThinkRate;
+            // Now Compute crossover on brains weights (or neuralDna
 
+            double[] maleNeuralDna = male.geneticBrain.FFNetwork.GetWeights();
+            double[] femaleNeuralDna = female.geneticBrain.FFNetwork.GetWeights();
+
+            double[] crossOverNeuralDna = new double[maleNeuralDna.Length];
+            // => here crossover
+            for(int i = 0; i < crossOverNeuralDna.Length; ++i)
+            {
+                crossOverNeuralDna[i] = CrossOver(maleNeuralDna[i], femaleNeuralDna[i]);
+            }
+
+            GeneticInstanceController child = CreateEntity(childGenoma, crossOverNeuralDna);
             // TODO LATER : replace by a partnerFemale.Gestate()
             child.Born();
 
@@ -84,7 +96,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
             if (Rand(A.Dominance) >= Rand(B.Dominance))
             {
                 delta = A.Value - B.Value;
-                crossedGene.Value = A.Value - delta * A.Dominance;
+                crossedGene.Value = A.Value - delta * A.Dominance * TraitsCrossoverRate;
                 crossedGene.Dominance = A.Dominance + 0.01f; // Adding a small value each win to dominance
 
                 crossedGene.MutationVersion = A.MutationVersion;
@@ -93,13 +105,21 @@ namespace Assets.Job_NeuralNetwork.Scripts
             else
             {
                 delta = B.Value - A.Value;
-                crossedGene.Value = B.Value - delta * B.Dominance;
+                crossedGene.Value = B.Value - delta * B.Dominance * TraitsCrossoverRate;
                 crossedGene.Dominance = B.Dominance + 0.01f;
 
                 crossedGene.MutationVersion = B.MutationVersion;
                 crossedGene.TraitName = B.TraitName;
             }
             return crossedGene;
+        }
+
+        public double CrossOver(double A, double B)
+        {
+            double result = 0;
+            result = A + Math.Abs(A - B) * NeuralCrossoverRate;
+
+            return result;
         }
         #endregion
         // *******************************************************************************

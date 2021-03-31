@@ -29,7 +29,6 @@ namespace Assets.Job_NeuralNetwork.Scripts
 
         public enum ActivationFunctions
         {
-            AxonsLinear,
             Linear,
             ReLU,
             PReLU,

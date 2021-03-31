@@ -17,15 +17,9 @@ namespace Assets.Job_NeuralNetwork.Scripts.GeneticNetwork.GeneticInstancesEvalua
             Male,
         }
 
-        public int MaxHunger; // Resistance to hunger
-        public int MaxLife; // Maximum vitality
-        public int Courage; // Resistance to fear, involved in fleeing or attacking decisions
-        public int Speed; // MovingSpeed of that entity
-        public int Desirability; // Chances of reproduction 
-
         [Header("Entity RealTime Parameters")]
         public bool IsAlive;
-        
+
         public int CurrentLife;
         public int CurrentHunger;
         public int CurrentWaterNeed;
@@ -39,23 +33,28 @@ namespace Assets.Job_NeuralNetwork.Scripts.GeneticNetwork.GeneticInstancesEvalua
 
 
         // ************************************************************************************************************
-        public override void Init(GeneticBrain GeneticEntity, GeneticEvolutionManager EvolutionManager, List<Gene> DnaTraits)
+        public override void Init(GeneticEvolutionManager EvolutionManager, List<Gene> DnaTraits, double[] neuralDna)
         {
-            base.Init(GeneticEntity, EvolutionManager, DnaTraits);
+            base.Init(EvolutionManager, DnaTraits, neuralDna);
 
             RandGender();
-            if(DnaTraits != null)
+
+            if (DnaTraits != null)
             {
                 Traits = DnaTraits;
             }
             else
             {
                 // Randomizing by a delta on all traits value to get some chaos in individutes at start
-                for(int i = 0; i < Traits.Count; ++i)
+                for (int i = 0; i < Traits.Count; ++i)
                 {
                     Traits[i] = new Gene(0, Traits[i].TraitName, RandomizeByDelta(Traits[i].Value, 0.1f), RandomizeByDelta(Traits[i].Dominance, 0.05f));
                 }
-                ThinkRate = new Gene(0, ThinkRate.TraitName, RandomizeByDelta(ThinkRate.Value, 0.1f), RandomizeByDelta(ThinkRate.Dominance, 0.05f));
+            }
+
+            if(neuralDna != null)
+            {
+                geneticBrain.FFNetwork.SetWeights(neuralDna);
             }
         }
 
@@ -68,13 +67,13 @@ namespace Assets.Job_NeuralNetwork.Scripts.GeneticNetwork.GeneticInstancesEvalua
         private void RandGender()
         {
             float rand = UnityEngine.Random.Range(0f, 1f);
-            if(rand > 0.5f)
+            if (rand > 0.5f)
             {
                 Gender = GenderType.Female;
             }
             else
             {
-                Gender =  GenderType.Male;
+                Gender = GenderType.Male;
             }
         }
 
@@ -101,7 +100,7 @@ namespace Assets.Job_NeuralNetwork.Scripts.GeneticNetwork.GeneticInstancesEvalua
             if (IsAlive)
             {
                 rateTimer += Time.deltaTime;
-                if (rateTimer > ThinkRate.Value)
+                if (rateTimer > Traits[0].Value)
                 {
                     ExecuteDecision(geneticBrain.Compute(ComputePerception()));
                     rateTimer = 0;
@@ -198,19 +197,22 @@ namespace Assets.Job_NeuralNetwork.Scripts.GeneticNetwork.GeneticInstancesEvalua
 
         public override void Reproduct()
         {
-            if (potentialPartner.AskReproduction(this) && AskReproduction(potentialPartner))
+            if (potentialPartner != null)
             {
-                Debug.LogError(this.UniqueID + " and " + potentialPartner.UniqueID + " are reproducing");
-                CurrentlyDoing = CurrentAction.Reproduct;
-                potentialPartner.CurrentlyDoing = CurrentAction.Reproduct;
+                if (potentialPartner.AskReproduction(this) && AskReproduction(potentialPartner))
+                {
+                    Debug.LogError(this.UniqueID + " and " + potentialPartner.UniqueID + " are reproducing");
+                    CurrentlyDoing = CurrentAction.Reproduct;
+                    potentialPartner.CurrentlyDoing = CurrentAction.Reproduct;
 
-                if(Gender == GenderType.Male)
-                {
-                    evolutionManager.Request_ComputeReproduction(this, potentialPartner);
-                }
-                else
-                {
-                    evolutionManager.Request_ComputeReproduction(potentialPartner, this);
+                    if (Gender == GenderType.Male)
+                    {
+                        evolutionManager.Request_ComputeReproduction(this, potentialPartner);
+                    }
+                    else
+                    {
+                        evolutionManager.Request_ComputeReproduction(potentialPartner, this);
+                    }
                 }
             }
         }
@@ -264,10 +266,10 @@ namespace Assets.Job_NeuralNetwork.Scripts.GeneticNetwork.GeneticInstancesEvalua
         // REPRODUCTION : Here is a method to create child instances of two Entities **********************************
         #region ReproductionAndMutation
         public Controller_Animal potentialPartner;
-       
+
         public override bool AskReproduction(GeneticInstanceController fromPartner)
         {
-            if(CurrentlyDoing == CurrentAction.SearchForPartner)
+            if (CurrentlyDoing == CurrentAction.SearchForPartner)
             {
                 Controller_Animal partner = fromPartner as Controller_Animal;
                 if (Gender != partner.Gender)

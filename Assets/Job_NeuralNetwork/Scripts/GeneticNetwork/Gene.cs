@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace Assets.Job_NeuralNetwork.Scripts.GeneticNetwork
 {
+    [Serializable]
     public struct Gene
     {
         public int MutationVersion;

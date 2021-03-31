@@ -94,7 +94,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
         {
             delay = new WaitForSeconds(DelayBetweenEpochs);
 
-            FFNetwork.CreateNetwork(this);
+            FFNetwork.CreateNetwork(this, null);
            
             InitTraining();
            

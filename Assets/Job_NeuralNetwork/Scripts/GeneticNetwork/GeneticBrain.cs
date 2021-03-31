@@ -13,51 +13,23 @@ namespace Assets.Job_NeuralNetwork.Scripts
         [Header("Feed Forward Network")]
         public NeuralNetwork FFNetwork;
         public GeneticEvolutionManager GeneticEvolutionManager;
-
-        [Header("RunMode")]
-        public RunningMode Mode;
-        public enum RunningMode
-        {
-            Train,
-            Execute,
-        }
-        [Header("Save Management")]
-        public bool Save;
-        public int AutoSaveEveryEpochs = 5000;
-
-        [Header("Training Parameters")]
-        public bool AutomaticStop;
-        public int Epochs; // trainData lenght
-        public int currentEpoch;
-        public int BatchSize; // every nbr of runs would you want to compute error
-
-        [Range(0.00001f, 0.5f)] public float LearningRate;
-        public double Momentum;
-
-        public double WeightDecay = 0.0001f;
-
-        private WaitForSeconds delay;
-        public float DelayBetweenEpochs = 0.05f;
-        private Coroutine ExecutionCoroutine;
-
-        [Header("Learning Rate Decay")]
-
-        public float DecayRate = 0.95f;
-        public int DecayStep;
-
+       
+        private float LearningRate;
+               
         // **************************************************************************************
         public double[][] TestingDataX;
         public double[][] TestingDataY;
 
-       /* [Header("Real Time In/Out")]
-        public double[] runInputs;*/
-        private double[] runResults;
+       [Header("Real Time In/Out")]
+        public double[] runInputs;
+        public double[] runResults;
               
 
-        public void CreateInstance()
+        public void CreateInstance(GeneticEvolutionManager manager)
         {
-            delay = new WaitForSeconds(DelayBetweenEpochs);
-
+            FFNetwork = GetComponent<NeuralNetwork>();
+            GeneticEvolutionManager = manager;
+            LearningRate = GeneticEvolutionManager.NeuralCrossoverRate;
             FFNetwork.CreateNetwork(null, this);
         }
 
@@ -72,11 +44,14 @@ namespace Assets.Job_NeuralNetwork.Scripts
             // string saveName => Genetic_Animal_uniqueID_NNArchitecture
             // save the saveName in playerprefs to automatically load
             // CreateFolder for it
-            FFNetwork.GetAndSaveWeights(LearningRate, Momentum, WeightDecay);
+            FFNetwork.GetAndSaveWeights(LearningRate, 0, 0);
         }
+
+        // Weight and bias randomization and reproduction and mutations
 
         public double[] Compute(double[] inputs)
         {
+            runInputs = inputs;
             FFNetwork.ComputeFeedForward(inputs, out runResults);
             return runResults;
         }

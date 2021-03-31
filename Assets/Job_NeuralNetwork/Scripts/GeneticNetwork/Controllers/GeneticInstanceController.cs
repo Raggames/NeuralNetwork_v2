@@ -13,14 +13,14 @@ namespace Assets.Job_NeuralNetwork.Scripts
     {
         public int UniqueID;
      
-        [Header("References")]
-        protected GeneticEvolutionManager evolutionManager;
-        protected GeneticBrain geneticBrain;
-        protected Memory memory;
+        [Header("References")] //set private later
+        public GeneticEvolutionManager evolutionManager;
+        public GeneticBrain geneticBrain;
+        public Memory memory;
+        public Sense sense;
 
         [Header("Traits")]
         public List<Gene> Traits = new List<Gene>();
-        public Gene ThinkRate = new Gene(0, "ThinkRate", 0.5f, 0.1f);
         
         [Header("Evaluation Parameters")] // Some more meta-parameters to evaluate fitness to an entity in its environnement
         public float SurvivedTime;
@@ -29,11 +29,14 @@ namespace Assets.Job_NeuralNetwork.Scripts
 
         protected float rateTimer;
 
-        public virtual void Init(GeneticBrain GeneticEntity, GeneticEvolutionManager EvolutionManager, List<Gene> DnaTraits)
+        public virtual void Init(GeneticEvolutionManager EvolutionManager, List<Gene> DnaTraits, double[] neuralDna)
         {
             evolutionManager = EvolutionManager;
-            geneticBrain = GeneticEntity;
+
             memory = GetComponent<Memory>();
+            sense = GetComponent<Sense>();
+            geneticBrain = GetComponent<GeneticBrain>();
+            geneticBrain.CreateInstance(evolutionManager);
 
             UniqueID = EvolutionManager.GetUniqueID();
         }
