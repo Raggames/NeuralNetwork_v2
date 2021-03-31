@@ -64,7 +64,10 @@ namespace Assets.Job_NeuralNetwork.Scripts
               childGenoma.Add(CrossOver(male.Traits[i], female.Traits[i]));
             }
 
+            var childThinkRate = CrossOver(male.ThinkRate, female.ThinkRate);
             GeneticInstanceController child = CreateEntity(childGenoma);
+            child.ThinkRate = childThinkRate;
+
             // TODO LATER : replace by a partnerFemale.Gestate()
             child.Born();
 

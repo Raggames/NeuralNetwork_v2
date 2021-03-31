@@ -20,14 +20,13 @@ namespace Assets.Job_NeuralNetwork.Scripts
 
         [Header("Traits")]
         public List<Gene> Traits = new List<Gene>();
-
+        public Gene ThinkRate = new Gene(0, "ThinkRate", 0.5f, 0.1f);
+        
         [Header("Evaluation Parameters")] // Some more meta-parameters to evaluate fitness to an entity in its environnement
         public float SurvivedTime;
         public float FoodEaten; // amount of currentHunger --
         public float NumberOfChilds;
 
-        [Header("Execution Compute Rate")]
-        public float Rate = 0.5f;
         protected float rateTimer;
 
         public virtual void Init(GeneticBrain GeneticEntity, GeneticEvolutionManager EvolutionManager, List<Gene> DnaTraits)

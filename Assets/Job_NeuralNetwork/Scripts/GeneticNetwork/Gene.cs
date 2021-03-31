@@ -14,5 +14,13 @@ namespace Assets.Job_NeuralNetwork.Scripts.GeneticNetwork
         public float Value;
 
         public float Dominance; // Recessivity
+
+        public Gene(int mutationverion, string traitName, float value, float dominance)
+        {
+            this.MutationVersion = mutationverion;
+            this.TraitName = traitName;
+            this.Value = value;
+            this.Dominance = dominance;
+        }
     }
 }

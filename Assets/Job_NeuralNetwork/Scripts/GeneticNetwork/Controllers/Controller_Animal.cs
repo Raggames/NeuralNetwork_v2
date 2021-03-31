@@ -48,6 +48,15 @@ namespace Assets.Job_NeuralNetwork.Scripts.GeneticNetwork.GeneticInstancesEvalua
             {
                 Traits = DnaTraits;
             }
+            else
+            {
+                // Randomizing by a delta on all traits value to get some chaos in individutes at start
+                for(int i = 0; i < Traits.Count; ++i)
+                {
+                    Traits[i] = new Gene(0, Traits[i].TraitName, RandomizeByDelta(Traits[i].Value, 0.1f), RandomizeByDelta(Traits[i].Dominance, 0.05f));
+                }
+                ThinkRate = new Gene(0, ThinkRate.TraitName, RandomizeByDelta(ThinkRate.Value, 0.1f), RandomizeByDelta(ThinkRate.Dominance, 0.05f));
+            }
         }
 
         public override void Born()
@@ -69,6 +78,12 @@ namespace Assets.Job_NeuralNetwork.Scripts.GeneticNetwork.GeneticInstancesEvalua
             }
         }
 
+        private float RandomizeByDelta(float input, float delta)
+        {
+            float rand = UnityEngine.Random.Range(-delta, delta);
+            return input + rand;
+        }
+
         // PERCEPTION *************************************************************************************************
         #region Perception
 
@@ -86,7 +101,7 @@ namespace Assets.Job_NeuralNetwork.Scripts.GeneticNetwork.GeneticInstancesEvalua
             if (IsAlive)
             {
                 rateTimer += Time.deltaTime;
-                if (rateTimer > Rate)
+                if (rateTimer > ThinkRate.Value)
                 {
                     ExecuteDecision(geneticBrain.Compute(ComputePerception()));
                     rateTimer = 0;
