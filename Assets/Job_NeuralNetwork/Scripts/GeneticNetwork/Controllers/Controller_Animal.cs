@@ -24,6 +24,7 @@ namespace Assets.Job_NeuralNetwork.Scripts.GeneticNetwork.GeneticInstancesEvalua
         public int CurrentHunger;
         public int CurrentWaterNeed;
         public int CurrentFear;
+        public int CurrentReproductionNeed;
 
         public float TimeAtBorn;
 
@@ -38,6 +39,7 @@ namespace Assets.Job_NeuralNetwork.Scripts.GeneticNetwork.GeneticInstancesEvalua
             base.Init(EvolutionManager, DnaTraits, neuralDna);
 
             RandGender();
+            inputs = new double[geneticBrain.FFNetwork.InputLayer.NeuronsCount];
 
             if (DnaTraits != null)
             {
@@ -88,13 +90,26 @@ namespace Assets.Job_NeuralNetwork.Scripts.GeneticNetwork.GeneticInstancesEvalua
 
         private double[] ComputePerception()
         {
-            return new double[1];
+            sense.Refresh();
+
+            inputs[0] = CurrentHunger / Traits[2].Value;
+            inputs[1] = CurrentLife / Traits[3].Value;
+            inputs[2] = CurrentFear / Traits[4].Value;
+            inputs[3] = CurrentReproductionNeed / 100;
+
+            return inputs;
         }
 
         #endregion
 
         // EXECUTION ***************************************************************************************************
         #region Execution
+
+        private void ComputeNeedsIncrease()
+        {
+            //Hunger Fear Etc do here
+        }
+
         public void Update()
         {
             if (IsAlive)

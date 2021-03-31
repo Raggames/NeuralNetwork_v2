@@ -75,7 +75,7 @@ MonoBehaviour:
     Dominance: 0.1
   - MutationVersion: 0
     TraitName: Courage
-    Value: 50
+    Value: 100
     Dominance: 0.1
   - MutationVersion: 0
     TraitName: Speed
@@ -84,6 +84,10 @@ MonoBehaviour:
   - MutationVersion: 0
     TraitName: Desirability
     Value: 10
+    Dominance: 0.1
+  - MutationVersion: 0
+    TraitName: Efficiency
+    Value: 0.5
     Dominance: 0.1
   SurvivedTime: 0
   FoodEaten: 0
@@ -94,6 +98,7 @@ MonoBehaviour:
   CurrentHunger: 0
   CurrentWaterNeed: 0
   CurrentFear: 0
+  CurrentReproductionNeed: 0
   TimeAtBorn: 0
   CurrentlyDoing: 8
   potentialPartner: {fileID: 0}
@@ -111,14 +116,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   FFNetwork: {fileID: 0}
   GeneticEvolutionManager: {fileID: 0}
-  Mode: 0
-  Save: 0
-  AutoSaveEveryEpochs: 5000
-  LearningRate: 0.00001
-  Momentum: 0
-  WeightDecay: 0.00009999999747378752
-  DecayRate: 0.95
-  DecayStep: 0
   runInputs: []
   runResults: []
 --- !u!114 &1349543702357570427
@@ -135,7 +132,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   InputLayer:
     ActivationFunction: 0
-    NeuronsCount: 9
+    NeuronsCount: 4
   HiddenLayers:
   - ActivationFunction: 7
     NeuronsCount: 18
