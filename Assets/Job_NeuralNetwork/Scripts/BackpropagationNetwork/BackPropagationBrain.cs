@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace Assets.Job_NeuralNetwork.Scripts
 {
-    public class NetworkInstanceBackpropagationEntity : MonoBehaviour
+    public class BackPropagationBrain : MonoBehaviour
     {
         [Header("Data Manager")]
         public JNNDataManager DataManager;
@@ -277,8 +277,8 @@ namespace Assets.Job_NeuralNetwork.Scripts
 
         private void ComputeAccuracy(double[] tValues, double[] results)
         {
-            int index = MaxIndex(results);
-            int tMaxIndex = MaxIndex(tValues);
+            int index = JNNMath.MaxIndex(results);
+            int tMaxIndex = JNNMath.MaxIndex(tValues);
             if (index.Equals(tMaxIndex))
             {
                 correctRuns++;
@@ -289,21 +289,6 @@ namespace Assets.Job_NeuralNetwork.Scripts
             }
 
             Accuracy = (float)correctRuns / (float)(wrongRuns + correctRuns) * 100f;
-        }
-
-        private static int MaxIndex(double[] vector) // helper for Accuracy()
-        {
-            // index of largest value
-            int bigIndex = 0;
-            double biggestVal = vector[0];
-            for (int i = 0; i < vector.Length; ++i)
-            {
-                if (vector[i] > biggestVal)
-                {
-                    biggestVal = vector[i]; bigIndex = i;
-                }
-            }
-            return bigIndex;
         }
 
         #endregion

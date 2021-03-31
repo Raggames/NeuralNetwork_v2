@@ -9,8 +9,10 @@ namespace Assets.Job_NeuralNetwork.Scripts.GeneticNetwork
     public struct Gene
     {
         public int MutationVersion;
-        public string Parameter;
+        public string TraitName;
 
         public float Value;
+
+        public float Dominance; // Recessivity
     }
 }

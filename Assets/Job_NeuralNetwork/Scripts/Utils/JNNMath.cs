@@ -9,6 +9,24 @@ namespace Assets.Job_NeuralNetwork.Scripts
 {
     public static class JNNMath
     {
+
+        public static int MaxIndex(double[] vector) // helper for Accuracy()
+        {
+            // index of largest value
+            int bigIndex = 0;
+            double biggestVal = vector[0];
+            for (int i = 0; i < vector.Length; ++i)
+            {
+                if (vector[i] > biggestVal)
+                {
+                    biggestVal = vector[i]; bigIndex = i;
+                }
+            }
+            return bigIndex;
+        }
+
+        #region ActivationFunctions
+
         public enum ActivationFunctions
         {
             AxonsLinear,
@@ -231,6 +249,6 @@ namespace Assets.Job_NeuralNetwork.Scripts
 
             return result; // now scaled so that xi sum to 1.0
         }
-
+        #endregion
     }
 }

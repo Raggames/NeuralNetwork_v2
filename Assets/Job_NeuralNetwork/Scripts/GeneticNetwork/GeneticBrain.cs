@@ -49,11 +49,10 @@ namespace Assets.Job_NeuralNetwork.Scripts
         public double[][] TestingDataX;
         public double[][] TestingDataY;
 
-        [Header("Real Time In/Out")]
-        public double[] runInputs;
-        public double[] runResults;
-
-      
+       /* [Header("Real Time In/Out")]
+        public double[] runInputs;*/
+        private double[] runResults;
+              
 
         public void CreateInstance()
         {

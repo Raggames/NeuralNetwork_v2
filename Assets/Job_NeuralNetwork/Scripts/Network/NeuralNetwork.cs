@@ -15,7 +15,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
 {
     public class NeuralNetwork : MonoBehaviour
     {
-        private NetworkInstanceBackpropagationEntity backpropagationManager;
+        private BackPropagationBrain backpropagationManager;
         private GeneticBrain geneticManager;
         [Header("DONN Architecture")]
         /*public int InputLayerNeurons;
@@ -69,7 +69,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
 
 
         // CREATING NETWORK ********************************************************************************************
-        public void CreateNetwork(NetworkInstanceBackpropagationEntity backPropManager = null, GeneticBrain genManager = null)
+        public void CreateNetwork(BackPropagationBrain backPropManager = null, GeneticBrain genManager = null)
         {
             if(backPropManager != null)
             {

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Assets.Job_NeuralNetwork.Scripts.GeneticNetwork;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -33,13 +34,15 @@ namespace Assets.Job_NeuralNetwork.Scripts
             StartTraining();
         }
 
-        public void CreateEntity()
+        public GeneticInstanceController CreateEntity(List<Gene> genoma = null)
         {
             var nn = Instantiate(instancePrefab, transform);
             var controller = nn.GetComponent<GeneticInstanceController>();
             NetworkInstances.Add(controller);
-            controller.Init(nn, this);
+            controller.Init(nn, this, genoma);
             nn.CreateInstance();
+
+            return controller;
         }
 
         private void StartTraining()
@@ -49,12 +52,66 @@ namespace Assets.Job_NeuralNetwork.Scripts
                 NetworkInstances[j].Born();
             }
         }
+        // *******************************************************************************
+        #region Reproductions
+                
+        public void Request_ComputeReproduction(GeneticInstanceController male, GeneticInstanceController female)
+        {
+            List<Gene> childGenoma = new List<Gene>();
+
+            for(int i = 0; i < male.Traits.Count; ++i) // asusming A and B have same Traits List (in order and lenght)
+            {
+              childGenoma.Add(CrossOver(male.Traits[i], female.Traits[i]));
+            }
+
+            GeneticInstanceController child = CreateEntity(childGenoma);
+            // TODO LATER : replace by a partnerFemale.Gestate()
+            child.Born();
+
+            male.NumberOfChilds++;
+            female.NumberOfChilds++;
+        }
+
+        public Gene CrossOver(Gene A, Gene B)
+        {
+            Gene crossedGene = new Gene();
+            
+            float delta = 0;
+
+            if (Rand(A.Dominance) >= Rand(B.Dominance))
+            {
+                delta = A.Value - B.Value;
+                crossedGene.Value = A.Value - delta * A.Dominance;
+                crossedGene.Dominance = A.Dominance + 0.01f; // Adding a small value each win to dominance
+
+                crossedGene.MutationVersion = A.MutationVersion;
+                crossedGene.TraitName = A.TraitName;
+            }
+            else
+            {
+                delta = B.Value - A.Value;
+                crossedGene.Value = B.Value - delta * B.Dominance;
+                crossedGene.Dominance = B.Dominance + 0.01f;
+
+                crossedGene.MutationVersion = B.MutationVersion;
+                crossedGene.TraitName = B.TraitName;
+            }
+            return crossedGene;
+        }
+        #endregion
+        // *******************************************************************************
+        #region Utils
+
+        public float Rand( float dominance)
+        {
+            float rand = UnityEngine.Random.Range(0f, 1f);
+            return rand * dominance;
+        }
 
         public int GetUniqueID()
         {
             return ++setID;
         }
-
 
         public void GetEvaluationData(GeneticEvaluationData data)
         {
@@ -66,6 +123,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
             InstancesData.Add(data);
 
         }
+        #endregion
     }
 
     public struct GeneticEvaluationData
