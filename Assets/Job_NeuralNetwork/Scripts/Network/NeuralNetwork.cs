@@ -297,7 +297,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
             backpropagationManager.WeightDecay = data.weightDecay;
         }
 
-        public void GetAndSaveWeights(double learningRate, double momentum, double weightDecay, double currentLoss, double accuracy)
+        public void GetAndSaveWeights(double learningRate, double momentum, double weightDecay, double currentLoss = 0, double accuracy = 0)
         {
             int p = 0;
             int dnaLength = (hiddenLayerWeights.GetLength(0) * hiddenLayerWeights.GetLength(1)) + hiddenLayerBias.Length + (outputLayerWeights.GetLength(0) * outputLayerWeights.GetLength(1)) + outputLayerBias.Length;

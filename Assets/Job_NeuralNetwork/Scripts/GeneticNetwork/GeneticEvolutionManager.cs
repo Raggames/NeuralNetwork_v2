@@ -10,41 +10,43 @@ namespace Assets.Job_NeuralNetwork.Scripts
     public class GeneticEvolutionManager : MonoBehaviour
     {
         private int setID = 0;
-
-        private List<GeneticEvaluationData> InstancesData = new List<GeneticEvaluationData>();
-
         [Header("Instances")]
         public GeneticBrain instancePrefab;
 
         public List<GeneticInstanceController> NetworkInstances = new List<GeneticInstanceController>();
 
-        public int InstancesToRun;
-        public int TrainingEpochs;
-        public int CurrentEpoch;
+        public int EntitiesToCreate;
+        public int GenerationCount;
+        public int DeadEntities;
 
+        [Header("Entities Data Management")]
+        private List<GeneticEvaluationData> InstancesData = new List<GeneticEvaluationData>();
+
+        // ***************************************************************************************************
         private void Start()
         {
-            for(int i = 0; i < InstancesToRun; ++i)
+            for (int i = 0; i < EntitiesToCreate; ++i)
             {
-                var nn = Instantiate(instancePrefab, transform);
-                NetworkInstances.Add(nn.GetComponent<GeneticInstanceController>());
-                nn.CreateInstance();
+                CreateEntity();
             }
 
             StartTraining();
         }
 
+        public void CreateEntity()
+        {
+            var nn = Instantiate(instancePrefab, transform);
+            var controller = nn.GetComponent<GeneticInstanceController>();
+            NetworkInstances.Add(controller);
+            controller.Init(nn, this);
+            nn.CreateInstance();
+        }
+
         private void StartTraining()
         {
-            for(int i = 0; i < TrainingEpochs; ++i)
+            for (int j = 0; j < EntitiesToCreate; ++j)
             {
-                for(int j = 0; j < InstancesToRun; ++j)
-                {
-                    NetworkInstances[j].StartExecution();
-                }
-
-
-                CurrentEpoch++;
+                NetworkInstances[j].Born();
             }
         }
 
@@ -53,17 +55,22 @@ namespace Assets.Job_NeuralNetwork.Scripts
             return ++setID;
         }
 
+
         public void GetEvaluationData(GeneticEvaluationData data)
         {
+            DeadEntities++;
+            if(DeadEntities >= EntitiesToCreate)
+            {
+                GenerationCount++;
+            }
+            InstancesData.Add(data);
 
         }
-
-
     }
 
     public struct GeneticEvaluationData
     {
-        public int networkInstanceID;
+        public int instanceID;
         public double[] result;
     }
 }

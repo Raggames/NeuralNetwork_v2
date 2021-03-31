@@ -13,9 +13,6 @@ namespace Assets.Job_NeuralNetwork.Scripts
         [Header("Feed Forward Network")]
         public NeuralNetwork FFNetwork;
         public GeneticEvolutionManager GeneticEvolutionManager;
-        public int UniqueID;
-
-        private GeneticInstanceController instanceController;
 
         [Header("RunMode")]
         public RunningMode Mode;
@@ -56,48 +53,33 @@ namespace Assets.Job_NeuralNetwork.Scripts
         public double[] runInputs;
         public double[] runResults;
 
-        public bool IsExecuting;
-
-        [Header("Execution Compute Rate")]
-        public float Rate = 0.5f;
-        private float rateTimer;
+      
 
         public void CreateInstance()
         {
             delay = new WaitForSeconds(DelayBetweenEpochs);
 
             FFNetwork.CreateNetwork(null, this);
-            UniqueID = GeneticEvolutionManager.GetUniqueID();
-            instanceController = GetComponent<GeneticInstanceController>();
-            instanceController.Init(this, GeneticEvolutionManager);
         }
 
-        public void Execute()
+        public void LoadBrain()
         {
             FFNetwork.LoadAndSetWeights();
             //ExecutionCoroutine = StartCoroutine(DoExecuting(Epochs));
         }
 
-        public void StartExecuting()
+        public void SaveBrain()
         {
-            IsExecuting = true;
-
-           
+            // string saveName => Genetic_Animal_uniqueID_NNArchitecture
+            // save the saveName in playerprefs to automatically load
+            // CreateFolder for it
+            FFNetwork.GetAndSaveWeights(LearningRate, Momentum, WeightDecay);
         }
 
-        public void Update() // A METTRE DANS CONTROLLER
+        public double[] Compute(double[] inputs)
         {
-            if (IsExecuting)
-            {
-                rateTimer += Time.deltaTime;
-                if(rateTimer > Rate)
-                {
-                    FFNetwork.ComputeFeedForward(runInputs, out runResults);
-
-                    instanceController.ExecuteDecision(runResults);
-                    rateTimer = 0;
-                }
-            }
+            FFNetwork.ComputeFeedForward(inputs, out runResults);
+            return runResults;
         }
     }
 }

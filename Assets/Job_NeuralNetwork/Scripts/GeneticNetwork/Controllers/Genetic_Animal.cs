@@ -29,12 +29,33 @@ namespace Assets.Job_NeuralNetwork.Scripts.GeneticNetwork.GeneticInstancesEvalua
         public float FoodEaten; // amount of currentHunger --
         public float NumberOfChilds;
 
+        [Header("Brain Executions")]
+        protected double[] inputs;
+        protected double[] outputs;
 
-        public override void StartExecution()
+
+        // ****************************************************************************************************************************************
+        public override void Born()
         {
             IsAlive = true;
         }
 
+        #region Execution
+        public void Update() 
+        {
+            if (IsAlive)
+            {
+                rateTimer += Time.deltaTime;
+                if (rateTimer > Rate)
+                {
+                    outputs = geneticBrain.Compute(inputs);
+
+                    ExecuteDecision(outputs);
+                    rateTimer = 0;
+                }
+            }
+        }
+        #endregion
         // NeuralNetwork Computes Controller parameters to output a decision with is controlled here
         #region Decisions
         public override void ExecuteDecision(double[] inputs)
@@ -45,12 +66,36 @@ namespace Assets.Job_NeuralNetwork.Scripts.GeneticNetwork.GeneticInstancesEvalua
         #endregion
 
         #region Actions
+
+        public enum CurrentAction
+        {
+            SearchForFood,
+            Eat,
+            SearchForWater,
+            Drink,
+            SearchForPartner,
+            Reproduct,
+            Attack,
+            Flee,
+            Wait,
+        }
+
         public void SearchForFood() // Could be a prey or vegetables
         {
 
         }
 
+        public void Eat()
+        {
+
+        }
+
         public void SearchForWater()
+        {
+
+        }
+
+        public void Drink()
         {
 
         }
@@ -79,7 +124,7 @@ namespace Assets.Job_NeuralNetwork.Scripts.GeneticNetwork.GeneticInstancesEvalua
         public override GeneticEvaluationData ComputeEvaluationData()
         {
             GeneticEvaluationData data = new GeneticEvaluationData();
-            data.networkInstanceID = geneticBrain.UniqueID;
+            data.instanceID = UniqueID;
 
             double[] evaluate = new double[] // we evaluate fitness on DNA Parameters AND meta-parameters 
             {
@@ -98,13 +143,22 @@ namespace Assets.Job_NeuralNetwork.Scripts.GeneticNetwork.GeneticInstancesEvalua
 
         public override void Die()
         {
-            throw new NotImplementedException();
+            IsAlive = false;
+
+            evolutionManager.GetEvaluationData(ComputeEvaluationData());
         }
 
+        #region ReproductionAndMutation
         // REPRODUCTION : Here is a method to create child instances of two Entities
         public override void Reproduct(GeneticInstanceController partner)
         {
             throw new NotImplementedException();
         }
+
+        public override void MutateGene()
+        {
+            throw new NotImplementedException();
+        }
+        #endregion
     }
 }
