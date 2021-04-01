@@ -40,7 +40,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
         public GeneticInstanceController CreateEntity(List<Gene> traitsDna = null, double[] neuralDna = null)
         {
             var go = Instantiate(instancePrefab, transform);
-         
+            go.transform.position = new Vector3(UnityEngine.Random.Range(-30, 30), 30, UnityEngine.Random.Range(-30, 30));
             var controller = go.GetComponent<GeneticInstanceController>();
             EntitiesInstances.Add(controller);
             controller.Init(this, traitsDna, neuralDna);

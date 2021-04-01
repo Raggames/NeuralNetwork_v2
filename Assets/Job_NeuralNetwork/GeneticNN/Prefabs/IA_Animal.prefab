@@ -18,7 +18,7 @@ GameObject:
   - component: {fileID: 5780251697902415654}
   m_Layer: 0
   m_Name: IA_Animal
-  m_TagString: Untagged
+  m_TagString: Animal
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -54,7 +54,6 @@ MonoBehaviour:
   UniqueID: 0
   evolutionManager: {fileID: 0}
   geneticBrain: {fileID: 0}
-  memory: {fileID: 0}
   sense: {fileID: 0}
   Traits:
   - MutationVersion: 0
@@ -132,7 +131,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   InputLayer:
     ActivationFunction: 0
-    NeuronsCount: 4
+    NeuronsCount: 7
   HiddenLayers:
   - ActivationFunction: 7
     NeuronsCount: 18
@@ -167,8 +166,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   geneticController: {fileID: 0}
-  FoodPositions: []
-  WaterPositions: []
+  TempFoodPosition: []
+  TempWaterPositions: []
   EntitiesAround: []
   senseCollider: {fileID: 0}
 --- !u!135 &5780251697902415655

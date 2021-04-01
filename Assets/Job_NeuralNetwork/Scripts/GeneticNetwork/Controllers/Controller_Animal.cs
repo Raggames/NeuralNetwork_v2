@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Assets.Job_NeuralNetwork.Scripts.GeneticNetwork.Controllers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,6 +10,7 @@ namespace Assets.Job_NeuralNetwork.Scripts.GeneticNetwork.GeneticInstancesEvalua
 {
     public class Controller_Animal : GeneticInstanceController
     {
+        private Memory_Animal memory;
         [Header("Entity DNA Traits")]
         public GenderType Gender;
         public enum GenderType
@@ -20,11 +22,11 @@ namespace Assets.Job_NeuralNetwork.Scripts.GeneticNetwork.GeneticInstancesEvalua
         [Header("Entity RealTime Parameters")]
         public bool IsAlive;
 
-        public int CurrentLife;
-        public int CurrentHunger;
-        public int CurrentWaterNeed;
-        public int CurrentFear;
-        public int CurrentReproductionNeed;
+        public float CurrentLife;
+        public float CurrentHunger;
+        public float CurrentWaterNeed;
+        public float CurrentFear;
+        public float CurrentReproductionNeed;
 
         public float TimeAtBorn;
 
@@ -33,10 +35,16 @@ namespace Assets.Job_NeuralNetwork.Scripts.GeneticNetwork.GeneticInstancesEvalua
         protected double[] outputs;
 
 
+        private List<Vector3> foodPosTemp = new List<Vector3>();
+        private List<Vector3> waterPosTemp = new List<Vector3>();
+        private List<GeneticInstanceController> entitiesTemp = new List<GeneticInstanceController>();
+
         // ************************************************************************************************************
+        #region Initialisation
         public override void Init(GeneticEvolutionManager EvolutionManager, List<Gene> DnaTraits, double[] neuralDna)
         {
             base.Init(EvolutionManager, DnaTraits, neuralDna);
+            memory = GetComponent<Memory_Animal>();
 
             RandGender();
             inputs = new double[geneticBrain.FFNetwork.InputLayer.NeuronsCount];
@@ -63,6 +71,8 @@ namespace Assets.Job_NeuralNetwork.Scripts.GeneticNetwork.GeneticInstancesEvalua
         public override void Born()
         {
             IsAlive = true;
+            CurrentLife = Traits[3].Value;
+
             TimeAtBorn = Time.realtimeSinceStartup;
         }
 
@@ -84,18 +94,74 @@ namespace Assets.Job_NeuralNetwork.Scripts.GeneticNetwork.GeneticInstancesEvalua
             float rand = UnityEngine.Random.Range(-delta, delta);
             return input + rand;
         }
+        #endregion
 
         // PERCEPTION *************************************************************************************************
         #region Perception
+        public override void GetSenseRefresh()
+        {
+           foodPosTemp = sense.GetSensePositionsData(0);
+           waterPosTemp = sense.GetSensePositionsData(1);
+           entitiesTemp = sense.GetSenseEntitiesData();
+        }
+
+        public float EvaluateFear()
+        {
+            float maxFear = 0;
+            float fear = 0;
+            float dist = 0;
+
+            for(int i = 0; i < entitiesTemp.Count; ++i)
+            {
+                dist = (entitiesTemp[i].transform.position - transform.position).magnitude;
+                var mem = memory.TryGetMemoryEntry(0, entitiesTemp[i]);
+                float factor = 0;
+                if(mem != null)
+                {
+
+                    factor = mem.InterestFactor;
+                }
+                fear = ((Traits[1].Value - dist) / Traits[1].Value) - factor;
+                if(fear > maxFear)
+                {
+                    maxFear = fear;
+                }
+            }
+            return maxFear;
+        }
+
+        public float EvaluateNeed(List<Vector3> needInSight)
+        {
+            float maxResult = 0;
+            float result = 0;
+            float dist = 0;
+
+            for(int i = 0; i < needInSight.Count; ++i)
+            {
+                dist = (needInSight[i] - transform.position).magnitude;
+                result = (Traits[1].Value - dist) / Traits[1].Value;
+
+                if(result > maxResult)
+                {
+                    maxResult = result;
+                }
+            }
+            return maxResult;
+        }
 
         private double[] ComputePerception()
         {
-            sense.Refresh();
+            GetSenseRefresh();
 
+            CurrentFear = EvaluateFear();
             inputs[0] = CurrentHunger / Traits[2].Value;
             inputs[1] = CurrentLife / Traits[3].Value;
             inputs[2] = CurrentFear / Traits[4].Value;
             inputs[3] = CurrentReproductionNeed / 100;
+            inputs[4] = CurrentWaterNeed / Traits[2].Value;
+
+            inputs[5] = EvaluateNeed(foodPosTemp);
+            inputs[6] = EvaluateNeed(waterPosTemp);
 
             return inputs;
         }
@@ -105,15 +171,21 @@ namespace Assets.Job_NeuralNetwork.Scripts.GeneticNetwork.GeneticInstancesEvalua
         // EXECUTION ***************************************************************************************************
         #region Execution
 
-        private void ComputeNeedsIncrease()
+        private void UpdatePassiveNeedsIncrease()
         {
-            //Hunger Fear Etc do here
+            //PASSIVE NEEDS INCREASE
+
+            CurrentReproductionNeed += Time.deltaTime * 0.01f;
+            CurrentHunger += Time.deltaTime * 0.02f;
+            CurrentWaterNeed += Time.deltaTime * 0.03f;
         }
 
         public void Update()
         {
             if (IsAlive)
             {
+                UpdatePassiveNeedsIncrease();
+
                 rateTimer += Time.deltaTime;
                 if (rateTimer > Traits[0].Value)
                 {
@@ -299,6 +371,7 @@ namespace Assets.Job_NeuralNetwork.Scripts.GeneticNetwork.GeneticInstancesEvalua
         {
             throw new NotImplementedException();
         }
+               
         #endregion
     }
 }

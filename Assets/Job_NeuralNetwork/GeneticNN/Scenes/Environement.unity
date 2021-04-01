@@ -7192,11 +7192,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f9594acd547187140a01c5e152d3b8c4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  instancePrefab: {fileID: 0}
+  instancePrefab: {fileID: 5780251697902415652, guid: 064f68e61ef6fdf4c80d714dbd75fbb7,
+    type: 3}
   EntitiesInstances: []
-  EntitiesToCreate: 10
+  EntitiesToCreate: 150
   GenerationCount: 0
   DeadEntities: 0
+  NeuralCrossoverRate: 0.05
+  TraitsCrossoverRate: 0.1
 --- !u!1 &790963609 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1069567032315564, guid: bdf8e7438a7816543998181bd3067573,

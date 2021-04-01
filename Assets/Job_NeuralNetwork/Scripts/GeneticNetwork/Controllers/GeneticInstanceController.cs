@@ -16,7 +16,6 @@ namespace Assets.Job_NeuralNetwork.Scripts
         [Header("References")] //set private later
         public GeneticEvolutionManager evolutionManager;
         public GeneticBrain geneticBrain;
-        public Memory memory;
         public Sense sense;
 
         [Header("Traits")]
@@ -33,7 +32,6 @@ namespace Assets.Job_NeuralNetwork.Scripts
         {
             evolutionManager = EvolutionManager;
 
-            memory = GetComponent<Memory>();
             sense = GetComponent<Sense>();
             geneticBrain = GetComponent<GeneticBrain>();
             geneticBrain.CreateInstance(evolutionManager);
@@ -44,6 +42,8 @@ namespace Assets.Job_NeuralNetwork.Scripts
         public abstract void Born();
 
         public abstract GeneticEvaluationData ComputeEvaluationData();
+
+        public abstract void GetSenseRefresh();
 
         public abstract void ExecuteDecision(double[] inputs);
 

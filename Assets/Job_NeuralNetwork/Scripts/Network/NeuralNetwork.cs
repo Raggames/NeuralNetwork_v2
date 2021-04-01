@@ -549,7 +549,7 @@ namespace Assets.Job_NeuralNetwork.Scripts
 
         public double GetRandomWeight()
         {
-            return UnityEngine.Random.Range(0.001f, 0.01f);
+            return UnityEngine.Random.Range(-0.25f, 0.25f); //(0.001f, 0.01f);
         }
 
         public static double[,] MakeMatrix(int x, int y)
