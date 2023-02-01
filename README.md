@@ -4,5 +4,3 @@ Designed for learning purpose about machine/deep learning and Unity Data Oriente
 
 No production integration intended.
 
-By Enzo Boudart, Professional Gameplay Programmer
-2021.
