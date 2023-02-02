@@ -12,30 +12,17 @@ using UnityEngine;
 
 namespace NeuralNetwork
 {
+
     [Serializable]
-    public class NeuralNetwork 
+    public class NeuralNetwork
     {
         private NeuralNetworkTrainer trainer;
         private NetworkBuilder builder;
 
+        public List<Layer> layers = new List<Layer>();
+
         [SerializeField, ReadOnly] protected double[] _inputs;
-
-        [SerializeField, ReadOnly] protected double[,] _ihWeights;
-        [SerializeField, ReadOnly] protected double[] _hBiases;
-        [SerializeField, ReadOnly] protected double[] _hOuputs;
-
-        [SerializeField, ReadOnly] protected double[,] hoWeights;
-        [SerializeField, ReadOnly] protected double[] oBiases;
-
-        [SerializeField, ReadOnly] protected double[,] _ihPrevWeightsDelta;
-        [SerializeField, ReadOnly] protected double[] _hPrevBiasesDelta;
-        [SerializeField, ReadOnly] protected double[,] hoPrevWeightsDelta;
-        [SerializeField, ReadOnly] protected double[] hoPrevBiasesDelta;
-
-        [SerializeField, ReadOnly] protected double[] _hiddenLayerGradients;
-        [SerializeField, ReadOnly] protected double[] outputLayerGradients;
-
-        [SerializeField, ReadOnly] private double[] _outputs;
+        [SerializeField, ReadOnly] protected double[] _outputs;
 
         // CREATING NETWORK ********************************************************************************************
         public void CreateNetwork(NeuralNetworkTrainer trainer, NetworkBuilder builder)
@@ -43,55 +30,23 @@ namespace NeuralNetwork
             this.trainer = trainer;
             this.builder = builder;
 
-            // Creating Arrays
-            _inputs = new double[builder.InputLayer.NeuronsCount];
+            int previous_layer_neuron_count = builder.InputLayer.NeuronsCount;
+            for (int i = 0; i < builder.HiddenLayers.Count; ++i)
+            {
+                layers.Add(new Layer().Create(LayerType.Hidden, builder.HiddenLayers[i].ActivationFunction, previous_layer_neuron_count, builder.HiddenLayers[i].NeuronsCount));
+                previous_layer_neuron_count = builder.HiddenLayers[i].NeuronsCount;
+            }
 
-            _ihWeights = NeuralNetworkMathHelper.MakeMatrix(builder.InputLayer.NeuronsCount, builder.HiddenLayers[0].NeuronsCount);
-            _ihPrevWeightsDelta = NeuralNetworkMathHelper.MakeMatrix(builder.InputLayer.NeuronsCount, builder.HiddenLayers[0].NeuronsCount);
-            _hBiases = new double[builder.HiddenLayers[0].NeuronsCount];
-            _hPrevBiasesDelta = new double[builder.HiddenLayers[0].NeuronsCount];
-            _hiddenLayerGradients = new double[builder.HiddenLayers[0].NeuronsCount];
-            _hOuputs = new double[builder.HiddenLayers[0].NeuronsCount];
-
-            hoWeights = NeuralNetworkMathHelper.MakeMatrix(builder.HiddenLayers[0].NeuronsCount, builder.OutputLayer.NeuronsCount);
-            oBiases = new double[builder.OutputLayer.NeuronsCount];
-
-            hoPrevWeightsDelta = NeuralNetworkMathHelper.MakeMatrix(builder.HiddenLayers[0].NeuronsCount, builder.OutputLayer.NeuronsCount);
-            hoPrevBiasesDelta = new double[builder.OutputLayer.NeuronsCount];
-            outputLayerGradients = new double[builder.OutputLayer.NeuronsCount];
-
-            _outputs = new double[builder.OutputLayer.NeuronsCount];
+            layers.Add(new Layer().Create(LayerType.Output, builder.OutputLayer.ActivationFunction, previous_layer_neuron_count, builder.OutputLayer.NeuronsCount));
 
             InitializeWeights();
         }
 
         private void InitializeWeights()
         {
-            for (int i = 0; i < _ihWeights.GetLength(0); ++i)
+            for (int i = 0; i < layers.Count; ++i)
             {
-                for (int j = 0; j < _ihWeights.GetLength(1); ++j)
-                {
-                    _ihWeights[i, j] = GetRandomWeight(this.trainer.InitialWeightRange);
-
-                }
-            }
-
-            for (int i = 0; i < _hBiases.Length; ++i)
-            {
-                _hBiases[i] = GetRandomWeight(this.trainer.InitialWeightRange);
-            }
-
-            for (int i = 0; i < hoWeights.GetLength(0); ++i)
-            {
-                for (int j = 0; j < hoWeights.GetLength(1); ++j)
-                {
-                    hoWeights[i, j] = GetRandomWeight(this.trainer.InitialWeightRange);
-                }
-            }
-
-            for (int i = 0; i < oBiases.Length; ++i)
-            {
-                oBiases[i] = GetRandomWeight(this.trainer.InitialWeightRange);
+                layers[i].InitializeWeights(this.trainer.InitialWeightRange);
             }
         }
 
@@ -102,54 +57,20 @@ namespace NeuralNetwork
         {
             _inputs = inputs;
 
-            double[] hiddenSums = new double[_hOuputs.Length];
-            double[] outputSums = new double[_outputs.Length];
+            //  V2 ************************************************************************
+            double[] current_output = inputs;
 
-            for (int i = 0; i < _ihWeights.GetLength(1); ++i)
+            for (int i = 0; i < layers.Count; ++i)
             {
-                for (int j = 0; j < _inputs.Length; ++j)
-                {
-                    hiddenSums[i] += inputs[j] * _ihWeights[j, i];
-                }
-                hiddenSums[i] += _hBiases[i];
+                current_output = layers[i].ComputeResult(current_output);
             }
 
-            for (int i = 0; i < _ihWeights.GetLength(1); ++i)
+            if (layers[layers.Count - 1].ActivationFunction == ActivationFunctions.Softmax)
             {
-                hiddenSums[i] += _hBiases[i];
+                current_output = NeuralNetworkMathHelper.Softmax(current_output);
             }
 
-            for (int i = 0; i < _ihWeights.GetLength(1); ++i)
-            {
-                _hOuputs[i] = NeuralNetworkMathHelper.ComputeActivation(builder.HiddenLayers[0].ActivationFunction, false, hiddenSums[i]);
-            }
-
-            for (int j = 0; j < _outputs.Length; ++j)
-            {
-                for (int i = 0; i < _hOuputs.Length; ++i)
-                {
-                    outputSums[j] += _hOuputs[i] * hoWeights[i, j];
-                }
-            }
-
-            for (int j = 0; j < _outputs.Length; ++j)
-            {
-                outputSums[j] += oBiases[j];
-            }
-
-            if (builder.OutputLayer.ActivationFunction == ActivationFunctions.Softmax)
-            {
-                _outputs = NeuralNetworkMathHelper.Softmax(outputSums);
-            }
-            else
-            {
-                for (int i = 0; i < _outputs.Length; ++i)
-                {
-                    _outputs[i] = NeuralNetworkMathHelper.ComputeActivation(builder.OutputLayer.ActivationFunction, false, outputSums[i]);  // Fonction de transformation ici;
-                }
-            }
-
-            results = _outputs;
+            results = current_output;
         }
 
         #endregion
@@ -163,30 +84,22 @@ namespace NeuralNetwork
         {
             dnaTemp = fromWeights;
             int p = 0;
-            for (int i = 0; i < _ihWeights.GetLength(0); ++i)
-            {
-                for (int j = 0; j < _ihWeights.GetLength(1); ++j)
-                {
-                    _ihWeights[i, j] = dnaTemp[p++];
 
+            for(int l = 0; l < layers.Count; ++l)
+            {
+                for (int i = 0; i < layers[l].Weights.GetLength(0); ++i)
+                {
+                    for (int j = 0; j < layers[l].Weights.GetLength(1); ++j)
+                    {
+                        layers[l].Weights[i, j] = dnaTemp[p++];
+                    }
+                }
+
+                for (int i = 0; i < layers[l].Biases.Length; ++i)
+                {
+                    layers[l].Biases[i] = dnaTemp[p++];
                 }
             }
-            for (int i = 0; i < _hBiases.Length; ++i)
-            {
-                _hBiases[i] = dnaTemp[p++];
-            }
-            for (int i = 0; i < hoWeights.GetLength(0); ++i)
-            {
-                for (int j = 0; j < hoWeights.GetLength(1); ++j)
-                {
-                    hoWeights[i, j] = dnaTemp[p++];
-                }
-            }
-            for (int i = 0; i < oBiases.Length; ++i)
-            {
-                oBiases[i] = dnaTemp[p++];
-            }
-
         }
 
         public void LoadAndSetWeights()
@@ -194,30 +107,7 @@ namespace NeuralNetwork
             NetworkData data = LoadDataByName(saveName);
 
             dnaTemp = data.dnaSave;
-            int p = 0;
-            for (int i = 0; i < _ihWeights.GetLength(0); ++i)
-            {
-                for (int j = 0; j < _ihWeights.GetLength(1); ++j)
-                {
-                    _ihWeights[i, j] = dnaTemp[p++];
-
-                }
-            }
-            for (int i = 0; i < _hBiases.Length; ++i)
-            {
-                _hBiases[i] = dnaTemp[p++];
-            }
-            for (int i = 0; i < hoWeights.GetLength(0); ++i)
-            {
-                for (int j = 0; j < hoWeights.GetLength(1); ++j)
-                {
-                    hoWeights[i, j] = dnaTemp[p++];
-                }
-            }
-            for (int i = 0; i < oBiases.Length; ++i)
-            {
-                oBiases[i] = dnaTemp[p++];
-            }
+            SetWeights(dnaTemp);
 
             trainer.LearningRate = (float)data.learningRate;
             (trainer as BackpropagationTrainer).Momentum = data.momentum;
@@ -227,63 +117,36 @@ namespace NeuralNetwork
         public double[] GetWeights()
         {
             int p = 0;
-            int dnaLength = (_ihWeights.GetLength(0) * _ihWeights.GetLength(1)) + _hBiases.Length + (hoWeights.GetLength(0) * hoWeights.GetLength(1)) + oBiases.Length;
+            int dnaLength = 0;
+
+            for(int i = 0; i < layers.Count; ++i)
+            {
+                dnaLength += layers[i].Weights.GetLength(0) * layers[i].Weights.GetLength(1) + layers[i].Biases.Length;
+            }
             double[] weights = new double[dnaLength];
 
-            for (int i = 0; i < _ihWeights.GetLength(0); ++i)
+            for (int l = 0; l < layers.Count; ++l)
             {
-                for (int j = 0; j < _ihWeights.GetLength(1); ++j)
+                for (int i = 0; i < layers[l].Weights.GetLength(0); ++i)
                 {
-                    weights[p++] = _ihWeights[i, j];
+                    for (int j = 0; j < layers[l].Weights.GetLength(1); ++j)
+                    {
+                        dnaTemp[p++] = layers[l].Weights[i, j];
+                    }
                 }
-            }
-            for (int i = 0; i < _hBiases.Length; ++i)
-            {
-                weights[p++] = _hBiases[i];
-            }
-            for (int i = 0; i < hoWeights.GetLength(0); ++i)
-            {
-                for (int j = 0; j < hoWeights.GetLength(1); ++j)
+
+                for (int i = 0; i < layers[l].Biases.Length; ++i)
                 {
-                    weights[p++] = hoWeights[i, j];
+                    dnaTemp[p++] = layers[l].Biases[i];
                 }
-            }
-            for (int i = 0; i < oBiases.Length; ++i)
-            {
-                weights[p++] = oBiases[i];
             }
 
             return weights;
         }
 
-        public void GetAndSaveWeights(double learningRate, double momentum, double weightDecay, double currentLoss = 0, double accuracy = 0)
+        public void GetAndSaveWeights()
         {
-            int p = 0;
-            int dnaLength = (_ihWeights.GetLength(0) * _ihWeights.GetLength(1)) + _hBiases.Length + (hoWeights.GetLength(0) * hoWeights.GetLength(1)) + oBiases.Length;
-            double[] weights = new double[dnaLength];
-
-            for (int i = 0; i < _ihWeights.GetLength(0); ++i)
-            {
-                for (int j = 0; j < _ihWeights.GetLength(1); ++j)
-                {
-                    weights[p++] = _ihWeights[i, j];
-                }
-            }
-            for (int i = 0; i < _hBiases.Length; ++i)
-            {
-                weights[p++] = _hBiases[i];
-            }
-            for (int i = 0; i < hoWeights.GetLength(0); ++i)
-            {
-                for (int j = 0; j < hoWeights.GetLength(1); ++j)
-                {
-                    weights[p++] = hoWeights[i, j];
-                }
-            }
-            for (int i = 0; i < oBiases.Length; ++i)
-            {
-                weights[p++] = oBiases[i];
-            }
+            double[] weights = GetWeights();
 
             string version = "DNA_Architecture_" + builder.InputLayer.NeuronsCount.ToString() + "_" + builder.HiddenLayers[0].NeuronsCount.ToString() + "_" + builder.OutputLayer.NeuronsCount.ToString() + "_cEpoch_" + trainer.CurrentEpoch.ToString();
 
@@ -309,6 +172,26 @@ namespace NeuralNetwork
         {
             //string debug_string = "";
 
+            double[] gradient_inputs = outputs;
+
+            for (int i = layers.Count - 1; i >= 0; --i)
+            {
+                if (i == layers.Count - 1)
+                {
+                    gradient_inputs = layers[i].ComputeGradients(gradient_inputs, null, testvalues);
+
+                }
+                else
+                {
+                    gradient_inputs = layers[i].ComputeGradients(gradient_inputs, layers[i + 1].Weights, testvalues);
+                }
+            }
+
+            for (int i = 0; i < layers.Count; ++i)
+            {
+                layers[i].ComputeWeights(learningRate, momentum, weightDecay, biasRate);
+            }
+/*
             // output gradients
             for (int i = 0; i < outputLayerGradients.Length; ++i)
             {
@@ -331,6 +214,7 @@ namespace NeuralNetwork
                 }
                 _hiddenLayerGradients[i] = derivative * sum;
             }
+
 
             // input to hidden (0) weights
             for (int i = 0; i < _ihWeights.GetLength(0); ++i)
@@ -376,7 +260,7 @@ namespace NeuralNetwork
                 oBiases[i] += momentum * hoPrevBiasesDelta[i];
                 oBiases[i] -= weightDecay * oBiases[i];
                 hoPrevBiasesDelta[i] = delta;
-            }
+            }*/
         }
 
         #endregion
@@ -384,7 +268,7 @@ namespace NeuralNetwork
         #region Serialisation
 
         public string saveName;
-               
+
         private void SaveData(NetworkData data)
         {
             saveName = data.Version;

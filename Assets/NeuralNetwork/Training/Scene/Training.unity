@@ -217,12 +217,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   InitialWeightRange: {x: -0.1, y: 0.1}
-  LearningRate: 1.008
-  Epochs: 20000
+  LearningRate: 1.504
+  Epochs: 200000
   BatchSize: 0
   CurrentEpoch: 0
   DataManager: {fileID: 1926605331}
-  Builder: {fileID: 11400000, guid: fc4c568e7acfa4e4bbb70bec87542adb, type: 2}
+  Builder: {fileID: 11400000, guid: 542549977055f1443a36a73850547769, type: 2}
   NeuralNetwork:
     _inputs: []
     _hBiases: []
@@ -238,7 +238,7 @@ MonoBehaviour:
   Save: 0
   AutoSaveEveryEpochs: 5000
   AutomaticStop: 1
-  Momentum: 0.001
+  Momentum: 0.1
   WeightDecay: 0.0001
   BiasRate: 1
   Epochs_Per_Second: 0

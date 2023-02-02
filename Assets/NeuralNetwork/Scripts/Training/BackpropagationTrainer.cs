@@ -237,7 +237,7 @@ namespace NeuralNetwork
 
             yield return delay;
 
-            NeuralNetwork.GetAndSaveWeights(LearningRate, Momentum, WeightDecay, CurrentLoss, Accuracy);
+            NeuralNetwork.GetAndSaveWeights();
         }
 
         public void ComputeLearningRateDecay()
@@ -332,9 +332,7 @@ namespace NeuralNetwork
                 {
                     StopCoroutine(ExecutionCoroutine);
                     Debug.LogError("Training stopped : goal achieved");
-                }
-               
-
+                }             
             }
         }
 

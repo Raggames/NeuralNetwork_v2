@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace NeuralNetwork
 {
     [Serializable]
-    public class NeuralNetworkLayer 
+    public class LayerBuilder 
     {
         public ActivationFunctions ActivationFunction;
         public int NeuronsCount;
