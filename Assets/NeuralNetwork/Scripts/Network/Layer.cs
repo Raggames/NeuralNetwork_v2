@@ -16,7 +16,9 @@ namespace NeuralNetwork
         public int NeuronCount => outputs.Length;
         public ActivationFunctions ActivationFunction => activationFunction;
         public double[,] Weights => weights;
+        public double[,] PreviousWeightDelta => previous_weights_delta;
         public double[] Biases => biases;
+        public double[] PreviousBiasesDelta => previous_biases_delta;
         public double[] Gradients => gradients;
         
         protected LayerType layerType;
@@ -158,7 +160,7 @@ namespace NeuralNetwork
             {
                 for (int j = 0; j < weights.GetLength(1); ++j)
                 {
-                     double delta = learningRate * gradients[j] * inputs[i];
+                    double delta = learningRate * gradients[j] * inputs[i];
                     weights[i, j] += delta;
                     weights[i, j] += momentum * previous_weights_delta[i, j];
                     weights[i, j] -= weightDecay * weights[i, j];
@@ -174,16 +176,6 @@ namespace NeuralNetwork
                 biases[i] -= weightDecay * biases[i];
                 previous_biases_delta[i] = delta;
             }
-        }
-
-        public double[] GetFlatennedWeights()
-        {
-            return new double[0];
-        }
-
-        public void SetWeights(double[,] weigthts)
-        {
-
         }
     }
 }

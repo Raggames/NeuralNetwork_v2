@@ -31,6 +31,27 @@ namespace NeuralNetwork
         [Range(0.00001f, 2f)] public float LearningRate = .3f;
 
         /// <summary>
+        /// Momentum is a ratio that allows to add to the new computed weights a part of the vector of the previous iteration.
+        /// It allows the learning to be faster by decreasing the fluctuations of the process.
+        /// </summary>
+        public float Momentum = 0.01f;
+
+        /// <summary>
+        /// The learning rate for the biases
+        /// </summary>
+        public float BiasRate = 1;
+
+        /// <summary>
+        /// Control the decreasing of the learning rate over epochs
+        /// </summary>
+        public float LearningRateDecay = 0.0001f;
+
+        /// <summary>
+        /// Decreases all the weigths of the network over epochs (should be a very small amount, it can totally cancel the learning if to close to the learning rate.
+        /// </summary>
+        public float WeightDecay = 0.0001f;
+
+        /// <summary>
         /// Number of iterations of the learning process
         /// </summary>
         public int Epochs;

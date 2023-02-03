@@ -203,7 +203,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &174581763
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -216,14 +216,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c68d3e88d3060a542bdaf6696479c195, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TrainingSetting: {fileID: 11400000, guid: e6675ccf6df71d040b9effdae9e9bf54, type: 2}
+  TrainingSetting: {fileID: 11400000, guid: 0438d27f8cfd1924e80383086ef92c0b, type: 2}
   InitialWeightRange: {x: -0.1, y: 0.1}
   InitialWeightSeed: 0
   LearningRate: 0.14
-  Epochs: 50000000
+  Momentum: 0.1
+  BiasRate: 1
+  LearningRateDecay: 0
+  WeightDecay: 0.0001
+  Epochs: 20000
   BatchSize: 0
   CurrentEpoch: 0
-  Builder: {fileID: 11400000, guid: ee515ab72afb34142a4aafa5eed95d3e, type: 2}
+  Builder: {fileID: 11400000, guid: 0c1d67c01a0acbd4aba5546d1d2b5a5d, type: 2}
   NeuralNetwork:
     layers: []
     _inputs: []
@@ -234,10 +238,6 @@ MonoBehaviour:
   AutoSaveEveryEpochs: 5000
   StopOnAccuracyAchieved: 0
   TargetAccuracy: 95
-  Momentum: 0.01
-  WeightDecay: 0.0001
-  BiasRate: 1
-  LearningRateDecay: 0
   Accuracy: 0
   correctRuns: 0
   wrongRuns: 0
@@ -292,17 +292,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7842ba2c849fd3c4f882abb6fa799afd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TrainingSetting: {fileID: 11400000, guid: 0438d27f8cfd1924e80383086ef92c0b, type: 2}
+  TrainingSetting: {fileID: 11400000, guid: 0ecfc620b1d673d489884fc3579d4ff6, type: 2}
   InitialWeightRange: {x: -0.1, y: 0.1}
   InitialWeightSeed: 0
   LearningRate: 0.098
+  Momentum: 0.1
+  BiasRate: 1
+  LearningRateDecay: 0
+  WeightDecay: 0
   Epochs: 20000
   BatchSize: 1
   CurrentEpoch: 0
-  Builder: {fileID: 11400000, guid: 0c1d67c01a0acbd4aba5546d1d2b5a5d, type: 2}
+  Builder: {fileID: 11400000, guid: fc4c568e7acfa4e4bbb70bec87542adb, type: 2}
   currentNetworks: []
+  BestSetAutoStop: 1500
+  LowerBestAccuracyThreshold: 800
   GenerationSize: 8
+  MutationRate: 0.3
+  MutationChancesPurcent: 20
   AccuracyDebug: []
+  Training_Best_Accuracy: 0
+  ResetToBestCount: 0
+  LowerBestAccuracyCount: 0
 --- !u!4 &682453683
 Transform:
   m_ObjectHideFlags: 0

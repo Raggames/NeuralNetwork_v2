@@ -41,10 +41,6 @@ namespace NeuralNetwork
         public bool StopOnAccuracyAchieved;
         public float TargetAccuracy = 99.9f; // précision voulue
 
-        public float Momentum = 0.01f;
-        public float WeightDecay = 0.0001f;
-        public float BiasRate = 1;
-        public float LearningRateDecay = 0.0001f;
 
         [ReadOnly] public float Accuracy;
         [ReadOnly] public int correctRuns;

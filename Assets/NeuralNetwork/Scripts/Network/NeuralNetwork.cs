@@ -56,15 +56,18 @@ namespace NeuralNetwork
 
         public void FeedForward(double[] inputs, out double[] results)
         {
+            // Just for debug visualization
             _inputs = inputs;
 
-            //  V2 ************************************************************************
             double[] current_output = inputs;
 
             for (int i = 0; i < layers.Count; ++i)
             {
                 current_output = layers[i].ComputeResult(current_output);
             }
+
+            // Just for debug visualization
+            _outputs = current_output;
 
             results = current_output;
         }
@@ -207,15 +210,6 @@ namespace NeuralNetwork
             NetworkData loadedData = new NetworkData();
             loadedData = NetworkDataSerializer.Load(loadedData, fileName);
             return loadedData;
-        }
-
-        #endregion
-
-        #region Utils
-
-        public double GetRandomWeight(Vector2 weights_range)
-        {
-            return UnityEngine.Random.Range(weights_range.x, weights_range.y); //(0.001f, 0.01f);
         }
 
         #endregion
