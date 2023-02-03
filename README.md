@@ -9,10 +9,10 @@ The project is made under unity with the goal of understanding machine learning 
 The neural network can be trained either by backpropagation or by a simple genetic algorithm.
 
 Further improvments are intended : 
-* adding a multi-layer fully connected implementation
+<s> * adding a multi-layer fully connected implementation <s>
 * a more complex genetic trainer (mutation, crossing DNA)..
 * optimizing computations
 * testing image denoizing 
-* abstracting the training setup as Scriptable Object (accuracy function, heuristics...)
+<s>* abstracting the training setup as Scriptable Object (accuracy function, heuristics...)<s>
 * some custom interface work
 * creating a Network Runner (to run tests on a trained network easily)
