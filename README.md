@@ -6,13 +6,16 @@ I do not own this code, I just began by analysing and rewriting all the code in 
 
 The project is made under unity with the goal of understanding machine learning technology.
 
-The neural network can be trained either by backpropagation or by a simple genetic algorithm.
-
+The neural network can be trained either by backpropagation (with weight decay, momentum, and a learning rate decay feature to avoid overlearning) or by a simple genetic algorithm.
+The network architecture can be saved as a Scriptable Object.
+The network is Fully-Connected and Multilayer.
+ 
 Further improvments are intended : 
-<s> * adding a multi-layer fully connected implementation <s>
-* a more complex genetic trainer (mutation, crossing DNA)..
+* <s>adding a multi-layer fully connected implementation </s>
+* <s>abstracting the training setup as Scriptable Object (accuracy function, heuristics...)</s>
+
+* a more complex genetic trainer (mutation, crossing DNA,randomization of training parameters, adding 'momentum' from parent-to-child weight updates)..
 * optimizing computations
 * testing image denoizing 
-<s>* abstracting the training setup as Scriptable Object (accuracy function, heuristics...)<s>
 * some custom interface work
 * creating a Network Runner (to run tests on a trained network easily)
