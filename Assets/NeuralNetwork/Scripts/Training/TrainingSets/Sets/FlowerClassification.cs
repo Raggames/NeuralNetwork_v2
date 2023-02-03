@@ -7,55 +7,59 @@ using UnityEngine;
 
 namespace NeuralNetwork
 {
-    public class FlowerClassification : MonoBehaviour
+    [CreateAssetMenu(menuName = "TrainingSets/FlowClassification")]
+    public class FlowerClassification : TrainingSettingBase
     {
-        public double[][] DATA;
+        public double[][] normalized_datas;
 
-        public void Init()
+        public override void Init()
         {
-            DATA = data();
+            normalized_datas = data();
             //DATA = NormalizeData(DATA, 4);
-            Normalize(DATA, new int[] { 0, 1, 2, 3 });
+            Normalize(normalized_datas, new int[] { 0, 1, 2, 3 });
         }
 
-        public double[] GetDataEntry(int atIndex)
+        public override bool ValidateRun(double[] y_values, double[] t_values)
         {
-            return DATA[atIndex];
-        }
-
-        public double[][] NormalizeData(double[][] allData, int columnsToNorm)
-        {
-            double[][] normalizedData = allData;
-            double minValue = int.MaxValue;
-            double maxValue = 0;
-
-            
-            for(int i = 0; i < normalizedData.Length; ++i)
+            int index = NeuralNetworkMathHelper.MaxIndex(y_values);
+            int tMaxIndex = NeuralNetworkMathHelper.MaxIndex(t_values);
+            if (index.Equals(tMaxIndex))
             {
-                double minTemp = normalizedData[i].Min();
-                minValue = minTemp < minValue ? minTemp : minValue;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
 
-                double maxTemp = normalizedData[i].Max();
-                maxValue = maxTemp > maxValue ? maxTemp : maxValue;
+        public override void GetNextValues(out double[] x_val, out double[] t_val)
+        {
+            int index = UnityEngine.Random.Range(0, normalized_datas.Length);
+            x_val = new double[4];
+            t_val = new double[3];
+
+            for (int j = 0; j < 4; ++j)
+            {
+                x_val[j] = normalized_datas[index][j];
             }
 
-            double delta = maxValue - minValue;
-
-            for(int i = 0; i < normalizedData.Length; ++i)
+            for (int k = 0; k < 3; ++k)
             {
-                for(int j = 0; j < normalizedData[i].Length; ++j)
-                {
-                    if(j < columnsToNorm)
-                    {
-                        double nVal = (normalizedData[i][j] - minValue) / delta;
-                        normalizedData[i][j] = nVal;
-                    }
-                }
+                t_val[k] = normalized_datas[index][4 + k];
             }
-
-            return normalizedData;
         }
 
+        public override double[] Get_x_values(int index)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override double[] Get_t_values(int index)
+        {
+            throw new NotImplementedException();
+        }
+        
         static void Normalize(double[][] dataMatrix, int[] cols)
         {
             // normalize specified cols by computing (x - mean) / sd for each value
@@ -74,7 +78,6 @@ namespace NeuralNetwork
                     dataMatrix[i][col] = (dataMatrix[i][col] - mean) / sd;
             }
         }
-
 
         double[][] data()
         {
@@ -400,13 +403,8 @@ namespace NeuralNetwork
             allData[146] = new double[] { 31.6, 12.6, 25.1, 9.6, 1, 0, 0 };
             allData[147] = new double[] { 32.6, 15.1, 26.1, 10.1, 1, 0, 0 };
             allData[148] = new double[] { 31.1, 17.1, 27.1, 11.6, 1, 0, 0 };
-            allData[149] = new double[] { 29.6, 15.1, 25.6, 9.1, 1, 0, 0 };
-
-
-
-
-          
-            
+            allData[149] = new double[] { 29.6, 15.1, 25.6, 9.1, 1, 0, 0 };         
         }
+
     }
 }

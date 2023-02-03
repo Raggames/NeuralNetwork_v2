@@ -1,4 +1,5 @@
-﻿using Unity.Collections;
+﻿using System;
+using Unity.Collections;
 using UnityEngine;
 
 namespace NeuralNetwork
@@ -9,13 +10,15 @@ namespace NeuralNetwork
         Output,
     }
 
+    [Serializable]
     public class Layer
     {
         public int NeuronCount => outputs.Length;
         public ActivationFunctions ActivationFunction => activationFunction;
         public double[,] Weights => weights;
         public double[] Biases => biases;
-
+        public double[] Gradients => gradients;
+        
         protected LayerType layerType;
         protected ActivationFunctions activationFunction;
 
@@ -36,7 +39,6 @@ namespace NeuralNetwork
         [SerializeField, ReadOnly] protected double[] outputs;
 
         private double[] current_sums;
-
 
         public Layer Create(LayerType layerType, ActivationFunctions activationFunction, int neurons_count, int next_layer_neurons_count, bool use_backpropagation = true)
         {
@@ -97,11 +99,18 @@ namespace NeuralNetwork
                 current_sums[i] += biases[i];
             }
 
-            if (layerType == LayerType.Output && activationFunction != ActivationFunctions.Softmax)
+            if (layerType == LayerType.Output)
             {
-                for (int i = 0; i < weights.GetLength(1); ++i)
+                if(activationFunction != ActivationFunctions.Softmax)
                 {
-                    outputs[i] = NeuralNetworkMathHelper.ComputeActivation(activationFunction, false, current_sums[i]);
+                    for (int i = 0; i < weights.GetLength(1); ++i)
+                    {
+                        outputs[i] = NeuralNetworkMathHelper.ComputeActivation(activationFunction, false, current_sums[i]);
+                    }
+                }
+                else
+                {
+                    outputs = NeuralNetworkMathHelper.Softmax(current_sums);                     
                 }
             }
             else

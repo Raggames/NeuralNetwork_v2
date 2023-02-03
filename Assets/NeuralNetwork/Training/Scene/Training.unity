@@ -203,7 +203,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &174581763
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -216,44 +216,37 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c68d3e88d3060a542bdaf6696479c195, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  TrainingSetting: {fileID: 11400000, guid: e6675ccf6df71d040b9effdae9e9bf54, type: 2}
   InitialWeightRange: {x: -0.1, y: 0.1}
-  LearningRate: 1.504
-  Epochs: 200000
+  InitialWeightSeed: 0
+  LearningRate: 0.14
+  Epochs: 50000000
   BatchSize: 0
   CurrentEpoch: 0
-  DataManager: {fileID: 1926605331}
-  Builder: {fileID: 11400000, guid: 542549977055f1443a36a73850547769, type: 2}
+  Builder: {fileID: 11400000, guid: ee515ab72afb34142a4aafa5eed95d3e, type: 2}
   NeuralNetwork:
+    layers: []
     _inputs: []
-    _hBiases: []
-    _hOuputs: []
-    oBiases: []
-    _hPrevBiasesDelta: []
-    hoPrevBiasesDelta: []
-    _hiddenLayerGradients: []
-    outputLayerGradients: []
     _outputs: []
     saveName: 
   Mode: 0
   Save: 0
   AutoSaveEveryEpochs: 5000
-  AutomaticStop: 1
-  Momentum: 0.1
+  StopOnAccuracyAchieved: 0
+  TargetAccuracy: 95
+  Momentum: 0.01
   WeightDecay: 0.0001
   BiasRate: 1
-  Epochs_Per_Second: 0
-  max_frame_time: 10
-  LossFunction: 0
-  TargetAccuracy: 95
+  LearningRateDecay: 0
   Accuracy: 0
   correctRuns: 0
   wrongRuns: 0
+  epochs_per_second: 0
+  max_frame_time: 2
+  LossFunction: 0
   BestLoss: 0
   CurrentLoss: 0
-  DelayBetweenEpochs: 0
-  DecayRate: 0
-  DecayStep: 0
-  runInputs: []
+  _run_inputs: []
   _run_outputs: []
   _run_test_outputs: []
 --- !u!4 &174581764
@@ -266,8 +259,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0.94374657, y: 4.758936, z: 3.586112}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children:
-  - {fileID: 1926605330}
+  m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -287,7 +279,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &682453682
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -300,12 +292,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7842ba2c849fd3c4f882abb6fa799afd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  TrainingSetting: {fileID: 11400000, guid: 0438d27f8cfd1924e80383086ef92c0b, type: 2}
   InitialWeightRange: {x: -0.1, y: 0.1}
+  InitialWeightSeed: 0
   LearningRate: 0.098
   Epochs: 20000
   BatchSize: 1
   CurrentEpoch: 0
-  Builder: {fileID: 11400000, guid: fc4c568e7acfa4e4bbb70bec87542adb, type: 2}
+  Builder: {fileID: 11400000, guid: 0c1d67c01a0acbd4aba5546d1d2b5a5d, type: 2}
   currentNetworks: []
   GenerationSize: 8
   AccuracyDebug: []
@@ -319,8 +313,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0.94374657, y: 4.758936, z: 3.586112}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children:
-  - {fileID: 1346570282}
+  m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -407,89 +400,3 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 5, y: -40, z: 0}
---- !u!1 &1346570281
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1346570282}
-  - component: {fileID: 1346570283}
-  m_Layer: 0
-  m_Name: JOB_DataManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1346570282
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1346570281}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 682453683}
-  m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1346570283
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1346570281}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8aef91165ef968844a8507a0c08dbed9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!1 &1926605329
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1926605330}
-  - component: {fileID: 1926605331}
-  m_Layer: 0
-  m_Name: JOB_DataManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1926605330
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1926605329}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 174581764}
-  m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1926605331
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1926605329}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8aef91165ef968844a8507a0c08dbed9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 

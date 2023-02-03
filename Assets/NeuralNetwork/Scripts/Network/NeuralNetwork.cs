@@ -24,7 +24,6 @@ namespace NeuralNetwork
         [SerializeField, ReadOnly] protected double[] _inputs;
         [SerializeField, ReadOnly] protected double[] _outputs;
 
-        // CREATING NETWORK ********************************************************************************************
         public void CreateNetwork(NeuralNetworkTrainer trainer, NetworkBuilder builder)
         {
             this.trainer = trainer;
@@ -44,16 +43,18 @@ namespace NeuralNetwork
 
         private void InitializeWeights()
         {
+            UnityEngine.Random.InitState(trainer.InitialWeightSeed);
+
             for (int i = 0; i < layers.Count; ++i)
             {
                 layers[i].InitializeWeights(this.trainer.InitialWeightRange);
-            }
+            }            
         }
 
         // EXECUTION ***************************************************************************************************
         #region Execution
 
-        public void ComputeFeedForward(double[] inputs, out double[] results)
+        public void FeedForward(double[] inputs, out double[] results)
         {
             _inputs = inputs;
 
@@ -63,11 +64,6 @@ namespace NeuralNetwork
             for (int i = 0; i < layers.Count; ++i)
             {
                 current_output = layers[i].ComputeResult(current_output);
-            }
-
-            if (layers[layers.Count - 1].ActivationFunction == ActivationFunctions.Softmax)
-            {
-                current_output = NeuralNetworkMathHelper.Softmax(current_output);
             }
 
             results = current_output;
@@ -123,7 +119,7 @@ namespace NeuralNetwork
             {
                 dnaLength += layers[i].Weights.GetLength(0) * layers[i].Weights.GetLength(1) + layers[i].Biases.Length;
             }
-            double[] weights = new double[dnaLength];
+            double[] dnaTemp = new double[dnaLength];
 
             for (int l = 0; l < layers.Count; ++l)
             {
@@ -141,7 +137,7 @@ namespace NeuralNetwork
                 }
             }
 
-            return weights;
+            return dnaTemp;
         }
 
         public void GetAndSaveWeights()
@@ -191,76 +187,6 @@ namespace NeuralNetwork
             {
                 layers[i].ComputeWeights(learningRate, momentum, weightDecay, biasRate);
             }
-/*
-            // output gradients
-            for (int i = 0; i < outputLayerGradients.Length; ++i)
-            {
-                double derivative = NeuralNetworkMathHelper.ComputeActivation(builder.OutputLayer.ActivationFunction, true, _outputs[i]);
-                outputLayerGradients[i] = derivative * (testvalues[i] - outputs[i]);
-
-                //debug_string += $"otp_{i}_cost={costs[i]} for output={networkOutputs[i]}, expected was {expected_outputs[i]}, derivative={derivative}, gradient => {outputLayerGradients[i]} <br>";
-            }
-            //Debug.Log(debug_string);
-
-            //hidden gradients
-            for (int i = 0; i < _hiddenLayerGradients.Length; ++i)
-            {
-                double derivative = NeuralNetworkMathHelper.ComputeActivation(builder.HiddenLayers[0].ActivationFunction, true, _hOuputs[i]);
-                double sum = 0.0;
-                for (int j = 0; j < _outputs.Length; ++j)
-                {
-                    double x = outputLayerGradients[j] * hoWeights[i, j];
-                    sum += x;
-                }
-                _hiddenLayerGradients[i] = derivative * sum;
-            }
-
-
-            // input to hidden (0) weights
-            for (int i = 0; i < _ihWeights.GetLength(0); ++i)
-            {
-                for (int j = 0; j < _ihWeights.GetLength(1); ++j)
-                {
-                    double delta = learningRate * _hiddenLayerGradients[j] * _inputs[i];
-                    _ihWeights[i, j] += delta;
-                    _ihWeights[i, j] += momentum * _ihPrevWeightsDelta[i, j];
-                    _ihWeights[i, j] -= weightDecay * _ihWeights[i, j];
-                    _ihPrevWeightsDelta[i, j] = delta;
-                }
-            }
-
-            // hidden bias
-            for (int i = 0; i < _hBiases.Length; ++i)
-            {
-                double delta = learningRate * _hiddenLayerGradients[i] * biasRate;
-                _hBiases[i] += delta;
-                _hBiases[i] += momentum * _hPrevBiasesDelta[i];
-                _hBiases[i] -= weightDecay * _hBiases[i];
-                _hPrevBiasesDelta[i] = delta;
-            }
-
-            // output weight
-            for (int i = 0; i < hoWeights.GetLength(0); ++i)
-            {
-                for (int j = 0; j < hoWeights.GetLength(1); ++j)
-                {
-                    double delta = learningRate * outputLayerGradients[j] * _hOuputs[i];
-                    hoWeights[i, j] += delta;
-                    hoWeights[i, j] += momentum * hoPrevWeightsDelta[i, j];
-                    hoWeights[i, j] -= weightDecay * hoWeights[i, j];
-                    hoPrevWeightsDelta[i, j] = delta;
-                }
-            }
-
-            // outputbias
-            for (int i = 0; i < oBiases.Length; ++i)
-            {
-                double delta = learningRate * outputLayerGradients[i] * biasRate;
-                oBiases[i] += delta;
-                oBiases[i] += momentum * hoPrevBiasesDelta[i];
-                oBiases[i] -= weightDecay * oBiases[i];
-                hoPrevBiasesDelta[i] = delta;
-            }*/
         }
 
         #endregion

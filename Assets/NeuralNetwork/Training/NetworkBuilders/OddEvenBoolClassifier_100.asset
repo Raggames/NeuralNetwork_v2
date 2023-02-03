@@ -10,20 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fd925daa154ad0543a08af4b480aad10, type: 3}
-  m_Name: 4Lin_8Tanh_4Tanh_2Tanh_Sigm 1
+  m_Name: OddEvenBoolClassifier_100
   m_EditorClassIdentifier: 
   InputLayer:
-    ActivationFunction: 1
-    NeuronsCount: 4
+    ActivationFunction: 0
+    NeuronsCount: 10
   HiddenLayers:
   - ActivationFunction: 8
-    NeuronsCount: 60
+    NeuronsCount: 200
   - ActivationFunction: 8
-    NeuronsCount: 50
-  - ActivationFunction: 8
-    NeuronsCount: 40
-  - ActivationFunction: 8
-    NeuronsCount: 30
+    NeuronsCount: 100
   OutputLayer:
     ActivationFunction: 5
     NeuronsCount: 1

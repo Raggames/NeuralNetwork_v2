@@ -9,15 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fd925daa154ad0543a08af4b480aad10, type: 3}
-  m_Name: 4Lin_30Tanh_1Sigm
+  m_Script: {fileID: 11500000, guid: 229bc6a0b00da8946a53f38fb251333e, type: 3}
+  m_Name: OddOrEvenBoolClassification_2Entries
   m_EditorClassIdentifier: 
-  InputLayer:
-    ActivationFunction: 1
-    NeuronsCount: 4
-  HiddenLayers:
-  - ActivationFunction: 8
-    NeuronsCount: 30
-  OutputLayer:
-    ActivationFunction: 5
-    NeuronsCount: 1
+  Threshold: 0.3
+  RangeOfValues: {x: -2, y: 2}
+  Normalize: 0

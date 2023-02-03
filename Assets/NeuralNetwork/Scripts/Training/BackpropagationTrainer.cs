@@ -20,78 +20,70 @@ namespace NeuralNetwork
 
     public class BackpropagationTrainer : NeuralNetworkTrainer
     {        
-        [Header("Data Manager")]
-        public FlowerClassification DataManager;
-
-        [Header("Feed Forward Network")]
+        [Header("----NETWORK----")]
         public NetworkBuilder Builder;
         public NeuralNetwork NeuralNetwork;
 
         // *************************************************************************************
-        [Header("RunMode")]
+        [Header("----MODE----")]
         public RunningMode Mode;
         public enum RunningMode
         {
             Train,
             Execute,
         }
-        [Header("Save Management")]
+
+        [Header("---- SAVING ----")]
         public bool Save;
         public int AutoSaveEveryEpochs = 5000;
 
-        [Header("Training Parameters")]
-        public bool AutomaticStop;
+        [Header("---- TRAINING PARAMETERS ----")]
+        public bool StopOnAccuracyAchieved;
+        public float TargetAccuracy = 99.9f; // précision voulue
 
         public float Momentum = 0.01f;
         public float WeightDecay = 0.0001f;
         public float BiasRate = 1;
+        public float LearningRateDecay = 0.0001f;
 
-        public double Epochs_Per_Second = 0;
-        public float max_frame_time = 2;
+        [ReadOnly] public float Accuracy;
+        [ReadOnly] public int correctRuns;
+        [ReadOnly] public int wrongRuns;
 
-        [Header("Loss and Accuracy Parameters")]
+        /// <summary>
+        /// Feedback on computation 'speed'
+        /// </summary>
+        [ReadOnly] public double epochs_per_second = 0;
+        /// <summary>
+        /// Avoid unity from freezing on compute large epoch values
+        /// </summary>
+        [ReadOnly] public float max_frame_time = 2;
+
+        [Header("---- LOSS ----")]
         public LossFunctions LossFunction;
-
-        public float TargetAccuracy = 99.9f; // précision voulue
-        public float Accuracy;
-
-        public int correctRuns;
-        public int wrongRuns;
-
         public float BestLoss;
         public float CurrentLoss;
 
         private WaitForSeconds delay;
-        public float DelayBetweenEpochs = 0.05f;
         private Coroutine ExecutionCoroutine;
 
-        [Header("Learning Rate Decay")]
-
-        public float DecayRate = 0.95f;
-        public int DecayStep;
-
-        // **************************************************************************************
-        public double[][] TestingDataX;
-        public double[][] TestingDataY;
+        [Header("----RUNTIME----")]
+        public double[][] x_datas;
+        public double[][] y_datas;
 
         [Header("Real Time In/Out")]
-        public double[] runInputs;
+        public double[] _run_inputs;
         public double[] _run_outputs;
         public double[] _run_test_outputs;
 
         public void Start()
         {
-            delay = new WaitForSeconds(DelayBetweenEpochs);
-
             NeuralNetwork = new NeuralNetwork();
             NeuralNetwork.CreateNetwork(this, Builder);
-
-            InitTraining();
 
             if (Mode == RunningMode.Train)
             {
                 Train();
-
             }
             else
             {
@@ -99,8 +91,9 @@ namespace NeuralNetwork
             }
         }
 
-        public void Train()
+        public void Train()        
         {
+            
             ExecutionCoroutine = StartCoroutine(DoBackPropagationTraining(Epochs));
         }
 
@@ -112,120 +105,50 @@ namespace NeuralNetwork
 
         private IEnumerator DoExecuting(int runs)
         {
-            // ********************************* Flattenning 
             int count = 0;
             for (int i = 0; i < runs; ++i)
             {
-                int index = UnityEngine.Random.Range(0, TestingDataX.Length); // i % 149;
-                runInputs = TestingDataX[index];
+                int index = UnityEngine.Random.Range(0, x_datas.Length); // i % 149;
 
-                _run_test_outputs = TestingDataY[index];
+                _run_inputs = x_datas[index];
+                _run_test_outputs = y_datas[index];
 
-                NeuralNetwork.ComputeFeedForward(TestingDataX[index], out _run_outputs);
+                NeuralNetwork.FeedForward(x_datas[index], out _run_outputs);
                 //FFNetwork.JobComputeFeedForward(TestingDataX[index], out runResults);
 
-                ComputeAccuracy(TestingDataY[index], _run_outputs);
+                ComputeAccuracy(y_datas[index], _run_outputs);
 
                 CurrentEpoch++;
                 count++;
-
-                yield return delay;
             }
+
+            yield return null;
         }
 
         #region BackpropagationTraining
-        /*private void InitTraining()
-        {
-            DataManager.Init();
-
-            TestingDataX = new double[150][];
-            TestingDataY = new double[150][];
-
-            for (int i = 0; i < TestingDataX.Length; ++i)
-            {
-                TestingDataX[i] = new double[4];
-                TestingDataY[i] = new double[3];
-
-                double[] data = DataManager.GetDataEntry(i);
-
-                for (int j = 0; j < 4; ++j)
-                {
-                    TestingDataX[i][j] = data[j];
-                }
-
-                for (int k = 0; k < 3; ++k)
-                {
-                    TestingDataY[i][k] = data[4 + k];
-                }
-            }
-
-            BestLoss = 10;
-        }*/
-
-        private void InitTraining()
-        {
-            TestingDataX = new double[15000][];
-            TestingDataY = new double[15000][];
-
-            for (int i = 0; i < TestingDataX.Length; ++i)
-            {
-                TestingDataX[i] = new double[4];
-                TestingDataY[i] = new double[1];
-
-                //double[] data = DataManager.GetDataEntry(i);
-
-                TestingDataX[i][0] = UnityEngine.Random.Range(-1f, 1f);
-                TestingDataX[i][1] = UnityEngine.Random.Range(-1f, 1f);
-                TestingDataX[i][2] = UnityEngine.Random.Range(-1f, 1f);
-                TestingDataX[i][3] = UnityEngine.Random.Range(-1f, 1f);
-
-                double sum = TestingDataX[i][0] + TestingDataX[i][1] + TestingDataX[i][2] + TestingDataX[i][3];
-                TestingDataY[i][0] = sum > 0 ? 1 : 0;
-            }
-
-            BestLoss = 10;
-        }
-
-
+                
         private IEnumerator DoBackPropagationTraining(int runs)
         {
-            // ********************************* Convolve and Pool
+            TrainingSetting.Init();
 
-            // ********************************* Flattenning 
-            int count = 0;
             double time = 0;
             double time2 = 0;
             int epochcount = 0;
 
             for (int i = 0; i < runs; ++i)
             {
-                int index = UnityEngine.Random.Range(0, 149); // i % 149;
-                runInputs = TestingDataX[index];
+                TrainingSetting.GetNextValues(out _run_inputs, out _run_test_outputs);               
+                NeuralNetwork.FeedForward(_run_inputs, out _run_outputs);
 
-                _run_test_outputs = TestingDataY[index];
-
-                NeuralNetwork.ComputeFeedForward(TestingDataX[index], out _run_outputs);
-                //FFNetwork.JobComputeFeedForward(TestingDataX[index], out runResults);
-
-                double[] errors = ComputeError(_run_outputs, TestingDataY[index]);
-                CurrentLoss = ComputeLoss(errors, _run_outputs, _run_test_outputs);
-
-
-                if (CurrentLoss <= BestLoss)
-                {
-                    BestLoss = CurrentLoss;
-                }
-
-                ComputeAccuracy(TestingDataY[index], _run_outputs);
-
+                CurrentLoss = ComputeLoss(_run_outputs, _run_test_outputs);
                 NeuralNetwork.BackPropagate(_run_outputs, _run_test_outputs, LearningRate, Momentum, WeightDecay, BiasRate);
+                ComputeAccuracy(_run_test_outputs, _run_outputs);
+                ComputeLearningRateDecay();
 
                 CurrentEpoch++;
                 epochcount++;
 
-                ComputeLearningRateDecay();
-
-                Epochs_Per_Second = epochcount / Time.realtimeSinceStartup;
+                epochs_per_second = epochcount / Time.realtimeSinceStartup;
                 time += Time.deltaTime;
                 if (time > max_frame_time)
                 {
@@ -242,7 +165,7 @@ namespace NeuralNetwork
 
         public void ComputeLearningRateDecay()
         {
-            LearningRate -= LearningRate * DecayRate;
+            LearningRate -= LearningRate * LearningRateDecay;
         }
 
         private double[] ComputeError(double[] runResults, double[] testValues)
@@ -255,9 +178,10 @@ namespace NeuralNetwork
             return cost;
         }
 
-        public float ComputeLoss(double[] errors, double[] outputs = null, double[] testValues = null)
+        public float ComputeLoss(double[] outputs = null, double[] testValues = null)
         {
             double lossResult = 0f;
+            double[] errors = ComputeError(_run_outputs, testValues);
 
             switch (LossFunction)
             {
@@ -298,35 +222,34 @@ namespace NeuralNetwork
                     break;
             }
 
+            if (lossResult <= BestLoss)
+            {
+                BestLoss = (float)lossResult;
+            }
+
             return (float)lossResult;
         }
 
-        private void ComputeAccuracy(double[] tValues, double[] results)
+        private bool ComputeAccuracy(double[] tValues, double[] results)
         {
-            /*int index = JNNMath.MaxIndex(results);
-            int tMaxIndex = JNNMath.MaxIndex(tValues);
-            if (index.Equals(tMaxIndex))
+            bool correct = false;
+
+            if(TrainingSetting.ValidateRun(results, tValues))
             {
+                correct = true;
                 correctRuns++;
             }
             else
             {
+                correct = false;
                 wrongRuns++;
-            }*/
 
-            if (Mathf.Abs((float)tValues[0] - (float)results[0]) < .1f)
-            {
-                correctRuns++;
             }
-            else
-            {
-                wrongRuns++;
-            }
-
+           
             Accuracy = ((float)correctRuns * 1) / (float)(correctRuns + wrongRuns); // ugly 2 - check for divide by zero
             Accuracy *= 100f;
 
-            if (Accuracy >= TargetAccuracy && AutomaticStop)
+            if (Accuracy >= TargetAccuracy && StopOnAccuracyAchieved)
             {
                 if(ExecutionCoroutine != null)
                 {
@@ -334,16 +257,11 @@ namespace NeuralNetwork
                     Debug.LogError("Training stopped : goal achieved");
                 }             
             }
+
+            return correct;
         }
 
         #endregion
         
-        public struct LearningData
-        {
-            public int Epoch;
-            public float LearningRate;
-            public double BestLoss;
-            public double ActualLoss;
-        }
     }
 }

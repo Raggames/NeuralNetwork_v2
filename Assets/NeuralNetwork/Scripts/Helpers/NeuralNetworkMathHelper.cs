@@ -10,6 +10,39 @@ namespace NeuralNetwork
     {
         #region Miscellaneous
 
+        public static double[][] NormalizeData(double[][] allData, int columnsToNorm)
+        {
+            double[][] normalizedData = allData;
+            double minValue = int.MaxValue;
+            double maxValue = 0;
+
+
+            for (int i = 0; i < normalizedData.Length; ++i)
+            {
+                double minTemp = normalizedData[i].Min();
+                minValue = minTemp < minValue ? minTemp : minValue;
+
+                double maxTemp = normalizedData[i].Max();
+                maxValue = maxTemp > maxValue ? maxTemp : maxValue;
+            }
+
+            double delta = maxValue - minValue;
+
+            for (int i = 0; i < normalizedData.Length; ++i)
+            {
+                for (int j = 0; j < normalizedData[i].Length; ++j)
+                {
+                    if (j < columnsToNorm)
+                    {
+                        double nVal = (normalizedData[i][j] - minValue) / delta;
+                        normalizedData[i][j] = nVal;
+                    }
+                }
+            }
+
+            return normalizedData;
+        }
+
         public static int MaxIndex(double[] vector) // helper for Accuracy()
         {
             // index of largest value

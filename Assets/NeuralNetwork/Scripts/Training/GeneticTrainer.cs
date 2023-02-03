@@ -76,7 +76,7 @@ namespace NeuralNetwork
 
         public async void Train()
         {
-            InitTraining();
+            TrainingSetting.Init(); 
 
             Accuracies = new double[GenerationSize, 3];
             AccuracyDebug = new double[GenerationSize];
@@ -85,9 +85,9 @@ namespace NeuralNetwork
             {
                 CurrentEpoch = i;
 
-                int index = UnityEngine.Random.Range(0, TestingDataX.Length);
-                double[] input_values = TestingDataX[index];
-                double[] test_values = TestingDataY[index];
+                double[] input_values;
+                double[] test_values;
+                TrainingSetting.GetNextValues(out input_values, out test_values);
 
                 Task<double[]>[] tasks = new Task<double[]>[GenerationSize];
                 CancellationToken[] tokens = new CancellationToken[GenerationSize];
@@ -103,7 +103,7 @@ namespace NeuralNetwork
 
                         for (int j = 0; j < BatchSize; ++j)
                         {
-                            current.ComputeFeedForward(input_values, out result);
+                            current.FeedForward(input_values, out result);
                         }
 
                         return result;

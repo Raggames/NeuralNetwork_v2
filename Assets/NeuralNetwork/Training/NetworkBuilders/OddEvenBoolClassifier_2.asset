@@ -10,14 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fd925daa154ad0543a08af4b480aad10, type: 3}
-  m_Name: 4Lin_200Tanh_3Softmax
+  m_Name: OddEvenBoolClassifier_2
   m_EditorClassIdentifier: 
   InputLayer:
-    ActivationFunction: 1
-    NeuronsCount: 4
+    ActivationFunction: 0
+    NeuronsCount: 2
   HiddenLayers:
   - ActivationFunction: 8
-    NeuronsCount: 300
+    NeuronsCount: 20
+  - ActivationFunction: 8
+    NeuronsCount: 20
   OutputLayer:
-    ActivationFunction: 8
-    NeuronsCount: 3
+    ActivationFunction: 5
+    NeuronsCount: 1
