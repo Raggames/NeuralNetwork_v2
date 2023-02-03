@@ -19,4 +19,4 @@ Further improvments are intended :
 * testing image denoizing 
 * some custom interface work
 * creating a Network Runner (to run tests on a trained network easily)
-* Samples for Odd of Even number detection, flower classification and a simple function regression can be used to test the learning process using backpropagation or genetic algorithm.
+* Samples for Odd / Even number detection, flower classification and a simple function regression can be used to test the learning process using backpropagation or genetic algorithm.
