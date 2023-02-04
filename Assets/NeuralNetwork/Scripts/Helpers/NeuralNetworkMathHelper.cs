@@ -9,6 +9,20 @@ namespace NeuralNetwork
     public static class NeuralNetworkMathHelper
     {
         #region Miscellaneous
+       
+        public static float Norm01(int min, int max, float input)
+        {
+            return (input - min) / (max - min);
+        }
+
+        public static float Map(float value, float inputMin, float inputMax, float outputMin, float outputMax)
+        {
+            float deltaIn = inputMax - inputMin;
+            float deltaOut = outputMax - outputMin;
+
+            float ratio = (value - inputMin) / deltaIn;
+            return ratio * deltaOut + outputMin;
+        }
 
         public static double[][] NormalizeData(double[][] allData, int columnsToNorm)
         {

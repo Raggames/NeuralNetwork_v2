@@ -20,12 +20,19 @@ namespace NeuralNetwork
 
         public static NetworkData Load(NetworkData netData, string fileName)
         {
+            string[] files = Directory.GetFiles(Application.dataPath + "/StreamingAssets/");
+            string file = files.ToList().Find(t => t.Contains(fileName));
+
             NetworkData loadedData = new NetworkData();
-            if (File.Exists(Application.dataPath + "/StreamingAssets/" + fileName))
+            if (File.Exists(file))
             {
-                string LoadJson = File.ReadAllText(Application.dataPath + "/StreamingAssets/" + fileName);
+                string LoadJson = File.ReadAllText(file);
                 loadedData = JsonUtility.FromJson<NetworkData>(LoadJson);
                 Debug.Log("Loaded :" + fileName);
+            }
+            else
+            {
+                Debug.LogError("File not found");
             }
             return loadedData;
         }

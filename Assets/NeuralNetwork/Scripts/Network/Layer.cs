@@ -156,26 +156,41 @@ namespace NeuralNetwork
 
         public void ComputeWeights(float learningRate, float momentum, float weightDecay, float biasRate)
         {
-            for (int i = 0; i < weights.GetLength(0); ++i)
+            int i_debug = 0;
+            int j_debug = 0;
+
+            try
             {
-                for (int j = 0; j < weights.GetLength(1); ++j)
+                for (int i = 0; i < weights.GetLength(0); ++i)
                 {
-                    double delta = learningRate * gradients[j] * inputs[i];
-                    weights[i, j] += delta;
-                    weights[i, j] += momentum * previous_weights_delta[i, j];
-                    weights[i, j] -= weightDecay * weights[i, j];
-                    previous_weights_delta[i, j] = delta;
+                    i_debug = i;
+
+                    for (int j = 0; j < weights.GetLength(1); ++j)
+                    {
+                        j_debug = j;
+
+                        double delta = learningRate * gradients[j] * inputs[i];
+                        weights[i, j] += delta;
+                        weights[i, j] += momentum * previous_weights_delta[i, j];
+                        weights[i, j] -= weightDecay * weights[i, j];
+                        previous_weights_delta[i, j] = delta;
+                    }
+                }
+
+                for (int i = 0; i < biases.Length; ++i)
+                {
+                    double delta = learningRate * gradients[i] * biasRate;
+                    biases[i] += delta;
+                    biases[i] += momentum * previous_biases_delta[i];
+                    biases[i] -= weightDecay * biases[i];
+                    previous_biases_delta[i] = delta;
                 }
             }
-
-            for (int i = 0; i < biases.Length; ++i)
+            catch(Exception e)
             {
-                double delta = learningRate * gradients[i] * biasRate;
-                biases[i] += delta;
-                biases[i] += momentum * previous_biases_delta[i];
-                biases[i] -= weightDecay * biases[i];
-                previous_biases_delta[i] = delta;
+                Debug.LogError(i_debug + " " + j_debug);
             }
+            
         }
     }
 }

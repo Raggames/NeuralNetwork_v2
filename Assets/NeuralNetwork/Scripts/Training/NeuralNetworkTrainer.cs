@@ -15,6 +15,8 @@ namespace NeuralNetwork
         /// Contains the data set and the function to evaluate the accuracy of the network while training
         /// </summary>
         public TrainingSettingBase TrainingSetting;
+        [Header("---- SAVE ----")]
+        public string SaveName = "";
 
         [Header("---- PARAMETERS ----")]
         /// <summary>
@@ -62,5 +64,97 @@ namespace NeuralNetwork
 
         [Header("---- RUNTIME ----")]
         [ReadOnly] public int CurrentEpoch;
+        [ReadOnly] public double Training_Best_Accuracy;
+
+        public double[][,] Training_Best_Weigths;
+        public double[][] Training_Best_Biases;
+
+        protected void InitializeTrainingBestWeightSet(NeuralNetwork neuralNetwork)
+        {
+            // Each epoch, we keep a trace of the best set
+            // If the next one doesn't find a best set, we will retry from this one
+            // If the retry iterations are over a threshold, the learning will stop and keed this set as the best
+            Training_Best_Weigths = new double[neuralNetwork.layers.Count][,];
+            Training_Best_Biases = new double[neuralNetwork.layers.Count][];
+
+            for (int i = 0; i < neuralNetwork.layers.Count; ++i)
+            {
+                Training_Best_Weigths[i] = NeuralNetworkMathHelper.MakeMatrix(neuralNetwork.layers[i].Weights.GetLength(0), neuralNetwork.layers[i].Weights.GetLength(1));
+                Training_Best_Biases[i] = new double[neuralNetwork.layers[i].Biases.Length];
+            }
+        }
+
+        protected void MemorizeBestSet(NeuralNetwork bestSet, double accuracy)
+        {
+            Training_Best_Accuracy = accuracy;
+
+            for (int l = 0; l < bestSet.layers.Count; ++l)
+            {
+                for (int i = 0; i < bestSet.layers[l].Weights.GetLength(0); ++i)
+                {
+                    for (int k = 0; k < bestSet.layers[l].Weights.GetLength(1); ++k)
+                    {
+                        Training_Best_Weigths[l][i, k] = bestSet.layers[l].Weights[i, k];
+                    }
+                }
+
+                for (int i = 0; i < bestSet.layers[l].Biases.Length; ++i)
+                {
+                    Training_Best_Biases[l][i] = bestSet.layers[l].Biases[i];
+                }
+            }
+        }
+
+        protected void SetWeightsFromBest(NeuralNetwork network)
+        {
+            for (int l = 0; l < network.layers.Count; ++l)
+            {
+                for (int i = 0; i < network.layers[l].Weights.GetLength(0); ++i)
+                {
+                    for (int k = 0; k < network.layers[l].Weights.GetLength(1); ++k)
+                    {
+                        network.layers[l].Weights[i, k] = Training_Best_Weigths[l][i, k];
+                    }
+                }
+
+                for (int i = 0; i < network.layers[l].Biases.Length; ++i)
+                {
+                    network.layers[l].Biases[i] = Training_Best_Biases[l][i];
+                }
+            }
+        }
+
+        /// <summary>
+        /// Pass any network as reference, its weight will be reset to the best training values and saved
+        /// </summary>
+        /// <param name="referent"></param>
+        protected void SaveBestTrainingWeightSet(NeuralNetwork referent)
+        {
+            SetWeightsFromBest(referent);
+            
+            double[] weights = referent.GetWeights();
+
+            string version = Guid.NewGuid().ToString() + "_BestSet";
+
+            NetworkData data = new NetworkData
+            {
+                Version = version,
+                dnaSave = weights,
+                learningRate = LearningRate,
+
+                momentum = Momentum,
+                weightDecay = WeightDecay,
+                accuracy = (float)Training_Best_Accuracy,
+            };
+
+            NetworkDataSerializer.Save(data, data.Version);
+        }
+
+        protected NetworkData LoadDataByName(string fileName)
+        {
+            NetworkData loadedData = new NetworkData();
+            loadedData = NetworkDataSerializer.Load(loadedData, fileName);
+            return loadedData;
+        }
     }
 }

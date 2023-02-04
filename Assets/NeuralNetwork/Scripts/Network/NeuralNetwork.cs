@@ -77,11 +77,11 @@ namespace NeuralNetwork
         // WEIGHT SETTING **********************************************************************************************
         #region Weights
 
-        private double[] dnaTemp;
+        private double[] weigthts_set;
 
         public void SetWeights(double[] fromWeights)
         {
-            dnaTemp = fromWeights;
+            weigthts_set = fromWeights;
             int p = 0;
 
             for(int l = 0; l < layers.Count; ++l)
@@ -90,23 +90,21 @@ namespace NeuralNetwork
                 {
                     for (int j = 0; j < layers[l].Weights.GetLength(1); ++j)
                     {
-                        layers[l].Weights[i, j] = dnaTemp[p++];
+                        layers[l].Weights[i, j] = weigthts_set[p++];
                     }
                 }
 
                 for (int i = 0; i < layers[l].Biases.Length; ++i)
                 {
-                    layers[l].Biases[i] = dnaTemp[p++];
+                    layers[l].Biases[i] = weigthts_set[p++];
                 }
             }
         }
 
-        public void LoadAndSetWeights()
+        public void LoadAndSetWeights(NetworkData data)
         {
-            NetworkData data = LoadDataByName(saveName);
-
-            dnaTemp = data.dnaSave;
-            SetWeights(dnaTemp);
+            weigthts_set = data.dnaSave;
+            SetWeights(weigthts_set);
 
             trainer.LearningRate = (float)data.learningRate;
             (trainer as BackpropagationTrainer).Momentum = data.momentum;
@@ -143,27 +141,6 @@ namespace NeuralNetwork
             return dnaTemp;
         }
 
-        public void GetAndSaveWeights()
-        {
-            double[] weights = GetWeights();
-
-            string version = "DNA_Architecture_" + builder.InputLayer.NeuronsCount.ToString() + "_" + builder.HiddenLayers[0].NeuronsCount.ToString() + "_" + builder.OutputLayer.NeuronsCount.ToString() + "_cEpoch_" + trainer.CurrentEpoch.ToString();
-
-            NetworkData data = new NetworkData
-            {
-                Version = version,
-                dnaSave = weights,
-                learningRate = trainer.LearningRate,
-
-                momentum = (trainer as BackpropagationTrainer).Momentum,
-                weightDecay = (trainer as BackpropagationTrainer).WeightDecay,
-                currentLoss = (trainer as BackpropagationTrainer).CurrentLoss,
-                accuracy = (trainer as BackpropagationTrainer).Accuracy,
-            };
-
-            SaveData(data);
-        }
-
         #endregion
 
         #region BackPropagation
@@ -195,22 +172,6 @@ namespace NeuralNetwork
         #endregion
 
         #region Serialisation
-
-        public string saveName;
-
-        private void SaveData(NetworkData data)
-        {
-            saveName = data.Version;
-            // Serialize
-            NetworkDataSerializer.Save(data, data.Version);
-        }
-
-        private NetworkData LoadDataByName(string fileName)
-        {
-            NetworkData loadedData = new NetworkData();
-            loadedData = NetworkDataSerializer.Load(loadedData, fileName);
-            return loadedData;
-        }
 
         #endregion
     }

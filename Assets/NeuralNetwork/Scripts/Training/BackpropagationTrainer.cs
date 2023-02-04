@@ -23,7 +23,7 @@ namespace NeuralNetwork
         [Header("----NETWORK----")]
         public NetworkBuilder Builder;
         public NeuralNetwork NeuralNetwork;
-
+        
         // *************************************************************************************
         [Header("----MODE----")]
         public RunningMode Mode;
@@ -79,24 +79,13 @@ namespace NeuralNetwork
 
             if (Mode == RunningMode.Train)
             {
-                Train();
+                ExecutionCoroutine = StartCoroutine(DoBackPropagationTraining(Epochs));
             }
             else
             {
-                Execute();
+                NeuralNetwork.LoadAndSetWeights(LoadDataByName(SaveName));
+                ExecutionCoroutine = StartCoroutine(DoExecuting(Epochs));
             }
-        }
-
-        public void Train()        
-        {
-            
-            ExecutionCoroutine = StartCoroutine(DoBackPropagationTraining(Epochs));
-        }
-
-        public void Execute()
-        {
-            NeuralNetwork.LoadAndSetWeights();
-            ExecutionCoroutine = StartCoroutine(DoExecuting(Epochs));
         }
 
         private IEnumerator DoExecuting(int runs)
@@ -104,15 +93,9 @@ namespace NeuralNetwork
             int count = 0;
             for (int i = 0; i < runs; ++i)
             {
-                int index = UnityEngine.Random.Range(0, x_datas.Length); // i % 149;
-
-                _run_inputs = x_datas[index];
-                _run_test_outputs = y_datas[index];
-
-                NeuralNetwork.FeedForward(x_datas[index], out _run_outputs);
-                //FFNetwork.JobComputeFeedForward(TestingDataX[index], out runResults);
-
-                ComputeAccuracy(y_datas[index], _run_outputs);
+                TrainingSetting.GetNextValues(out _run_inputs, out _run_test_outputs);
+                NeuralNetwork.FeedForward(_run_inputs, out _run_outputs);
+                ComputeAccuracy(_run_test_outputs, _run_outputs);
 
                 CurrentEpoch++;
                 count++;
@@ -127,19 +110,27 @@ namespace NeuralNetwork
         {
             TrainingSetting.Init();
 
+            InitializeTrainingBestWeightSet(NeuralNetwork);
+
             double time = 0;
             double time2 = 0;
             int epochcount = 0;
 
             for (int i = 0; i < runs; ++i)
             {
-                TrainingSetting.GetNextValues(out _run_inputs, out _run_test_outputs);               
+                TrainingSetting.GetNextValues(out _run_inputs, out _run_test_outputs);
                 NeuralNetwork.FeedForward(_run_inputs, out _run_outputs);
 
                 CurrentLoss = ComputeLoss(_run_outputs, _run_test_outputs);
                 NeuralNetwork.BackPropagate(_run_outputs, _run_test_outputs, LearningRate, Momentum, WeightDecay, BiasRate);
                 ComputeAccuracy(_run_test_outputs, _run_outputs);
                 ComputeLearningRateDecay();
+
+                if (Accuracy > Training_Best_Accuracy)
+                {
+                    // Keeping a trace of the set
+                    MemorizeBestSet(NeuralNetwork, Accuracy);
+                }
 
                 CurrentEpoch++;
                 epochcount++;
@@ -156,9 +147,11 @@ namespace NeuralNetwork
 
             yield return delay;
 
-            NeuralNetwork.GetAndSaveWeights();
+            //NeuralNetwork.GetAndSaveWeights();
+            SaveBestTrainingWeightSet(NeuralNetwork);
         }
 
+        
         public void ComputeLearningRateDecay()
         {
             LearningRate -= LearningRate * LearningRateDecay;

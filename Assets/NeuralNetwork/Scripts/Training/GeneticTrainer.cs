@@ -35,9 +35,6 @@ namespace NeuralNetwork
         public double[,] Accuracies;
         public double[] AccuracyDebug;
 
-        public double[][,] Training_Best_Weigths;
-        public double[][] Training_Best_Biases;
-        public double Training_Best_Accuracy;
 
         public int ResetToBestCount = 0;
         public int LowerBestAccuracyCount = 0;
@@ -68,17 +65,7 @@ namespace NeuralNetwork
             Training_Best_Accuracy = -1;
             TrainingSetting.Init();
 
-            // Each epoch, we keep a trace of the best set
-            // If the next one doesn't find a best set, we will retry from this one
-            // If the retry iterations are over a threshold, the learning will stop and keed this set as the best
-            Training_Best_Weigths = new double[currentNetworks[0].layers.Count][,];
-            Training_Best_Biases = new double[currentNetworks[0].layers.Count][];
-
-            for (int i = 0; i < currentNetworks[0].layers.Count; ++i)
-            {
-                Training_Best_Weigths[i] = NeuralNetworkMathHelper.MakeMatrix(currentNetworks[0].layers[i].Weights.GetLength(0), currentNetworks[0].layers[i].Weights.GetLength(1));
-                Training_Best_Biases[i] = new double[currentNetworks[0].layers[i].Biases.Length];
-            }
+            InitializeTrainingBestWeightSet(currentNetworks[0]);
 
             Accuracies = new double[GenerationSize, 3];
             AccuracyDebug = new double[GenerationSize];
@@ -211,6 +198,8 @@ namespace NeuralNetwork
                     ResetToBestCount++;
                 }
             }
+
+            SaveBestTrainingWeightSet(currentNetworks[0]);
         }
 
         public float ComputeHeuristic(double[] result, double[] testValue)
@@ -227,46 +216,6 @@ namespace NeuralNetwork
         public bool CheckResult(float heuristic)
         {
             return heuristic < .01f;
-        }
-
-        private void SetWeightsFromBest(NeuralNetwork network)
-        {
-            for (int l = 0; l < network.layers.Count; ++l)
-            {
-                for (int i = 0; i < network.layers[l].Weights.GetLength(0); ++i)
-                {
-                    for (int k = 0; k < network.layers[l].Weights.GetLength(1); ++k)
-                    {
-                        network.layers[l].Weights[i, k] = Training_Best_Weigths[l][i, k];
-                    }
-                }
-
-                for (int i = 0; i < network.layers[l].Biases.Length; ++i)
-                {
-                    network.layers[l].Biases[i] = Training_Best_Biases[l][i];
-                }
-            }
-        }
-
-        private void MemorizeBestSet(NeuralNetwork bestSet, double accuracy)
-        {
-            Training_Best_Accuracy = accuracy;
-
-            for (int l = 0; l < bestSet.layers.Count; ++l)
-            {
-                for (int i = 0; i < bestSet.layers[l].Weights.GetLength(0); ++i)
-                {
-                    for (int k = 0; k < bestSet.layers[l].Weights.GetLength(1); ++k)
-                    {
-                        Training_Best_Weigths[l][i, k] = bestSet.layers[l].Weights[i, k];
-                    }
-                }
-
-                for (int i = 0; i < bestSet.layers[l].Biases.Length; ++i)
-                {
-                    Training_Best_Biases[l][i] = bestSet.layers[l].Biases[i];
-                }
-            }
         }
 
         public void ComputeChildrenWeights(NeuralNetwork parent, NeuralNetwork children)
