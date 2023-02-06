@@ -64,16 +64,6 @@ namespace NeuralNetwork
             t_val[0] = normalized_datas[index][2];
         }
 
-        public override double[] Get_x_values(int index)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override double[] Get_t_values(int index)
-        {
-            throw new NotImplementedException();
-        }
-
         public override bool ValidateRun(double[] y_val, double[] t_val)
         {
             if (Mathf.Abs((float)t_val[0] - (float)y_val[0]) < Threshold)

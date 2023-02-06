@@ -73,16 +73,6 @@ namespace NeuralNetwork
             }
         }
 
-        public override double[] Get_t_values(int index)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override double[] Get_x_values(int index)
-        {
-            throw new NotImplementedException();
-        }
-
         public override bool ValidateRun(double[] y_val, double[] t_val)
         {
             int index = NeuralNetworkMathHelper.MaxIndex(y_val);

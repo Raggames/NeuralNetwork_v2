@@ -21,7 +21,7 @@ namespace NeuralNetwork
         private int[] ConvertWordToIntArray(string word)
         {
             int[] word_array = new int[word.Length];
-            for(int i = 0; i < word.Length; ++i)
+            for (int i = 0; i < word.Length; ++i)
             {
                 word_array[i] = GetLetterIndex(word[i]);
             }
@@ -32,12 +32,25 @@ namespace NeuralNetwork
         {
             double[] result = new double[word_characters_array.Length];
 
-            for(int i = 0; i < word_characters_array.Length; ++i)
+            for (int i = 0; i < word_characters_array.Length; ++i)
             {
-                result[i] = NeuralNetworkMathHelper.Norm01(0, 30, word_characters_array[i]);
+                result[i] = NeuralNetworkMathHelper.Map(word_characters_array[i], -1, 30, -1, 1);
             }
 
             return result;
+        }
+
+        public static string UnwrapWord(double[] input)
+        {
+            int[] wordarray = new int[input.Length];
+            for (int i = 0; i < input.Length; ++i)
+            {
+                float remaped_value = NeuralNetworkMathHelper.Map((float)input[i], -1, 1, -1, 30);
+                int int_remaped = Mathf.RoundToInt(remaped_value);
+                wordarray[i] = int_remaped;
+            }
+
+            return GetWordByIntArray(wordarray);
         }
 
         private float[] ConvertWordToFloatArray(string word)
@@ -45,7 +58,7 @@ namespace NeuralNetwork
             float[] word_array = new float[word.Length];
             for (int i = 0; i < word.Length; ++i)
             {
-                word_array[i] = NeuralNetworkMathHelper.Norm01(0, 30, GetLetterIndex(word[i]));
+                word_array[i] = NeuralNetworkMathHelper.Map(GetLetterIndex(word[i]), -1, 30, -1, 1);
             }
             return word_array;
         }
@@ -55,9 +68,9 @@ namespace NeuralNetwork
             double[] word_array = new double[MaxWordLenght];
             for (int i = 0; i < MaxWordLenght; ++i)
             {
-                if(i< word.Length)
+                if (i < word.Length)
                 {
-                    word_array[i] = NeuralNetworkMathHelper.Norm01(0, 30, GetLetterIndex(word[i]));
+                    word_array[i] = NeuralNetworkMathHelper.Map(GetLetterIndex(word[i]), -1, 30, -1, 1);
                 }
                 else
                 {
@@ -72,7 +85,7 @@ namespace NeuralNetwork
         {
             switch (character)
             {
-                case 'a': 
+                case 'a':
                     return 0;
                 case 'b':
                     return 1;
@@ -132,6 +145,8 @@ namespace NeuralNetwork
                     return 28;
                 case 'ç':
                     return 29;
+                case ' ':
+                    return -1;
                 default:
                     break;
             }
@@ -139,10 +154,12 @@ namespace NeuralNetwork
             return 30;
         }
 
-        private string GetLetter(int index)
+        private static string GetLetter(int index)
         {
             switch (index)
             {
+                case -1:
+                    return " ";
                 case 0:
                     return "a";
                 case 1:
@@ -208,10 +225,10 @@ namespace NeuralNetwork
             return "_";
         }
 
-        private string GetWordByIntArray(int[] input)
+        private static string GetWordByIntArray(int[] input)
         {
             string result = "";
-            for(int i = 0; i < input.Length; ++i)
+            for (int i = 0; i < input.Length; ++i)
             {
                 result += GetLetter(input[i]);
             }
@@ -251,19 +268,33 @@ namespace NeuralNetwork
                 }
                 while (input_debug.Length > MaxWordLenght);
 
-                double[] vals = 
+                double[] vals =
                 x_val = GetDataArrayFromWord(input_debug);
+
+                if (IS_DEBUG)
+                {
+                    Debug.LogError(input_debug + " < = > " + UnwrapWord(x_val));
+                }
+
                 t_val[0] = 1;
             }
             // Else invented one
             else
             {
                 int invented_word_lenght = UnityEngine.Random.Range(0, MaxWordLenght);
-                int[] invented_word_letters = new int[invented_word_lenght];
-                for(int i = 0; i < invented_word_lenght; ++i)
+                int[] invented_word_letters = new int[MaxWordLenght];
+                for (int i = 0; i < MaxWordLenght; ++i)
                 {
-                    // 30 is hardcoded as the max possible known letter
-                    invented_word_letters[i] += UnityEngine.Random.Range(0, 30); 
+                    if (i < invented_word_lenght)
+                    {
+                        // 30 is hardcoded as the max possible known letter
+                        invented_word_letters[i] += UnityEngine.Random.Range(-1, 30);
+
+                    }
+                    else
+                    {
+                        invented_word_letters[i] = -1;
+                    }
                 }
 
                 if (IS_DEBUG)
@@ -274,16 +305,6 @@ namespace NeuralNetwork
                 x_val = NormalizeWord(invented_word_letters);
                 t_val[0] = 0;
             }
-        }
-
-        public override double[] Get_t_values(int index)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public override double[] Get_x_values(int index)
-        {
-            throw new System.NotImplementedException();
         }
 
     }

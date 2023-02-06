@@ -121,6 +121,84 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &105325322
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 105325324}
+  - component: {fileID: 105325323}
+  m_Layer: 0
+  m_Name: Generator
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &105325323
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 105325322}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c68d3e88d3060a542bdaf6696479c195, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  TrainingSetting: {fileID: 11400000, guid: 55a604aee046467419c55316c61f5539, type: 2}
+  SaveName: 
+  InitialWeightRange: {x: -0.1, y: 0.1}
+  InitialWeightSeed: 0
+  LearningRate: 0.001
+  Momentum: 0.05
+  BiasRate: 1
+  LearningRateDecay: 0
+  WeightDecay: 0
+  Epochs: 1000
+  BatchSize: 0
+  CurrentEpoch: 0
+  Training_Best_Accuracy: 0
+  AutoStart: 0
+  Builder: {fileID: 11400000, guid: 426c5239bf4353749a16e840ca124fa8, type: 2}
+  NeuralNetwork:
+    layers: []
+    _inputs: []
+    _outputs: []
+  Mode: 0
+  Save: 0
+  AutoSaveEveryEpochs: 5000
+  StopOnAccuracyAchieved: 0
+  TargetAccuracy: 99.9
+  Accuracy: 0
+  correctRuns: 0
+  wrongRuns: 0
+  epochs_per_second: 0
+  max_frame_time: 2
+  LossFunction: 0
+  BestLoss: 0
+  CurrentLoss: 0
+  _run_inputs: []
+  _run_outputs: []
+  _run_test_outputs: []
+--- !u!4 &105325324
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 105325322}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &282441617
 GameObject:
   m_ObjectHideFlags: 0
@@ -132,7 +210,7 @@ GameObject:
   - component: {fileID: 282441619}
   - component: {fileID: 282441618}
   m_Layer: 0
-  m_Name: AdversarialSupervisor
+  m_Name: AdversarialTrainer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -150,8 +228,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a2c9bed4c7398e4d8686e94f25d5348, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GenerativeNetworkTrainer: {fileID: 0}
-  DiscriminantNetworkTrainer: {fileID: 0}
+  TrainingSetting: {fileID: 0}
+  SaveName: 
+  InitialWeightRange: {x: -0.1, y: 0.1}
+  InitialWeightSeed: 0
+  LearningRate: 0.3
+  Momentum: 0.01
+  BiasRate: 1
+  LearningRateDecay: 0.0001
+  WeightDecay: 0.0001
+  Epochs: 20000
+  BatchSize: 1
+  CurrentEpoch: 0
+  Training_Best_Accuracy: 0
+  DiscriminantNetworkTrainer: {fileID: 1498789163}
+  GeneratorNetworkTrainer: {fileID: 105325323}
+  DiscriminantPassesPerEpoch: 200
+  GeneratorPassesPerEpoch: 200
+  GeneratorCorrectRuns: 0
+  GeneratorWrongRuns: 0
+  GeneratorAccuracy: 0
+  DiscriminantCorrectRuns: 0
+  DiscriminantWrongRuns: 0
+  DiscriminantAccuracy: 0
 --- !u!4 &282441619
 Transform:
   m_ObjectHideFlags: 0
@@ -162,78 +261,10 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children:
-  - {fileID: 774955055}
-  - {fileID: 1498789162}
+  m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &774955054
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 774955055}
-  - component: {fileID: 774955056}
-  m_Layer: 0
-  m_Name: Generator
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!4 &774955055
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 774955054}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 282441619}
-  m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &774955056
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 774955054}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7842ba2c849fd3c4f882abb6fa799afd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  TrainingSetting: {fileID: 0}
-  SaveName: 
-  InitialWeightRange: {x: -0.1, y: 0.1}
-  InitialWeightSeed: 0
-  LearningRate: 0.3
-  Momentum: 0.15
-  BiasRate: 1
-  LearningRateDecay: 0
-  WeightDecay: 0
-  Epochs: 0
-  BatchSize: 0
-  CurrentEpoch: 0
-  Training_Best_Accuracy: 0
-  Builder: {fileID: 0}
-  currentNetworks: []
-  BestSetAutoStop: 1000
-  LowerBestAccuracyThreshold: 500
-  GenerationSize: 10
-  MutationRate: 0.001
-  MutationChancesPurcent: 3
-  AccuracyDebug: []
-  ResetToBestCount: 0
-  LowerBestAccuracyCount: 0
 --- !u!1 &1099751571
 GameObject:
   m_ObjectHideFlags: 0
@@ -433,12 +464,12 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1498789161}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
-  m_Father: {fileID: 282441619}
-  m_RootOrder: 1
+  m_Father: {fileID: 0}
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1498789163
 MonoBehaviour:
@@ -456,21 +487,22 @@ MonoBehaviour:
   SaveName: TrainedDiscriminant_French_V1
   InitialWeightRange: {x: -0.1, y: 0.1}
   InitialWeightSeed: 0
-  LearningRate: 0.301
-  Momentum: 0.01
+  LearningRate: 0.596
+  Momentum: 0.5
   BiasRate: 1
   LearningRateDecay: 0.0001
   WeightDecay: 0.0001
-  Epochs: 1000
+  Epochs: 20000
   BatchSize: 0
   CurrentEpoch: 0
   Training_Best_Accuracy: 0
+  AutoStart: 0
   Builder: {fileID: 11400000, guid: c5ae37b4bece4d24a853cb80d5d96d33, type: 2}
   NeuralNetwork:
     layers: []
     _inputs: []
     _outputs: []
-  Mode: 1
+  Mode: 0
   Save: 0
   AutoSaveEveryEpochs: 5000
   StopOnAccuracyAchieved: 0

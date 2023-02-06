@@ -50,16 +50,6 @@ namespace NeuralNetwork
             }
         }
 
-        public override double[] Get_x_values(int index)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override double[] Get_t_values(int index)
-        {
-            throw new NotImplementedException();
-        }
-        
         static void Normalize(double[][] dataMatrix, int[] cols)
         {
             // normalize specified cols by computing (x - mean) / sd for each value

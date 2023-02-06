@@ -56,11 +56,11 @@ namespace NeuralNetwork
         /// <summary>
         /// Number of iterations of the learning process
         /// </summary>
-        public int Epochs;
+        public int Epochs = 1;
         /// <summary>
         /// [Not yet implemented] Batch are a way to accumulate iterations before updating weights (accumulating gradients or error)
         /// </summary>
-        public int BatchSize;
+        public int BatchSize = 1;
 
         [Header("---- RUNTIME ----")]
         [ReadOnly] public int CurrentEpoch;
@@ -134,7 +134,7 @@ namespace NeuralNetwork
             
             double[] weights = referent.GetWeights();
 
-            string version = Guid.NewGuid().ToString() + "_BestSet";
+            string version = DateTime.Now.ToShortDateString() + referent.ArchitectureString() + "_BestSet";
 
             NetworkData data = new NetworkData
             {

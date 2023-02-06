@@ -24,6 +24,16 @@ namespace NeuralNetwork
         [SerializeField, ReadOnly] protected double[] _inputs;
         [SerializeField, ReadOnly] protected double[] _outputs;
 
+        public string ArchitectureString()
+        {
+            string result = "Inp_"+ builder.InputLayer.NeuronsCount + "/";
+            for(int i = 0; i < layers.Count; ++i)
+            {
+                result += "H_" + layers[i].NeuronCount + "/";
+            }
+            return result;
+        }
+
         public void CreateNetwork(NeuralNetworkTrainer trainer, NetworkBuilder builder)
         {
             this.trainer = trainer;
@@ -104,11 +114,7 @@ namespace NeuralNetwork
         public void LoadAndSetWeights(NetworkData data)
         {
             weigthts_set = data.dnaSave;
-            SetWeights(weigthts_set);
-
-            trainer.LearningRate = (float)data.learningRate;
-            (trainer as BackpropagationTrainer).Momentum = data.momentum;
-            (trainer as BackpropagationTrainer).WeightDecay = data.weightDecay;
+            SetWeights(weigthts_set);       
         }
 
         public double[] GetWeights()
@@ -148,11 +154,16 @@ namespace NeuralNetwork
         {
             //string debug_string = "";
 
-            double[] gradient_inputs = outputs;
+            ComputeGradients(testvalues, outputs);
 
+            ComputeWeights(learningRate, momentum, weightDecay, biasRate);
+        }
+
+        public double[] ComputeGradients(double[] testvalues, double[] gradient_inputs, bool avoid_output = false)
+        {
             for (int i = layers.Count - 1; i >= 0; --i)
             {
-                if (i == layers.Count - 1)
+                if (i == layers.Count - 1 && !avoid_output)
                 {
                     gradient_inputs = layers[i].ComputeGradients(gradient_inputs, null, testvalues);
 
@@ -163,15 +174,16 @@ namespace NeuralNetwork
                 }
             }
 
+            return gradient_inputs;
+        }
+
+        public void ComputeWeights(float learningRate, float momentum, float weightDecay, float biasRate)
+        {
             for (int i = 0; i < layers.Count; ++i)
             {
                 layers[i].ComputeWeights(learningRate, momentum, weightDecay, biasRate);
             }
         }
-
-        #endregion
-
-        #region Serialisation
 
         #endregion
     }

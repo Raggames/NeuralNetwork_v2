@@ -24,17 +24,17 @@ namespace NeuralNetwork
         ///The maximum of iterations without finding any better set than Epoch_Best_Weigths
         public int BestSetAutoStop = 1000;
         public int LowerBestAccuracyThreshold = 500;
-
+        // Run is considered as validated if heuristic under HeuristicThreshold
+        public float HeuristicThreshold = 0.01f;
         public int GenerationSize = 10;
 
         public float MutationRate = 0.001f;
         public float MutationChancesPurcent = 3;
 
         [Header("----RUNTIME----")]
-
-        public double[,] Accuracies;
-        public double[] AccuracyDebug;
-
+        public float[] Heuristics;
+        public double[] Accuracies;
+        public double[,] AccuraciesData;
 
         public int ResetToBestCount = 0;
         public int LowerBestAccuracyCount = 0;
@@ -60,15 +60,15 @@ namespace NeuralNetwork
             }
         }
 
-        public async void Train()
+        public virtual async void Train()
         {
             Training_Best_Accuracy = -1;
             TrainingSetting.Init();
 
             InitializeTrainingBestWeightSet(currentNetworks[0]);
 
-            Accuracies = new double[GenerationSize, 3];
-            AccuracyDebug = new double[GenerationSize];
+            AccuraciesData = new double[GenerationSize, 3];
+            Accuracies = new double[GenerationSize];
 
             for (int i = 0; i < Epochs; ++i)
             {
@@ -80,6 +80,8 @@ namespace NeuralNetwork
 
                 Task<double[]>[] tasks = new Task<double[]>[GenerationSize];
                 CancellationToken[] tokens = new CancellationToken[GenerationSize];
+
+                double[][] all_results = new double[GenerationSize][];
 
                 for (int g = 0; g < GenerationSize; ++g)
                 {
@@ -101,7 +103,6 @@ namespace NeuralNetwork
 
                 await Task.WhenAll(tasks);
 
-                double[][] all_results = new double[GenerationSize][];
                 for (int k = 0; k < all_results.Length; ++k)
                 {
                     all_results[k] = new double[input_values.Length];
@@ -112,20 +113,20 @@ namespace NeuralNetwork
                     all_results[g] = tasks[g].Result;
                 }
 
-                float[] heuristics = new float[GenerationSize];
+                Heuristics = new float[GenerationSize];
                 for (int g = 0; g < GenerationSize; ++g)
                 {
-                    heuristics[g] = ComputeHeuristic(all_results[g], test_values);
+                    Heuristics[g] = ComputeHeuristic(all_results[g], test_values);
                 }
 
                 int best_index = -1;
                 float best_heuristic = float.MaxValue;
-                for (int h = 0; h < heuristics.Length; ++h)
+                for (int h = 0; h < Heuristics.Length; ++h)
                 {
-                    if (heuristics[h] < best_heuristic)
+                    if (Heuristics[h] < best_heuristic)
                     {
                         best_index = h;
-                        best_heuristic = heuristics[h];
+                        best_heuristic = Heuristics[h];
                     }
                 }
 
@@ -133,15 +134,15 @@ namespace NeuralNetwork
                 double best_accuracy = 0;
                 for (int g = 0; g < GenerationSize; ++g)
                 {
-                    bool result = CheckResult(heuristics[g]);
+                    bool result = CheckResult(Heuristics[g]);
 
-                    Accuracies[g, 0] = result == true ? Accuracies[g, 0] + 1 : Accuracies[g, 0];
-                    Accuracies[g, 1] = result == false ? Accuracies[g, 1] + 1 : Accuracies[g, 1];
+                    AccuraciesData[g, 0] = result == true ? AccuraciesData[g, 0] + 1 : AccuraciesData[g, 0];
+                    AccuraciesData[g, 1] = result == false ? AccuraciesData[g, 1] + 1 : AccuraciesData[g, 1];
 
-                    float accuracy = ((float)Accuracies[g, 0] * 1) / (float)(Accuracies[g, 0] + Accuracies[g, 1]);
+                    float accuracy = ((float)AccuraciesData[g, 0] * 1) / (float)(AccuraciesData[g, 0] + AccuraciesData[g, 1]);
                     accuracy *= 100f;
-                    Accuracies[g, 2] = accuracy;
-                    AccuracyDebug[g] = accuracy;
+                    AccuraciesData[g, 2] = accuracy;
+                    Accuracies[g] = accuracy;
 
                     best_accuracy = Math.Max(best_accuracy, accuracy);
                 }
@@ -202,7 +203,7 @@ namespace NeuralNetwork
             SaveBestTrainingWeightSet(currentNetworks[0]);
         }
 
-        public float ComputeHeuristic(double[] result, double[] testValue)
+        public virtual float ComputeHeuristic(double[] result, double[] testValue)
         {
             float heuristic = 0;
 
@@ -215,7 +216,7 @@ namespace NeuralNetwork
 
         public bool CheckResult(float heuristic)
         {
-            return heuristic < .01f;
+            return heuristic < HeuristicThreshold;
         }
 
         public void ComputeChildrenWeights(NeuralNetwork parent, NeuralNetwork children)

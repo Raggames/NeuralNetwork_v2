@@ -53,14 +53,5 @@ namespace NeuralNetwork
             y_val = t_datas[index];
         }
 
-        public override double[] Get_x_values(int index)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override double[] Get_t_values(int index)
-        {
-            throw new NotImplementedException();
-        }
     }
 }
