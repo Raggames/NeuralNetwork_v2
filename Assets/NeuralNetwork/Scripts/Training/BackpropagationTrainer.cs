@@ -125,9 +125,9 @@ namespace NeuralNetwork
 
                 CurrentEpoch++;
                 count++;
+                yield return null;
             }
 
-            yield return null;
         }
 
         #region BackpropagationTraining
@@ -166,7 +166,7 @@ namespace NeuralNetwork
             ExecuteFeedForward();
 
             ComputeLoss(_run_outputs, _run_test_outputs);
-            NeuralNetwork.BackPropagate(_run_outputs, _run_test_outputs, LearningRate, Momentum, WeightDecay, BiasRate);
+            NeuralNetwork.BackPropagate(CurrentLoss, _run_outputs, _run_test_outputs, LearningRate, Momentum, WeightDecay, BiasRate);
 
             EndEpoch();
         }
@@ -282,6 +282,7 @@ namespace NeuralNetwork
                 {
                     StopCoroutine(ExecutionCoroutine);
                     Debug.LogError("Training stopped : goal achieved");
+                    SaveBestTrainingWeightSet(NeuralNetwork);
                 }
             }
 

@@ -134,7 +134,7 @@ namespace NeuralNetwork
             
             double[] weights = referent.GetWeights();
 
-            string version = DateTime.Now.ToShortDateString() + referent.ArchitectureString() + "_BestSet";
+            string version = Guid.NewGuid().ToString() + referent.ArchitectureString() + "_BestSet";
 
             NetworkData data = new NetworkData
             {

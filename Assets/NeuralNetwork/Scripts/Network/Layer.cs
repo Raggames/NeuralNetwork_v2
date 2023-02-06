@@ -126,32 +126,37 @@ namespace NeuralNetwork
             return outputs;
         }
 
-        public double[] ComputeGradients(double[] inputs, double[,] prev_layer_weights, double[] testvalues)
+        public double[] ComputeGradients(double[] inputs, double[,] prev_layer_weights, double[] testvalues, double loss)
         {
             if(layerType == LayerType.Output)
             {
                 for (int i = 0; i < gradients.Length; ++i)
                 {
                     double derivative = NeuralNetworkMathHelper.ComputeActivation(activationFunction, true, outputs[i]);
-                    gradients[i] = derivative * (testvalues[i] - outputs[i]);
+                    gradients[i] = derivative * (testvalues[i] - outputs[i]) * 1;
                 }
             }
             else
             {
-                for (int i = 0; i < gradients.Length; ++i)
-                {
-                    double derivative = NeuralNetworkMathHelper.ComputeActivation(activationFunction, true, outputs[i]);
-                    double sum = 0.0;
-                    for (int j = 0; j < inputs.Length; ++j)
-                    {
-                        double x = inputs[j] * prev_layer_weights[i, j];
-                        sum += x;
-                    }
-                    gradients[i] = derivative * sum;
-                }
+                ComputeHiddenGradient(inputs, prev_layer_weights);
             }
 
             return gradients;
+        }
+
+        public void ComputeHiddenGradient(double[] inputs, double[,] prev_layer_weights)
+        {
+            for (int i = 0; i < gradients.Length; ++i)
+            {
+                double derivative = NeuralNetworkMathHelper.ComputeActivation(activationFunction, true, outputs[i]);
+                double sum = 0.0;
+                for (int j = 0; j < inputs.Length; ++j)
+                {
+                    double x = inputs[j] * prev_layer_weights[i, j];
+                    sum += x;
+                }
+                gradients[i] = derivative * sum;
+            }
         }
 
         public void ComputeWeights(float learningRate, float momentum, float weightDecay, float biasRate)

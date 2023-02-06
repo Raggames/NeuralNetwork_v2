@@ -34,9 +34,7 @@ namespace NeuralNetwork
         private void Start()
         {
             DiscriminantNetworkTrainer.Initialize();
-            DiscriminantNetworkTrainer.PrepareExecution();
-
-            DiscriminantNetworkTrainer.ExecuteFeedForward();
+            DiscriminantNetworkTrainer.PrepareTraining();
 
             GeneratorNetworkTrainer.Initialize();
             GeneratorNetworkTrainer.PrepareTraining();
@@ -50,45 +48,50 @@ namespace NeuralNetwork
 
             for(int i = 0; i < Epochs; ++i)
             {
-                GeneratorNetworkTrainer.ExecuteFeedForward();
-
                 double[] discriminant_run_output = new double[0];
 
-                DiscriminantNetworkTrainer.NeuralNetwork.FeedForward(GeneratorNetworkTrainer._run_outputs, out discriminant_run_output);
-                //DiscriminantNetworkTrainer.EndEpoch();
+                GeneratorNetworkTrainer.ExecuteFeedForward();
 
-                if (discriminant_run_output[0] > .95f)
+                DiscriminantNetworkTrainer.NeuralNetwork.FeedForward(GeneratorNetworkTrainer._run_outputs, out discriminant_run_output);
+
+                if (discriminant_run_output[0] > .92f)
                 {
                     GeneratorCorrectRuns++;
                     DiscriminantWrongRuns++;
+                    DiscriminantNetworkTrainer.ComputeLoss(discriminant_run_output, new double[] { 1 });
+
+                    DiscriminantNetworkTrainer.NeuralNetwork.BackPropagate(DiscriminantNetworkTrainer.CurrentLoss, discriminant_run_output, new double[] { 0 }, DiscriminantNetworkTrainer.LearningRate, DiscriminantNetworkTrainer.Momentum, DiscriminantNetworkTrainer.WeightDecay, DiscriminantNetworkTrainer.BiasRate);
                 }
                 else
                 {
                     GeneratorWrongRuns++;
                     DiscriminantCorrectRuns++;
+
+
+                    GeneratorAccuracy = ((float)GeneratorCorrectRuns * 1) / (float)(GeneratorCorrectRuns + GeneratorWrongRuns); // ugly 2 - check for divide by zero
+                    GeneratorAccuracy *= 100f;
+
+                    DiscriminantAccuracy = ((float)DiscriminantCorrectRuns * 1) / (float)(DiscriminantCorrectRuns + DiscriminantWrongRuns); // ugly 2 - check for divide by zero
+                    DiscriminantAccuracy *= 100f;
+
+                    Debug.LogError("GEN_Outp => " + RealFalseWordRecognitionTrainingSetting.UnwrapWord(GeneratorNetworkTrainer._run_outputs));
+
+                    // Because we are inputing a generator result in the discriminant, we want the discriminant to return something like 1
+
+                    //double[] generator_t_values = GetGeneratorTestValues(discriminant_desired_output, discriminant_run_output);
+                    var x_val = new double[0];
+                    double[] generator_t_values = new double[0];
+
+                    DiscriminantNetworkTrainer.TrainingSetting.GetNextValues(out generator_t_values, out x_val);
+                    Debug.LogError("TVAL =>" + RealFalseWordRecognitionTrainingSetting.UnwrapWord(generator_t_values));
+                 
+                    double[] grad_inp = new double[0];
+
+                    GeneratorNetworkTrainer.NeuralNetwork.ComputeGradients(1, generator_t_values, grad_inp);
+                    // Update generator weights to allow him to trick the discriminant
+                    GeneratorNetworkTrainer.NeuralNetwork.ComputeWeights(GeneratorNetworkTrainer.LearningRate, GeneratorNetworkTrainer.Momentum, GeneratorNetworkTrainer.WeightDecay, GeneratorNetworkTrainer.BiasRate);
+
                 }
-
-                GeneratorAccuracy = ((float)GeneratorCorrectRuns * 1) / (float)(GeneratorCorrectRuns + GeneratorWrongRuns); // ugly 2 - check for divide by zero
-                GeneratorAccuracy *= 100f;
-
-                DiscriminantAccuracy = ((float)DiscriminantCorrectRuns * 1) / (float)(DiscriminantCorrectRuns + DiscriminantWrongRuns); // ugly 2 - check for divide by zero
-                DiscriminantAccuracy *= 100f;
-
-                Debug.LogError("GEN_Outp => " + RealFalseWordRecognitionTrainingSetting.UnwrapWord(GeneratorNetworkTrainer._run_outputs));
-
-                // Because we are inputing a generator result in the discriminant, we want the discriminant to return something like 1
-
-                double[] generator_t_values = GetGeneratorTestValues(discriminant_desired_output, discriminant_run_output);
-                Debug.LogError("TVAL =>" + RealFalseWordRecognitionTrainingSetting.UnwrapWord(generator_t_values));
-                double[] generator_t_values_2 = GetGeneratorTestValues(discriminant_desired_output, discriminant_desired_output);
-                Debug.LogError("TVAL2 =>" + RealFalseWordRecognitionTrainingSetting.UnwrapWord(generator_t_values));
-
-                double[] gradient_inputs = new double[0];
-
-                GeneratorNetworkTrainer.NeuralNetwork.ComputeGradients(generator_t_values, gradient_inputs);
-
-                // Update generator weights to allow him to trick the discriminant
-                GeneratorNetworkTrainer.NeuralNetwork.ComputeWeights(GeneratorNetworkTrainer.LearningRate, GeneratorNetworkTrainer.Momentum, GeneratorNetworkTrainer.WeightDecay, GeneratorNetworkTrainer.BiasRate);
 
                 yield return null;
             }
@@ -96,7 +99,7 @@ namespace NeuralNetwork
 
         private double[] GetGeneratorTestValues(double[] discriminant_desired_output, double[] discriminant_run_output)
         {
-            double[] discr_inp_grads = DiscriminantNetworkTrainer.NeuralNetwork.ComputeGradients(discriminant_desired_output, discriminant_run_output);
+            double[] discr_inp_grads = DiscriminantNetworkTrainer.NeuralNetwork.ComputeGradients(1, discriminant_desired_output, discriminant_run_output);
 
             double[] generator_t_values = new double[DiscriminantNetworkTrainer.Builder.InputLayer.NeuronsCount];
 

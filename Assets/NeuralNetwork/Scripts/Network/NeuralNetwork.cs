@@ -26,10 +26,10 @@ namespace NeuralNetwork
 
         public string ArchitectureString()
         {
-            string result = "Inp_"+ builder.InputLayer.NeuronsCount + "/";
+            string result = "Inp_"+ builder.InputLayer.NeuronsCount + "_";
             for(int i = 0; i < layers.Count; ++i)
             {
-                result += "H_" + layers[i].NeuronCount + "/";
+                result += "H_" + layers[i].NeuronCount + "_";
             }
             return result;
         }
@@ -150,27 +150,27 @@ namespace NeuralNetwork
         #endregion
 
         #region BackPropagation
-        public void BackPropagate(double[] outputs, double[] testvalues, float learningRate, float momentum, float weightDecay, float biasRate)
+        public void BackPropagate(double loss, double[] outputs, double[] testvalues, float learningRate, float momentum, float weightDecay, float biasRate)
         {
             //string debug_string = "";
 
-            ComputeGradients(testvalues, outputs);
+            ComputeGradients(loss, testvalues, outputs);
 
             ComputeWeights(learningRate, momentum, weightDecay, biasRate);
         }
 
-        public double[] ComputeGradients(double[] testvalues, double[] gradient_inputs, bool avoid_output = false)
+        public double[] ComputeGradients(double loss, double[] testvalues, double[] gradient_inputs, bool avoid_output = false)
         {
             for (int i = layers.Count - 1; i >= 0; --i)
             {
                 if (i == layers.Count - 1 && !avoid_output)
                 {
-                    gradient_inputs = layers[i].ComputeGradients(gradient_inputs, null, testvalues);
+                    gradient_inputs = layers[i].ComputeGradients(gradient_inputs, null, testvalues, loss);
 
                 }
                 else
                 {
-                    gradient_inputs = layers[i].ComputeGradients(gradient_inputs, layers[i + 1].Weights, testvalues);
+                    gradient_inputs = layers[i].ComputeGradients(gradient_inputs, layers[i + 1].Weights, testvalues, loss);
                 }
             }
 

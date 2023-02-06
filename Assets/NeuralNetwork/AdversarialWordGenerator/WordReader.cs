@@ -20,7 +20,7 @@ namespace NeuralNetwork
         public string[] Read()
         {
             string[] files = Directory.GetFiles(Application.dataPath + "/StreamingAssets/Dictionnaries");
-            string file = files.ToList().Find(t => t.Contains("fr.txt"));
+            string file = files.ToList().Find(t => t.Contains(file_path + ".txt"));
 
             if (File.Exists(file))
             {
