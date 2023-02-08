@@ -12,3 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8aef91165ef968844a8507a0c08dbed9, type: 3}
   m_Name: FlowerClassificationSet
   m_EditorClassIdentifier: 
+  TrainingDataLenght: 150
+  TestingDataLenght: 150

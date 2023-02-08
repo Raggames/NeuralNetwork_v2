@@ -19,6 +19,17 @@ namespace NeuralNetwork
             Normalize(normalized_datas, new int[] { 0, 1, 2, 3 });
         }
 
+        public override void GetTrainDatas(out double[][] x_datas, out double[][] t_datas)
+        {
+            x_datas = new double[TrainingDataLenght][];
+            t_datas = new double[TrainingDataLenght][];
+
+            for (int i = 0; i < x_datas.GetLength(0); ++i)
+            {
+                GetNextValues(out x_datas[i], out t_datas[i]);
+            }
+        }
+
         public override bool ValidateRun(double[] y_values, double[] t_values)
         {
             int index = NeuralNetworkMathHelper.MaxIndex(y_values);

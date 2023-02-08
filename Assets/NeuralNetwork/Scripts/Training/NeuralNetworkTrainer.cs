@@ -64,7 +64,7 @@ namespace NeuralNetwork
 
         [Header("---- RUNTIME ----")]
         [ReadOnly] public int CurrentEpoch;
-        [ReadOnly] public double Training_Best_Accuracy;
+        [ReadOnly] public double Training_Best_Mean_Error;
 
         public double[][,] Training_Best_Weigths;
         public double[][] Training_Best_Biases;
@@ -84,9 +84,9 @@ namespace NeuralNetwork
             }
         }
 
-        protected void MemorizeBestSet(NeuralNetwork bestSet, double accuracy)
+        protected void MemorizeBestSet(NeuralNetwork bestSet, double mean_error)
         {
-            Training_Best_Accuracy = accuracy;
+            Training_Best_Mean_Error = mean_error;
 
             for (int l = 0; l < bestSet.layers.Count; ++l)
             {
@@ -133,8 +133,8 @@ namespace NeuralNetwork
             SetWeightsFromBest(referent);
             
             double[] weights = referent.GetWeights();
-
-            string version = Guid.NewGuid().ToString() + referent.ArchitectureString() + "_BestSet";
+                        
+            string version = TrainingSetting.name + "_"+ DateTime.Now.Hour + "_" + DateTime.Now.Minute + "_" + DateTime.Now.Second + "_" + referent.ArchitectureString() + "_BestSet";
 
             NetworkData data = new NetworkData
             {
@@ -144,7 +144,7 @@ namespace NeuralNetwork
 
                 momentum = Momentum,
                 weightDecay = WeightDecay,
-                accuracy = (float)Training_Best_Accuracy,
+                accuracy = (float)Training_Best_Mean_Error,
             };
 
             NetworkDataSerializer.Save(data, data.Version);

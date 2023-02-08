@@ -17,9 +17,9 @@ namespace NeuralNetwork
     public class NeuralNetwork
     {
         private NeuralNetworkTrainer trainer;
-        private NetworkBuilder builder;
+        private ModelBuilder builder;
 
-        public List<Layer> layers = new List<Layer>();
+        public List<DenseLayer> layers = new List<DenseLayer>();
 
         [SerializeField, ReadOnly] protected double[] _inputs;
         [SerializeField, ReadOnly] protected double[] _outputs;
@@ -34,7 +34,7 @@ namespace NeuralNetwork
             return result;
         }
 
-        public void CreateNetwork(NeuralNetworkTrainer trainer, NetworkBuilder builder)
+        public void CreateNetwork(NeuralNetworkTrainer trainer, ModelBuilder builder)
         {
             this.trainer = trainer;
             this.builder = builder;
@@ -42,16 +42,15 @@ namespace NeuralNetwork
             int previous_layer_neuron_count = builder.InputLayer.NeuronsCount;
             for (int i = 0; i < builder.HiddenLayers.Count; ++i)
             {
-                layers.Add(new Layer().Create(LayerType.Hidden, builder.HiddenLayers[i].ActivationFunction, previous_layer_neuron_count, builder.HiddenLayers[i].NeuronsCount));
+                layers.Add(new DenseLayer().Create(LayerType.DenseHidden, builder.HiddenLayers[i].ActivationFunction, previous_layer_neuron_count, builder.HiddenLayers[i].NeuronsCount));
                 previous_layer_neuron_count = builder.HiddenLayers[i].NeuronsCount;
             }
 
-            layers.Add(new Layer().Create(LayerType.Output, builder.OutputLayer.ActivationFunction, previous_layer_neuron_count, builder.OutputLayer.NeuronsCount));
+            layers.Add(new DenseLayer().Create(LayerType.Output, builder.OutputLayer.ActivationFunction, previous_layer_neuron_count, builder.OutputLayer.NeuronsCount));
 
-            InitializeWeights();
         }
 
-        private void InitializeWeights()
+        public void InitializeWeights()
         {
             UnityEngine.Random.InitState(trainer.InitialWeightSeed);
 
@@ -150,27 +149,33 @@ namespace NeuralNetwork
         #endregion
 
         #region BackPropagation
-        public void BackPropagate(double loss, double[] outputs, double[] testvalues, float learningRate, float momentum, float weightDecay, float biasRate)
+        public void BackPropagate(double[] outputs, double[] testvalues, float learningRate, float momentum, float weightDecay, float biasRate)
         {
-            //string debug_string = "";
-
-            ComputeGradients(loss, testvalues, outputs);
+            ComputeGradients(testvalues, outputs);
 
             ComputeWeights(learningRate, momentum, weightDecay, biasRate);
         }
 
-        public double[] ComputeGradients(double loss, double[] testvalues, double[] gradient_inputs, bool avoid_output = false)
+        public void MeanGradients(float value)
+        {
+            for (int i =  0; i < layers.Count; ++i)
+            {
+                layers[i].MeanGradients(value);
+            }
+        }
+
+        public double[] ComputeGradients(double[] testvalues, double[] gradient_inputs, bool avoid_output = false)
         {
             for (int i = layers.Count - 1; i >= 0; --i)
             {
                 if (i == layers.Count - 1 && !avoid_output)
                 {
-                    gradient_inputs = layers[i].ComputeGradients(gradient_inputs, null, testvalues, loss);
+                    gradient_inputs = layers[i].ComputeGradients(gradient_inputs, null, testvalues);
 
                 }
                 else
                 {
-                    gradient_inputs = layers[i].ComputeGradients(gradient_inputs, layers[i + 1].Weights, testvalues, loss);
+                    gradient_inputs = layers[i].ComputeGradients(gradient_inputs, layers[i + 1].Weights, testvalues);
                 }
             }
 

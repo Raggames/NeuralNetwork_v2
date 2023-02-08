@@ -14,8 +14,9 @@ namespace NeuralNetwork
         public static void Save(NetworkData gameData, string fileName)
         {
             string saveJson = JsonUtility.ToJson(gameData);
-            File.WriteAllText(Application.dataPath + "/StreamingAssets/" + fileName, saveJson);
-            Debug.Log("NetData Saved");
+            string path = Application.dataPath + "/StreamingAssets/" + fileName;
+            File.WriteAllText(path, saveJson);
+            Debug.Log("NetData Saved => " + path);
         }
 
         public static NetworkData Load(NetworkData netData, string fileName)

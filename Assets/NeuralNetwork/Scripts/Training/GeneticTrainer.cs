@@ -17,7 +17,7 @@ namespace NeuralNetwork
     {
         [Header("---- GeneticTrainer -----")]
 
-        public NetworkBuilder Builder;
+        public ModelBuilder Builder;
         public List<NeuralNetwork> currentNetworks = new List<NeuralNetwork>();
 
         [Header("---- PARAMETERS -----")]
@@ -62,7 +62,7 @@ namespace NeuralNetwork
 
         public virtual async void Train()
         {
-            Training_Best_Accuracy = -1;
+            Training_Best_Mean_Error = -1;
             TrainingSetting.Init();
 
             InitializeTrainingBestWeightSet(currentNetworks[0]);
@@ -147,12 +147,12 @@ namespace NeuralNetwork
                     best_accuracy = Math.Max(best_accuracy, accuracy);
                 }
 
-                if (best_accuracy < Training_Best_Accuracy)
+                if (best_accuracy < Training_Best_Mean_Error)
                 {
                     LowerBestAccuracyCount++;
                 }
 
-                if (best_accuracy > Training_Best_Accuracy)
+                if (best_accuracy > Training_Best_Mean_Error)
                 {
                     // Keeping a trace of the set
                     MemorizeBestSet(currentNetworks[best_index], best_accuracy);
@@ -160,7 +160,7 @@ namespace NeuralNetwork
                     ResetToBestCount = 0;
                 }
 
-                if (best_accuracy >= Training_Best_Accuracy || LowerBestAccuracyCount < LowerBestAccuracyThreshold)
+                if (best_accuracy >= Training_Best_Mean_Error || LowerBestAccuracyCount < LowerBestAccuracyThreshold)
                 {
                     for (int g = 0; g < GenerationSize; ++g)
                     {
