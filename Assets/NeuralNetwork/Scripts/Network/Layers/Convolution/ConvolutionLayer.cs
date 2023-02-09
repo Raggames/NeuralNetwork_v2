@@ -19,37 +19,38 @@ namespace NeuralNetwork
     /// </summary>
     public static class Kernels
     {
-        public static double[] kernel = new double[]
+        public static double[,] kernel = new double[,]
         {
-             1, 0, -1,
-             0, 0, 0,
-             -1, 0, 1,
+             { 1, 0, -1 },
+             { 0, 0, 0 },
+             { -1, 0, 1 },
         };
 
-        public static double[] identity = new double[]
+        public static double[,] identity = new double[,]
         {
-                        0, 0, 0,
-                        0, 1, 0,
-                        -0, 0, 0,
+                        {0, 0, 0},
+                        {0, 1, 0},
+                        {-0, 0, 0},
         };
 
-        public static double[] edgeDetection = new double[]
+        public static double[,] edgeDetection = new double[,]
         {
-                         -1, 0, -1,
-                        0, 8, 0,
-                        -1, 0, -1,
+                         {-1, 0, -1},
+                        {0, 8, 0},
+                        {-1, 0, -1},
         };
     }
 
-    public class ConvolutionLayer : AbstractLayer
+    public class ConvolutionLayer : AbstractCNNLayer
     {
         public int Width;
         public int Height;
 
         /// <summary>
-        /// The actual image converted in a tensor of width * length * depth (default depth is one for the pixel alpha)
+        /// The actual image converted in a tensor of width * length 
+        /// We are not handling any depth now, considering that the value of rbga pixel is concatened as grey level * alpha
         /// </summary>
-        public double[,,] InputMatrix;
+        public double[,] InputMatrix;
 
         // Padding allows to avoid losing values on the borders of the image
         public int Padding = 1;
@@ -71,15 +72,20 @@ namespace NeuralNetwork
             Height = height;
             Padding = padding;
             Stride = stride;
-            InputMatrix = new double[width + 2 * Padding, height + 2 * Padding, 1];
+
+            InputMatrix = new double[width + 2 * Padding, height + 2 * Padding];
         }
 
         public ConvolutionLayer AddFilter(KernelType kernelType = KernelType.Default)
         {
-            FeatureMaps.Add(new ConvolutionFeatureMap(kernelType, Width, Height, FilterSize));
+            int activationMapDimensionX = (Width - FilterSize + 2 * Padding) / Stride;
+            int activationMapDimensionY = (Height - FilterSize + 2 * Padding) / Stride;
+
+            FeatureMaps.Add(new ConvolutionFeatureMap(kernelType, activationMapDimensionX, activationMapDimensionY, FilterSize));
             return this;
         }
 
+        // For testing purpose
         public void InputTexture(Texture2D input)
         {
             for (int i = 0; i < Width; ++i)
@@ -89,35 +95,57 @@ namespace NeuralNetwork
                     // 1 dimension on the 2nd index 
                     var pix = input.GetPixel(i, j);
                     float value = ((pix.r + pix.g + pix.b) / 3f) * pix.a;
-                    InputMatrix[i + Padding, j + Padding, 0] = value;
+                    InputMatrix[i + Padding, j + Padding] = value;
                 }
             }
         }
 
-        public void InputConvolutionLayer(ConvolutionLayer input)
+        public override double[][,] ComputeForward(double[][,] input)
         {
+            //ComputeConvolution();
 
+            for(int i = 0; i < input.Length; ++i)
+            {
+                FeatureMaps[i].ComputeConvolution(input[i], Stride, Padding);
+            }
+           
+            // Compute non linearity for each feature map
+            for (int k = 0; k < FeatureMaps.Count; ++k)
+            {
+                FeatureMaps[k].ComputeActivationFunction(activationFunction);
+                input[k] = FeatureMaps[k].ActivationMap;
+            }
+
+            return input;
         }
 
         public void ComputeConvolution()
         {
-            int offset = FilterSize - Stride;
-
-            for (int i = 0; i < InputMatrix.GetLength(0) - offset - Padding; i += Stride)
+            // Convolute on the input for each kernel 
+            for (int k = 0; k < FeatureMaps.Count; ++k)
             {
-                for (int j = 0; j < InputMatrix.GetLength(1) - offset - Padding; j += Stride)
-                {
-                    for(int k = 0; k < FeatureMaps.Count; ++k)
-                    {
-                        FeatureMaps[k].ComputeKernel(InputMatrix, i, j);
-                    }
-                }
+                FeatureMaps[k].ComputeConvolution(InputMatrix, Stride, Padding);
             }
 
+            // Compute non linearity for each feature map
             for (int k = 0; k < FeatureMaps.Count; ++k)
             {
                 FeatureMaps[k].ComputeActivationFunction(activationFunction);
             }
         }
+
+        public void ComputeBackward(double[,] previous_layer_gradients, float learningRate)
+        {
+            for (int k = 0; k < FeatureMaps.Count; ++k)
+            {
+                FeatureMaps[k].ComputeGradients(activationFunction, previous_layer_gradients);
+            }
+
+            for (int k = 0; k < FeatureMaps.Count; ++k)
+            {
+                FeatureMaps[k].ComputeWeights(InputMatrix, Stride, Padding, learningRate);
+            }
+        }
+
     }
 }

@@ -40,6 +40,30 @@ namespace NeuralNetwork
 
         private double[] current_sums;
 
+        public DenseLayer()
+        {
+
+        }
+
+        public DenseLayer(LayerType layerType, ActivationFunctions activationFunction, int neurons_count, int next_layer_neurons_count, bool use_backpropagation = true)
+        {
+            inputs = new double[neurons_count];
+
+            weights = NeuralNetworkMathHelper.MakeMatrix(neurons_count, next_layer_neurons_count);
+            biases = new double[next_layer_neurons_count];
+            outputs = new double[next_layer_neurons_count];
+            current_sums = new double[next_layer_neurons_count];
+            this.layerType = layerType;
+            this.activationFunction = activationFunction;
+
+            if (use_backpropagation)
+            {
+                previous_weights_delta = NeuralNetworkMathHelper.MakeMatrix(neurons_count, next_layer_neurons_count);
+                previous_biases_delta = new double[next_layer_neurons_count];
+                gradients = new double[next_layer_neurons_count];
+            }
+        }
+
         public DenseLayer Create(LayerType layerType, ActivationFunctions activationFunction, int neurons_count, int next_layer_neurons_count, bool use_backpropagation = true)
         {
             inputs = new double[neurons_count];
@@ -124,7 +148,7 @@ namespace NeuralNetwork
             return outputs;
         }
 
-        public double[] ComputeGradients(double[] inputs, double[,] prev_layer_weights, double[] testvalues)
+        public double[] ComputeGradients(double[] prev_layer_gradients, double[,] prev_layer_weights, double[] testvalues)
         {
             double[] current_gradients = new double[gradients.Length];
 
@@ -144,9 +168,9 @@ namespace NeuralNetwork
                 {
                     double derivative = NeuralNetworkMathHelper.ComputeActivation(activationFunction, true, outputs[i]);
                     double sum = 0.0;
-                    for (int j = 0; j < inputs.Length; ++j)
+                    for (int j = 0; j < prev_layer_gradients.Length; ++j)
                     {
-                        double x = inputs[j] * prev_layer_weights[i, j];
+                        double x = prev_layer_gradients[j] * prev_layer_weights[i, j];
                         sum += x;
                     }
                     current_gradients[i] = derivative * sum;
@@ -171,6 +195,7 @@ namespace NeuralNetwork
             {
                 for (int j = 0; j < weights.GetLength(1); ++j)
                 {
+                    // gradient of neuron[j] AKA 'total error of the neuron[j]' relative to the weights of the input[i] to the neuron[j]
                     double delta = learningRate * gradients[j] * inputs[i];
                     weights[i, j] += delta;
                     weights[i, j] += momentum * previous_weights_delta[i, j];

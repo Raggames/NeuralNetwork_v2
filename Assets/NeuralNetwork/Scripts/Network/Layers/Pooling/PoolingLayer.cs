@@ -12,67 +12,78 @@ namespace NeuralNetwork
         Max,
     }
 
-    public class PoolingLayer
+    public class PoolingLayer : AbstractCNNLayer
     {
         public int FilterSize = 2;
+        public PoolingRule PoolingRule;
 
-        public double[,] Pool(double[,] input_activation_map, PoolingRule poolingRule)
+        public PoolingLayer(int filterSize, PoolingRule poolingRule)
         {
-            double[,] result = new double[input_activation_map.GetLength(0) / FilterSize, input_activation_map.GetLength(1) / FilterSize];
-            float size = FilterSize * FilterSize;
+            FilterSize = filterSize;
+            PoolingRule = poolingRule;
+        }
 
-            if(poolingRule == PoolingRule.Average)
+        public override double[][,] ComputeForward(double[][,] input_activation_map)
+        {
+            for(int d = 0; d < input_activation_map.Length; ++d)
             {
-                int index_i = 0;
-                int index_j = 0;
+                double[,] result = new double[input_activation_map.GetLength(0) / FilterSize, input_activation_map.GetLength(1) / FilterSize];
+                float size = FilterSize * FilterSize;
 
-                for(int i = 0; i < input_activation_map.GetLength(0); ++FilterSize)
+                if (PoolingRule == PoolingRule.Average)
                 {
-                    index_i ++;
+                    int index_i = 0;
+                    int index_j = 0;
 
-                    for (int j = 0; j < input_activation_map.GetLength(1); ++FilterSize)
+                    for (int i = 0; i < input_activation_map[d].GetLength(0); ++FilterSize)
                     {
-                        index_j++;
-                        for (int k = 0; k < FilterSize; ++k)
+                        index_i++;
+
+                        for (int j = 0; j < input_activation_map[d].GetLength(1); ++FilterSize)
                         {
-                            for (int l = 0; l < FilterSize; ++l)
+                            index_j++;
+                            for (int k = 0; k < FilterSize; ++k)
                             {
-                                result[index_i, index_j] += input_activation_map[i + k, j + l];
+                                for (int l = 0; l < FilterSize; ++l)
+                                {
+                                    result[index_i, index_j] += input_activation_map[d][i + k, j + l];
+                                }
                             }
-                        }
 
-                        result[index_i, index_j] /= size;
-                    }
-                }
-            }
-            else if(poolingRule == PoolingRule.Max)
-            {
-                int index_i = 0;
-                int index_j = 0;
-
-                for (int i = 0; i < input_activation_map.GetLength(0); ++FilterSize)
-                {
-                    index_i++;
-
-                    for (int j = 0; j < input_activation_map.GetLength(1); ++FilterSize)
-                    {
-                        index_j++;
-                        for (int k = 0; k < FilterSize; ++k)
-                        {
-                            for (int l = 0; l < FilterSize; ++l)
-                            {
-                                result[index_i, index_j] = Math.Max(result[index_i, index_j], input_activation_map[i + k, j + l]);
-                            }
+                            result[index_i, index_j] /= size;
                         }
                     }
                 }
-            }
-            else
-            {
-                throw new Exception("Unhandled pooling rule");
+                else if (PoolingRule == PoolingRule.Max)
+                {
+                    int index_i = 0;
+                    int index_j = 0;
+
+                    for (int i = 0; i < input_activation_map[d].GetLength(0); ++FilterSize)
+                    {
+                        index_i++;
+
+                        for (int j = 0; j < input_activation_map[d].GetLength(1); ++FilterSize)
+                        {
+                            index_j++;
+                            for (int k = 0; k < FilterSize; ++k)
+                            {
+                                for (int l = 0; l < FilterSize; ++l)
+                                {
+                                    result[index_i, index_j] = Math.Max(result[index_i, index_j], input_activation_map[d][i + k, j + l]);
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    throw new Exception("Unhandled pooling rule");
+                }
+
             }
 
-            return result;
+            return input_activation_map;
         }
     }
 }
