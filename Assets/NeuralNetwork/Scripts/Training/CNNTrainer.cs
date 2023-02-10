@@ -9,29 +9,16 @@ using UnityEngine;
 
 namespace NeuralNetwork
 {
-    public class BackpropagationTrainer : NeuralNetworkTrainer
+    public class CNNTrainer : NeuralNetworkTrainer
     {
-        [Header("----PARAMS----")]
-        public bool AutoStart = true;
+        [Header("----CNN Trainer----")]
+        public Vector2Int ImageDimensions;
 
-        [Header("----NETWORK----")]
-        public ModelBuilder Builder;
-        public NeuralNetwork NeuralNetwork;
+        public int Padding = 1;
+        public int Stride = 1;
 
-        // *************************************************************************************
-        [Header("----MODE----")]
-        public RunningMode Mode;
-        public enum RunningMode
-        {
-            Train,
-            Execute,
-        }
+        public CNN NeuralNetwork;
 
-        [Header("---- SAVING ----")]
-        public bool Save;
-        public int AutoSaveEveryEpochs = 5000;
-
-       
         private WaitForSeconds delay;
         private Coroutine ExecutionCoroutine;
 
@@ -46,51 +33,35 @@ namespace NeuralNetwork
         /// </summary>
         [ReadOnly] public float max_frame_time = 2;
 
-        public double[][] x_datas;
+        public double[][,] x_datas;
         public double[][] t_datas;
 
-        public double[] run_inputs;
+        public double[,] run_inputs;
         public double[] run_outputs;
         public double[] run_test_outputs;
 
-        public void Start()
+        private void Start()
         {
-            if (!AutoStart)
-                return;
-
             Initialize();
-
-            if (Mode == RunningMode.Train)
-            {
-                PrepareTraining();
-
-                ExecutionCoroutine = StartCoroutine(DoBackPropagationTraining());
-            }
-            else
-            {
-                PrepareExecution();
-
-                ExecutionCoroutine = StartCoroutine(DoExecuting(Epochs));
-            }
         }
 
         private void OnGUI()
         {
             if (GUI.Button(new Rect(10, 10, 100, 30), "Train"))
             {
-                PrepareTraining();
+                //PrepareTraining();
 
-                ExecutionCoroutine = StartCoroutine(DoBackPropagationTraining());
+                ExecutionCoroutine = StartCoroutine(Train());
             }
 
             if (GUI.Button(new Rect(10, 100, 100, 30), "Load"))
             {
-                PrepareExecution();
+                //PrepareExecution();
             }
 
             if (GUI.Button(new Rect(10, 150, 100, 30), "Test"))
             {
-                ExecutionCoroutine = StartCoroutine(DoExecuting(Epochs));
+                //ExecutionCoroutine = StartCoroutine(DoExecuting(Epochs));
             }
 
             if (GUI.Button(new Rect(10, 50, 100, 30), "Save"))
@@ -99,64 +70,49 @@ namespace NeuralNetwork
             }
         }
 
-        public virtual void Initialize()
+        public void Initialize()
         {
-            NeuralNetwork = new NeuralNetwork();
-            NeuralNetwork.CreateNetwork(this, Builder);
             TrainingSetting.Init();
-        }
 
-        public void PrepareTraining()
-        {
+            NeuralNetwork = new CNN();
+            // Convolute from 28x28 input to 27x27 feature map
+            ConvolutionLayer convolutionLayer = new ConvolutionLayer(ImageDimensions.x, ImageDimensions.y, Padding, Stride)
+                .AddFilter(KernelType.Identity);
+            convolutionLayer.Initialize();
+
+            NeuralNetwork.CNNLayers.Add(convolutionLayer);
+
+            // Pool from 27x27 to 13x13
+            var poolingLayer = new PoolingLayer(convolutionLayer.OutputWidth, convolutionLayer.OutputHeight, 1, 2, Padding, PoolingRule.Max);
+            NeuralNetwork.CNNLayers.Add(poolingLayer);
+
+            ConvolutionLayer convolutionLayer2 = new ConvolutionLayer(poolingLayer.OutputWidth, poolingLayer.OutputHeight, Padding, Stride)
+                .AddFilter(KernelType.Identity);
+            convolutionLayer2.Initialize();
+
+            NeuralNetwork.CNNLayers.Add(convolutionLayer2);
+
+            var poolingLayer2 = new PoolingLayer(convolutionLayer2.OutputWidth, convolutionLayer2.OutputHeight, 1, 2, Padding, PoolingRule.Max);
+            NeuralNetwork.CNNLayers.Add(poolingLayer2);
+
+            // Pooling layer matrix out is 13x13 for 1 filter = 169 neurons
+            NeuralNetwork.FlattenLayer = new FlattenLayer(poolingLayer2.OutputWidth, poolingLayer2.OutputHeight, 1);
+
+            NeuralNetwork.DenseLayers.Add(new DenseLayer(LayerType.DenseHidden, ActivationFunctions.ReLU, NeuralNetwork.FlattenLayer.NodeCount, NeuralNetwork.FlattenLayer.NodeCount / 2));
+            NeuralNetwork.DenseLayers.Add(new DenseLayer(LayerType.Output, ActivationFunctions.Softmax, NeuralNetwork.FlattenLayer.NodeCount, 10));
+
+            NeuralNetwork.Initialize(this, null); 
             NeuralNetwork.InitializeWeights();
-            InitializeTrainingBestWeightSet(NeuralNetwork);
         }
 
-        public void PrepareExecution()
-        {
-            NeuralNetwork.LoadAndSetWeights(LoadDataByName(SaveName));
-        }
-
-        private IEnumerator DoExecuting(int runs)
-        {
-            correctRuns = 0;
-            wrongRuns = 0;
-
-            int count = 0;
-
-            TrainingSetting.GetTrainDatas(out x_datas, out t_datas);
-
-            int[] sequence_indexes = new int[x_datas.Length];
-            for (int i = 0; i < sequence_indexes.Length; ++i)
-                sequence_indexes[i] = i;
-
-            Shuffle(sequence_indexes);
-
-            for (int i = 0; i < runs; ++i)
-            {
-                run_inputs = x_datas[sequence_indexes[i]];
-                run_test_outputs = t_datas[sequence_indexes[i]]; 
-                
-                NeuralNetwork.FeedForward(run_inputs, out run_outputs);
-                ComputeAccuracy(run_test_outputs, run_outputs);
-
-                CurrentEpoch++;
-                count++;
-                yield return null;
-            }
-
-        }
-
-        #region BackpropagationTraining
-
-        private IEnumerator DoBackPropagationTraining()
+        private IEnumerator Train()
         {
             CurrentEpoch = 0;
 
             double current_time = 0;
 
             // Get training datas from the setting
-            TrainingSetting.GetTrainDatas(out x_datas, out t_datas);
+            TrainingSetting.GetMatrixTrainDatas(out x_datas, out t_datas);
 
             // Compute number of iterations 
             // Batchsize shouldn't be 0
@@ -175,21 +131,21 @@ namespace NeuralNetwork
 
                 // Going through all data batched, mini-batch or stochastic, depending on BatchSize value
                 double mean_error_sum = 0;
-                for(int d = 0; d < iterations_per_epoch; ++d)
+                for (int d = 0; d < iterations_per_epoch; ++d)
                 {
                     for (int j = 0; j < BatchSize; ++j)
                     {
                         run_inputs = x_datas[sequence_indexes[dataIndex]];
                         run_test_outputs = t_datas[sequence_indexes[dataIndex]];
 
-                        NeuralNetwork.FeedForward(run_inputs, out run_outputs);
+                        NeuralNetwork.ComputeForward(run_inputs);
                         NeuralNetwork.ComputeGradients(run_test_outputs, run_outputs);
 
                         ComputeAccuracy(run_test_outputs, run_outputs);
 
                         mean_error_sum += GetLoss(run_outputs, run_test_outputs);
-                        dataIndex++;                                              
-                        
+                        dataIndex++;
+
                         current_time += Time.deltaTime;
                         if (current_time > max_frame_time)
                         {
@@ -220,28 +176,11 @@ namespace NeuralNetwork
                     break;
                 }
 
-                DecayLearningRate();
+                //DecayLearningRate();
 
                 CurrentEpoch++;
                 epochs_per_second = CurrentEpoch / Time.realtimeSinceStartup;
             }
-
-            //NeuralNetwork.GetAndSaveWeights();
         }
-             
-
-        public void ExecuteFeedForward()
-        {
-            TrainingSetting.GetNextValues(out run_inputs, out run_test_outputs);
-            NeuralNetwork.FeedForward(run_inputs, out run_outputs);
-        }
-
-        public void DecayLearningRate()
-        {
-            LearningRate -= LearningRate * LearningRateDecay;
-        }
-
-        #endregion
-
     }
 }

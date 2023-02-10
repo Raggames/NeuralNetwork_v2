@@ -55,13 +55,13 @@ namespace NeuralNetwork
 
         public void ComputeConvolution(double[,] inputMatrix, int stride, int padding)
         {
-            int offset = FilterSize - stride - padding;
+            int offset = FilterSize - stride;
             int featureMap_i = 0;
             int featureMap_j = 0;
 
-            for (int i = 0; i < inputMatrix.GetLength(0) - offset; i += stride)
+            for (int i = 0; i < inputMatrix.GetLength(0) - offset - padding; i += stride)
             {
-                for (int j = 0; j < inputMatrix.GetLength(1) - offset; j += stride)
+                for (int j = 0; j < inputMatrix.GetLength(1) - offset - padding; j += stride)
                 {
                     double output = 0;
 
@@ -70,18 +70,32 @@ namespace NeuralNetwork
                     {
                         for (int kj = 0; kj < FilterSize; ++kj)
                         {
-                            // KernelMatrix dimension is flattenned so accessing by i + j index (3x3 => 9 elements)
-                            output += KernelFilter[ki, kj] * inputMatrix[i + ki, j + kj];
+                            try
+                            {
+                                // KernelMatrix dimension is flattenned so accessing by i + j index (3x3 => 9 elements)
+                                output += KernelFilter[ki, kj] * inputMatrix[i + ki, j + kj];
+                            }
+                            catch
+                            {
+                                Debug.LogError(ki + " " + kj + " i, j" + i + " " + j);
+                            }
                         }
                     }
 
                     output += Bias;
-
-                    ActivationMap[featureMap_i, featureMap_j] = output;
+                    try
+                    {
+                        ActivationMap[featureMap_i, featureMap_j] = output;
+                    }
+                    catch
+                    {
+                        Debug.LogError(featureMap_i + " " + featureMap_j + " i, j" + ActivationMap.GetLength(0));
+                    }
 
                     featureMap_j++;
                 }
-                featureMap_i ++;
+                featureMap_i++;
+                featureMap_j = 0;
             }
         }
 
@@ -140,6 +154,7 @@ namespace NeuralNetwork
                     featureMap_j++;
                 }
                 featureMap_i++;
+                featureMap_j = 0;
             }
 
             for (int ki = 0; ki < FilterSize; ++ki)

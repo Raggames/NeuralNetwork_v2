@@ -7,12 +7,11 @@ using UnityEngine;
 
 namespace NeuralNetwork
 {
+    [Serializable]
     public class CNN : NeuralNetwork
     {
-        public List<AbstractCNNLayer> ConvolutionLayers;
+        public List<AbstractCNNLayer> CNNLayers = new List<AbstractCNNLayer>();
         public FlattenLayer FlattenLayer;
-        public List<DenseLayer> DenseLayers;
-
 
         public double[] ComputeTexture2DForward(Texture2D image)
         {
@@ -33,17 +32,18 @@ namespace NeuralNetwork
 
         public double[] ComputeForward(double[,] matrix2Din)
         {
-            int features_dimension = (ConvolutionLayers[0] as ConvolutionLayer).FeatureMaps.Count;
+            int features_dimension = (CNNLayers[0] as ConvolutionLayer).FeatureMaps.Count;
             double[][,] conv_result = new double[features_dimension][,];
 
             for (int i = 0; i < features_dimension; ++i)
             {
+                conv_result[i] = new double[matrix2Din.GetLength(0), matrix2Din.GetLength(1)];
                 Array.Copy(matrix2Din, conv_result[i], matrix2Din.Length);
             }
 
-            for (int i = 0; i < ConvolutionLayers.Count; ++i)
+            for (int i = 0; i < CNNLayers.Count; ++i)
             {
-                conv_result = ConvolutionLayers[i].ComputeForward(conv_result);
+                conv_result = CNNLayers[i].ComputeForward(conv_result);
             }
 
             double[] flatten = FlattenLayer.ComputeForward(conv_result);

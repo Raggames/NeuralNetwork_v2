@@ -45,6 +45,8 @@ namespace NeuralNetwork
     {
         public int Width;
         public int Height;
+        public int OutputWidth;
+        public int OutputHeight;
 
         /// <summary>
         /// The actual image converted in a tensor of width * length 
@@ -63,6 +65,7 @@ namespace NeuralNetwork
         public int FilterSize = 3;
 
         public List<ConvolutionFeatureMap> FeatureMaps = new List<ConvolutionFeatureMap>();
+        private double[][,] output;
 
         public ConvolutionLayer(int width, int height, int padding = 1, int stride = 1)
         {
@@ -73,30 +76,24 @@ namespace NeuralNetwork
             Padding = padding;
             Stride = stride;
 
+            OutputWidth = (Width - FilterSize + 2 * Padding) / Stride;
+            OutputHeight = (Height - FilterSize + 2 * Padding) / Stride;
+
             InputMatrix = new double[width + 2 * Padding, height + 2 * Padding];
         }
 
         public ConvolutionLayer AddFilter(KernelType kernelType = KernelType.Default)
-        {
-            int activationMapDimensionX = (Width - FilterSize + 2 * Padding) / Stride;
-            int activationMapDimensionY = (Height - FilterSize + 2 * Padding) / Stride;
-
-            FeatureMaps.Add(new ConvolutionFeatureMap(kernelType, activationMapDimensionX, activationMapDimensionY, FilterSize));
+        {           
+            FeatureMaps.Add(new ConvolutionFeatureMap(kernelType, OutputWidth, OutputHeight, FilterSize));
             return this;
         }
 
-        // For testing purpose
-        public void InputTexture(Texture2D input)
+        public void Initialize()
         {
-            for (int i = 0; i < Width; ++i)
+            output = new double[FeatureMaps.Count][,];
+            for(int i = 0; i < output.Length; ++i)
             {
-                for (int j = 0; j < Height; ++j)
-                {
-                    // 1 dimension on the 2nd index 
-                    var pix = input.GetPixel(i, j);
-                    float value = ((pix.r + pix.g + pix.b) / 3f) * pix.a;
-                    InputMatrix[i + Padding, j + Padding] = value;
-                }
+                output[i] = new double[FeatureMaps[i].ActivationMap.GetLength(0), FeatureMaps[i].ActivationMap.GetLength(1)];
             }
         }
 
@@ -113,25 +110,10 @@ namespace NeuralNetwork
             for (int k = 0; k < FeatureMaps.Count; ++k)
             {
                 FeatureMaps[k].ComputeActivationFunction(activationFunction);
-                input[k] = FeatureMaps[k].ActivationMap;
+                output[k] = FeatureMaps[k].ActivationMap;
             }
 
-            return input;
-        }
-
-        public void ComputeConvolution()
-        {
-            // Convolute on the input for each kernel 
-            for (int k = 0; k < FeatureMaps.Count; ++k)
-            {
-                FeatureMaps[k].ComputeConvolution(InputMatrix, Stride, Padding);
-            }
-
-            // Compute non linearity for each feature map
-            for (int k = 0; k < FeatureMaps.Count; ++k)
-            {
-                FeatureMaps[k].ComputeActivationFunction(activationFunction);
-            }
+            return output;
         }
 
         public void ComputeBackward(double[,] previous_layer_gradients, float learningRate)

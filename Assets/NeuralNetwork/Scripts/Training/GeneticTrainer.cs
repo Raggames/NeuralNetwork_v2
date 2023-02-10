@@ -221,79 +221,79 @@ namespace NeuralNetwork
 
         public void ComputeChildrenWeights(NeuralNetwork parent, NeuralNetwork children)
         {
-            for (int l = 0; l < parent.layers.Count; ++l)
+            for (int l = 0; l < parent.DenseLayers.Count; ++l)
             {
-                for (int i = 0; i < parent.layers[l].Weights.GetLength(0); ++i)
+                for (int i = 0; i < parent.DenseLayers[l].Weights.GetLength(0); ++i)
                 {
-                    for (int k = 0; k < parent.layers[l].Weights.GetLength(1); ++k)
+                    for (int k = 0; k < parent.DenseLayers[l].Weights.GetLength(1); ++k)
                     {
                         // The delta is a random mutation applied on each weight
                         double delta = UnityEngine.Random.Range(-LearningRate, LearningRate);
 
                         // The children weight is the parent weight + the delta
-                        children.layers[l].Weights[i, k] = delta + parent.layers[l].Weights[i, k];
+                        children.DenseLayers[l].Weights[i, k] = delta + parent.DenseLayers[l].Weights[i, k];
 
                         // We store the delta vector on each children
                         // If it appears to be the best parent of the next epoch
                         // The network will use this delta vector as a momentum and keep the direction of changes
-                        children.layers[l].PreviousWeightDelta[i, k] = delta;
+                        children.DenseLayers[l].PreviousWeightDelta[i, k] = delta;
                         // We add the delta vector of the parent * Momentum ratio
-                        children.layers[l].Weights[i, k] += Momentum * parent.layers[l].PreviousWeightDelta[i, k];
+                        children.DenseLayers[l].Weights[i, k] += Momentum * parent.DenseLayers[l].PreviousWeightDelta[i, k];
                         // Decaying the weight can be useful to avoid overlearning
-                        children.layers[l].Weights[i, k] -= WeightDecay * children.layers[l].Weights[i, k];
+                        children.DenseLayers[l].Weights[i, k] -= WeightDecay * children.DenseLayers[l].Weights[i, k];
                     }
                 }
 
-                for (int i = 0; i < parent.layers[l].Biases.Length; ++i)
+                for (int i = 0; i < parent.DenseLayers[l].Biases.Length; ++i)
                 {
                     double biaseDelta = UnityEngine.Random.Range(-LearningRate, LearningRate) * BiasRate;
 
-                    children.layers[l].Biases[i] = biaseDelta + parent.layers[l].Biases[i];
-                    children.layers[l].PreviousBiasesDelta[i] = biaseDelta;
-                    children.layers[l].Biases[i] += Momentum * parent.layers[l].PreviousBiasesDelta[i];
-                    children.layers[l].Biases[i] -= WeightDecay * children.layers[l].Biases[i];
+                    children.DenseLayers[l].Biases[i] = biaseDelta + parent.DenseLayers[l].Biases[i];
+                    children.DenseLayers[l].PreviousBiasesDelta[i] = biaseDelta;
+                    children.DenseLayers[l].Biases[i] += Momentum * parent.DenseLayers[l].PreviousBiasesDelta[i];
+                    children.DenseLayers[l].Biases[i] -= WeightDecay * children.DenseLayers[l].Biases[i];
                 }
             }
         }
 
         public void Mutate(NeuralNetwork neuralNetwork)
         {
-            for (int l = 0; l < neuralNetwork.layers.Count; ++l)
+            for (int l = 0; l < neuralNetwork.DenseLayers.Count; ++l)
             {
-                for (int i = 0; i < neuralNetwork.layers[l].Weights.GetLength(0); ++i)
+                for (int i = 0; i < neuralNetwork.DenseLayers[l].Weights.GetLength(0); ++i)
                 {
-                    for (int k = 0; k < neuralNetwork.layers[l].Weights.GetLength(1); ++k)
+                    for (int k = 0; k < neuralNetwork.DenseLayers[l].Weights.GetLength(1); ++k)
                     {
                         if (UnityEngine.Random.Range(0f, 100f) > 100f - MutationChancesPurcent)
                         {
                             double delta = UnityEngine.Random.Range(-MutationRate, MutationRate);
 
-                            neuralNetwork.layers[l].Weights[i, k] = delta + neuralNetwork.layers[l].Weights[i, k];
-                            neuralNetwork.layers[l].PreviousWeightDelta[i, k] = delta;
-                            neuralNetwork.layers[l].Weights[i, k] -= WeightDecay * neuralNetwork.layers[l].Weights[i, k];
+                            neuralNetwork.DenseLayers[l].Weights[i, k] = delta + neuralNetwork.DenseLayers[l].Weights[i, k];
+                            neuralNetwork.DenseLayers[l].PreviousWeightDelta[i, k] = delta;
+                            neuralNetwork.DenseLayers[l].Weights[i, k] -= WeightDecay * neuralNetwork.DenseLayers[l].Weights[i, k];
                         }
                         else
                         {
-                            neuralNetwork.layers[l].Weights[i, k] += Momentum * neuralNetwork.layers[l].PreviousWeightDelta[i, k];
-                            neuralNetwork.layers[l].Weights[i, k] -= WeightDecay * neuralNetwork.layers[l].Weights[i, k];
+                            neuralNetwork.DenseLayers[l].Weights[i, k] += Momentum * neuralNetwork.DenseLayers[l].PreviousWeightDelta[i, k];
+                            neuralNetwork.DenseLayers[l].Weights[i, k] -= WeightDecay * neuralNetwork.DenseLayers[l].Weights[i, k];
                         }
                     }
                 }
 
-                for (int i = 0; i < neuralNetwork.layers[l].Biases.Length; ++i)
+                for (int i = 0; i < neuralNetwork.DenseLayers[l].Biases.Length; ++i)
                 {
                     if (UnityEngine.Random.Range(0f, 100f) > 100f - MutationChancesPurcent)
                     {
                         double biaseDelta = UnityEngine.Random.Range(-MutationRate, MutationRate) * BiasRate;
 
-                        neuralNetwork.layers[l].Biases[i] = biaseDelta + neuralNetwork.layers[l].Biases[i];
-                        neuralNetwork.layers[l].PreviousBiasesDelta[i] = biaseDelta;
-                        neuralNetwork.layers[l].Biases[i] -= WeightDecay * neuralNetwork.layers[l].Biases[i];
+                        neuralNetwork.DenseLayers[l].Biases[i] = biaseDelta + neuralNetwork.DenseLayers[l].Biases[i];
+                        neuralNetwork.DenseLayers[l].PreviousBiasesDelta[i] = biaseDelta;
+                        neuralNetwork.DenseLayers[l].Biases[i] -= WeightDecay * neuralNetwork.DenseLayers[l].Biases[i];
                     }
                     else
                     {
-                        neuralNetwork.layers[l].Biases[i] += Momentum * neuralNetwork.layers[l].PreviousBiasesDelta[i];
-                        neuralNetwork.layers[l].Biases[i] -= WeightDecay * neuralNetwork.layers[l].Biases[i];
+                        neuralNetwork.DenseLayers[l].Biases[i] += Momentum * neuralNetwork.DenseLayers[l].PreviousBiasesDelta[i];
+                        neuralNetwork.DenseLayers[l].Biases[i] -= WeightDecay * neuralNetwork.DenseLayers[l].Biases[i];
                     }
                 }
             }

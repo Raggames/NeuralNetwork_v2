@@ -110,7 +110,7 @@ namespace NeuralNetwork
             {
                 for (int g = 0; g < discr_inp_grads.Length; ++g)
                 {
-                    generator_t_values[k] += discr_inp_grads[g] * DiscriminantNetworkTrainer.NeuralNetwork.layers[0].Weights[k, g];
+                    generator_t_values[k] += discr_inp_grads[g] * DiscriminantNetworkTrainer.NeuralNetwork.DenseLayers[0].Weights[k, g];
                 }
                 //discr_input_from_grads[k] /= discr_inp_grads.Length;
             }

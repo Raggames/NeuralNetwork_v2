@@ -19,6 +19,8 @@ namespace NeuralNetwork
 
         public virtual void GetTrainDatas(out double[][] x_datas, out double[][] t_datas) { x_datas = null; t_datas = null; }
 
+        public virtual void GetMatrixTrainDatas(out double[][,] x_datas, out double[][] t_datas) { x_datas = null; t_datas = null; }
+
         public abstract void GetNextValues(out double[] x_val, out double[] t_val);
         
         public abstract bool ValidateRun(double[] y_val, double[] t_val);        
