@@ -51,10 +51,49 @@ namespace NeuralNetwork
 
             for(int i = 0; i < DenseLayers.Count; ++i)
             {
-                result = DenseLayers[i].ComputeResult(flatten);
+                result = DenseLayers[i].ComputeForward(flatten);
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Backpropagates the error from the dense output to the first convolution layer
+        /// </summary>
+        /// <param name="testvalues"></param>
+        /// <param name="gradient_inputs"></param>
+        public void ComputeGradients(double[] testvalues, double[] gradient_inputs)
+        {
+            double[] first_dense_gradients = ComputeDenseGradients(testvalues, gradient_inputs);
+
+            // Deflatten gradients to recreate feature maps gradients
+            double[][,] feature_maps_gradients = FlattenLayer.ComputeBackward(first_dense_gradients);
+
+            for(int i = CNNLayers.Count; i >= 0; --i)
+            {
+                feature_maps_gradients = CNNLayers[i].ComputeBackward(feature_maps_gradients);
+            }
+        }
+
+        // Update all weights from gradients
+        public void UpdateWeights(float learningRate, float momentum, float weightDecay, float biasRate)
+        {
+            UpdateDenseWeights(learningRate, momentum, weightDecay, biasRate);
+
+            for (int i = CNNLayers.Count; i >= 0; --i)
+            {
+                CNNLayers[i].UpdateWeights(learningRate, momentum, weightDecay, biasRate);
+            }
+        }
+
+        public void MeanGradients(int value)
+        {
+            MeanDenseGradients(value);
+
+            for (int i = 0; i < CNNLayers.Count; ++i)
+            {
+                //CNNLayers[i].MeanGradients(value);
+            }
         }
     }
 }

@@ -8,6 +8,8 @@ namespace NeuralNetwork
         public int FilterSize;
         public double[,] KernelFilter;
         public double Bias;
+
+        public double[,] Input;
         public double[,] ActivationMap;
 
         public double[,] Gradients;
@@ -55,6 +57,8 @@ namespace NeuralNetwork
 
         public void ComputeConvolution(double[,] inputMatrix, int stride, int padding)
         {
+            Input = inputMatrix;
+
             int offset = FilterSize - stride;
             int featureMap_i = 0;
             int featureMap_j = 0;
@@ -70,27 +74,13 @@ namespace NeuralNetwork
                     {
                         for (int kj = 0; kj < FilterSize; ++kj)
                         {
-                            try
-                            {
-                                // KernelMatrix dimension is flattenned so accessing by i + j index (3x3 => 9 elements)
-                                output += KernelFilter[ki, kj] * inputMatrix[i + ki, j + kj];
-                            }
-                            catch
-                            {
-                                Debug.LogError(ki + " " + kj + " i, j" + i + " " + j);
-                            }
+                            // KernelMatrix dimension is flattenned so accessing by i + j index (3x3 => 9 elements)
+                            output += KernelFilter[ki, kj] * inputMatrix[i + ki, j + kj];
                         }
                     }
 
                     output += Bias;
-                    try
-                    {
-                        ActivationMap[featureMap_i, featureMap_j] = output;
-                    }
-                    catch
-                    {
-                        Debug.LogError(featureMap_i + " " + featureMap_j + " i, j" + ActivationMap.GetLength(0));
-                    }
+                    ActivationMap[featureMap_i, featureMap_j] = output;
 
                     featureMap_j++;
                 }
@@ -114,7 +104,7 @@ namespace NeuralNetwork
             }
         }
 
-        public void ComputeGradients(ActivationFunctions activationFunction, double[,] previous_layer_gradients)
+        public void ComputeFilterGradients(ActivationFunctions activationFunction, double[,] previous_layer_gradients)
         {
             // Derivate the activation map non linearity and compute the product with the gradients from the previous layer.
             // could be the Flatten layer that comes straight from the dense part of the network, or from a pooling layer
@@ -128,8 +118,47 @@ namespace NeuralNetwork
             }
         }
 
+        public double[,] ComputeInputGradients(int stride, int padding)
+        {
+            double[,] input_gradients = new double[Input.GetLength(0), Input.GetLength(1)];
+
+            int offset = FilterSize - stride;
+            int featureMap_i = 0;
+            int featureMap_j = 0;
+
+            double[,] reverted_filter = new double[FilterSize, FilterSize];
+
+            for (int ki = FilterSize; ki >= 0; --ki)
+            {
+                for (int kj = FilterSize; kj >= 0; --kj)
+                {
+                    reverted_filter[ki, kj] = KernelFilter[FilterSize - ki, FilterSize - kj];
+                }
+            }
+
+            for (int i = 0; i < Input.GetLength(0) - offset - padding; i += stride)
+            {
+                for (int j = 0; j < Input.GetLength(1) - offset - padding; j += stride)
+                {
+                    for (int ki = 0; ki < FilterSize; ++ki)
+                    {
+                        for (int kj = 0; kj < FilterSize; ++kj)
+                        {
+                            input_gradients[i + ki, j + kj] += reverted_filter[ki, kj] * Gradients[featureMap_i, featureMap_j];
+                        }
+                    }
+
+                    featureMap_j++;
+                }
+                featureMap_i++;
+                featureMap_j = 0;
+            }
+
+            return input_gradients;
+        }
+
         // Convolute over the gradients maps and sum 
-        public void ComputeWeights(double[,] inputMatrix, int stride, int padding, float learningRate)
+        public void UpdateFilterWeights(double[,] inputMatrix, int stride, int padding, float learningRate, float momentum, float weightDecay, float biasRate)
         {
             // For stride 1, we convolute the 
             int offset = FilterSize - stride - padding;

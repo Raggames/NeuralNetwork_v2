@@ -183,7 +183,7 @@ namespace NeuralNetwork
                         run_test_outputs = t_datas[sequence_indexes[dataIndex]];
 
                         NeuralNetwork.FeedForward(run_inputs, out run_outputs);
-                        NeuralNetwork.ComputeGradients(run_test_outputs, run_outputs);
+                        NeuralNetwork.ComputeDenseGradients(run_test_outputs, run_outputs);
 
                         ComputeAccuracy(run_test_outputs, run_outputs);
 
@@ -199,9 +199,9 @@ namespace NeuralNetwork
                     }
 
                     // Computing gradients average over batchsize
-                    NeuralNetwork.MeanGradients(BatchSize);
+                    NeuralNetwork.MeanDenseGradients(BatchSize);
                     // Computing new weights and reseting gradients to 0 for next batch
-                    NeuralNetwork.ComputeWeights(LearningRate, Momentum, WeightDecay, BiasRate);
+                    NeuralNetwork.UpdateDenseWeights(LearningRate, Momentum, WeightDecay, BiasRate);
                 }
 
                 double last_mean_error = Current_Mean_Error;

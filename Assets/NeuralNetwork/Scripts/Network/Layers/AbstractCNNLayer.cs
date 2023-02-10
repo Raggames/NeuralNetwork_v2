@@ -9,5 +9,6 @@ namespace NeuralNetwork
     public abstract class AbstractCNNLayer : AbstractLayer
     {
         public abstract double[][,] ComputeForward(double[][,] input);        
+        public abstract double[][,] ComputeBackward(double[][,] previous_layer_gradients);        
     }
 }

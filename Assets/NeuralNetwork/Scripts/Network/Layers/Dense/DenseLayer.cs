@@ -101,7 +101,7 @@ namespace NeuralNetwork
             }
         }
 
-        public double[] ComputeResult(double[] inputs)
+        public double[] ComputeForward(double[] inputs)
         {
             this.inputs = inputs;
 
@@ -148,7 +148,7 @@ namespace NeuralNetwork
             return outputs;
         }
 
-        public double[] ComputeGradients(double[] prev_layer_gradients, double[,] prev_layer_weights, double[] testvalues)
+        public double[] ComputeBackward(double[] prev_layer_gradients, double[,] prev_layer_weights, double[] testvalues)
         {
             double[] current_gradients = new double[gradients.Length];
 
@@ -189,7 +189,7 @@ namespace NeuralNetwork
             }
         }
 
-        public void ComputeWeights(float learningRate, float momentum, float weightDecay, float biasRate)
+        public override void UpdateWeights(float learningRate, float momentum, float weightDecay, float biasRate)
         {
             for (int i = 0; i < weights.GetLength(0); ++i)
             {

@@ -97,6 +97,7 @@ namespace NeuralNetwork
             }
         }
 
+        // Compute the convolution of each filter and returns an array of activation/feature maps
         public override double[][,] ComputeForward(double[][,] input)
         {
             //ComputeConvolution();
@@ -110,24 +111,41 @@ namespace NeuralNetwork
             for (int k = 0; k < FeatureMaps.Count; ++k)
             {
                 FeatureMaps[k].ComputeActivationFunction(activationFunction);
+
+                // Set datas in the output matrices array
                 output[k] = FeatureMaps[k].ActivationMap;
             }
 
             return output;
         }
 
-        public void ComputeBackward(double[,] previous_layer_gradients, float learningRate)
+        public override double[][,] ComputeBackward(double[][,] previous_layer_gradients)
+        {
+            double[][,] input_gradients = new double[FeatureMaps.Count][,];
+
+            // Compute activation map gradient by derivative of the activation map from the previous layer (from output to input si previous layer is layer + 1)
+            // Multiplied by previous layer gradients
+            // Then compute the gradient of each filter weight by convolution
+            for (int k = 0; k < FeatureMaps.Count; ++k)
+            {
+                FeatureMaps[k].ComputeFilterGradients(activationFunction, previous_layer_gradients[k]);
+            }
+
+            // Compute the gradient of the input matrix from the activation map gradients of each filter
+            for (int k = 0; k < FeatureMaps.Count; ++k)
+            {
+                input_gradients[k] = FeatureMaps[k].ComputeInputGradients(Stride, Padding);
+            }
+
+            return input_gradients;
+        }
+
+        public override void UpdateWeights(float learningRate, float momentum, float weightDecay, float biasRate)
         {
             for (int k = 0; k < FeatureMaps.Count; ++k)
             {
-                FeatureMaps[k].ComputeGradients(activationFunction, previous_layer_gradients);
-            }
-
-            for (int k = 0; k < FeatureMaps.Count; ++k)
-            {
-                FeatureMaps[k].ComputeWeights(InputMatrix, Stride, Padding, learningRate);
+                FeatureMaps[k].UpdateFilterWeights(InputMatrix, Stride, Padding, learningRate, momentum, weightDecay,biasRate);
             }
         }
-
     }
 }

@@ -99,7 +99,7 @@ namespace NeuralNetwork
 
         private double[] GetGeneratorTestValues(double[] discriminant_desired_output, double[] discriminant_run_output)
         {
-            double[] discr_inp_grads = DiscriminantNetworkTrainer.NeuralNetwork.ComputeGradients(discriminant_desired_output, discriminant_run_output);
+            double[] discr_inp_grads = DiscriminantNetworkTrainer.NeuralNetwork.ComputeDenseGradients(discriminant_desired_output, discriminant_run_output);
 
             double[] generator_t_values = new double[DiscriminantNetworkTrainer.Builder.InputLayer.NeuronsCount];
 

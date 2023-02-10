@@ -77,7 +77,7 @@ namespace NeuralNetwork
 
             for (int i = 0; i < DenseLayers.Count; ++i)
             {
-                current_output = DenseLayers[i].ComputeResult(current_output);
+                current_output = DenseLayers[i].ComputeForward(current_output);
             }
 
             // Just for debug visualization
@@ -156,12 +156,12 @@ namespace NeuralNetwork
         #region BackPropagation
         public void BackPropagate(double[] outputs, double[] testvalues, float learningRate, float momentum, float weightDecay, float biasRate)
         {
-            ComputeGradients(testvalues, outputs);
+            ComputeDenseGradients(testvalues, outputs);
 
-            ComputeWeights(learningRate, momentum, weightDecay, biasRate);
+            UpdateDenseWeights(learningRate, momentum, weightDecay, biasRate);
         }
 
-        public void MeanGradients(float value)
+        public void MeanDenseGradients(float value)
         {
             for (int i =  0; i < DenseLayers.Count; ++i)
             {
@@ -169,29 +169,29 @@ namespace NeuralNetwork
             }
         }
 
-        public double[] ComputeGradients(double[] testvalues, double[] gradient_inputs, bool avoid_output = false)
+        public double[] ComputeDenseGradients(double[] testvalues, double[] gradient_inputs)
         {
             for (int i = DenseLayers.Count - 1; i >= 0; --i)
             {
-                if (i == DenseLayers.Count - 1 && !avoid_output)
+                if (i == DenseLayers.Count - 1)
                 {
-                    gradient_inputs = DenseLayers[i].ComputeGradients(gradient_inputs, null, testvalues);
+                    gradient_inputs = DenseLayers[i].ComputeBackward(gradient_inputs, null, testvalues);
 
                 }
                 else
                 {
-                    gradient_inputs = DenseLayers[i].ComputeGradients(gradient_inputs, DenseLayers[i + 1].Weights, testvalues);
+                    gradient_inputs = DenseLayers[i].ComputeBackward(gradient_inputs, DenseLayers[i + 1].Weights, testvalues);
                 }
             }
 
             return gradient_inputs;
         }
 
-        public void ComputeWeights(float learningRate, float momentum, float weightDecay, float biasRate)
+        public void UpdateDenseWeights(float learningRate, float momentum, float weightDecay, float biasRate)
         {
             for (int i = 0; i < DenseLayers.Count; ++i)
             {
-                DenseLayers[i].ComputeWeights(learningRate, momentum, weightDecay, biasRate);
+                DenseLayers[i].UpdateWeights(learningRate, momentum, weightDecay, biasRate);
             }
         }
 
