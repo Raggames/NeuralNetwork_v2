@@ -137,7 +137,7 @@ namespace NeuralNetwork
 
             for (int d = 0; d < previous_layer_gradients.Length; ++d)
             {
-                input_gradients[d] = new double[inputs.GetLength(0), inputs.GetLength(1)];
+                input_gradients[d] = new double[inputs[d].GetLength(0), inputs[d].GetLength(1)];
 
                 int pool_width = inputs[d].GetLength(0) - FilterSize - Padding;
                 int pool_height = inputs[d].GetLength(1) - FilterSize - Padding;

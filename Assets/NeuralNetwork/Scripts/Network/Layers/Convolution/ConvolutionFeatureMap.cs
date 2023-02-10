@@ -128,11 +128,11 @@ namespace NeuralNetwork
 
             double[,] reverted_filter = new double[FilterSize, FilterSize];
 
-            for (int ki = FilterSize; ki >= 0; --ki)
+            for (int ki = FilterSize - 1; ki >= 0; --ki)
             {
-                for (int kj = FilterSize; kj >= 0; --kj)
+                for (int kj = FilterSize - 1; kj >= 0; --kj)
                 {
-                    reverted_filter[ki, kj] = KernelFilter[FilterSize - ki, FilterSize - kj];
+                    reverted_filter[ki, kj] = KernelFilter[FilterSize - 1 - ki, FilterSize - 1 - kj];
                 }
             }
 
@@ -161,16 +161,16 @@ namespace NeuralNetwork
         public void UpdateFilterWeights(double[,] inputMatrix, int stride, int padding, float learningRate, float momentum, float weightDecay, float biasRate)
         {
             // For stride 1, we convolute the 
-            int offset = FilterSize - stride - padding;
+            int offset = FilterSize - stride;
 
             int featureMap_i = 0;
             int featureMap_j = 0;
 
             double[,] filter_error = new double[FilterSize, FilterSize];
 
-            for (int i = 0; i < inputMatrix.GetLength(0) - offset; i += stride)
+            for (int i = 0; i < inputMatrix.GetLength(0) - offset - padding; i += stride)
             {
-                for (int j = 0; j < inputMatrix.GetLength(1) - offset; j += stride)
+                for (int j = 0; j < inputMatrix.GetLength(1) - offset - padding; j += stride)
                 {
                     // Multiplying each cell of the input pixel value (aka InputMatrix[i,j,0]) by its correspoding kernel value in the KernelMatrix 
                     for (int ki = 0; ki < FilterSize; ++ki)
@@ -190,7 +190,7 @@ namespace NeuralNetwork
             {
                 for (int kj = 0; kj < FilterSize; ++kj)
                 {
-                    KernelFilter[ki, kj] += learningRate * filter_error[ki, kj];
+                    KernelFilter[ki, kj] -= learningRate * filter_error[ki, kj];
                 }
             }
         }

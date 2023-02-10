@@ -50,9 +50,24 @@ namespace NeuralNetwork
             return flatten_output;
         }
 
-        public double[][,] ComputeBackward(double[] flatten_input)
+        public double[][,] ComputeBackward(double[] prev_layer_gradients, double[,] prev_layer_weights)
         {
             int i = 0;
+
+            double[] gradients = new double[NodeCount];
+
+            for (int g = 0; g < gradients.Length; ++g)
+            {
+                double derivative = flatten_output[g];
+                double sum = 0.0;
+                for (int j = 0; j < prev_layer_gradients.Length; ++j)
+                {
+                    double x = prev_layer_gradients[j] * prev_layer_weights[g, j];
+                    sum += x;
+                }
+                //current_gradients[g] = derivative * sum;
+                gradients[g] += derivative * sum;
+            }
 
             for (int d = 0; d < Depth; ++d)
             {
@@ -60,7 +75,7 @@ namespace NeuralNetwork
                 {
                     for (int h = 0; h < Height; ++h)
                     {
-                        deflatten_output[d][w, h] = flatten_input[i++];
+                        deflatten_output[d][w, h] = gradients[i++];
                     }
                 }
             }
@@ -68,5 +83,9 @@ namespace NeuralNetwork
             return deflatten_output;
         }
 
+        public override void UpdateWeights(float learningRate, float momentum, float weightDecay, float biasRate)
+        {
+            // Nothing to do here
+        }
     }
 }

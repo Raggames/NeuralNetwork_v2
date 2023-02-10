@@ -67,9 +67,9 @@ namespace NeuralNetwork
             double[] first_dense_gradients = ComputeDenseGradients(testvalues, gradient_inputs);
 
             // Deflatten gradients to recreate feature maps gradients
-            double[][,] feature_maps_gradients = FlattenLayer.ComputeBackward(first_dense_gradients);
+            double[][,] feature_maps_gradients = FlattenLayer.ComputeBackward(first_dense_gradients, DenseLayers[0].Weights);
 
-            for(int i = CNNLayers.Count; i >= 0; --i)
+            for(int i = CNNLayers.Count - 1; i >= 0; --i)
             {
                 feature_maps_gradients = CNNLayers[i].ComputeBackward(feature_maps_gradients);
             }
@@ -80,7 +80,7 @@ namespace NeuralNetwork
         {
             UpdateDenseWeights(learningRate, momentum, weightDecay, biasRate);
 
-            for (int i = CNNLayers.Count; i >= 0; --i)
+            for (int i = CNNLayers.Count - 1; i >= 0; --i)
             {
                 CNNLayers[i].UpdateWeights(learningRate, momentum, weightDecay, biasRate);
             }

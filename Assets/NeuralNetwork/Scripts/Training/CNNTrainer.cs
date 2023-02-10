@@ -85,7 +85,7 @@ namespace NeuralNetwork
             // Pool from 27x27 to 13x13
             var poolingLayer = new PoolingLayer(convolutionLayer.OutputWidth, convolutionLayer.OutputHeight, 1, 2, Padding, PoolingRule.Max);
             NeuralNetwork.CNNLayers.Add(poolingLayer);
-
+/*
             ConvolutionLayer convolutionLayer2 = new ConvolutionLayer(poolingLayer.OutputWidth, poolingLayer.OutputHeight, Padding, Stride)
                 .AddFilter(KernelType.Identity);
             convolutionLayer2.Initialize();
@@ -94,9 +94,9 @@ namespace NeuralNetwork
 
             var poolingLayer2 = new PoolingLayer(convolutionLayer2.OutputWidth, convolutionLayer2.OutputHeight, 1, 2, Padding, PoolingRule.Max);
             NeuralNetwork.CNNLayers.Add(poolingLayer2);
-
+*/
             // Pooling layer matrix out is 13x13 for 1 filter = 169 neurons
-            NeuralNetwork.FlattenLayer = new FlattenLayer(poolingLayer2.OutputWidth, poolingLayer2.OutputHeight, 1);
+            NeuralNetwork.FlattenLayer = new FlattenLayer(poolingLayer.OutputWidth, poolingLayer.OutputHeight, 1);
 
             NeuralNetwork.DenseLayers.Add(new DenseLayer(LayerType.DenseHidden, ActivationFunctions.ReLU, NeuralNetwork.FlattenLayer.NodeCount, NeuralNetwork.FlattenLayer.NodeCount / 2));
             NeuralNetwork.DenseLayers.Add(new DenseLayer(LayerType.Output, ActivationFunctions.Softmax, NeuralNetwork.FlattenLayer.NodeCount, 10));
@@ -138,7 +138,7 @@ namespace NeuralNetwork
                         run_inputs = x_datas[sequence_indexes[dataIndex]];
                         run_test_outputs = t_datas[sequence_indexes[dataIndex]];
 
-                        NeuralNetwork.ComputeForward(run_inputs);
+                        run_outputs = NeuralNetwork.ComputeForward(run_inputs);
 
                         NeuralNetwork.ComputeGradients(run_test_outputs, run_outputs);
 
@@ -167,11 +167,11 @@ namespace NeuralNetwork
                 // Computing the mean error
                 Current_Mean_Error = mean_error_sum / x_datas.Length;
 
-                if (Current_Mean_Error < last_mean_error)
+               /* if (Current_Mean_Error < last_mean_error)
                 {
                     // Keeping a trace of the set
                     MemorizeBestSet(NeuralNetwork, Current_Mean_Error);
-                }
+                }*/
 
                 // If under target error, stop
                 if (Current_Mean_Error < Target_Mean_Error)
