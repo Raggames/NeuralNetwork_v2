@@ -22,6 +22,15 @@ namespace NeuralNetwork
 
             switch (kernelType)
             {
+                case KernelType.Random:
+                    for (int i = 0; i < filterSize; ++i)
+                    {
+                        for (int j = 0; j < filterSize; ++j)
+                        {
+                            KernelFilter[i, j] = UnityEngine.Random.Range(-.1f, .1f);
+                        }
+                    }
+                    break;
                 case KernelType.Default:
                     for (int i = 0; i < Kernels.kernel.GetLength(0); ++i)
                     {
@@ -158,7 +167,7 @@ namespace NeuralNetwork
         }
 
         // Convolute over the gradients maps and sum 
-        public void UpdateFilterWeights(double[,] inputMatrix, int stride, int padding, float learningRate, float momentum, float weightDecay, float biasRate)
+        public void UpdateFilterWeights( int stride, int padding, float learningRate, float momentum, float weightDecay, float biasRate)
         {
             // For stride 1, we convolute the 
             int offset = FilterSize - stride;
@@ -168,16 +177,16 @@ namespace NeuralNetwork
 
             double[,] filter_error = new double[FilterSize, FilterSize];
 
-            for (int i = 0; i < inputMatrix.GetLength(0) - offset - padding; i += stride)
+            for (int i = 0; i < Input.GetLength(0) - offset - padding; i += stride)
             {
-                for (int j = 0; j < inputMatrix.GetLength(1) - offset - padding; j += stride)
+                for (int j = 0; j < Input.GetLength(1) - offset - padding; j += stride)
                 {
                     // Multiplying each cell of the input pixel value (aka InputMatrix[i,j,0]) by its correspoding kernel value in the KernelMatrix 
                     for (int ki = 0; ki < FilterSize; ++ki)
                     {
                         for (int kj = 0; kj < FilterSize; ++kj)
                         {
-                            filter_error[ki, kj] += Gradients[featureMap_i, featureMap_j] * KernelFilter[ki, kj];
+                            filter_error[ki, kj] += Gradients[featureMap_i, featureMap_j] * KernelFilter[ki, kj] * Input[i + ki, j + kj];
                         }
                     }
                     featureMap_j++;
@@ -186,6 +195,18 @@ namespace NeuralNetwork
                 featureMap_j = 0;
             }
 
+            // Average the kernel error
+            int convs = Input.GetLength(0) - offset - padding;
+
+            for (int ki = 0; ki < FilterSize; ++ki)
+            {
+                for (int kj = 0; kj < FilterSize; ++kj)
+                {
+                    filter_error[ki, kj] /= convs;
+                }
+            }
+
+            // Update weights
             for (int ki = 0; ki < FilterSize; ++ki)
             {
                 for (int kj = 0; kj < FilterSize; ++kj)

@@ -444,7 +444,7 @@ MonoBehaviour:
   LossFunction: 2
   InitialWeightRange: {x: -0.1, y: 0.1}
   InitialWeightSeed: 0
-  LearningRate: 0.069
+  LearningRate: 0.043
   Momentum: 0.01
   BiasRate: 1
   LearningRateDecay: 0.0001
@@ -460,7 +460,7 @@ MonoBehaviour:
   Training_Best_Mean_Error: 0
   ImageDimensions: {x: 28, y: 28}
   Padding: 1
-  Stride: 1
+  Stride: 2
   NeuralNetwork:
     DenseLayers: []
     _inputs: []

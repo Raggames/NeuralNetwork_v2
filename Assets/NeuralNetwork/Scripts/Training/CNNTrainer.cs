@@ -61,7 +61,7 @@ namespace NeuralNetwork
 
             if (GUI.Button(new Rect(10, 150, 100, 30), "Test"))
             {
-                //ExecutionCoroutine = StartCoroutine(DoExecuting(Epochs));
+                ExecutionCoroutine = StartCoroutine(Test());
             }
 
             if (GUI.Button(new Rect(10, 50, 100, 30), "Save"))
@@ -70,6 +70,10 @@ namespace NeuralNetwork
             }
         }
 
+        /// <summary>
+        /// 95% Accuracy training with 0.043 learning rate / P1, S2 and 2 filters to flatten => dense = flatten count / 2 + output
+        /// </summary>
+
         public void Initialize()
         {
             TrainingSetting.Init();
@@ -77,32 +81,99 @@ namespace NeuralNetwork
             NeuralNetwork = new CNN();
             // Convolute from 28x28 input to 27x27 feature map
             ConvolutionLayer convolutionLayer = new ConvolutionLayer(ImageDimensions.x, ImageDimensions.y, Padding, Stride)
-                .AddFilter(KernelType.Identity);
+                .AddFilter(KernelType.Random)
+                .AddFilter(KernelType.Random);
             convolutionLayer.Initialize();
 
             NeuralNetwork.CNNLayers.Add(convolutionLayer);
 
+            /*ConvolutionLayer convolutionLayer2 = new ConvolutionLayer(convolutionLayer.OutputWidth, convolutionLayer.OutputHeight, Padding, 2)
+                .AddFilter(KernelType.Random);
+            convolutionLayer2.Initialize();*/
+            //NeuralNetwork.CNNLayers.Add(convolutionLayer2);
             // Pool from 27x27 to 13x13
-            var poolingLayer = new PoolingLayer(convolutionLayer.OutputWidth, convolutionLayer.OutputHeight, 1, 2, Padding, PoolingRule.Max);
-            NeuralNetwork.CNNLayers.Add(poolingLayer);
-/*
-            ConvolutionLayer convolutionLayer2 = new ConvolutionLayer(poolingLayer.OutputWidth, poolingLayer.OutputHeight, Padding, Stride)
-                .AddFilter(KernelType.Identity);
-            convolutionLayer2.Initialize();
+            /*var poolingLayer = new PoolingLayer(convolutionLayer.OutputWidth, convolutionLayer.OutputHeight, 1, 2, Padding, PoolingRule.Average);
+            NeuralNetwork.CNNLayers.Add(poolingLayer);*/
+            /*
+                        ConvolutionLayer convolutionLayer2 = new ConvolutionLayer(poolingLayer.OutputWidth, poolingLayer.OutputHeight, Padding, Stride)
+                            .AddFilter(KernelType.Identity);
+                        convolutionLayer2.Initialize();
 
-            NeuralNetwork.CNNLayers.Add(convolutionLayer2);
+                        NeuralNetwork.CNNLayers.Add(convolutionLayer2);
 
-            var poolingLayer2 = new PoolingLayer(convolutionLayer2.OutputWidth, convolutionLayer2.OutputHeight, 1, 2, Padding, PoolingRule.Max);
-            NeuralNetwork.CNNLayers.Add(poolingLayer2);
-*/
+                        var poolingLayer2 = new PoolingLayer(convolutionLayer2.OutputWidth, convolutionLayer2.OutputHeight, 1, 2, Padding, PoolingRule.Max);
+                        NeuralNetwork.CNNLayers.Add(poolingLayer2);
+            */
+
+            //var poolingLayer = new PoolingLayer(convolutionLayer.OutputWidth, convolutionLayer.OutputHeight, 1, 2, Padding, PoolingRule.Average);
+            //NeuralNetwork.CNNLayers.Add(poolingLayer);
+
             // Pooling layer matrix out is 13x13 for 1 filter = 169 neurons
-            NeuralNetwork.FlattenLayer = new FlattenLayer(poolingLayer.OutputWidth, poolingLayer.OutputHeight, 1);
+            NeuralNetwork.FlattenLayer = new FlattenLayer(convolutionLayer.OutputWidth, convolutionLayer.OutputHeight, 2);
 
             NeuralNetwork.DenseLayers.Add(new DenseLayer(LayerType.DenseHidden, ActivationFunctions.ReLU, NeuralNetwork.FlattenLayer.NodeCount, NeuralNetwork.FlattenLayer.NodeCount / 2));
+            //NeuralNetwork.DenseLayers.Add(new DenseLayer(LayerType.DenseHidden, ActivationFunctions.ReLU, NeuralNetwork.FlattenLayer.NodeCount, NeuralNetwork.FlattenLayer.NodeCount / 2));
             NeuralNetwork.DenseLayers.Add(new DenseLayer(LayerType.Output, ActivationFunctions.Softmax, NeuralNetwork.FlattenLayer.NodeCount, 10));
 
             NeuralNetwork.Initialize(this, null); 
             NeuralNetwork.InitializeWeights();
+        }
+
+        private IEnumerator Test()
+        {
+            CurrentEpoch = 0;
+
+            double current_time = 0;
+
+            // Get training datas from the setting
+            TrainingSetting.GetMatrixTrainDatas(out x_datas, out t_datas);
+
+            // Compute number of iterations 
+            // Batchsize shouldn't be 0
+            int iterations_per_epoch = x_datas.Length / BatchSize;
+
+            int[] sequence_indexes = new int[x_datas.Length];
+            for (int i = 0; i < sequence_indexes.Length; ++i)
+                sequence_indexes[i] = i;
+
+            for (int i = 0; i < Epochs; ++i)
+            {
+                int dataIndex = 0;
+
+                // Shuffle datas each epoch
+                Shuffle(sequence_indexes);
+
+                // Going through all data batched, mini-batch or stochastic, depending on BatchSize value
+                double mean_error_sum = 0;
+                for (int d = 0; d < iterations_per_epoch; ++d)
+                {
+                    for (int j = 0; j < BatchSize; ++j)
+                    {
+                        run_inputs = x_datas[sequence_indexes[dataIndex]];
+                        run_test_outputs = t_datas[sequence_indexes[dataIndex]];
+
+                        run_outputs = NeuralNetwork.ComputeForward(run_inputs);
+
+                        ComputeAccuracy(run_test_outputs, run_outputs);
+
+                        mean_error_sum += GetLoss(run_outputs, run_test_outputs);
+                        dataIndex++;
+
+                        current_time += Time.deltaTime;
+                        if (current_time > max_frame_time)
+                        {
+                            current_time = 0;
+                            yield return null;
+                        }
+                    }
+                }
+
+                // Computing the mean error
+                Current_Mean_Error = mean_error_sum / x_datas.Length;
+
+                CurrentEpoch++;
+                epochs_per_second = CurrentEpoch / Time.realtimeSinceStartup;
+            }
         }
 
         private IEnumerator Train()
@@ -173,8 +244,8 @@ namespace NeuralNetwork
                     MemorizeBestSet(NeuralNetwork, Current_Mean_Error);
                 }*/
 
-                // If under target error, stop
-                if (Current_Mean_Error < Target_Mean_Error)
+            // If under target error, stop
+            if (Current_Mean_Error < Target_Mean_Error)
                 {
                     break;
                 }

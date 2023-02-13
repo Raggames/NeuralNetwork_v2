@@ -9,6 +9,7 @@ namespace NeuralNetwork
 {
     public enum KernelType
     {
+        Random,
         Default,
         Identity,
         Sharpen,
@@ -144,7 +145,7 @@ namespace NeuralNetwork
         {
             for (int k = 0; k < FeatureMaps.Count; ++k)
             {
-                FeatureMaps[k].UpdateFilterWeights(InputMatrix, Stride, Padding, learningRate, momentum, weightDecay,biasRate);
+                FeatureMaps[k].UpdateFilterWeights(Stride, Padding, learningRate, momentum, weightDecay,biasRate);
             }
         }
     }

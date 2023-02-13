@@ -159,7 +159,7 @@ namespace NeuralNetwork
                             {
                                 for (int l = 0; l < FilterSize; ++l)
                                 {
-                                    input_gradients[d][i + k, j + l] -= previous_layer_gradients[d][index_i, index_j] / size;
+                                    input_gradients[d][i + k, j + l] += previous_layer_gradients[d][index_i, index_j] / size;
                                 }
                             }
 
