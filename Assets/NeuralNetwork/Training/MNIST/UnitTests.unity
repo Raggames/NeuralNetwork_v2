@@ -460,7 +460,7 @@ MonoBehaviour:
   Training_Best_Mean_Error: 0
   ImageDimensions: {x: 28, y: 28}
   Padding: 1
-  Stride: 2
+  Stride: 1
   NeuralNetwork:
     DenseLayers: []
     _inputs: []

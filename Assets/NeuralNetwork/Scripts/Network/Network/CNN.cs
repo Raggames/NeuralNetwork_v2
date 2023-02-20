@@ -48,10 +48,10 @@ namespace NeuralNetwork
 
             double[] flatten = FlattenLayer.ComputeForward(conv_result);
             double[] result = new double[flatten.Length];
-
+            Array.Copy(flatten, result, flatten.Length);
             for(int i = 0; i < DenseLayers.Count; ++i)
             {
-                result = DenseLayers[i].ComputeForward(flatten);
+                result = DenseLayers[i].ComputeForward(result);
             }
 
             return result;

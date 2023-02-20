@@ -87,33 +87,24 @@ namespace NeuralNetwork
 
             NeuralNetwork.CNNLayers.Add(convolutionLayer);
 
-            /*ConvolutionLayer convolutionLayer2 = new ConvolutionLayer(convolutionLayer.OutputWidth, convolutionLayer.OutputHeight, Padding, 2)
+            // *************************
+
+           /* ConvolutionLayer convolutionLayer2 = new ConvolutionLayer(convolutionLayer.OutputWidth, convolutionLayer.OutputHeight, Padding, Stride * 2)
+                .AddFilter(KernelType.Random)
                 .AddFilter(KernelType.Random);
+
             convolutionLayer2.Initialize();*/
+
             //NeuralNetwork.CNNLayers.Add(convolutionLayer2);
-            // Pool from 27x27 to 13x13
-            /*var poolingLayer = new PoolingLayer(convolutionLayer.OutputWidth, convolutionLayer.OutputHeight, 1, 2, Padding, PoolingRule.Average);
-            NeuralNetwork.CNNLayers.Add(poolingLayer);*/
-            /*
-                        ConvolutionLayer convolutionLayer2 = new ConvolutionLayer(poolingLayer.OutputWidth, poolingLayer.OutputHeight, Padding, Stride)
-                            .AddFilter(KernelType.Identity);
-                        convolutionLayer2.Initialize();
 
-                        NeuralNetwork.CNNLayers.Add(convolutionLayer2);
-
-                        var poolingLayer2 = new PoolingLayer(convolutionLayer2.OutputWidth, convolutionLayer2.OutputHeight, 1, 2, Padding, PoolingRule.Max);
-                        NeuralNetwork.CNNLayers.Add(poolingLayer2);
-            */
-
-            //var poolingLayer = new PoolingLayer(convolutionLayer.OutputWidth, convolutionLayer.OutputHeight, 1, 2, Padding, PoolingRule.Average);
-            //NeuralNetwork.CNNLayers.Add(poolingLayer);
+            // *************************
 
             // Pooling layer matrix out is 13x13 for 1 filter = 169 neurons
             NeuralNetwork.FlattenLayer = new FlattenLayer(convolutionLayer.OutputWidth, convolutionLayer.OutputHeight, 2);
 
-            NeuralNetwork.DenseLayers.Add(new DenseLayer(LayerType.DenseHidden, ActivationFunctions.ReLU, NeuralNetwork.FlattenLayer.NodeCount, NeuralNetwork.FlattenLayer.NodeCount / 2));
+            //NeuralNetwork.DenseLayers.Add(new DenseLayer(LayerType.DenseHidden, ActivationFunctions.ReLU, NeuralNetwork.FlattenLayer.NodeCount, NeuralNetwork.FlattenLayer.NodeCount/2));
             //NeuralNetwork.DenseLayers.Add(new DenseLayer(LayerType.DenseHidden, ActivationFunctions.ReLU, NeuralNetwork.FlattenLayer.NodeCount, NeuralNetwork.FlattenLayer.NodeCount / 2));
-            NeuralNetwork.DenseLayers.Add(new DenseLayer(LayerType.Output, ActivationFunctions.Softmax, NeuralNetwork.FlattenLayer.NodeCount, 10));
+            NeuralNetwork.DenseLayers.Add(new DenseLayer(LayerType.Output, ActivationFunctions.Softmax, NeuralNetwork.FlattenLayer.NodeCount , 10));
 
             NeuralNetwork.Initialize(this, null); 
             NeuralNetwork.InitializeWeights();

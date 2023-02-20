@@ -205,7 +205,7 @@ namespace NeuralNetwork
                                 {
                                     if ((i + k) == max_index_i && (j + l) == max_index_j)
                                     {
-                                        input_gradients[d][i + k, j + l] = 1;
+                                        input_gradients[d][i + k, j + l] = 1 * input_gradients[d][i + k, j + l]; 
                                     }
                                     else
                                     {
