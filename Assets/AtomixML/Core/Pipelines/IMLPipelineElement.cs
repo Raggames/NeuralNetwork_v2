@@ -7,6 +7,6 @@ namespace Atom.MachineLearning.Core
     /// </summary>
     public interface IMLPipelineElement<T, K> where T : IMLInputData where K : IMLOutputData
     {
-        public Task<K> Predict(T inputData);
+        public K Predict(T inputData);
     }
 }

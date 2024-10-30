@@ -15,6 +15,10 @@ namespace Atom.MachineLearning.Core
         where TModel : IMLModel<TModelInputData, TModelOutputData>
         where ITrainingDataSet : IMLTrainingDataSet<TModelInputData>
     {
+        public int Epochs { get; set; }
+
+        public int currentEpoch { get; }
+
         public Task<ITrainingResult> Fit(TModel model, ITrainingDataSet trainingDatas);
     }
 }

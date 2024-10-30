@@ -1,4 +1,5 @@
 using Atom.MachineLearning.Core;
+using Atom.MachineLearning.Core.Maths;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -10,12 +11,14 @@ namespace Atom.MachineLearning.Unsupervised.KMeanClustering
     /// K Mean Clustering is a clustering model that can handle unsupervised classification 
     /// </summary>
     public class KMeanClusteringModel : 
-        IMLModel<VectorNInputData, ClassificationOutputData>,
-        IMLPipelineElement<VectorNInputData, ClassificationOutputData>
+        IMLModel<VectorNInputData, KMeanClusteringOutputData>,
+        IMLPipelineElement<VectorNInputData, KMeanClusteringOutputData>
     {
         public string AlgorithmName => "KMeanClustering";
 
-        private List<float[]> _centroids;
+        private List<double[]> _centroids;
+
+        public int clustersCount => _centroids.Count;
 
         public enum CentroidInitializationModes
         {
@@ -29,18 +32,35 @@ namespace Atom.MachineLearning.Unsupervised.KMeanClustering
             /// </summary>
             RandomOnPoint,
         }
-               
 
-        public async Task<ClassificationOutputData> Predict(VectorNInputData inputData)
+        /// <summary>
+        /// Predict the label for the input data
+        /// </summary>
+        /// <param name="inputData"></param>
+        /// <returns></returns>
+        public KMeanClusteringOutputData Predict(VectorNInputData inputData)
         {
-            return null;
+            var min_distance = double.MaxValue;
+            int cluster_index = -1;
+
+            for (int i = 0; i < _centroids.Count; ++i)
+            {
+                var distance = MathUtils.EuclidianDistance(inputData.Data, _centroids[i]);
+                if (distance < min_distance)
+                {
+                    min_distance = distance;
+                    cluster_index = i;
+                }
+            }
+
+            return new KMeanClusteringOutputData() { ClassLabel = cluster_index, Euclidian = min_distance };
         }
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="newCentroids"></param>
-        public void UpdateCentroids(List<float[]> newCentroids)
+        public void UpdateCentroids(List<double[]> newCentroids)
         {
             for (int i = 0; i < _centroids.Count; ++i)
                 _centroids[i] = newCentroids[i]; 

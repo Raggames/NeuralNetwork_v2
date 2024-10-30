@@ -6,8 +6,18 @@ using System.Threading.Tasks;
 
 namespace Atom.MachineLearning.Core
 {
-    public class VectorNInputData : IMLInputData
+    public struct VectorNInputData : IMLInputData
     {
-        public float[] Data { get; set; }
+        public double[] Data { get; set; }
+
+        public VectorNInputData(double x, double y)
+        {
+            Data = new double[] { x, y };
+        }
+
+        public VectorNInputData(double x, double y, double z)
+        {
+            Data = new double[] { x, y, z };
+        }
     }
 }

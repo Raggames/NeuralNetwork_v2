@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Assets.AtomixML.Core.Training
 {
-    public class UnsupervisedClassificationVectorNDataSet<TInput> : IMLTrainingDataSet<TInput> where TInput : VectorNInputData
+    public class UnsupervisedClassificationVectorNDataSet<TInput> : IMLTrainingDataSet<TInput> where TInput : IMLInputData
     {
         public TInput[] Features { get; }
     }

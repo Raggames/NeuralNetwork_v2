@@ -191,9 +191,16 @@ namespace NeuralNetwork
         }
 
 
+        /// <summary>
+        /// Difference between predicted outputs and desired output values
+        /// </summary>
+        /// <param name="runResults"></param>
+        /// <param name="testValues"></param>
+        /// <returns></returns>
         protected double[] ComputeError(double[] runResults, double[] testValues)
         {
             double[] cost = new double[runResults.Length];
+
             for (int i = 0; i < runResults.Length; ++i)
             {
                 cost[i] = testValues[i] - runResults[i];
