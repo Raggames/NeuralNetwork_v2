@@ -21,7 +21,7 @@ namespace Atom.MachineLearning.Core.Maths
             double result = 0;
             for (int i = 0; i < a.Length; ++i)
             {
-                result += Math.Pow(a[i] * b[i], 2);
+                result += Math.Pow(a[i] - b[i], 2);
             }
 
             return Math.Sqrt(result);
