@@ -21,7 +21,7 @@ namespace Atom.MachineLearning.Unsupervised.KMeanClustering
 
         public int clustersCount => _centroids.Count;
 
-        public enum CentroidInitializationModes
+/*        public enum CentroidInitializationModes
         {
             /// <summary>
             /// Totally random centroid
@@ -33,7 +33,7 @@ namespace Atom.MachineLearning.Unsupervised.KMeanClustering
             /// </summary>
             RandomOnPoint,
         }
-
+*/
         /// <summary>
         /// 
         /// </summary>
@@ -41,7 +41,6 @@ namespace Atom.MachineLearning.Unsupervised.KMeanClustering
         /// <param name="dimensions"> The max value for each dimension of the input feature, and the length represent the feature vector dimensions </param>
         public KMeanClusteringModel(int clusterCount, double[] dimensions)
         {
-            var random = new System.Random(DateTime.Now.Millisecond);
             _centroids = new List<double[]>(clusterCount);
 
             for(int i = 0; i < clusterCount; ++i)
@@ -49,7 +48,7 @@ namespace Atom.MachineLearning.Unsupervised.KMeanClustering
                 _centroids.Add(new double[dimensions.Length]);
 
                 for (int j = 0; j < dimensions.Length; ++j)
-                    _centroids[i][j] = random.NextDouble() * dimensions[j];
+                    _centroids[i][j] = MLRandom.Shared.NextDouble() * dimensions[j];
             }
         } 
 

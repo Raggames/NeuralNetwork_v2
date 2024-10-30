@@ -79,6 +79,7 @@ namespace Atom.MachineLearning.Unsupervised.KMeanClustering
                 _epoch_results[result.ClassLabel].Add(new(_trainingDatas.Features[j], result.Euclidian));
             }
 
+            // variance compute
             double total_variance = 0;
             double[] clusters_variance = new double[model.clustersCount];
 
@@ -91,13 +92,6 @@ namespace Atom.MachineLearning.Unsupervised.KMeanClustering
                     total_variance += _epoch_results[classIndex][j].Item2;
                 }
             }
-
-            for (int i = 0; i < model.clustersCount; ++i)
-            {
-                Debug.Log($"Cluster {i} count {_epoch_results[i].Count} features");
-            }
-
-            ComputeClusterBarycenters();
 
             return new TrainingResult()
             {
@@ -128,6 +122,10 @@ namespace Atom.MachineLearning.Unsupervised.KMeanClustering
                 }
             }
         }
+
+        // TODO Elbow Function / Automatic BestFit with ranged min-max cluster 
+        // TODO Save
+        // TODO proper visualization
 
         #region Tests 
 
@@ -183,11 +181,6 @@ namespace Atom.MachineLearning.Unsupervised.KMeanClustering
                 {
                     Gizmos.DrawSphere(new Vector3((float)item.Item1.Data[0], (float)item.Item1.Data[1], 0), .2f);
                 }
-            }
-
-            foreach(var center in _clusters_barycenter)
-            {
-
             }
         }
         #endregion
