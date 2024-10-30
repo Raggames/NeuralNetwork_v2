@@ -1,9 +1,9 @@
 using Atom.MachineLearning.Core;
 using Atom.MachineLearning.Core.Maths;
 using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using UnityEngine;
 
 namespace Atom.MachineLearning.Unsupervised.KMeanClustering
 {
@@ -17,6 +17,7 @@ namespace Atom.MachineLearning.Unsupervised.KMeanClustering
         public string AlgorithmName => "KMeanClustering";
 
         private List<double[]> _centroids;
+        public List<double[]> centroids => _centroids;
 
         public int clustersCount => _centroids.Count;
 
@@ -32,6 +33,25 @@ namespace Atom.MachineLearning.Unsupervised.KMeanClustering
             /// </summary>
             RandomOnPoint,
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="clusterCount"></param>
+        /// <param name="dimensions"> The max value for each dimension of the input feature, and the length represent the feature vector dimensions </param>
+        public KMeanClusteringModel(int clusterCount, double[] dimensions)
+        {
+            var random = new System.Random(DateTime.Now.Millisecond);
+            _centroids = new List<double[]>(clusterCount);
+
+            for(int i = 0; i < clusterCount; ++i)
+            {
+                _centroids.Add(new double[dimensions.Length]);
+
+                for (int j = 0; j < dimensions.Length; ++j)
+                    _centroids[i][j] = random.NextDouble() * dimensions[j];
+            }
+        } 
 
         /// <summary>
         /// Predict the label for the input data
@@ -63,7 +83,8 @@ namespace Atom.MachineLearning.Unsupervised.KMeanClustering
         public void UpdateCentroids(List<double[]> newCentroids)
         {
             for (int i = 0; i < _centroids.Count; ++i)
-                _centroids[i] = newCentroids[i]; 
+                for(int k = 0; k < _centroids[i].Length; ++k)
+                    _centroids[i][k] = newCentroids[i][k]; 
         }
 
         public void Save(string outputFilename)
