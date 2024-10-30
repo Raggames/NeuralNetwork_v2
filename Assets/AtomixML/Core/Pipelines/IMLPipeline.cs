@@ -7,13 +7,13 @@ namespace Atom.MachineLearning.Core
     /// <summary>
     /// A pipeline is a succession of models that can work together to execute a prediction
     /// </summary>
-    public interface IMLPipeline 
+    public interface IMLPipeline
     {
         /// <summary>
         /// Append an element to the current pipeline
         /// </summary>
         /// <param name="model"></param>
-        public void AppendElement(IMLPipelineElement pipelineElement);
+        public void AppendElement<TInput, KOutput>(IMLPipelineElement<TInput, KOutput> pipelineElement) where TInput : IMLInputData where KOutput : IMLOutputData;
 
         /// <summary>
         /// Runs the pipeline to execute a prediction and return a result
@@ -22,6 +22,6 @@ namespace Atom.MachineLearning.Core
         /// <typeparam name="K"></typeparam>
         /// <param name="inputData"></param>
         /// <returns></returns>
-        public Task<K> Predict<T, K>(T inputData) where T : IMLInputData where K : IMLOutputData;
+        public Task<KPipelineOutput> Predict<TPipelineInput, KPipelineOutput>(TPipelineInput inputData) where TPipelineInput : IMLInputData where KPipelineOutput : IMLOutputData;
     }
 }

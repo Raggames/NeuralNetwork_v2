@@ -8,6 +8,6 @@ namespace Atom.MachineLearning.Core
 {
     public class VectorNInputData : IMLInputData
     {
-
+        public float[] Data { get; set; }
     }
 }

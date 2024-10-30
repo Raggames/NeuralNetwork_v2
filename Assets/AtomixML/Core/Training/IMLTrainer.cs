@@ -9,8 +9,12 @@ namespace Atom.MachineLearning.Core
     /// Un modèle/algorithme va toujours de paire avec son ITrainer, qui implémente toutes les fonctions d'apprentissage
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface IMLTrainer<T> where T : IMLTrainingDatas
+    public interface IMLTrainer<TModel, TModelInputData, TModelOutputData, ITrainingDataSet>
+        where TModelInputData : IMLInputData
+        where TModelOutputData : IMLOutputData
+        where TModel : IMLModel<TModelInputData, IMLOutputData>
+        where ITrainingDataSet : IMLTrainingDataSet<TModelInputData>
     {
-        public Task<ITrainingResult> Fit(T trainingDatas);
+        public Task<ITrainingResult> Fit(ITrainingDataSet trainingDatas);
     }
 }

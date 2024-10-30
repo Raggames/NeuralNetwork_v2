@@ -1,4 +1,6 @@
 using Atom.MachineLearning.Core;
+using NUnit.Framework;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -13,9 +15,35 @@ namespace Atom.MachineLearning.Unsupervised.KMeanClustering
     {
         public string AlgorithmName => throw new System.NotImplementedException();
 
+        private List<float[]> _centroids;
+
+        public enum CentroidInitializationModes
+        {
+            /// <summary>
+            /// Totally random centroid
+            /// </summary>
+            Random,
+
+            /// <summary>
+            /// Centroid randomly placed on a trainind set element
+            /// </summary>
+            RandomOnPoint,
+        }
+               
+
         public async Task<ClassificationOutputData> Predict(VectorNInputData inputData)
         {
             return null;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="newCentroids"></param>
+        public void UpdateCentroids(List<float[]> newCentroids)
+        {
+            for (int i = 0; i < _centroids.Count; ++i)
+                _centroids[i] = newCentroids[i]; 
         }
     }
 
