@@ -18,5 +18,17 @@ namespace Atom.MachineLearning.Core
         public string AlgorithmName { get; }
 
         public Task<K> Predict(T inputData);
+
+        /// <summary>
+        /// Saves the model after fitting
+        /// </summary>
+        /// <param name="outputFilename"></param>
+        public void Save(string outputFilename);
+
+        /// <summary>
+        /// Load the model from a filename 
+        /// </summary>
+        /// <param name="filename"></param>
+        public void Load(string filename);
     }
 }

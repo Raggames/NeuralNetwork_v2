@@ -13,7 +13,7 @@ namespace Atom.MachineLearning.Unsupervised.KMeanClustering
         IMLModel<VectorNInputData, ClassificationOutputData>,
         IMLPipelineElement<VectorNInputData, ClassificationOutputData>
     {
-        public string AlgorithmName => throw new System.NotImplementedException();
+        public string AlgorithmName => "KMeanClustering";
 
         private List<float[]> _centroids;
 
@@ -44,6 +44,16 @@ namespace Atom.MachineLearning.Unsupervised.KMeanClustering
         {
             for (int i = 0; i < _centroids.Count; ++i)
                 _centroids[i] = newCentroids[i]; 
+        }
+
+        public void Save(string outputFilename)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void Load(string filename)
+        {
+            throw new System.NotImplementedException();
         }
     }
 

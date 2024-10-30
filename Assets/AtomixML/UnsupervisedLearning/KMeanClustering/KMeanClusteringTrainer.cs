@@ -10,7 +10,7 @@ namespace Atom.MachineLearning.Unsupervised.KMeanClustering
 {
     public class KMeanClusteringTrainer : IMLTrainer<KMeanClusteringModel, VectorNInputData, ClassificationOutputData, UnsupervisedClassificationVectorNDataSet<VectorNInputData>>
     {
-        public async Task<ITrainingResult> Fit(UnsupervisedClassificationVectorNDataSet<VectorNInputData> trainingDatas)
+        public async Task<ITrainingResult> Fit(KMeanClusteringModel model, UnsupervisedClassificationVectorNDataSet<VectorNInputData> trainingDatas)
         {
             throw new NotImplementedException();
         }

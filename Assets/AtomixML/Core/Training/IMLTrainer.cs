@@ -12,9 +12,9 @@ namespace Atom.MachineLearning.Core
     public interface IMLTrainer<TModel, TModelInputData, TModelOutputData, ITrainingDataSet>
         where TModelInputData : IMLInputData
         where TModelOutputData : IMLOutputData
-        where TModel : IMLModel<TModelInputData, IMLOutputData>
+        where TModel : IMLModel<TModelInputData, TModelOutputData>
         where ITrainingDataSet : IMLTrainingDataSet<TModelInputData>
     {
-        public Task<ITrainingResult> Fit(ITrainingDataSet trainingDatas);
+        public Task<ITrainingResult> Fit(TModel model, ITrainingDataSet trainingDatas);
     }
 }
