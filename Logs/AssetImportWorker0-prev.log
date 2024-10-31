@@ -1,0 +1,2016 @@
+Using pre-set license
+Built from 'trunk' branch; Version is '6000.0.12f1 (7defd84cdab8) revision 8253400'; Using compiler version '193933523'; Build Type 'Release'
+OS: 'Windows 10  (10.0.19045) 64bit Core' Language: 'fr' Physical Memory: 32706 MB
+BatchMode: 1, IsHumanControllingUs: 0, StartBugReporterOnCrash: 0, Is64bit: 1, IsPro: 1
+
+COMMAND LINE ARGUMENTS:
+C:\Program Files\Unity\Hub\Editor\6000.0.12f1\Editor\Unity.exe
+-adb2
+-batchMode
+-noUpm
+-name
+AssetImportWorker0
+-projectPath
+C:/Users/Rag/wkspaces/NeuralNetwork_v2
+-logFile
+Logs/AssetImportWorker0.log
+-srvPort
+50211
+-job-worker-count
+3
+-background-job-worker-count
+8
+-asset-garbage-collectors
+1
+Successfully changed project path to: C:/Users/Rag/wkspaces/NeuralNetwork_v2
+C:/Users/Rag/wkspaces/NeuralNetwork_v2
+[UnityMemory] Configuration Parameters - Can be set up in boot.config
+    "memorysetup-bucket-allocator-granularity=16"
+    "memorysetup-bucket-allocator-bucket-count=8"
+    "memorysetup-bucket-allocator-block-size=33554432"
+    "memorysetup-bucket-allocator-block-count=8"
+    "memorysetup-main-allocator-block-size=16777216"
+    "memorysetup-thread-allocator-block-size=16777216"
+    "memorysetup-gfx-main-allocator-block-size=16777216"
+    "memorysetup-gfx-thread-allocator-block-size=16777216"
+    "memorysetup-cache-allocator-block-size=4194304"
+    "memorysetup-typetree-allocator-block-size=2097152"
+    "memorysetup-profiler-bucket-allocator-granularity=16"
+    "memorysetup-profiler-bucket-allocator-bucket-count=8"
+    "memorysetup-profiler-bucket-allocator-block-size=33554432"
+    "memorysetup-profiler-bucket-allocator-block-count=8"
+    "memorysetup-profiler-allocator-block-size=16777216"
+    "memorysetup-profiler-editor-allocator-block-size=1048576"
+    "memorysetup-temp-allocator-size-main=16777216"
+    "memorysetup-job-temp-allocator-block-size=2097152"
+    "memorysetup-job-temp-allocator-block-size-background=1048576"
+    "memorysetup-job-temp-allocator-reduction-small-platforms=262144"
+    "memorysetup-allocator-temp-initial-block-size-main=262144"
+    "memorysetup-allocator-temp-initial-block-size-worker=262144"
+    "memorysetup-temp-allocator-size-background-worker=32768"
+    "memorysetup-temp-allocator-size-job-worker=262144"
+    "memorysetup-temp-allocator-size-preload-manager=33554432"
+    "memorysetup-temp-allocator-size-nav-mesh-worker=65536"
+    "memorysetup-temp-allocator-size-audio-worker=65536"
+    "memorysetup-temp-allocator-size-cloud-worker=32768"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gfx=262144"
+Player connection [4156]  Target information:
+
+Player connection [4156]  * "[IP] 192.168.56.1 [Port] 0 [Flags] 2 [Guid] 2411902620 [EditorId] 2411902620 [Version] 1048832 [Id] WindowsEditor(7,DESKTOP-2A2I4TP) [Debug] 1 [PackageName] WindowsEditor [ProjectName] Editor" 
+
+Player connection [4156]  * "[IP] 192.168.1.16 [Port] 0 [Flags] 2 [Guid] 2411902620 [EditorId] 2411902620 [Version] 1048832 [Id] WindowsEditor(7,DESKTOP-2A2I4TP) [Debug] 1 [PackageName] WindowsEditor [ProjectName] Editor" 
+
+Player connection [4156] Host joined multi-casting on [225.0.0.222:54997]...
+Player connection [4156] Host joined alternative multi-casting on [225.0.0.222:34997]...
+JobSystem: Creating JobQueue using job-worker-count value 3
+Library Redirect Path: Library/
+[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+Refreshing native plugins compatible for Editor in 1.67 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Initialize engine version: 6000.0.12f1 (7defd84cdab8)
+[Subsystems] Discovering subsystems at path C:/Program Files/Unity/Hub/Editor/6000.0.12f1/Editor/Data/Resources/UnitySubsystems
+[Subsystems] Discovering subsystems at path C:/Users/Rag/wkspaces/NeuralNetwork_v2/Assets
+GfxDevice: creating device client; kGfxThreadingModeNonThreaded
+Direct3D:
+    Version:  Direct3D 11.0 [level 11.1]
+    Renderer: NVIDIA GeForce RTX 2070 (ID=0x1f02)
+    Vendor:   NVIDIA
+    VRAM:     8006 MB
+    Driver:   32.0.15.6070
+Initialize mono
+Mono path[0] = 'C:/Program Files/Unity/Hub/Editor/6000.0.12f1/Editor/Data/Managed'
+Mono path[1] = 'C:/Program Files/Unity/Hub/Editor/6000.0.12f1/Editor/Data/MonoBleedingEdge/lib/mono/unityjit-win32'
+Mono config path = 'C:/Program Files/Unity/Hub/Editor/6000.0.12f1/Editor/Data/MonoBleedingEdge/etc'
+Using monoOptions --debugger-agent=transport=dt_socket,embedding=1,server=y,suspend=n,address=127.0.0.1:56204
+Begin MonoManager ReloadAssembly
+Registering precompiled unity dll's ...
+Register platform support module: C:/Program Files/Unity/Hub/Editor/6000.0.12f1/Editor/Data/PlaybackEngines/WindowsStandaloneSupport/UnityEditor.WindowsStandalone.Extensions.dll
+Registered in 0.003404 seconds.
+- Loaded All Assemblies, in  0.376 seconds
+Native extension for WindowsStandalone target not found
+Mono: successfully reloaded assembly
+- Finished resetting the current domain, in  0.398 seconds
+Domain Reload Profiling: 772ms
+	BeginReloadAssembly (125ms)
+		ExecutionOrderSort (0ms)
+		DisableScriptedObjects (0ms)
+		BackupInstance (0ms)
+		ReleaseScriptingObjects (0ms)
+		CreateAndSetChildDomain (1ms)
+	RebuildCommonClasses (36ms)
+	RebuildNativeTypeToScriptingClass (12ms)
+	initialDomainReloadingComplete (49ms)
+	LoadAllAssembliesAndSetupDomain (152ms)
+		LoadAssemblies (122ms)
+		RebuildTransferFunctionScriptingTraits (0ms)
+		AnalyzeDomain (149ms)
+			TypeCache.Refresh (147ms)
+				TypeCache.ScanAssembly (134ms)
+			BuildScriptInfoCaches (0ms)
+			ResolveRequiredComponents (1ms)
+	FinalizeReload (398ms)
+		ReleaseScriptCaches (0ms)
+		RebuildScriptCaches (0ms)
+		SetupLoadedEditorAssemblies (357ms)
+			LogAssemblyErrors (0ms)
+			InitializePlatformSupportModulesInManaged (26ms)
+			SetLoadedEditorAssemblies (4ms)
+			BeforeProcessingInitializeOnLoad (5ms)
+			ProcessInitializeOnLoadAttributes (137ms)
+			ProcessInitializeOnLoadMethodAttributes (185ms)
+			AfterProcessingInitializeOnLoad (0ms)
+			EditorAssembliesLoaded (0ms)
+		ExecutionOrderSort2 (0ms)
+		AwakeInstancesAfterBackupRestoration (0ms)
+Assembly reference Packages/com.unity.entities/Unity.Scenes.Editor/Internals/Properties/Unity.Properties.Internals.asmref has no target assembly definition
+========================================================================
+Worker process is ready to serve import requests
+Import Worker Mode flag is 0x00
+Assembly reference Packages/com.unity.entities/Unity.Scenes.Editor/Internals/Properties/Unity.Properties.Internals.asmref has no target assembly definition
+Assembly reference Packages/com.unity.entities/Unity.Scenes.Editor/Internals/Properties/Unity.Properties.Internals.asmref has no target assembly definition
+Begin MonoManager ReloadAssembly
+- Loaded All Assemblies, in  0.985 seconds
+Assembly reference Packages/com.unity.entities/Unity.Scenes.Editor/Internals/Properties/Unity.Properties.Internals.asmref has no target assembly definition
+Refreshing native plugins compatible for Editor in 1.24 ms, found 3 plugins.
+Native extension for WindowsStandalone target not found
+Assembly reference Packages/com.unity.entities/Unity.Scenes.Editor/Internals/Properties/Unity.Properties.Internals.asmref has no target assembly definition
+TypeManager.Initialize took: 317ms
+Mono: successfully reloaded assembly
+- Finished resetting the current domain, in  1.670 seconds
+Domain Reload Profiling: 2650ms
+	BeginReloadAssembly (392ms)
+		ExecutionOrderSort (0ms)
+		DisableScriptedObjects (6ms)
+		BackupInstance (0ms)
+		ReleaseScriptingObjects (0ms)
+		CreateAndSetChildDomain (30ms)
+	RebuildCommonClasses (34ms)
+	RebuildNativeTypeToScriptingClass (12ms)
+	initialDomainReloadingComplete (41ms)
+	LoadAllAssembliesAndSetupDomain (500ms)
+		LoadAssemblies (367ms)
+		RebuildTransferFunctionScriptingTraits (0ms)
+		AnalyzeDomain (227ms)
+			TypeCache.Refresh (178ms)
+				TypeCache.ScanAssembly (163ms)
+			BuildScriptInfoCaches (43ms)
+			ResolveRequiredComponents (3ms)
+	FinalizeReload (1671ms)
+		ReleaseScriptCaches (0ms)
+		RebuildScriptCaches (0ms)
+		SetupLoadedEditorAssemblies (1495ms)
+			LogAssemblyErrors (0ms)
+			InitializePlatformSupportModulesInManaged (2ms)
+			SetLoadedEditorAssemblies (4ms)
+			BeforeProcessingInitializeOnLoad (102ms)
+			ProcessInitializeOnLoadAttributes (1132ms)
+			ProcessInitializeOnLoadMethodAttributes (249ms)
+			AfterProcessingInitializeOnLoad (5ms)
+			EditorAssembliesLoaded (0ms)
+		ExecutionOrderSort2 (0ms)
+		AwakeInstancesAfterBackupRestoration (6ms)
+Launched and connected shader compiler UnityShaderCompiler.exe after 0.01 seconds
+Refreshing native plugins compatible for Editor in 1.00 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 82 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5062 unused Assets / (5.2 MB). Loaded Objects now: 5682.
+Memory consumption went from 142.2 MB to 137.1 MB.
+Total: 18.807800 ms (FindLiveObjects: 0.540100 ms CreateObjectMapping: 0.566500 ms MarkObjects: 15.827700 ms  DeleteObjects: 1.872800 ms)
+
+========================================================================
+Received Import Request.
+  Time since last request: 2687818.707763 seconds.
+  path: Assets/AtomixML/Tests
+  artifactKey: Guid(f306020b8800c374db3ed3d2fe858dfd) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Tests using Guid(f306020b8800c374db3ed3d2fe858dfd) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: 'b1ca12b00ea7698615e76a94923483b2') in 0.0055682 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+
+========================================================================
+Received Import Request.
+  Time since last request: 34.007783 seconds.
+  path: Assets/AtomixML/Tests/Atomix.ML.Tests.asmdef
+  artifactKey: Guid(455f9ef20882eac45acc47be979538cc) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Tests/Atomix.ML.Tests.asmdef using Guid(455f9ef20882eac45acc47be979538cc) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: '29999daa15bcb4cdc798649d45e1efb1') in 0.0007062 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+
+========================================================================
+Received Prepare
+Assembly reference Packages/com.unity.entities/Unity.Scenes.Editor/Internals/Properties/Unity.Properties.Internals.asmref has no target assembly definition
+Assembly reference Packages/com.unity.entities/Unity.Scenes.Editor/Internals/Properties/Unity.Properties.Internals.asmref has no target assembly definition
+Begin MonoManager ReloadAssembly
+- Loaded All Assemblies, in  0.735 seconds
+Assembly reference Packages/com.unity.entities/Unity.Scenes.Editor/Internals/Properties/Unity.Properties.Internals.asmref has no target assembly definition
+Refreshing native plugins compatible for Editor in 1.10 ms, found 3 plugins.
+Native extension for WindowsStandalone target not found
+Assembly reference Packages/com.unity.entities/Unity.Scenes.Editor/Internals/Properties/Unity.Properties.Internals.asmref has no target assembly definition
+TypeManager.Initialize took: 343ms
+Mono: successfully reloaded assembly
+- Finished resetting the current domain, in  1.959 seconds
+Domain Reload Profiling: 2689ms
+	BeginReloadAssembly (223ms)
+		ExecutionOrderSort (0ms)
+		DisableScriptedObjects (5ms)
+		BackupInstance (0ms)
+		ReleaseScriptingObjects (0ms)
+		CreateAndSetChildDomain (79ms)
+	RebuildCommonClasses (35ms)
+	RebuildNativeTypeToScriptingClass (13ms)
+	initialDomainReloadingComplete (33ms)
+	LoadAllAssembliesAndSetupDomain (425ms)
+		LoadAssemblies (354ms)
+		RebuildTransferFunctionScriptingTraits (0ms)
+		AnalyzeDomain (169ms)
+			TypeCache.Refresh (7ms)
+				TypeCache.ScanAssembly (0ms)
+			BuildScriptInfoCaches (155ms)
+			ResolveRequiredComponents (4ms)
+	FinalizeReload (1959ms)
+		ReleaseScriptCaches (0ms)
+		RebuildScriptCaches (0ms)
+		SetupLoadedEditorAssemblies (1741ms)
+			LogAssemblyErrors (0ms)
+			InitializePlatformSupportModulesInManaged (2ms)
+			SetLoadedEditorAssemblies (4ms)
+			BeforeProcessingInitializeOnLoad (103ms)
+			ProcessInitializeOnLoadAttributes (1315ms)
+			ProcessInitializeOnLoadMethodAttributes (287ms)
+			AfterProcessingInitializeOnLoad (29ms)
+			EditorAssembliesLoaded (1ms)
+		ExecutionOrderSort2 (0ms)
+		AwakeInstancesAfterBackupRestoration (8ms)
+Refreshing native plugins compatible for Editor in 1.05 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5063 unused Assets / (5.3 MB). Loaded Objects now: 5683.
+Memory consumption went from 132.0 MB to 126.7 MB.
+Total: 22.196800 ms (FindLiveObjects: 0.689300 ms CreateObjectMapping: 1.132100 ms MarkObjects: 18.033300 ms  DeleteObjects: 2.340400 ms)
+
+Unloading 0 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 0 unused Assets / (3.8 MB). Loaded Objects now: 5683.
+Memory consumption went from 126.6 MB to 122.8 MB.
+Total: 17.642500 ms (FindLiveObjects: 0.311100 ms CreateObjectMapping: 0.238300 ms MarkObjects: 16.300300 ms  DeleteObjects: 0.791900 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Import Request.
+  Time since last request: 27.840003 seconds.
+  path: Assets/AtomixML/Runtime
+  artifactKey: Guid(49f9df0ea05643b41ac59b9ac9ddd6c0) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime using Guid(49f9df0ea05643b41ac59b9ac9ddd6c0) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: '11dbc7f2c4f667e888c4ac3f7edf4c01') in 0.0024497 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+
+========================================================================
+Received Import Request.
+  Time since last request: 12.959540 seconds.
+  path: Assets/AtomixML/Runtime/Atomix.ML.Runtime.asmdef
+  artifactKey: Guid(14ab06239cb6f834199fd9199f918104) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/Atomix.ML.Runtime.asmdef using Guid(14ab06239cb6f834199fd9199f918104) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: '18bc9b319ba69f0ee48d4c7db898528b') in 0.0004916 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+
+========================================================================
+Received Prepare
+Assembly reference Packages/com.unity.entities/Unity.Scenes.Editor/Internals/Properties/Unity.Properties.Internals.asmref has no target assembly definition
+Assembly reference Packages/com.unity.entities/Unity.Scenes.Editor/Internals/Properties/Unity.Properties.Internals.asmref has no target assembly definition
+Begin MonoManager ReloadAssembly
+- Loaded All Assemblies, in  0.727 seconds
+Assembly reference Packages/com.unity.entities/Unity.Scenes.Editor/Internals/Properties/Unity.Properties.Internals.asmref has no target assembly definition
+Refreshing native plugins compatible for Editor in 1.08 ms, found 3 plugins.
+Native extension for WindowsStandalone target not found
+Assembly reference Packages/com.unity.entities/Unity.Scenes.Editor/Internals/Properties/Unity.Properties.Internals.asmref has no target assembly definition
+TypeManager.Initialize took: 316ms
+Mono: successfully reloaded assembly
+- Finished resetting the current domain, in  1.679 seconds
+Domain Reload Profiling: 2403ms
+	BeginReloadAssembly (214ms)
+		ExecutionOrderSort (0ms)
+		DisableScriptedObjects (5ms)
+		BackupInstance (0ms)
+		ReleaseScriptingObjects (0ms)
+		CreateAndSetChildDomain (78ms)
+	RebuildCommonClasses (35ms)
+	RebuildNativeTypeToScriptingClass (13ms)
+	initialDomainReloadingComplete (31ms)
+	LoadAllAssembliesAndSetupDomain (431ms)
+		LoadAssemblies (356ms)
+		RebuildTransferFunctionScriptingTraits (0ms)
+		AnalyzeDomain (167ms)
+			TypeCache.Refresh (7ms)
+				TypeCache.ScanAssembly (0ms)
+			BuildScriptInfoCaches (153ms)
+			ResolveRequiredComponents (3ms)
+	FinalizeReload (1680ms)
+		ReleaseScriptCaches (0ms)
+		RebuildScriptCaches (0ms)
+		SetupLoadedEditorAssemblies (1497ms)
+			LogAssemblyErrors (0ms)
+			InitializePlatformSupportModulesInManaged (2ms)
+			SetLoadedEditorAssemblies (4ms)
+			BeforeProcessingInitializeOnLoad (104ms)
+			ProcessInitializeOnLoadAttributes (1133ms)
+			ProcessInitializeOnLoadMethodAttributes (248ms)
+			AfterProcessingInitializeOnLoad (6ms)
+			EditorAssembliesLoaded (0ms)
+		ExecutionOrderSort2 (0ms)
+		AwakeInstancesAfterBackupRestoration (6ms)
+Refreshing native plugins compatible for Editor in 1.05 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5062 unused Assets / (5.1 MB). Loaded Objects now: 5683.
+Memory consumption went from 132.0 MB to 126.9 MB.
+Total: 18.320100 ms (FindLiveObjects: 0.602600 ms CreateObjectMapping: 0.622600 ms MarkObjects: 15.303200 ms  DeleteObjects: 1.790900 ms)
+
+Unloading 0 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 0 unused Assets / (4.0 MB). Loaded Objects now: 5683.
+Memory consumption went from 126.8 MB to 122.8 MB.
+Total: 16.945700 ms (FindLiveObjects: 0.295900 ms CreateObjectMapping: 0.226400 ms MarkObjects: 15.589600 ms  DeleteObjects: 0.832800 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 0.98 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5053 unused Assets / (5.1 MB). Loaded Objects now: 5683.
+Memory consumption went from 132.1 MB to 127.0 MB.
+Total: 18.527700 ms (FindLiveObjects: 0.557800 ms CreateObjectMapping: 0.607000 ms MarkObjects: 15.135200 ms  DeleteObjects: 2.227000 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Import Request.
+  Time since last request: 29.974665 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs
+  artifactKey: Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs using Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: '09defde33a66e89246c61d4e440c5e0c') in 0.003132 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.02 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5053 unused Assets / (5.3 MB). Loaded Objects now: 5683.
+Memory consumption went from 132.1 MB to 126.8 MB.
+Total: 20.237400 ms (FindLiveObjects: 0.769500 ms CreateObjectMapping: 0.766800 ms MarkObjects: 16.679000 ms  DeleteObjects: 2.020600 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Import Request.
+  Time since last request: 26.814597 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs
+  artifactKey: Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs using Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: '3cf10c0fd267c6b6de904cef8c0d8b13') in 0.0015872 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.07 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5053 unused Assets / (5.4 MB). Loaded Objects now: 5683.
+Memory consumption went from 132.1 MB to 126.7 MB.
+Total: 20.734500 ms (FindLiveObjects: 0.661300 ms CreateObjectMapping: 0.908000 ms MarkObjects: 16.748800 ms  DeleteObjects: 2.415200 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Import Request.
+  Time since last request: 4.547131 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs
+  artifactKey: Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs using Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: '97c60a5a887f4cd074df3d3557f01fea') in 0.0018769 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.01 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5054 unused Assets / (5.2 MB). Loaded Objects now: 5684.
+Memory consumption went from 132.1 MB to 126.9 MB.
+Total: 22.067700 ms (FindLiveObjects: 0.543300 ms CreateObjectMapping: 0.592200 ms MarkObjects: 18.699200 ms  DeleteObjects: 2.232000 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Import Request.
+  Time since last request: 257.744010 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs
+  artifactKey: Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs using Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: '97c60a5a887f4cd074df3d3557f01fea') in 0.0016465 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.14 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5054 unused Assets / (5.2 MB). Loaded Objects now: 5684.
+Memory consumption went from 132.1 MB to 126.9 MB.
+Total: 20.189300 ms (FindLiveObjects: 0.615500 ms CreateObjectMapping: 0.874200 ms MarkObjects: 16.767900 ms  DeleteObjects: 1.930800 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Import Request.
+  Time since last request: 18.361688 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs
+  artifactKey: Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs using Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: '97c60a5a887f4cd074df3d3557f01fea') in 0.0014992 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.01 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5054 unused Assets / (4.9 MB). Loaded Objects now: 5684.
+Memory consumption went from 132.1 MB to 127.2 MB.
+Total: 20.393800 ms (FindLiveObjects: 0.546100 ms CreateObjectMapping: 0.751000 ms MarkObjects: 16.661400 ms  DeleteObjects: 2.434000 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Import Request.
+  Time since last request: 13.521067 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs
+  artifactKey: Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs using Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: '97c60a5a887f4cd074df3d3557f01fea') in 0.0017133 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.00 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5054 unused Assets / (5.2 MB). Loaded Objects now: 5684.
+Memory consumption went from 132.1 MB to 126.9 MB.
+Total: 18.694800 ms (FindLiveObjects: 0.539500 ms CreateObjectMapping: 0.619400 ms MarkObjects: 15.593200 ms  DeleteObjects: 1.941800 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.02 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5054 unused Assets / (5.4 MB). Loaded Objects now: 5684.
+Memory consumption went from 132.1 MB to 126.8 MB.
+Total: 21.384100 ms (FindLiveObjects: 0.572100 ms CreateObjectMapping: 0.630500 ms MarkObjects: 17.963500 ms  DeleteObjects: 2.216600 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Import Request.
+  Time since last request: 64.132426 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs
+  artifactKey: Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs using Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: '97c60a5a887f4cd074df3d3557f01fea') in 0.002627 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.09 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5054 unused Assets / (5.2 MB). Loaded Objects now: 5684.
+Memory consumption went from 132.1 MB to 126.9 MB.
+Total: 19.868600 ms (FindLiveObjects: 0.547700 ms CreateObjectMapping: 0.635600 ms MarkObjects: 16.403100 ms  DeleteObjects: 2.281100 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 0.99 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5054 unused Assets / (5.1 MB). Loaded Objects now: 5684.
+Memory consumption went from 132.1 MB to 127.0 MB.
+Total: 19.876100 ms (FindLiveObjects: 0.547700 ms CreateObjectMapping: 0.793400 ms MarkObjects: 16.667600 ms  DeleteObjects: 1.866500 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.02 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5054 unused Assets / (5.3 MB). Loaded Objects now: 5684.
+Memory consumption went from 132.1 MB to 126.8 MB.
+Total: 19.822000 ms (FindLiveObjects: 0.533600 ms CreateObjectMapping: 0.666800 ms MarkObjects: 16.502900 ms  DeleteObjects: 2.117700 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Import Request.
+  Time since last request: 27.485670 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs
+  artifactKey: Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs using Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: '97c60a5a887f4cd074df3d3557f01fea') in 0.0033249 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 0.99 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5054 unused Assets / (5.3 MB). Loaded Objects now: 5684.
+Memory consumption went from 132.1 MB to 126.8 MB.
+Total: 20.378800 ms (FindLiveObjects: 0.542100 ms CreateObjectMapping: 0.629000 ms MarkObjects: 16.792600 ms  DeleteObjects: 2.413800 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.00 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5054 unused Assets / (5.2 MB). Loaded Objects now: 5684.
+Memory consumption went from 132.1 MB to 127.0 MB.
+Total: 20.770000 ms (FindLiveObjects: 0.561800 ms CreateObjectMapping: 0.614900 ms MarkObjects: 17.549300 ms  DeleteObjects: 2.043000 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.01 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5054 unused Assets / (5.2 MB). Loaded Objects now: 5684.
+Memory consumption went from 132.1 MB to 126.9 MB.
+Total: 19.553000 ms (FindLiveObjects: 0.539500 ms CreateObjectMapping: 0.651100 ms MarkObjects: 16.398400 ms  DeleteObjects: 1.962800 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 0.99 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5054 unused Assets / (5.3 MB). Loaded Objects now: 5684.
+Memory consumption went from 132.1 MB to 126.8 MB.
+Total: 22.023400 ms (FindLiveObjects: 0.755400 ms CreateObjectMapping: 1.061900 ms MarkObjects: 18.126500 ms  DeleteObjects: 2.078400 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Import Request.
+  Time since last request: 331.362418 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs
+  artifactKey: Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs using Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: '97c60a5a887f4cd074df3d3557f01fea') in 0.0053673 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.06 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5054 unused Assets / (3.6 MB). Loaded Objects now: 5684.
+Memory consumption went from 132.1 MB to 128.6 MB.
+Total: 23.006500 ms (FindLiveObjects: 0.602800 ms CreateObjectMapping: 0.696000 ms MarkObjects: 19.356300 ms  DeleteObjects: 2.350600 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Import Request.
+  Time since last request: 60.151214 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs
+  artifactKey: Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs using Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: '97c60a5a887f4cd074df3d3557f01fea') in 0.0019382 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.02 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5054 unused Assets / (5.2 MB). Loaded Objects now: 5684.
+Memory consumption went from 132.1 MB to 126.9 MB.
+Total: 20.059800 ms (FindLiveObjects: 0.693800 ms CreateObjectMapping: 0.741500 ms MarkObjects: 16.530800 ms  DeleteObjects: 2.092200 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.02 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5054 unused Assets / (5.3 MB). Loaded Objects now: 5684.
+Memory consumption went from 132.1 MB to 126.9 MB.
+Total: 19.327300 ms (FindLiveObjects: 0.549000 ms CreateObjectMapping: 0.598100 ms MarkObjects: 15.992100 ms  DeleteObjects: 2.187200 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Import Request.
+  Time since last request: 189.520015 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs
+  artifactKey: Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs using Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: '97c60a5a887f4cd074df3d3557f01fea') in 0.0024942 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.01 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5054 unused Assets / (5.1 MB). Loaded Objects now: 5684.
+Memory consumption went from 132.1 MB to 127.0 MB.
+Total: 19.562900 ms (FindLiveObjects: 0.539400 ms CreateObjectMapping: 0.634100 ms MarkObjects: 16.137600 ms  DeleteObjects: 2.250900 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Import Request.
+  Time since last request: 42.169667 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs
+  artifactKey: Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs using Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: '97c60a5a887f4cd074df3d3557f01fea') in 0.0016888 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.00 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5054 unused Assets / (5.2 MB). Loaded Objects now: 5684.
+Memory consumption went from 132.1 MB to 126.9 MB.
+Total: 19.035400 ms (FindLiveObjects: 0.541300 ms CreateObjectMapping: 0.617000 ms MarkObjects: 16.006600 ms  DeleteObjects: 1.869600 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.03 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5054 unused Assets / (5.3 MB). Loaded Objects now: 5684.
+Memory consumption went from 132.1 MB to 126.9 MB.
+Total: 22.446800 ms (FindLiveObjects: 0.665200 ms CreateObjectMapping: 0.772800 ms MarkObjects: 18.879000 ms  DeleteObjects: 2.128800 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.01 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5054 unused Assets / (5.3 MB). Loaded Objects now: 5684.
+Memory consumption went from 132.1 MB to 126.8 MB.
+Total: 19.382900 ms (FindLiveObjects: 0.596100 ms CreateObjectMapping: 0.865900 ms MarkObjects: 16.055900 ms  DeleteObjects: 1.863900 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.00 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5054 unused Assets / (5.3 MB). Loaded Objects now: 5684.
+Memory consumption went from 132.1 MB to 126.9 MB.
+Total: 19.615800 ms (FindLiveObjects: 0.532700 ms CreateObjectMapping: 0.618300 ms MarkObjects: 16.325600 ms  DeleteObjects: 2.138000 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Import Request.
+  Time since last request: 227.647967 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs
+  artifactKey: Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs using Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: '97c60a5a887f4cd074df3d3557f01fea') in 0.0061447 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.14 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5054 unused Assets / (5.4 MB). Loaded Objects now: 5684.
+Memory consumption went from 132.1 MB to 126.8 MB.
+Total: 20.062500 ms (FindLiveObjects: 0.599800 ms CreateObjectMapping: 0.700200 ms MarkObjects: 16.772700 ms  DeleteObjects: 1.988900 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.05 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5054 unused Assets / (5.3 MB). Loaded Objects now: 5684.
+Memory consumption went from 132.1 MB to 126.9 MB.
+Total: 19.530600 ms (FindLiveObjects: 0.647500 ms CreateObjectMapping: 0.673600 ms MarkObjects: 16.110000 ms  DeleteObjects: 2.098400 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Import Request.
+  Time since last request: 35.237149 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs
+  artifactKey: Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs using Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: '97c60a5a887f4cd074df3d3557f01fea') in 0.0026778 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.04 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5054 unused Assets / (5.2 MB). Loaded Objects now: 5684.
+Memory consumption went from 132.1 MB to 126.9 MB.
+Total: 19.347000 ms (FindLiveObjects: 0.663400 ms CreateObjectMapping: 0.797700 ms MarkObjects: 15.990000 ms  DeleteObjects: 1.895200 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 0.98 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5054 unused Assets / (5.2 MB). Loaded Objects now: 5684.
+Memory consumption went from 132.1 MB to 126.9 MB.
+Total: 18.965500 ms (FindLiveObjects: 0.584300 ms CreateObjectMapping: 0.757400 ms MarkObjects: 15.619000 ms  DeleteObjects: 2.003500 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.04 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5054 unused Assets / (5.3 MB). Loaded Objects now: 5684.
+Memory consumption went from 132.1 MB to 126.9 MB.
+Total: 19.819500 ms (FindLiveObjects: 0.614700 ms CreateObjectMapping: 0.702500 ms MarkObjects: 16.530200 ms  DeleteObjects: 1.971100 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.17 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5054 unused Assets / (4.8 MB). Loaded Objects now: 5684.
+Memory consumption went from 132.1 MB to 127.3 MB.
+Total: 18.851100 ms (FindLiveObjects: 0.543200 ms CreateObjectMapping: 0.696400 ms MarkObjects: 15.479800 ms  DeleteObjects: 2.130800 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.03 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5054 unused Assets / (5.3 MB). Loaded Objects now: 5684.
+Memory consumption went from 132.1 MB to 126.8 MB.
+Total: 19.077500 ms (FindLiveObjects: 0.534000 ms CreateObjectMapping: 0.611300 ms MarkObjects: 15.997100 ms  DeleteObjects: 1.933800 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Import Request.
+  Time since last request: 67.335640 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs
+  artifactKey: Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs using Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: '97c60a5a887f4cd074df3d3557f01fea') in 0.0059592 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.05 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5054 unused Assets / (5.1 MB). Loaded Objects now: 5684.
+Memory consumption went from 132.1 MB to 127.0 MB.
+Total: 18.769900 ms (FindLiveObjects: 0.547100 ms CreateObjectMapping: 0.688400 ms MarkObjects: 15.430800 ms  DeleteObjects: 2.102700 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.09 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5054 unused Assets / (5.3 MB). Loaded Objects now: 5684.
+Memory consumption went from 132.1 MB to 126.8 MB.
+Total: 23.108700 ms (FindLiveObjects: 0.709600 ms CreateObjectMapping: 1.091800 ms MarkObjects: 18.694100 ms  DeleteObjects: 2.611200 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Import Request.
+  Time since last request: 71.089815 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs
+  artifactKey: Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs using Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: '97c60a5a887f4cd074df3d3557f01fea') in 0.0024178 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.10 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5054 unused Assets / (5.1 MB). Loaded Objects now: 5684.
+Memory consumption went from 132.1 MB to 127.0 MB.
+Total: 22.369700 ms (FindLiveObjects: 0.566500 ms CreateObjectMapping: 1.135200 ms MarkObjects: 18.673400 ms  DeleteObjects: 1.993700 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Import Request.
+  Time since last request: 10.042691 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs
+  artifactKey: Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs using Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: '97c60a5a887f4cd074df3d3557f01fea') in 0.001571 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.06 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5054 unused Assets / (5.2 MB). Loaded Objects now: 5684.
+Memory consumption went from 132.1 MB to 126.9 MB.
+Total: 19.586100 ms (FindLiveObjects: 0.595600 ms CreateObjectMapping: 0.734500 ms MarkObjects: 16.322900 ms  DeleteObjects: 1.932200 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Import Request.
+  Time since last request: 37.999009 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs
+  artifactKey: Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs using Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: '97c60a5a887f4cd074df3d3557f01fea') in 0.0014777 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.03 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5054 unused Assets / (4.9 MB). Loaded Objects now: 5684.
+Memory consumption went from 132.1 MB to 127.2 MB.
+Total: 21.683500 ms (FindLiveObjects: 0.697100 ms CreateObjectMapping: 0.842100 ms MarkObjects: 17.911900 ms  DeleteObjects: 2.230900 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.08 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5054 unused Assets / (5.3 MB). Loaded Objects now: 5684.
+Memory consumption went from 132.1 MB to 126.8 MB.
+Total: 19.755300 ms (FindLiveObjects: 0.533000 ms CreateObjectMapping: 0.726500 ms MarkObjects: 16.371500 ms  DeleteObjects: 2.123400 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Import Request.
+  Time since last request: 42.178956 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs
+  artifactKey: Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs using Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: '97c60a5a887f4cd074df3d3557f01fea') in 0.0026417 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.03 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5054 unused Assets / (5.2 MB). Loaded Objects now: 5684.
+Memory consumption went from 132.1 MB to 126.9 MB.
+Total: 20.193300 ms (FindLiveObjects: 0.621700 ms CreateObjectMapping: 0.797900 ms MarkObjects: 16.738800 ms  DeleteObjects: 2.033700 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.03 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5054 unused Assets / (5.2 MB). Loaded Objects now: 5684.
+Memory consumption went from 132.1 MB to 126.9 MB.
+Total: 20.671700 ms (FindLiveObjects: 0.700900 ms CreateObjectMapping: 1.051700 ms MarkObjects: 16.972100 ms  DeleteObjects: 1.945700 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.11 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5054 unused Assets / (5.2 MB). Loaded Objects now: 5684.
+Memory consumption went from 132.1 MB to 126.9 MB.
+Total: 19.570200 ms (FindLiveObjects: 0.551000 ms CreateObjectMapping: 0.585200 ms MarkObjects: 16.397000 ms  DeleteObjects: 2.035800 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.03 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5054 unused Assets / (5.0 MB). Loaded Objects now: 5684.
+Memory consumption went from 132.1 MB to 127.1 MB.
+Total: 22.982300 ms (FindLiveObjects: 0.548600 ms CreateObjectMapping: 0.620200 ms MarkObjects: 18.709000 ms  DeleteObjects: 3.103500 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Import Request.
+  Time since last request: 371.379428 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs
+  artifactKey: Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs using Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: 'e25b0c62a1f09824d7def82fec9fab7a') in 0.005041 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.26 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5054 unused Assets / (5.1 MB). Loaded Objects now: 5684.
+Memory consumption went from 132.1 MB to 127.0 MB.
+Total: 22.460300 ms (FindLiveObjects: 0.792300 ms CreateObjectMapping: 0.928800 ms MarkObjects: 18.528900 ms  DeleteObjects: 2.209300 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.01 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5054 unused Assets / (5.1 MB). Loaded Objects now: 5684.
+Memory consumption went from 132.1 MB to 127.0 MB.
+Total: 25.599800 ms (FindLiveObjects: 0.659100 ms CreateObjectMapping: 0.821900 ms MarkObjects: 20.362100 ms  DeleteObjects: 3.755700 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.05 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5054 unused Assets / (5.3 MB). Loaded Objects now: 5684.
+Memory consumption went from 132.1 MB to 126.8 MB.
+Total: 19.542300 ms (FindLiveObjects: 0.617800 ms CreateObjectMapping: 0.987900 ms MarkObjects: 15.902400 ms  DeleteObjects: 2.032700 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.11 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5054 unused Assets / (5.2 MB). Loaded Objects now: 5684.
+Memory consumption went from 132.1 MB to 126.9 MB.
+Total: 19.162500 ms (FindLiveObjects: 0.584500 ms CreateObjectMapping: 0.642400 ms MarkObjects: 15.877800 ms  DeleteObjects: 2.056700 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Import Request.
+  Time since last request: 63.920050 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs
+  artifactKey: Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs using Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: 'e25b0c62a1f09824d7def82fec9fab7a') in 0.0040133 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.13 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5054 unused Assets / (5.2 MB). Loaded Objects now: 5684.
+Memory consumption went from 132.1 MB to 126.9 MB.
+Total: 20.455900 ms (FindLiveObjects: 0.587900 ms CreateObjectMapping: 0.721400 ms MarkObjects: 17.180400 ms  DeleteObjects: 1.965200 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Import Request.
+  Time since last request: 94.854314 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs
+  artifactKey: Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs using Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: 'e25b0c62a1f09824d7def82fec9fab7a') in 0.0019212 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.14 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5054 unused Assets / (5.1 MB). Loaded Objects now: 5684.
+Memory consumption went from 132.1 MB to 127.0 MB.
+Total: 19.328500 ms (FindLiveObjects: 0.560200 ms CreateObjectMapping: 0.611200 ms MarkObjects: 15.979000 ms  DeleteObjects: 2.177000 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.15 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5054 unused Assets / (5.3 MB). Loaded Objects now: 5684.
+Memory consumption went from 132.1 MB to 126.8 MB.
+Total: 21.560100 ms (FindLiveObjects: 0.616000 ms CreateObjectMapping: 0.732300 ms MarkObjects: 18.189100 ms  DeleteObjects: 2.021600 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Import Request.
+  Time since last request: 51.417187 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs
+  artifactKey: Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs using Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: 'e25b0c62a1f09824d7def82fec9fab7a') in 0.0023357 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.08 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5054 unused Assets / (5.2 MB). Loaded Objects now: 5684.
+Memory consumption went from 132.1 MB to 127.0 MB.
+Total: 23.730500 ms (FindLiveObjects: 0.676200 ms CreateObjectMapping: 0.987400 ms MarkObjects: 18.889400 ms  DeleteObjects: 3.176500 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Import Request.
+  Time since last request: 1.863408 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs
+  artifactKey: Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs using Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: 'e25b0c62a1f09824d7def82fec9fab7a') in 0.0024666 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.30 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5054 unused Assets / (5.4 MB). Loaded Objects now: 5684.
+Memory consumption went from 132.1 MB to 126.8 MB.
+Total: 22.225600 ms (FindLiveObjects: 0.635300 ms CreateObjectMapping: 0.708500 ms MarkObjects: 18.276900 ms  DeleteObjects: 2.603400 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.02 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5054 unused Assets / (5.3 MB). Loaded Objects now: 5684.
+Memory consumption went from 132.1 MB to 126.9 MB.
+Total: 20.053200 ms (FindLiveObjects: 0.560000 ms CreateObjectMapping: 0.619900 ms MarkObjects: 16.716100 ms  DeleteObjects: 2.156000 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.30 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5054 unused Assets / (4.4 MB). Loaded Objects now: 5684.
+Memory consumption went from 132.1 MB to 127.7 MB.
+Total: 41.288900 ms (FindLiveObjects: 0.858000 ms CreateObjectMapping: 7.233900 ms MarkObjects: 29.488400 ms  DeleteObjects: 3.707200 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Import Request.
+  Time since last request: 282.072893 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs
+  artifactKey: Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs using Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: 'e25b0c62a1f09824d7def82fec9fab7a') in 0.0036553 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.03 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5054 unused Assets / (5.2 MB). Loaded Objects now: 5684.
+Memory consumption went from 132.1 MB to 126.9 MB.
+Total: 20.402800 ms (FindLiveObjects: 0.713700 ms CreateObjectMapping: 0.735300 ms MarkObjects: 16.873300 ms  DeleteObjects: 2.079200 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.01 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5054 unused Assets / (5.3 MB). Loaded Objects now: 5684.
+Memory consumption went from 132.1 MB to 126.9 MB.
+Total: 21.343600 ms (FindLiveObjects: 0.616700 ms CreateObjectMapping: 0.813900 ms MarkObjects: 17.933500 ms  DeleteObjects: 1.978100 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.07 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5054 unused Assets / (5.1 MB). Loaded Objects now: 5684.
+Memory consumption went from 132.1 MB to 127.0 MB.
+Total: 20.134600 ms (FindLiveObjects: 0.641400 ms CreateObjectMapping: 0.835900 ms MarkObjects: 16.644600 ms  DeleteObjects: 2.011500 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Import Request.
+  Time since last request: 270.324175 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs
+  artifactKey: Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs using Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: 'e25b0c62a1f09824d7def82fec9fab7a') in 0.0034082 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.12 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5054 unused Assets / (5.2 MB). Loaded Objects now: 5684.
+Memory consumption went from 132.1 MB to 127.0 MB.
+Total: 19.192800 ms (FindLiveObjects: 0.566500 ms CreateObjectMapping: 0.662400 ms MarkObjects: 16.120500 ms  DeleteObjects: 1.842300 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.06 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5054 unused Assets / (5.3 MB). Loaded Objects now: 5684.
+Memory consumption went from 132.1 MB to 126.9 MB.
+Total: 20.558300 ms (FindLiveObjects: 0.648300 ms CreateObjectMapping: 0.752500 ms MarkObjects: 17.091900 ms  DeleteObjects: 2.064300 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Import Request.
+  Time since last request: 148.745904 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs
+  artifactKey: Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs using Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: 'e25b0c62a1f09824d7def82fec9fab7a') in 0.0023583 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.19 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5054 unused Assets / (5.2 MB). Loaded Objects now: 5684.
+Memory consumption went from 132.1 MB to 126.9 MB.
+Total: 20.088600 ms (FindLiveObjects: 0.615000 ms CreateObjectMapping: 0.801200 ms MarkObjects: 16.470600 ms  DeleteObjects: 2.200900 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Import Request.
+  Time since last request: 31.487987 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs
+  artifactKey: Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs using Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: 'e25b0c62a1f09824d7def82fec9fab7a') in 0.0018269 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.01 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5054 unused Assets / (4.8 MB). Loaded Objects now: 5684.
+Memory consumption went from 132.1 MB to 127.4 MB.
+Total: 21.880700 ms (FindLiveObjects: 0.540300 ms CreateObjectMapping: 0.651800 ms MarkObjects: 16.455200 ms  DeleteObjects: 4.231800 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Import Request.
+  Time since last request: 3.349032 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs
+  artifactKey: Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs using Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: 'e25b0c62a1f09824d7def82fec9fab7a') in 0.0017578 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.03 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5054 unused Assets / (5.2 MB). Loaded Objects now: 5684.
+Memory consumption went from 132.1 MB to 126.9 MB.
+Total: 19.476600 ms (FindLiveObjects: 0.558100 ms CreateObjectMapping: 0.870400 ms MarkObjects: 16.024500 ms  DeleteObjects: 2.022700 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Import Request.
+  Time since last request: 24.324914 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs
+  artifactKey: Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs using Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: 'e25b0c62a1f09824d7def82fec9fab7a') in 0.0016671 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.00 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5054 unused Assets / (5.1 MB). Loaded Objects now: 5684.
+Memory consumption went from 132.1 MB to 127.0 MB.
+Total: 19.613800 ms (FindLiveObjects: 0.566400 ms CreateObjectMapping: 0.707000 ms MarkObjects: 16.184900 ms  DeleteObjects: 2.154500 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Import Request.
+  Time since last request: 8.803638 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs
+  artifactKey: Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs using Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: 'e25b0c62a1f09824d7def82fec9fab7a') in 0.0015683 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.05 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5054 unused Assets / (5.0 MB). Loaded Objects now: 5684.
+Memory consumption went from 132.1 MB to 127.1 MB.
+Total: 20.582700 ms (FindLiveObjects: 0.649900 ms CreateObjectMapping: 0.766900 ms MarkObjects: 16.901500 ms  DeleteObjects: 2.263100 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Import Request.
+  Time since last request: 4.526655 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs
+  artifactKey: Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs using Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: 'e25b0c62a1f09824d7def82fec9fab7a') in 0.0016803 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.11 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5054 unused Assets / (5.1 MB). Loaded Objects now: 5684.
+Memory consumption went from 132.1 MB to 127.1 MB.
+Total: 19.226100 ms (FindLiveObjects: 0.608900 ms CreateObjectMapping: 0.732800 ms MarkObjects: 16.010100 ms  DeleteObjects: 1.873200 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Import Request.
+  Time since last request: 178.578700 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs
+  artifactKey: Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs using Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: 'e25b0c62a1f09824d7def82fec9fab7a') in 0.0016185 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.00 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5054 unused Assets / (5.2 MB). Loaded Objects now: 5684.
+Memory consumption went from 132.1 MB to 127.0 MB.
+Total: 18.960100 ms (FindLiveObjects: 0.534600 ms CreateObjectMapping: 0.723900 ms MarkObjects: 15.747200 ms  DeleteObjects: 1.953500 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.00 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5054 unused Assets / (5.2 MB). Loaded Objects now: 5684.
+Memory consumption went from 132.1 MB to 126.9 MB.
+Total: 19.985400 ms (FindLiveObjects: 0.534200 ms CreateObjectMapping: 0.595400 ms MarkObjects: 16.524400 ms  DeleteObjects: 2.330300 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Import Request.
+  Time since last request: 13.836790 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs
+  artifactKey: Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs using Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: 'e25b0c62a1f09824d7def82fec9fab7a') in 0.0023899 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.05 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5054 unused Assets / (5.2 MB). Loaded Objects now: 5684.
+Memory consumption went from 132.1 MB to 126.9 MB.
+Total: 20.806600 ms (FindLiveObjects: 0.557100 ms CreateObjectMapping: 0.666600 ms MarkObjects: 17.372100 ms  DeleteObjects: 2.209900 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Import Request.
+  Time since last request: 570.130353 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs
+  artifactKey: Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/NeuralNetwork.cs using Guid(f5bbc4d406a6fc24e9e6e30fa8b026ac) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: 'e25b0c62a1f09824d7def82fec9fab7a') in 0.0019687 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+
+========================================================================
+Received Prepare
+Assembly reference Packages/com.unity.entities/Unity.Scenes.Editor/Internals/Properties/Unity.Properties.Internals.asmref has no target assembly definition
+Assembly reference Packages/com.unity.entities/Unity.Scenes.Editor/Internals/Properties/Unity.Properties.Internals.asmref has no target assembly definition
+Begin MonoManager ReloadAssembly
+- Loaded All Assemblies, in  1.034 seconds
+Assembly reference Packages/com.unity.entities/Unity.Scenes.Editor/Internals/Properties/Unity.Properties.Internals.asmref has no target assembly definition
+Refreshing native plugins compatible for Editor in 0.98 ms, found 3 plugins.
+Native extension for WindowsStandalone target not found
+Assembly reference Packages/com.unity.entities/Unity.Scenes.Editor/Internals/Properties/Unity.Properties.Internals.asmref has no target assembly definition
+TypeManager.Initialize took: 337ms
+Mono: successfully reloaded assembly
+- Finished resetting the current domain, in  1.738 seconds
+Domain Reload Profiling: 2769ms
+	BeginReloadAssembly (364ms)
+		ExecutionOrderSort (0ms)
+		DisableScriptedObjects (17ms)
+		BackupInstance (0ms)
+		ReleaseScriptingObjects (0ms)
+		CreateAndSetChildDomain (153ms)
+	RebuildCommonClasses (37ms)
+	RebuildNativeTypeToScriptingClass (14ms)
+	initialDomainReloadingComplete (37ms)
+	LoadAllAssembliesAndSetupDomain (579ms)
+		LoadAssemblies (540ms)
+		RebuildTransferFunctionScriptingTraits (0ms)
+		AnalyzeDomain (168ms)
+			TypeCache.Refresh (12ms)
+				TypeCache.ScanAssembly (1ms)
+			BuildScriptInfoCaches (149ms)
+			ResolveRequiredComponents (3ms)
+	FinalizeReload (1738ms)
+		ReleaseScriptCaches (0ms)
+		RebuildScriptCaches (0ms)
+		SetupLoadedEditorAssemblies (1546ms)
+			LogAssemblyErrors (0ms)
+			InitializePlatformSupportModulesInManaged (2ms)
+			SetLoadedEditorAssemblies (6ms)
+			BeforeProcessingInitializeOnLoad (106ms)
+			ProcessInitializeOnLoadAttributes (1159ms)
+			ProcessInitializeOnLoadMethodAttributes (265ms)
+			AfterProcessingInitializeOnLoad (7ms)
+			EditorAssembliesLoaded (0ms)
+		ExecutionOrderSort2 (0ms)
+		AwakeInstancesAfterBackupRestoration (7ms)
+Refreshing native plugins compatible for Editor in 1.08 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5063 unused Assets / (5.2 MB). Loaded Objects now: 5684.
+Memory consumption went from 132.0 MB to 126.8 MB.
+Total: 18.790600 ms (FindLiveObjects: 0.595100 ms CreateObjectMapping: 0.679100 ms MarkObjects: 15.689500 ms  DeleteObjects: 1.825800 ms)
+
+Unloading 0 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 0 unused Assets / (3.9 MB). Loaded Objects now: 5684.
+Memory consumption went from 126.7 MB to 122.8 MB.
+Total: 16.704700 ms (FindLiveObjects: 0.299900 ms CreateObjectMapping: 0.210300 ms MarkObjects: 15.409600 ms  DeleteObjects: 0.783900 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Assembly reference Packages/com.unity.entities/Unity.Scenes.Editor/Internals/Properties/Unity.Properties.Internals.asmref has no target assembly definition
+Assembly reference Packages/com.unity.entities/Unity.Scenes.Editor/Internals/Properties/Unity.Properties.Internals.asmref has no target assembly definition
+Begin MonoManager ReloadAssembly
+- Loaded All Assemblies, in  0.799 seconds
+Assembly reference Packages/com.unity.entities/Unity.Scenes.Editor/Internals/Properties/Unity.Properties.Internals.asmref has no target assembly definition
+Refreshing native plugins compatible for Editor in 1.18 ms, found 3 plugins.
+Native extension for WindowsStandalone target not found
+Assembly reference Packages/com.unity.entities/Unity.Scenes.Editor/Internals/Properties/Unity.Properties.Internals.asmref has no target assembly definition
+TypeManager.Initialize took: 314ms
+Mono: successfully reloaded assembly
+- Finished resetting the current domain, in  1.696 seconds
+Domain Reload Profiling: 2491ms
+	BeginReloadAssembly (223ms)
+		ExecutionOrderSort (0ms)
+		DisableScriptedObjects (5ms)
+		BackupInstance (0ms)
+		ReleaseScriptingObjects (0ms)
+		CreateAndSetChildDomain (82ms)
+	RebuildCommonClasses (39ms)
+	RebuildNativeTypeToScriptingClass (13ms)
+	initialDomainReloadingComplete (34ms)
+	LoadAllAssembliesAndSetupDomain (485ms)
+		LoadAssemblies (370ms)
+		RebuildTransferFunctionScriptingTraits (0ms)
+		AnalyzeDomain (212ms)
+			TypeCache.Refresh (100ms)
+				TypeCache.ScanAssembly (89ms)
+			BuildScriptInfoCaches (106ms)
+			ResolveRequiredComponents (3ms)
+	FinalizeReload (1696ms)
+		ReleaseScriptCaches (0ms)
+		RebuildScriptCaches (0ms)
+		SetupLoadedEditorAssemblies (1510ms)
+			LogAssemblyErrors (0ms)
+			InitializePlatformSupportModulesInManaged (2ms)
+			SetLoadedEditorAssemblies (4ms)
+			BeforeProcessingInitializeOnLoad (108ms)
+			ProcessInitializeOnLoadAttributes (1142ms)
+			ProcessInitializeOnLoadMethodAttributes (248ms)
+			AfterProcessingInitializeOnLoad (6ms)
+			EditorAssembliesLoaded (0ms)
+		ExecutionOrderSort2 (0ms)
+		AwakeInstancesAfterBackupRestoration (6ms)
+Refreshing native plugins compatible for Editor in 1.20 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5131 unused Assets / (5.2 MB). Loaded Objects now: 5749.
+Memory consumption went from 133.3 MB to 128.2 MB.
+Total: 19.041800 ms (FindLiveObjects: 0.563300 ms CreateObjectMapping: 0.872000 ms MarkObjects: 15.293500 ms  DeleteObjects: 2.311800 ms)
+
+Unloading 0 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 0 unused Assets / (3.7 MB). Loaded Objects now: 5749.
+Memory consumption went from 127.8 MB to 124.1 MB.
+Total: 17.662900 ms (FindLiveObjects: 0.396400 ms CreateObjectMapping: 0.331400 ms MarkObjects: 16.075100 ms  DeleteObjects: 0.858900 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.34 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5120 unused Assets / (5.2 MB). Loaded Objects now: 5749.
+Memory consumption went from 133.5 MB to 128.3 MB.
+Total: 18.195200 ms (FindLiveObjects: 0.542800 ms CreateObjectMapping: 0.611700 ms MarkObjects: 15.205400 ms  DeleteObjects: 1.834100 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.22 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5121 unused Assets / (5.0 MB). Loaded Objects now: 5749.
+Memory consumption went from 133.5 MB to 128.5 MB.
+Total: 18.821100 ms (FindLiveObjects: 0.560100 ms CreateObjectMapping: 0.623900 ms MarkObjects: 15.785100 ms  DeleteObjects: 1.851200 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.21 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5121 unused Assets / (5.0 MB). Loaded Objects now: 5749.
+Memory consumption went from 133.5 MB to 128.5 MB.
+Total: 18.248100 ms (FindLiveObjects: 0.538000 ms CreateObjectMapping: 0.606100 ms MarkObjects: 15.311800 ms  DeleteObjects: 1.791400 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Import Request.
+  Time since last request: 65.919109 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/ConvolutionnalNeuralNetwork.cs
+  artifactKey: Guid(6e8fdd393ad39944b8140ca565104d04) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Network/Network/ConvolutionnalNeuralNetwork.cs using Guid(6e8fdd393ad39944b8140ca565104d04) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: '45d589e558063af7b5f9d9b331ad4806') in 0.0041823 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.23 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5122 unused Assets / (5.2 MB). Loaded Objects now: 5750.
+Memory consumption went from 133.5 MB to 128.3 MB.
+Total: 19.974400 ms (FindLiveObjects: 0.576900 ms CreateObjectMapping: 0.846000 ms MarkObjects: 16.717300 ms  DeleteObjects: 1.833300 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.22 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5122 unused Assets / (5.0 MB). Loaded Objects now: 5750.
+Memory consumption went from 133.5 MB to 128.5 MB.
+Total: 18.729100 ms (FindLiveObjects: 0.559800 ms CreateObjectMapping: 0.607700 ms MarkObjects: 15.775600 ms  DeleteObjects: 1.784900 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.24 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5122 unused Assets / (5.2 MB). Loaded Objects now: 5750.
+Memory consumption went from 133.5 MB to 128.3 MB.
+Total: 18.772400 ms (FindLiveObjects: 0.552900 ms CreateObjectMapping: 0.635700 ms MarkObjects: 15.554800 ms  DeleteObjects: 2.028000 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.21 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5122 unused Assets / (5.0 MB). Loaded Objects now: 5750.
+Memory consumption went from 133.5 MB to 128.5 MB.
+Total: 18.010300 ms (FindLiveObjects: 0.537000 ms CreateObjectMapping: 0.583600 ms MarkObjects: 15.073500 ms  DeleteObjects: 1.815000 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.24 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5122 unused Assets / (5.0 MB). Loaded Objects now: 5750.
+Memory consumption went from 133.5 MB to 128.5 MB.
+Total: 17.877200 ms (FindLiveObjects: 0.540000 ms CreateObjectMapping: 0.610600 ms MarkObjects: 14.958800 ms  DeleteObjects: 1.766800 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.33 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5122 unused Assets / (5.0 MB). Loaded Objects now: 5750.
+Memory consumption went from 133.5 MB to 128.5 MB.
+Total: 19.973000 ms (FindLiveObjects: 0.538000 ms CreateObjectMapping: 0.603600 ms MarkObjects: 17.025700 ms  DeleteObjects: 1.805000 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.22 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5122 unused Assets / (5.1 MB). Loaded Objects now: 5750.
+Memory consumption went from 133.5 MB to 128.4 MB.
+Total: 18.843400 ms (FindLiveObjects: 0.539000 ms CreateObjectMapping: 0.605800 ms MarkObjects: 15.674000 ms  DeleteObjects: 2.023600 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.23 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5122 unused Assets / (5.2 MB). Loaded Objects now: 5750.
+Memory consumption went from 133.5 MB to 128.3 MB.
+Total: 18.745700 ms (FindLiveObjects: 0.552500 ms CreateObjectMapping: 0.656800 ms MarkObjects: 15.621200 ms  DeleteObjects: 1.914400 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.35 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5122 unused Assets / (5.0 MB). Loaded Objects now: 5750.
+Memory consumption went from 133.5 MB to 128.5 MB.
+Total: 19.262700 ms (FindLiveObjects: 0.563600 ms CreateObjectMapping: 0.701400 ms MarkObjects: 16.156900 ms  DeleteObjects: 1.839700 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.23 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5122 unused Assets / (5.2 MB). Loaded Objects now: 5750.
+Memory consumption went from 133.5 MB to 128.3 MB.
+Total: 18.992700 ms (FindLiveObjects: 0.540200 ms CreateObjectMapping: 0.606600 ms MarkObjects: 15.854200 ms  DeleteObjects: 1.990600 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.27 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5122 unused Assets / (5.0 MB). Loaded Objects now: 5750.
+Memory consumption went from 133.5 MB to 128.5 MB.
+Total: 19.885300 ms (FindLiveObjects: 0.608700 ms CreateObjectMapping: 0.757400 ms MarkObjects: 16.717500 ms  DeleteObjects: 1.800800 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.24 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5121 unused Assets / (5.1 MB). Loaded Objects now: 5749.
+Memory consumption went from 133.5 MB to 128.4 MB.
+Total: 19.740100 ms (FindLiveObjects: 0.569700 ms CreateObjectMapping: 0.725000 ms MarkObjects: 16.144400 ms  DeleteObjects: 2.299900 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.28 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5121 unused Assets / (5.1 MB). Loaded Objects now: 5749.
+Memory consumption went from 133.5 MB to 128.3 MB.
+Total: 19.474200 ms (FindLiveObjects: 0.598500 ms CreateObjectMapping: 0.595200 ms MarkObjects: 16.312200 ms  DeleteObjects: 1.967000 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.23 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5121 unused Assets / (5.0 MB). Loaded Objects now: 5749.
+Memory consumption went from 133.5 MB to 128.5 MB.
+Total: 18.000500 ms (FindLiveObjects: 0.559300 ms CreateObjectMapping: 0.610600 ms MarkObjects: 15.023700 ms  DeleteObjects: 1.805500 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.21 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5121 unused Assets / (5.0 MB). Loaded Objects now: 5749.
+Memory consumption went from 133.5 MB to 128.5 MB.
+Total: 19.257800 ms (FindLiveObjects: 0.554200 ms CreateObjectMapping: 0.653500 ms MarkObjects: 16.172700 ms  DeleteObjects: 1.876600 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.33 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5121 unused Assets / (5.0 MB). Loaded Objects now: 5749.
+Memory consumption went from 133.5 MB to 128.5 MB.
+Total: 19.206800 ms (FindLiveObjects: 0.556200 ms CreateObjectMapping: 0.646700 ms MarkObjects: 16.131600 ms  DeleteObjects: 1.871200 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.24 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5121 unused Assets / (5.2 MB). Loaded Objects now: 5749.
+Memory consumption went from 133.5 MB to 128.3 MB.
+Total: 20.070700 ms (FindLiveObjects: 0.641600 ms CreateObjectMapping: 0.927000 ms MarkObjects: 16.530400 ms  DeleteObjects: 1.970300 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.30 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5121 unused Assets / (5.2 MB). Loaded Objects now: 5749.
+Memory consumption went from 133.5 MB to 128.2 MB.
+Total: 19.663200 ms (FindLiveObjects: 0.597400 ms CreateObjectMapping: 0.770400 ms MarkObjects: 16.274800 ms  DeleteObjects: 2.019500 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.27 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5121 unused Assets / (5.2 MB). Loaded Objects now: 5749.
+Memory consumption went from 133.5 MB to 128.2 MB.
+Total: 19.904200 ms (FindLiveObjects: 0.539300 ms CreateObjectMapping: 0.607200 ms MarkObjects: 16.362000 ms  DeleteObjects: 2.394200 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.23 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5121 unused Assets / (5.1 MB). Loaded Objects now: 5749.
+Memory consumption went from 133.5 MB to 128.4 MB.
+Total: 18.540900 ms (FindLiveObjects: 0.622900 ms CreateObjectMapping: 0.764400 ms MarkObjects: 15.297200 ms  DeleteObjects: 1.854900 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.31 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5121 unused Assets / (5.1 MB). Loaded Objects now: 5749.
+Memory consumption went from 133.5 MB to 128.4 MB.
+Total: 18.745200 ms (FindLiveObjects: 0.546900 ms CreateObjectMapping: 0.594500 ms MarkObjects: 15.748600 ms  DeleteObjects: 1.853800 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.29 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5121 unused Assets / (5.2 MB). Loaded Objects now: 5749.
+Memory consumption went from 133.5 MB to 128.3 MB.
+Total: 18.491600 ms (FindLiveObjects: 0.663500 ms CreateObjectMapping: 0.732500 ms MarkObjects: 15.259500 ms  DeleteObjects: 1.834800 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.20 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5121 unused Assets / (5.2 MB). Loaded Objects now: 5749.
+Memory consumption went from 133.5 MB to 128.3 MB.
+Total: 19.578400 ms (FindLiveObjects: 0.538000 ms CreateObjectMapping: 0.613600 ms MarkObjects: 16.486200 ms  DeleteObjects: 1.939400 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.24 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5121 unused Assets / (5.2 MB). Loaded Objects now: 5749.
+Memory consumption went from 133.5 MB to 128.2 MB.
+Total: 19.573800 ms (FindLiveObjects: 0.537000 ms CreateObjectMapping: 0.603500 ms MarkObjects: 16.184400 ms  DeleteObjects: 2.248100 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.38 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5121 unused Assets / (5.1 MB). Loaded Objects now: 5749.
+Memory consumption went from 133.5 MB to 128.4 MB.
+Total: 20.355600 ms (FindLiveObjects: 0.585900 ms CreateObjectMapping: 0.709500 ms MarkObjects: 16.822500 ms  DeleteObjects: 2.236600 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.24 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5121 unused Assets / (5.0 MB). Loaded Objects now: 5749.
+Memory consumption went from 133.5 MB to 128.5 MB.
+Total: 20.153000 ms (FindLiveObjects: 0.619400 ms CreateObjectMapping: 0.825000 ms MarkObjects: 16.748800 ms  DeleteObjects: 1.958400 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.26 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5121 unused Assets / (5.1 MB). Loaded Objects now: 5749.
+Memory consumption went from 133.5 MB to 128.4 MB.
+Total: 19.479800 ms (FindLiveObjects: 0.599100 ms CreateObjectMapping: 0.684000 ms MarkObjects: 16.155300 ms  DeleteObjects: 2.039600 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.24 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5121 unused Assets / (5.3 MB). Loaded Objects now: 5749.
+Memory consumption went from 133.5 MB to 128.2 MB.
+Total: 20.257200 ms (FindLiveObjects: 0.568200 ms CreateObjectMapping: 0.635100 ms MarkObjects: 16.714400 ms  DeleteObjects: 2.338200 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.23 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5121 unused Assets / (5.0 MB). Loaded Objects now: 5749.
+Memory consumption went from 133.5 MB to 128.5 MB.
+Total: 17.935600 ms (FindLiveObjects: 0.547000 ms CreateObjectMapping: 0.612100 ms MarkObjects: 14.970900 ms  DeleteObjects: 1.804800 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.21 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5121 unused Assets / (5.0 MB). Loaded Objects now: 5749.
+Memory consumption went from 133.5 MB to 128.4 MB.
+Total: 17.752900 ms (FindLiveObjects: 0.537600 ms CreateObjectMapping: 0.597700 ms MarkObjects: 14.778900 ms  DeleteObjects: 1.837900 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.22 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5121 unused Assets / (5.0 MB). Loaded Objects now: 5749.
+Memory consumption went from 133.5 MB to 128.5 MB.
+Total: 18.344800 ms (FindLiveObjects: 0.544500 ms CreateObjectMapping: 0.631800 ms MarkObjects: 15.324100 ms  DeleteObjects: 1.843700 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.20 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5121 unused Assets / (5.0 MB). Loaded Objects now: 5749.
+Memory consumption went from 133.5 MB to 128.5 MB.
+Total: 18.728300 ms (FindLiveObjects: 0.539900 ms CreateObjectMapping: 0.612900 ms MarkObjects: 15.670300 ms  DeleteObjects: 1.904200 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.21 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5121 unused Assets / (5.0 MB). Loaded Objects now: 5749.
+Memory consumption went from 133.5 MB to 128.5 MB.
+Total: 20.249800 ms (FindLiveObjects: 0.545400 ms CreateObjectMapping: 0.611700 ms MarkObjects: 17.042300 ms  DeleteObjects: 2.049600 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.22 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5121 unused Assets / (5.0 MB). Loaded Objects now: 5749.
+Memory consumption went from 133.5 MB to 128.5 MB.
+Total: 18.826100 ms (FindLiveObjects: 0.579000 ms CreateObjectMapping: 0.644400 ms MarkObjects: 15.766000 ms  DeleteObjects: 1.835900 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.22 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5121 unused Assets / (5.0 MB). Loaded Objects now: 5749.
+Memory consumption went from 133.5 MB to 128.5 MB.
+Total: 18.467300 ms (FindLiveObjects: 0.541100 ms CreateObjectMapping: 0.624300 ms MarkObjects: 15.396300 ms  DeleteObjects: 1.904600 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.22 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5121 unused Assets / (5.1 MB). Loaded Objects now: 5749.
+Memory consumption went from 133.5 MB to 128.4 MB.
+Total: 19.900400 ms (FindLiveObjects: 0.552200 ms CreateObjectMapping: 0.757600 ms MarkObjects: 16.672500 ms  DeleteObjects: 1.916700 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.23 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5121 unused Assets / (5.2 MB). Loaded Objects now: 5749.
+Memory consumption went from 133.5 MB to 128.3 MB.
+Total: 19.267100 ms (FindLiveObjects: 0.562800 ms CreateObjectMapping: 0.622600 ms MarkObjects: 15.766000 ms  DeleteObjects: 2.314800 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.28 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5121 unused Assets / (5.1 MB). Loaded Objects now: 5749.
+Memory consumption went from 133.5 MB to 128.4 MB.
+Total: 19.141000 ms (FindLiveObjects: 0.552800 ms CreateObjectMapping: 0.641400 ms MarkObjects: 15.868900 ms  DeleteObjects: 2.077100 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Assembly reference Packages/com.unity.entities/Unity.Scenes.Editor/Internals/Properties/Unity.Properties.Internals.asmref has no target assembly definition
+Assembly reference Packages/com.unity.entities/Unity.Scenes.Editor/Internals/Properties/Unity.Properties.Internals.asmref has no target assembly definition
+Begin MonoManager ReloadAssembly
+- Loaded All Assemblies, in  0.812 seconds
+Assembly reference Packages/com.unity.entities/Unity.Scenes.Editor/Internals/Properties/Unity.Properties.Internals.asmref has no target assembly definition
+Refreshing native plugins compatible for Editor in 1.16 ms, found 3 plugins.
+Native extension for WindowsStandalone target not found
+Assembly reference Packages/com.unity.entities/Unity.Scenes.Editor/Internals/Properties/Unity.Properties.Internals.asmref has no target assembly definition
+TypeManager.Initialize took: 314ms
+Mono: successfully reloaded assembly
+- Finished resetting the current domain, in  1.656 seconds
+Domain Reload Profiling: 2464ms
+	BeginReloadAssembly (211ms)
+		ExecutionOrderSort (0ms)
+		DisableScriptedObjects (5ms)
+		BackupInstance (0ms)
+		ReleaseScriptingObjects (0ms)
+		CreateAndSetChildDomain (77ms)
+	RebuildCommonClasses (34ms)
+	RebuildNativeTypeToScriptingClass (13ms)
+	initialDomainReloadingComplete (33ms)
+	LoadAllAssembliesAndSetupDomain (517ms)
+		LoadAssemblies (377ms)
+		RebuildTransferFunctionScriptingTraits (0ms)
+		AnalyzeDomain (229ms)
+			TypeCache.Refresh (115ms)
+				TypeCache.ScanAssembly (102ms)
+			BuildScriptInfoCaches (109ms)
+			ResolveRequiredComponents (3ms)
+	FinalizeReload (1656ms)
+		ReleaseScriptCaches (0ms)
+		RebuildScriptCaches (0ms)
+		SetupLoadedEditorAssemblies (1469ms)
+			LogAssemblyErrors (0ms)
+			InitializePlatformSupportModulesInManaged (2ms)
+			SetLoadedEditorAssemblies (4ms)
+			BeforeProcessingInitializeOnLoad (108ms)
+			ProcessInitializeOnLoadAttributes (1095ms)
+			ProcessInitializeOnLoadMethodAttributes (252ms)
+			AfterProcessingInitializeOnLoad (7ms)
+			EditorAssembliesLoaded (0ms)
+		ExecutionOrderSort2 (0ms)
+		AwakeInstancesAfterBackupRestoration (7ms)
+Refreshing native plugins compatible for Editor in 1.20 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5132 unused Assets / (4.8 MB). Loaded Objects now: 5749.
+Memory consumption went from 133.6 MB to 128.8 MB.
+Total: 19.158700 ms (FindLiveObjects: 0.552600 ms CreateObjectMapping: 0.721900 ms MarkObjects: 15.859500 ms  DeleteObjects: 2.023800 ms)
+
+Unloading 0 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 0 unused Assets / (4.4 MB). Loaded Objects now: 5749.
+Memory consumption went from 128.8 MB to 124.4 MB.
+Total: 17.647000 ms (FindLiveObjects: 0.325000 ms CreateObjectMapping: 0.246400 ms MarkObjects: 16.169700 ms  DeleteObjects: 0.905200 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Import Request.
+  Time since last request: 1144.607152 seconds.
+  path: Assets/AtomixML/Runtime/UnsupervisedLearning/PCA/PCA.unity
+  artifactKey: Guid(5610602b96d8c3143953765dee1cabb7) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/UnsupervisedLearning/PCA/PCA.unity using Guid(5610602b96d8c3143953765dee1cabb7) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: '94e868d92fa0b5f29215c7acfe8b7365') in 0.0602923 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.856189 seconds.
+  path: Assets/AtomixML/Runtime/UnsupervisedLearning/PCA/PCATrainer.cs
+  artifactKey: Guid(631c1f3fd4e358443b7c1c80acbf0379) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/UnsupervisedLearning/PCA/PCATrainer.cs using Guid(631c1f3fd4e358443b7c1c80acbf0379) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: '073fefb14471a1fd522345d84831a364') in 0.0007106 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.26 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5121 unused Assets / (5.1 MB). Loaded Objects now: 5749.
+Memory consumption went from 133.8 MB to 128.7 MB.
+Total: 19.468500 ms (FindLiveObjects: 0.608900 ms CreateObjectMapping: 0.718100 ms MarkObjects: 16.308300 ms  DeleteObjects: 1.832000 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Assembly reference Packages/com.unity.entities/Unity.Scenes.Editor/Internals/Properties/Unity.Properties.Internals.asmref has no target assembly definition
+Assembly reference Packages/com.unity.entities/Unity.Scenes.Editor/Internals/Properties/Unity.Properties.Internals.asmref has no target assembly definition
+Begin MonoManager ReloadAssembly
+- Loaded All Assemblies, in  0.792 seconds
+Assembly reference Packages/com.unity.entities/Unity.Scenes.Editor/Internals/Properties/Unity.Properties.Internals.asmref has no target assembly definition
+Refreshing native plugins compatible for Editor in 1.41 ms, found 3 plugins.
+Native extension for WindowsStandalone target not found
+Assembly reference Packages/com.unity.entities/Unity.Scenes.Editor/Internals/Properties/Unity.Properties.Internals.asmref has no target assembly definition
+TypeManager.Initialize took: 314ms
+Mono: successfully reloaded assembly
+- Finished resetting the current domain, in  1.649 seconds
+Domain Reload Profiling: 2437ms
+	BeginReloadAssembly (245ms)
+		ExecutionOrderSort (0ms)
+		DisableScriptedObjects (5ms)
+		BackupInstance (0ms)
+		ReleaseScriptingObjects (0ms)
+		CreateAndSetChildDomain (99ms)
+	RebuildCommonClasses (35ms)
+	RebuildNativeTypeToScriptingClass (13ms)
+	initialDomainReloadingComplete (33ms)
+	LoadAllAssembliesAndSetupDomain (461ms)
+		LoadAssemblies (378ms)
+		RebuildTransferFunctionScriptingTraits (0ms)
+		AnalyzeDomain (177ms)
+			TypeCache.Refresh (10ms)
+				TypeCache.ScanAssembly (2ms)
+			BuildScriptInfoCaches (160ms)
+			ResolveRequiredComponents (4ms)
+	FinalizeReload (1649ms)
+		ReleaseScriptCaches (0ms)
+		RebuildScriptCaches (0ms)
+		SetupLoadedEditorAssemblies (1465ms)
+			LogAssemblyErrors (0ms)
+			InitializePlatformSupportModulesInManaged (2ms)
+			SetLoadedEditorAssemblies (5ms)
+			BeforeProcessingInitializeOnLoad (105ms)
+			ProcessInitializeOnLoadAttributes (1103ms)
+			ProcessInitializeOnLoadMethodAttributes (242ms)
+			AfterProcessingInitializeOnLoad (6ms)
+			EditorAssembliesLoaded (0ms)
+		ExecutionOrderSort2 (0ms)
+		AwakeInstancesAfterBackupRestoration (6ms)
+Refreshing native plugins compatible for Editor in 1.23 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5132 unused Assets / (5.0 MB). Loaded Objects now: 5749.
+Memory consumption went from 133.6 MB to 128.6 MB.
+Total: 18.014800 ms (FindLiveObjects: 0.562700 ms CreateObjectMapping: 0.636000 ms MarkObjects: 14.951900 ms  DeleteObjects: 1.863300 ms)
+
+Unloading 0 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 0 unused Assets / (4.1 MB). Loaded Objects now: 5749.
+Memory consumption went from 128.5 MB to 124.4 MB.
+Total: 16.804000 ms (FindLiveObjects: 0.363000 ms CreateObjectMapping: 0.243900 ms MarkObjects: 15.323200 ms  DeleteObjects: 0.872700 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Import Request.
+  Time since last request: 57.861466 seconds.
+  path: Assets/Packages/MathNet.Numerics.5.0.0
+  artifactKey: Guid(c38b4c304420d464ab25dd6ffbf17713) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Packages/MathNet.Numerics.5.0.0 using Guid(c38b4c304420d464ab25dd6ffbf17713) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: 'b172243df061799c2b612c806551557f') in 0.0031822 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+
+========================================================================
+Received Import Request.
+  Time since last request: 4.443472 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Training/TrainingSets/Sets/MNISTTrainingSetting.cs
+  artifactKey: Guid(31faafcd92437aa43aa549fefc1710a2) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Training/TrainingSets/Sets/MNISTTrainingSetting.cs using Guid(31faafcd92437aa43aa549fefc1710a2) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: '15fde2ad952f12cd056210b1f5ee01d2') in 0.000646 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+
+========================================================================
+Received Import Request.
+  Time since last request: 27.375078 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Training/TrainingSets
+  artifactKey: Guid(f4f89159762809546a16b0e3a80ae02a) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Training/TrainingSets using Guid(f4f89159762809546a16b0e3a80ae02a) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: '71ee552a0141cfef71a9adbdff617062') in 0.000607 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+
+========================================================================
+Received Import Request.
+  Time since last request: 1.000954 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Training/TrainingSets/Sets
+  artifactKey: Guid(ca8e86de2f625cb4c8cbeae3dcbda1d7) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Scripts/Training/TrainingSets/Sets using Guid(ca8e86de2f625cb4c8cbeae3dcbda1d7) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: '9ffdd9cac072e7cb4f3463890b71afdc') in 0.0006729 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+
