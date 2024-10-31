@@ -17,19 +17,23 @@ namespace Atom.MachineLearning.Unsupervised.PCA
         private double[] _stdDeviations;
 
         [Button]
-        private async void TestFit(string texturesPath)
+        private async void TestFit(string texturesPath = "mnist", int maximumSetSize = 50)
         {
             var model = new PCAModel();
             var textures = DatasetReader.ReadTextures(texturesPath);
 
             var vectorized = new List<NVector>();
-            for(int i = 0; i < textures.Count; ++i)
+            for(int i = 0; i < textures.Count ; ++i)
             {
+                if (i > maximumSetSize)
+                    break;
+
                 vectorized.Add(new NVector(VectorizationUtils.Texture2DToArray(textures[i])));
             }
 
             var result = await Fit(model, vectorized);   
         }
+
 
         public async Task<ITrainingResult> Fit(PCAModel model, List<NVector> trainingDatas)
         {

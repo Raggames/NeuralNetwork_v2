@@ -95,9 +95,10 @@ namespace NeuralNetwork
 
             NeuralNetwork.FlattenLayer = new FlattenLayer(convolutionLayer.OutputWidth, convolutionLayer.OutputHeight, 2);
 
-            //NeuralNetwork.DenseLayers.Add(new DenseLayer(LayerType.DenseHidden, ActivationFunctions.ReLU, NeuralNetwork.FlattenLayer.NodeCount, NeuralNetwork.FlattenLayer.NodeCount / 2));
-            NeuralNetwork.DenseLayers.Add(new DenseLayer(LayerType.DenseHidden, ActivationFunctions.ReLU, NeuralNetwork.FlattenLayer.NodeCount, 60));
-            NeuralNetwork.DenseLayers.Add(new DenseLayer(LayerType.Output, ActivationFunctions.Softmax, 60, 10));
+            /*NeuralNetwork.DenseLayers.Add(new DenseLayer(LayerType.DenseHidden, ActivationFunctions.ReLU, NeuralNetwork.FlattenLayer.NodeCount, 60));
+            NeuralNetwork.DenseLayers.Add(new DenseLayer(LayerType.Output, ActivationFunctions.Softmax, 60, 10));*/
+            
+            NeuralNetwork.DenseLayers.Add(new DenseLayer(LayerType.Output, ActivationFunctions.Softmax, NeuralNetwork.FlattenLayer.NodeCount, 10));
 
             NeuralNetwork.Initialize(this, null);
             NeuralNetwork.InitializeWeights();

@@ -1,0 +1,766 @@
+Using pre-set license
+Built from 'trunk' branch; Version is '6000.0.12f1 (7defd84cdab8) revision 8253400'; Using compiler version '193933523'; Build Type 'Release'
+OS: 'Windows 10  (10.0.19045) 64bit Core' Language: 'fr' Physical Memory: 32706 MB
+BatchMode: 1, IsHumanControllingUs: 0, StartBugReporterOnCrash: 0, Is64bit: 1, IsPro: 1
+
+COMMAND LINE ARGUMENTS:
+C:\Program Files\Unity\Hub\Editor\6000.0.12f1\Editor\Unity.exe
+-adb2
+-batchMode
+-noUpm
+-name
+AssetImportWorker0
+-projectPath
+C:/Users/Rag/wkspaces/NeuralNetwork_v2
+-logFile
+Logs/AssetImportWorker0.log
+-srvPort
+50879
+-job-worker-count
+3
+-background-job-worker-count
+8
+-asset-garbage-collectors
+1
+Successfully changed project path to: C:/Users/Rag/wkspaces/NeuralNetwork_v2
+C:/Users/Rag/wkspaces/NeuralNetwork_v2
+[UnityMemory] Configuration Parameters - Can be set up in boot.config
+    "memorysetup-bucket-allocator-granularity=16"
+    "memorysetup-bucket-allocator-bucket-count=8"
+    "memorysetup-bucket-allocator-block-size=33554432"
+    "memorysetup-bucket-allocator-block-count=8"
+    "memorysetup-main-allocator-block-size=16777216"
+    "memorysetup-thread-allocator-block-size=16777216"
+    "memorysetup-gfx-main-allocator-block-size=16777216"
+    "memorysetup-gfx-thread-allocator-block-size=16777216"
+    "memorysetup-cache-allocator-block-size=4194304"
+    "memorysetup-typetree-allocator-block-size=2097152"
+    "memorysetup-profiler-bucket-allocator-granularity=16"
+    "memorysetup-profiler-bucket-allocator-bucket-count=8"
+    "memorysetup-profiler-bucket-allocator-block-size=33554432"
+    "memorysetup-profiler-bucket-allocator-block-count=8"
+    "memorysetup-profiler-allocator-block-size=16777216"
+    "memorysetup-profiler-editor-allocator-block-size=1048576"
+    "memorysetup-temp-allocator-size-main=16777216"
+    "memorysetup-job-temp-allocator-block-size=2097152"
+    "memorysetup-job-temp-allocator-block-size-background=1048576"
+    "memorysetup-job-temp-allocator-reduction-small-platforms=262144"
+    "memorysetup-allocator-temp-initial-block-size-main=262144"
+    "memorysetup-allocator-temp-initial-block-size-worker=262144"
+    "memorysetup-temp-allocator-size-background-worker=32768"
+    "memorysetup-temp-allocator-size-job-worker=262144"
+    "memorysetup-temp-allocator-size-preload-manager=33554432"
+    "memorysetup-temp-allocator-size-nav-mesh-worker=65536"
+    "memorysetup-temp-allocator-size-audio-worker=65536"
+    "memorysetup-temp-allocator-size-cloud-worker=32768"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gfx=262144"
+Player connection [22596]  Target information:
+
+Player connection [22596]  * "[IP] 192.168.56.1 [Port] 0 [Flags] 2 [Guid] 3718853891 [EditorId] 3718853891 [Version] 1048832 [Id] WindowsEditor(7,DESKTOP-2A2I4TP) [Debug] 1 [PackageName] WindowsEditor [ProjectName] Editor" 
+
+Player connection [22596]  * "[IP] 192.168.1.16 [Port] 0 [Flags] 2 [Guid] 3718853891 [EditorId] 3718853891 [Version] 1048832 [Id] WindowsEditor(7,DESKTOP-2A2I4TP) [Debug] 1 [PackageName] WindowsEditor [ProjectName] Editor" 
+
+Player connection [22596] Host joined multi-casting on [225.0.0.222:54997]...
+Player connection [22596] Host joined alternative multi-casting on [225.0.0.222:34997]...
+JobSystem: Creating JobQueue using job-worker-count value 3
+Library Redirect Path: Library/
+[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+Refreshing native plugins compatible for Editor in 1.71 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Initialize engine version: 6000.0.12f1 (7defd84cdab8)
+[Subsystems] Discovering subsystems at path C:/Program Files/Unity/Hub/Editor/6000.0.12f1/Editor/Data/Resources/UnitySubsystems
+[Subsystems] Discovering subsystems at path C:/Users/Rag/wkspaces/NeuralNetwork_v2/Assets
+GfxDevice: creating device client; kGfxThreadingModeNonThreaded
+Direct3D:
+    Version:  Direct3D 11.0 [level 11.1]
+    Renderer: NVIDIA GeForce RTX 2070 (ID=0x1f02)
+    Vendor:   NVIDIA
+    VRAM:     8006 MB
+    Driver:   32.0.15.6070
+Initialize mono
+Mono path[0] = 'C:/Program Files/Unity/Hub/Editor/6000.0.12f1/Editor/Data/Managed'
+Mono path[1] = 'C:/Program Files/Unity/Hub/Editor/6000.0.12f1/Editor/Data/MonoBleedingEdge/lib/mono/unityjit-win32'
+Mono config path = 'C:/Program Files/Unity/Hub/Editor/6000.0.12f1/Editor/Data/MonoBleedingEdge/etc'
+Using monoOptions --debugger-agent=transport=dt_socket,embedding=1,server=y,suspend=n,address=127.0.0.1:56936
+Begin MonoManager ReloadAssembly
+Registering precompiled unity dll's ...
+Register platform support module: C:/Program Files/Unity/Hub/Editor/6000.0.12f1/Editor/Data/PlaybackEngines/WindowsStandaloneSupport/UnityEditor.WindowsStandalone.Extensions.dll
+Registered in 0.003093 seconds.
+- Loaded All Assemblies, in  0.388 seconds
+Native extension for WindowsStandalone target not found
+Mono: successfully reloaded assembly
+- Finished resetting the current domain, in  0.433 seconds
+Domain Reload Profiling: 819ms
+	BeginReloadAssembly (132ms)
+		ExecutionOrderSort (0ms)
+		DisableScriptedObjects (0ms)
+		BackupInstance (0ms)
+		ReleaseScriptingObjects (0ms)
+		CreateAndSetChildDomain (1ms)
+	RebuildCommonClasses (37ms)
+	RebuildNativeTypeToScriptingClass (12ms)
+	initialDomainReloadingComplete (49ms)
+	LoadAllAssembliesAndSetupDomain (154ms)
+		LoadAssemblies (129ms)
+		RebuildTransferFunctionScriptingTraits (0ms)
+		AnalyzeDomain (152ms)
+			TypeCache.Refresh (150ms)
+				TypeCache.ScanAssembly (137ms)
+			BuildScriptInfoCaches (0ms)
+			ResolveRequiredComponents (0ms)
+	FinalizeReload (434ms)
+		ReleaseScriptCaches (0ms)
+		RebuildScriptCaches (0ms)
+		SetupLoadedEditorAssemblies (388ms)
+			LogAssemblyErrors (0ms)
+			InitializePlatformSupportModulesInManaged (27ms)
+			SetLoadedEditorAssemblies (5ms)
+			BeforeProcessingInitializeOnLoad (5ms)
+			ProcessInitializeOnLoadAttributes (155ms)
+			ProcessInitializeOnLoadMethodAttributes (196ms)
+			AfterProcessingInitializeOnLoad (0ms)
+			EditorAssembliesLoaded (0ms)
+		ExecutionOrderSort2 (0ms)
+		AwakeInstancesAfterBackupRestoration (0ms)
+Assembly reference Packages/com.unity.entities/Unity.Scenes.Editor/Internals/Properties/Unity.Properties.Internals.asmref has no target assembly definition
+========================================================================
+Worker process is ready to serve import requests
+Import Worker Mode flag is 0x00
+Assembly reference Packages/com.unity.entities/Unity.Scenes.Editor/Internals/Properties/Unity.Properties.Internals.asmref has no target assembly definition
+Assembly reference Packages/com.unity.entities/Unity.Scenes.Editor/Internals/Properties/Unity.Properties.Internals.asmref has no target assembly definition
+Begin MonoManager ReloadAssembly
+- Loaded All Assemblies, in  1.118 seconds
+Assembly reference Packages/com.unity.entities/Unity.Scenes.Editor/Internals/Properties/Unity.Properties.Internals.asmref has no target assembly definition
+Refreshing native plugins compatible for Editor in 1.44 ms, found 3 plugins.
+Native extension for WindowsStandalone target not found
+Assembly reference Packages/com.unity.entities/Unity.Scenes.Editor/Internals/Properties/Unity.Properties.Internals.asmref has no target assembly definition
+TypeManager.Initialize took: 370ms
+Mono: successfully reloaded assembly
+- Finished resetting the current domain, in  2.021 seconds
+Domain Reload Profiling: 3133ms
+	BeginReloadAssembly (429ms)
+		ExecutionOrderSort (0ms)
+		DisableScriptedObjects (6ms)
+		BackupInstance (0ms)
+		ReleaseScriptingObjects (0ms)
+		CreateAndSetChildDomain (34ms)
+	RebuildCommonClasses (40ms)
+	RebuildNativeTypeToScriptingClass (13ms)
+	initialDomainReloadingComplete (46ms)
+	LoadAllAssembliesAndSetupDomain (583ms)
+		LoadAssemblies (417ms)
+		RebuildTransferFunctionScriptingTraits (0ms)
+		AnalyzeDomain (267ms)
+			TypeCache.Refresh (211ms)
+				TypeCache.ScanAssembly (193ms)
+			BuildScriptInfoCaches (49ms)
+			ResolveRequiredComponents (4ms)
+	FinalizeReload (2022ms)
+		ReleaseScriptCaches (0ms)
+		RebuildScriptCaches (0ms)
+		SetupLoadedEditorAssemblies (1808ms)
+			LogAssemblyErrors (0ms)
+			InitializePlatformSupportModulesInManaged (2ms)
+			SetLoadedEditorAssemblies (5ms)
+			BeforeProcessingInitializeOnLoad (116ms)
+			ProcessInitializeOnLoadAttributes (1395ms)
+			ProcessInitializeOnLoadMethodAttributes (282ms)
+			AfterProcessingInitializeOnLoad (6ms)
+			EditorAssembliesLoaded (0ms)
+		ExecutionOrderSort2 (0ms)
+		AwakeInstancesAfterBackupRestoration (6ms)
+Launched and connected shader compiler UnityShaderCompiler.exe after 0.01 seconds
+Refreshing native plugins compatible for Editor in 1.31 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 82 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5134 unused Assets / (5.1 MB). Loaded Objects now: 5750.
+Memory consumption went from 146.4 MB to 141.3 MB.
+Total: 20.554000 ms (FindLiveObjects: 0.629500 ms CreateObjectMapping: 0.690400 ms MarkObjects: 16.636500 ms  DeleteObjects: 2.596500 ms)
+
+========================================================================
+Received Import Request.
+  Time since last request: 2693045.518567 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Training/MNIST
+  artifactKey: Guid(740ee60a48019174a89926b21967bdef) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Training/MNIST using Guid(740ee60a48019174a89926b21967bdef) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: 'fa2f171c18c972f497345e40021384ef') in 0.0055664 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000014 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Training/MNIST/UnitTests.unity
+  artifactKey: Guid(a28f8798099e9c444b198a99b13ef5f0) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Training/MNIST/UnitTests.unity using Guid(a28f8798099e9c444b198a99b13ef5f0) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: '7a55945eba5973df0cac751565753ba3') in 0.0006529 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+
+========================================================================
+Received Import Request.
+  Time since last request: 27.897787 seconds.
+  path: Assets/AtomixML/NeuralNetwork/Training/GAN
+  artifactKey: Guid(9d1f8759ff13c4741950d41ee35dbb9c) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/NeuralNetwork/Training/GAN using Guid(9d1f8759ff13c4741950d41ee35dbb9c) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: '09567f8ea72dfa7c935c3acf3a4c7aa4') in 0.0004726 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.28 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5121 unused Assets / (5.3 MB). Loaded Objects now: 5750.
+Memory consumption went from 131.7 MB to 126.4 MB.
+Total: 19.566900 ms (FindLiveObjects: 0.545900 ms CreateObjectMapping: 0.636000 ms MarkObjects: 16.351800 ms  DeleteObjects: 2.032300 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Assembly reference Packages/com.unity.entities/Unity.Scenes.Editor/Internals/Properties/Unity.Properties.Internals.asmref has no target assembly definition
+Assembly reference Packages/com.unity.entities/Unity.Scenes.Editor/Internals/Properties/Unity.Properties.Internals.asmref has no target assembly definition
+Begin MonoManager ReloadAssembly
+- Loaded All Assemblies, in  0.785 seconds
+Assembly reference Packages/com.unity.entities/Unity.Scenes.Editor/Internals/Properties/Unity.Properties.Internals.asmref has no target assembly definition
+Refreshing native plugins compatible for Editor in 1.18 ms, found 3 plugins.
+Native extension for WindowsStandalone target not found
+Assembly reference Packages/com.unity.entities/Unity.Scenes.Editor/Internals/Properties/Unity.Properties.Internals.asmref has no target assembly definition
+TypeManager.Initialize took: 316ms
+Mono: successfully reloaded assembly
+- Finished resetting the current domain, in  1.663 seconds
+Domain Reload Profiling: 2445ms
+	BeginReloadAssembly (234ms)
+		ExecutionOrderSort (0ms)
+		DisableScriptedObjects (17ms)
+		BackupInstance (0ms)
+		ReleaseScriptingObjects (0ms)
+		CreateAndSetChildDomain (84ms)
+	RebuildCommonClasses (33ms)
+	RebuildNativeTypeToScriptingClass (13ms)
+	initialDomainReloadingComplete (34ms)
+	LoadAllAssembliesAndSetupDomain (467ms)
+		LoadAssemblies (381ms)
+		RebuildTransferFunctionScriptingTraits (0ms)
+		AnalyzeDomain (178ms)
+			TypeCache.Refresh (9ms)
+				TypeCache.ScanAssembly (0ms)
+			BuildScriptInfoCaches (164ms)
+			ResolveRequiredComponents (3ms)
+	FinalizeReload (1664ms)
+		ReleaseScriptCaches (0ms)
+		RebuildScriptCaches (0ms)
+		SetupLoadedEditorAssemblies (1483ms)
+			LogAssemblyErrors (0ms)
+			InitializePlatformSupportModulesInManaged (2ms)
+			SetLoadedEditorAssemblies (4ms)
+			BeforeProcessingInitializeOnLoad (106ms)
+			ProcessInitializeOnLoadAttributes (1120ms)
+			ProcessInitializeOnLoadMethodAttributes (245ms)
+			AfterProcessingInitializeOnLoad (7ms)
+			EditorAssembliesLoaded (0ms)
+		ExecutionOrderSort2 (0ms)
+		AwakeInstancesAfterBackupRestoration (6ms)
+Refreshing native plugins compatible for Editor in 1.26 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5133 unused Assets / (5.2 MB). Loaded Objects now: 5749.
+Memory consumption went from 133.5 MB to 128.4 MB.
+Total: 19.145700 ms (FindLiveObjects: 0.563900 ms CreateObjectMapping: 0.624200 ms MarkObjects: 16.070300 ms  DeleteObjects: 1.886400 ms)
+
+Unloading 0 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 0 unused Assets / (4.0 MB). Loaded Objects now: 5749.
+Memory consumption went from 128.3 MB to 124.3 MB.
+Total: 17.830000 ms (FindLiveObjects: 0.296800 ms CreateObjectMapping: 0.207800 ms MarkObjects: 16.360000 ms  DeleteObjects: 0.964200 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Import Request.
+  Time since last request: 24.678821 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Training/MNIST/UnitTests.unity
+  artifactKey: Guid(a28f8798099e9c444b198a99b13ef5f0) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Training/MNIST/UnitTests.unity using Guid(a28f8798099e9c444b198a99b13ef5f0) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: 'e568fc313f4d8d58c22d7ff0fc30a72f') in 0.00315 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.62 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5121 unused Assets / (5.0 MB). Loaded Objects now: 5749.
+Memory consumption went from 133.7 MB to 128.7 MB.
+Total: 18.977800 ms (FindLiveObjects: 0.570700 ms CreateObjectMapping: 0.656800 ms MarkObjects: 15.781100 ms  DeleteObjects: 1.968100 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Assembly reference Packages/com.unity.entities/Unity.Scenes.Editor/Internals/Properties/Unity.Properties.Internals.asmref has no target assembly definition
+Assembly reference Packages/com.unity.entities/Unity.Scenes.Editor/Internals/Properties/Unity.Properties.Internals.asmref has no target assembly definition
+Begin MonoManager ReloadAssembly
+- Loaded All Assemblies, in  0.742 seconds
+Assembly reference Packages/com.unity.entities/Unity.Scenes.Editor/Internals/Properties/Unity.Properties.Internals.asmref has no target assembly definition
+Refreshing native plugins compatible for Editor in 1.34 ms, found 3 plugins.
+Native extension for WindowsStandalone target not found
+Assembly reference Packages/com.unity.entities/Unity.Scenes.Editor/Internals/Properties/Unity.Properties.Internals.asmref has no target assembly definition
+TypeManager.Initialize took: 322ms
+Mono: successfully reloaded assembly
+- Finished resetting the current domain, in  1.693 seconds
+Domain Reload Profiling: 2431ms
+	BeginReloadAssembly (214ms)
+		ExecutionOrderSort (0ms)
+		DisableScriptedObjects (6ms)
+		BackupInstance (0ms)
+		ReleaseScriptingObjects (0ms)
+		CreateAndSetChildDomain (80ms)
+	RebuildCommonClasses (34ms)
+	RebuildNativeTypeToScriptingClass (13ms)
+	initialDomainReloadingComplete (33ms)
+	LoadAllAssembliesAndSetupDomain (443ms)
+		LoadAssemblies (363ms)
+		RebuildTransferFunctionScriptingTraits (0ms)
+		AnalyzeDomain (170ms)
+			TypeCache.Refresh (10ms)
+				TypeCache.ScanAssembly (2ms)
+			BuildScriptInfoCaches (153ms)
+			ResolveRequiredComponents (3ms)
+	FinalizeReload (1693ms)
+		ReleaseScriptCaches (0ms)
+		RebuildScriptCaches (0ms)
+		SetupLoadedEditorAssemblies (1503ms)
+			LogAssemblyErrors (0ms)
+			InitializePlatformSupportModulesInManaged (2ms)
+			SetLoadedEditorAssemblies (4ms)
+			BeforeProcessingInitializeOnLoad (104ms)
+			ProcessInitializeOnLoadAttributes (1135ms)
+			ProcessInitializeOnLoadMethodAttributes (252ms)
+			AfterProcessingInitializeOnLoad (7ms)
+			EditorAssembliesLoaded (0ms)
+		ExecutionOrderSort2 (0ms)
+		AwakeInstancesAfterBackupRestoration (7ms)
+Refreshing native plugins compatible for Editor in 1.29 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5132 unused Assets / (5.4 MB). Loaded Objects now: 5749.
+Memory consumption went from 133.5 MB to 128.1 MB.
+Total: 19.303900 ms (FindLiveObjects: 0.584200 ms CreateObjectMapping: 0.634800 ms MarkObjects: 16.038600 ms  DeleteObjects: 2.045500 ms)
+
+Unloading 0 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 0 unused Assets / (3.7 MB). Loaded Objects now: 5749.
+Memory consumption went from 128.1 MB to 124.3 MB.
+Total: 17.850200 ms (FindLiveObjects: 0.295600 ms CreateObjectMapping: 0.233000 ms MarkObjects: 16.538600 ms  DeleteObjects: 0.782200 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Import Request.
+  Time since last request: 66.832635 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Training/MNIST/trainingSample
+  artifactKey: Guid(17843e28c5a10094e9276527dab604b7) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Training/MNIST/trainingSample using Guid(17843e28c5a10094e9276527dab604b7) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: '73ede0611211196451c830af1c15aee7') in 0.0031518 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.268674 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Training/MNIST/MNISTTrainingSetting.asset
+  artifactKey: Guid(89b135ee7330da6478916c120529d6d8) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Training/MNIST/MNISTTrainingSetting.asset using Guid(89b135ee7330da6478916c120529d6d8) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: '73c27dfdc42dedce86bc3db5268c51cd') in 0.0164909 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 1
+
+========================================================================
+Received Import Request.
+  Time since last request: 77.321331 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Training/MNIST/MNISTTrainingSetting.asset
+  artifactKey: Guid(89b135ee7330da6478916c120529d6d8) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Training/MNIST/MNISTTrainingSetting.asset using Guid(89b135ee7330da6478916c120529d6d8) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: '50871e1383cb774e382c6e663bb189da') in 0.1035988 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 601
+
+========================================================================
+Received Import Request.
+  Time since last request: 108.540884 seconds.
+  path: Assets/AtomixML/Runtime/UnsupervisedLearning/PCA/PCA.unity
+  artifactKey: Guid(5610602b96d8c3143953765dee1cabb7) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/UnsupervisedLearning/PCA/PCA.unity using Guid(5610602b96d8c3143953765dee1cabb7) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: '3c97112ad32e8e0ba1766d435c51fdeb') in 0.0012283 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.19 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5121 unused Assets / (5.1 MB). Loaded Objects now: 5750.
+Memory consumption went from 134.7 MB to 129.7 MB.
+Total: 20.475700 ms (FindLiveObjects: 0.554700 ms CreateObjectMapping: 0.632000 ms MarkObjects: 17.276300 ms  DeleteObjects: 2.011600 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Assembly reference Packages/com.unity.entities/Unity.Scenes.Editor/Internals/Properties/Unity.Properties.Internals.asmref has no target assembly definition
+Assembly reference Packages/com.unity.entities/Unity.Scenes.Editor/Internals/Properties/Unity.Properties.Internals.asmref has no target assembly definition
+Begin MonoManager ReloadAssembly
+- Loaded All Assemblies, in  0.775 seconds
+Assembly reference Packages/com.unity.entities/Unity.Scenes.Editor/Internals/Properties/Unity.Properties.Internals.asmref has no target assembly definition
+Refreshing native plugins compatible for Editor in 1.15 ms, found 3 plugins.
+Native extension for WindowsStandalone target not found
+Assembly reference Packages/com.unity.entities/Unity.Scenes.Editor/Internals/Properties/Unity.Properties.Internals.asmref has no target assembly definition
+TypeManager.Initialize took: 337ms
+Mono: successfully reloaded assembly
+- Finished resetting the current domain, in  1.677 seconds
+Domain Reload Profiling: 2448ms
+	BeginReloadAssembly (218ms)
+		ExecutionOrderSort (0ms)
+		DisableScriptedObjects (6ms)
+		BackupInstance (0ms)
+		ReleaseScriptingObjects (0ms)
+		CreateAndSetChildDomain (80ms)
+	RebuildCommonClasses (34ms)
+	RebuildNativeTypeToScriptingClass (14ms)
+	initialDomainReloadingComplete (34ms)
+	LoadAllAssembliesAndSetupDomain (469ms)
+		LoadAssemblies (385ms)
+		RebuildTransferFunctionScriptingTraits (0ms)
+		AnalyzeDomain (178ms)
+			TypeCache.Refresh (10ms)
+				TypeCache.ScanAssembly (2ms)
+			BuildScriptInfoCaches (161ms)
+			ResolveRequiredComponents (3ms)
+	FinalizeReload (1678ms)
+		ReleaseScriptCaches (0ms)
+		RebuildScriptCaches (0ms)
+		SetupLoadedEditorAssemblies (1495ms)
+			LogAssemblyErrors (0ms)
+			InitializePlatformSupportModulesInManaged (2ms)
+			SetLoadedEditorAssemblies (4ms)
+			BeforeProcessingInitializeOnLoad (107ms)
+			ProcessInitializeOnLoadAttributes (1130ms)
+			ProcessInitializeOnLoadMethodAttributes (245ms)
+			AfterProcessingInitializeOnLoad (7ms)
+			EditorAssembliesLoaded (0ms)
+		ExecutionOrderSort2 (0ms)
+		AwakeInstancesAfterBackupRestoration (6ms)
+Refreshing native plugins compatible for Editor in 1.28 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 36 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5132 unused Assets / (5.1 MB). Loaded Objects now: 5750.
+Memory consumption went from 134.5 MB to 129.4 MB.
+Total: 18.665300 ms (FindLiveObjects: 0.531700 ms CreateObjectMapping: 0.624700 ms MarkObjects: 15.563600 ms  DeleteObjects: 1.944300 ms)
+
+Unloading 0 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 0 unused Assets / (4.0 MB). Loaded Objects now: 5750.
+Memory consumption went from 129.4 MB to 125.3 MB.
+Total: 17.263200 ms (FindLiveObjects: 0.302100 ms CreateObjectMapping: 0.229100 ms MarkObjects: 15.829900 ms  DeleteObjects: 0.901200 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Import Request.
+  Time since last request: 24.095378 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Training/MNIST/testSample/testSample
+  artifactKey: Guid(550fb8c7df550b14aa4535fe1b0c8c44) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Training/MNIST/testSample/testSample using Guid(550fb8c7df550b14aa4535fe1b0c8c44) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: '3bda217f46422efa2bace831d92fdf57') in 0.0031054 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.642663 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Training/MNIST/testSample/testSample/img_1.jpg
+  artifactKey: Guid(3f82223a6d8276c45b4f5fd1e3366572) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Training/MNIST/testSample/testSample/img_1.jpg using Guid(3f82223a6d8276c45b4f5fd1e3366572) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: '597896fd0c1593aaeb4c3b1c331a8140') in 0.0473419 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 2
+
+========================================================================
+Received Import Request.
+  Time since last request: 24.530817 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Training/MNIST/testSample/img_5.jpg
+  artifactKey: Guid(dfc22a56ea5698f45928a567e09f98c4) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Training/MNIST/testSample/img_5.jpg using Guid(dfc22a56ea5698f45928a567e09f98c4) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: 'f0e5e5c280746e9e783d8652ec1cdcfa') in 0.0057775 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 2
+
+========================================================================
+Received Import Request.
+  Time since last request: 2.584313 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Training/MNIST/testSample/testSample/img_7.jpg
+  artifactKey: Guid(b41abda44b0f5e7468432962132f00a5) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Training/MNIST/testSample/testSample/img_7.jpg using Guid(b41abda44b0f5e7468432962132f00a5) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: 'c0341c79e36c4270532a0c80a1fde399') in 0.005562 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 2
+
+========================================================================
+Received Import Request.
+  Time since last request: 3.837302 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Training/MNIST/trainingSample/img_6.jpg
+  artifactKey: Guid(132ea34af0d39f14088410d3063c37c5) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Training/MNIST/trainingSample/img_6.jpg using Guid(132ea34af0d39f14088410d3063c37c5) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: 'd8dfb67fd6ac5ae7eaf79ff0a4a0115a') in 0.0067659 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 2
+
+========================================================================
+Received Import Request.
+  Time since last request: 2.139121 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Training/MNIST/trainingSample/trainingSample/0/img_69.jpg
+  artifactKey: Guid(bc3feb6bb879d80408cb4a3af46e2fb9) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Training/MNIST/trainingSample/trainingSample/0/img_69.jpg using Guid(bc3feb6bb879d80408cb4a3af46e2fb9) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: 'e9eb9d9bedd2509ce1501c6582d38d99') in 0.0232554 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.509926 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Training/MNIST/trainingSample/trainingSample/0/img_23.jpg
+  artifactKey: Guid(0269a25e3d4e1fa43aca4d8dd93fed59) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Training/MNIST/trainingSample/trainingSample/0/img_23.jpg using Guid(0269a25e3d4e1fa43aca4d8dd93fed59) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: '28de1c7f1500d47fbf91f18cdb076feb') in 0.0094645 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 1.562007 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Training/MNIST/trainingSample/trainingSample/7
+  artifactKey: Guid(5bce11ea3f8548549b582f36df68aab0) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Training/MNIST/trainingSample/trainingSample/7 using Guid(5bce11ea3f8548549b582f36df68aab0) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: '200743edd8d162ed5484aeea495850cf') in 0.0005541 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+
+========================================================================
+Received Import Request.
+  Time since last request: 3.079211 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Training/MNIST/trainingSample/img_23.jpg
+  artifactKey: Guid(cc216a47279b49645856071abad818cd) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Training/MNIST/trainingSample/img_23.jpg using Guid(cc216a47279b49645856071abad818cd) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: '7ba9d3673c506561c0e5d7dcedfc645c') in 0.0071588 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 2
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.363850 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Training/MNIST/trainingSample/img_27.jpg
+  artifactKey: Guid(2c06fc9393e506d4d8c080c48e88c01f) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Training/MNIST/trainingSample/img_27.jpg using Guid(2c06fc9393e506d4d8c080c48e88c01f) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: 'fbd38a3fee9a44cec0e68d1eca367a2e') in 0.0055348 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 2
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.889317 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Training/MNIST/trainingSample/img_57.jpg
+  artifactKey: Guid(b9717ba610a16b0459d48e66fe80ef7a) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Training/MNIST/trainingSample/img_57.jpg using Guid(b9717ba610a16b0459d48e66fe80ef7a) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: 'c990f22dacf1459760fdcd9d3fc1c5b7') in 0.0056778 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 2
+
+========================================================================
+Received Import Request.
+  Time since last request: 2.004284 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Training/MNIST/testSample/testSample/img_48.jpg
+  artifactKey: Guid(466bbb732f29d424fb0d3214440a253e) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Training/MNIST/testSample/testSample/img_48.jpg using Guid(466bbb732f29d424fb0d3214440a253e) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: '62a10059a4ce9bf406361799f0a178a3') in 0.0059449 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 2
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.460736 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Training/MNIST/testSample/testSample/img_52.jpg
+  artifactKey: Guid(ecfca69e74fa95c448bfe98d1f4c7f9c) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Training/MNIST/testSample/testSample/img_52.jpg using Guid(ecfca69e74fa95c448bfe98d1f4c7f9c) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: '86c67c742de800699632249b0dd826b1') in 0.0058788 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 2
+
+========================================================================
+Received Import Request.
+  Time since last request: 5.290017 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Training/MNIST/testSample/testSample/img_59.jpg
+  artifactKey: Guid(880c142f536ac094b86bf865a4bf6b96) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Training/MNIST/testSample/testSample/img_59.jpg using Guid(880c142f536ac094b86bf865a4bf6b96) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: '8bdd6389c076e60788155b2d403e86b7') in 0.0071818 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 2
+
+========================================================================
+Received Import Request.
+  Time since last request: 9.770537 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Training/MNIST/trainingSample/img_0.jpg
+  artifactKey: Guid(37c7378775adb03429353bcc79581d00) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Training/MNIST/trainingSample/img_0.jpg using Guid(37c7378775adb03429353bcc79581d00) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: '0821e33af21e30370d6824cc9d64d8cb') in 0.0056747 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 2
+
+========================================================================
+Received Import Request.
+  Time since last request: 2.589575 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Training/MNIST/trainingSample/trainingSample/1
+  artifactKey: Guid(8434164a545fcb648a97ac6f66fb0cff) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Training/MNIST/trainingSample/trainingSample/1 using Guid(8434164a545fcb648a97ac6f66fb0cff) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: 'aa1e8e6590547cbb14d92e6140f06152') in 0.0007399 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.602606 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Training/MNIST/trainingSample/trainingSample/1/img_12.jpg
+  artifactKey: Guid(0b7d2e7c208c141478860764bd12036e) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Training/MNIST/trainingSample/trainingSample/1/img_12.jpg using Guid(0b7d2e7c208c141478860764bd12036e) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: 'e94d1a864aac54eb25cda0f1928b1c18') in 0.0101946 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.431336 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Training/MNIST/trainingSample/trainingSample/1/img_38.jpg
+  artifactKey: Guid(a892aeb616d3dd14b8927e01013ee5a2) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Training/MNIST/trainingSample/trainingSample/1/img_38.jpg using Guid(a892aeb616d3dd14b8927e01013ee5a2) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: '382ff71078572d7f3d96b52466decb06') in 0.0088926 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.475863 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Training/MNIST/trainingSample/trainingSample/1/img_52.jpg
+  artifactKey: Guid(3ea8fd1285d7bdd4abc4a0b70b02a11a) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Training/MNIST/trainingSample/trainingSample/1/img_52.jpg using Guid(3ea8fd1285d7bdd4abc4a0b70b02a11a) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: '7574bdabb0ccd91f6d10a1fb34b9e042') in 0.0114703 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 1.633704 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Training/MNIST/trainingSample/trainingSample/1/img_544.jpg
+  artifactKey: Guid(71ac8baaa5df19340ae691bd92cde5c8) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Training/MNIST/trainingSample/trainingSample/1/img_544.jpg using Guid(71ac8baaa5df19340ae691bd92cde5c8) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: '006a174067e656173731058e803672e0') in 0.0074452 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.390106 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Training/MNIST/trainingSample/trainingSample/1/img_527.jpg
+  artifactKey: Guid(6e26067fb4f624641ade97efefb6193b) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Training/MNIST/trainingSample/trainingSample/1/img_527.jpg using Guid(6e26067fb4f624641ade97efefb6193b) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: 'ab75983538e6c9b787dc2e93314a05c9') in 0.0076641 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.368997 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Training/MNIST/trainingSample/trainingSample/1/img_491.jpg
+  artifactKey: Guid(15014daca6fd96d42aa6542ba94ef1c0) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Training/MNIST/trainingSample/trainingSample/1/img_491.jpg using Guid(15014daca6fd96d42aa6542ba94ef1c0) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: 'e759139905efd8fdcf39a69ad3701bd2') in 0.0085103 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 16.564679 seconds.
+  path: Assets/AtomixML/Runtime/UnsupervisedLearning/PCA/Resources
+  artifactKey: Guid(96ef256d13dc5e744820503bcd9ccafa) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/UnsupervisedLearning/PCA/Resources using Guid(96ef256d13dc5e744820503bcd9ccafa) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: 'b938d70d2d312c9c91eae62d02396a4a') in 0.0007472 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+
+========================================================================
+Received Import Request.
+  Time since last request: 9.177263 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Training/MNIST/testSample/testSample/img_5.jpg
+  artifactKey: Guid(233cc67201556dd43bf23099d6033887) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Training/MNIST/testSample/testSample/img_5.jpg using Guid(233cc67201556dd43bf23099d6033887) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: '78ced190b833e051cb3d86cb4131c961') in 0.0058824 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 2
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.427608 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Training/MNIST/testSample/testSample/img_10.jpg
+  artifactKey: Guid(bfa1f276d02722b4e8e18919d6d87637) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Training/MNIST/testSample/testSample/img_10.jpg using Guid(bfa1f276d02722b4e8e18919d6d87637) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: '0b904d41720d848a30923224b61f5343') in 0.0056581 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 2
+
+========================================================================
+Received Import Request.
+  Time since last request: 2.356154 seconds.
+  path: Assets/AtomixML/Runtime/NeuralNetwork/Training/MNIST/testSample/testSample/img_12.jpg
+  artifactKey: Guid(ec68b0d3b95d73548a777ae2bf93aaf4) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/NeuralNetwork/Training/MNIST/testSample/testSample/img_12.jpg using Guid(ec68b0d3b95d73548a777ae2bf93aaf4) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: '92acba063e1bdb94b8c93964abbbbe92') in 0.0054194 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 2
+
+========================================================================
+Received Import Request.
+  Time since last request: 9.872609 seconds.
+  path: Assets/AtomixML/Runtime/UnsupervisedLearning/PCA/Resources/testSample
+  artifactKey: Guid(a2ae6a1ec10df3f478365f7334caac22) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/UnsupervisedLearning/PCA/Resources/testSample using Guid(a2ae6a1ec10df3f478365f7334caac22) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: '2d3a1b00ffb2b516fa316adf8d1b3be6') in 0.0006168 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+
+========================================================================
+Received Import Request.
+  Time since last request: 2.144293 seconds.
+  path: Assets/AtomixML/Runtime/UnsupervisedLearning/PCA/Resources/testSample/img_1.jpg
+  artifactKey: Guid(aa7e64ea429f5184e9cdcc5f909a3e98) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/UnsupervisedLearning/PCA/Resources/testSample/img_1.jpg using Guid(aa7e64ea429f5184e9cdcc5f909a3e98) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: '435977f6a65bdab094a18a7089300e4f') in 0.0054489 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 2
+
+========================================================================
+Received Import Request.
+  Time since last request: 6.522198 seconds.
+  path: Assets/AtomixML/Runtime/UnsupervisedLearning/PCA/Resources/testSample/testSample/img_16.jpg
+  artifactKey: Guid(007a0aebe84dc2c4594c27d1677ee898) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/UnsupervisedLearning/PCA/Resources/testSample/testSample/img_16.jpg using Guid(007a0aebe84dc2c4594c27d1677ee898) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: '730a71d4954b21388c3ff9785879e9f8') in 0.0054421 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 2
+
+========================================================================
+Received Import Request.
+  Time since last request: 45.269526 seconds.
+  path: Assets/AtomixML/Runtime/UnsupervisedLearning/PCA/Resources/mnist/img_2.jpg
+  artifactKey: Guid(1ed16bc5ae94517438eb42ed0afa0079) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/UnsupervisedLearning/PCA/Resources/mnist/img_2.jpg using Guid(1ed16bc5ae94517438eb42ed0afa0079) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: 'be48bfe65419003d73b3f8124fe4f47a') in 0.0056776 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 2
+
+========================================================================
+Received Import Request.
+  Time since last request: 4.671640 seconds.
+  path: Assets/AtomixML/Runtime/UnsupervisedLearning/PCA/Resources/mnist/img_1.jpg
+  artifactKey: Guid(aa7e64ea429f5184e9cdcc5f909a3e98) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/AtomixML/Runtime/UnsupervisedLearning/PCA/Resources/mnist/img_1.jpg using Guid(aa7e64ea429f5184e9cdcc5f909a3e98) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+[PhysX] Initialized MultithreadedTaskDispatcher with 4 workers.
+ -> (artifact id: '021c692857eaed2aa235c39bc3b3307c') in 0.0078849 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 2
+
+AssetImportWorkerClient::OnTransportError - code=10054 error=Une connexion existante a dû être fermée par l’hôte distant.
