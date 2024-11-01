@@ -13,6 +13,11 @@ namespace Atom.MachineLearning.Core
 
         public int Length => Data.Length;
 
+        public double x => Data[0];
+        public double y => Data[1];
+        public double z => Data[2];
+        public double w => Data[3];
+
         public double this[int index] => Data[index];
 
         public static NVector operator +(NVector a, NVector b)
@@ -194,42 +199,42 @@ namespace Atom.MachineLearning.Core
             return matrix;
         }
 
-        public static NVector[] Standardize(NVector[] vectors, out double[] means, out double[] stdDeviations)
+        public static NVector[] Standardize(NVector[] vectors, out double[] meanVector, out double[] stdDeviationsVector)
         {
             int dimensions = vectors[0].Length;
 
-            means = new double[dimensions];
-            stdDeviations = new double[dimensions];
+            meanVector = new double[dimensions];
+            stdDeviationsVector = new double[dimensions];
 
             // compute mean for each feature of the n-dimensional vector array
             for (int i = 0; i < dimensions; ++i)
             {
-                means[i] = NVector.FeatureMean(vectors, i);
+                meanVector[i] = NVector.FeatureMean(vectors, i);
             }
 
             // compute standardDeviation for each feature of the n-dimensional vector array
             for (int i = 0; i < dimensions; ++i)
             {
-                stdDeviations[i] = NVector.FeatureStandardDeviation(vectors, means[i], i);
+                stdDeviationsVector[i] = NVector.FeatureStandardDeviation(vectors, meanVector[i], i);
             }
 
             // apply standardisation to ech n-vector
             NVector[] result = new NVector[vectors.Length];
             for (int i = 0; i < vectors.Length; ++i)
             {
-                result[i] = Standardize(vectors[i], means, stdDeviations);
+                result[i] = Standardize(vectors[i], meanVector, stdDeviationsVector);
             }
 
             return result;
         }
 
-        public static NVector Standardize(NVector vector, double[] means, double[] stdDeviations)
+        public static NVector Standardize(NVector vector, double[] meanVector, double[] stdDeviations)
         {
             var result = new NVector(vector.Length);
 
             for (int j = 0; j < vector.Length; ++j)
             {
-                result.Data[j] = (vector[j] - means[j]) / stdDeviations[j];
+                result.Data[j] = (vector[j] - meanVector[j]) / stdDeviations[j];
             }
 
             return result;

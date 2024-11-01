@@ -8,6 +8,16 @@ namespace Atom.MachineLearning.Core
 {
     public struct NMatrix
     {
+        public NMatrix(double[,] datas)
+        {
+            Datas = new double[datas.GetLength(0), datas.GetLength(1)];
+            for (int i = 0; i < datas.GetLength(0); ++i)
+                for (int j = 0; j < datas.GetLength(1); ++j)
+                {
+                    Datas[i, j] = datas[i, j];
+                }
+        }
+
         public double[,] Datas { get; set; }
 
         public static NVector operator *(NMatrix a, NVector b)
