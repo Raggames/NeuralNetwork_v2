@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Atom.MachineLearning.IO;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -74,6 +75,12 @@ namespace NeuralNetwork
                     indexer++;
                 }                
             }
+        }
+
+        public override void GetTrainDatas(out double[][] x_datas, out double[][] t_datas)
+        {
+            x_datas = X_Datas.Select(t => VectorizationUtils.Matrix2DToArray(t)).ToArray();
+            t_datas = T_Datas;
         }
 
         public override void GetMatrixTrainDatas(out double[][,] x_datas, out double[][] t_datas)

@@ -39,7 +39,6 @@ namespace NeuralNetwork
             }
 
             DenseLayers.Add(new DenseLayer().Create(LayerType.Output, builder.OutputLayer.ActivationFunction, previous_layer_neuron_count, builder.OutputLayer.NeuronsCount));
-
         }
 
         public void Initialize(NeuralNetworkTrainer trainer, ModelBuilder builder)

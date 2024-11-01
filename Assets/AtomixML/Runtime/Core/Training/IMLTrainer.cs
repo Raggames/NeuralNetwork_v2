@@ -15,7 +15,7 @@ namespace Atom.MachineLearning.Core
         where TModelOutputData : IMLInOutData
         where TModel : IMLModel<TModelInputData, TModelOutputData>
     {
-        public Task<ITrainingResult> Fit(TModel model, List<TModelInputData> x_datas);
+        public Task<ITrainingResult> Fit(TModel model, TModelInputData[] x_datas);
     }
 
     /// <summary>
@@ -28,6 +28,6 @@ namespace Atom.MachineLearning.Core
         where TModelOutputData : IMLInOutData
         where TModel : IMLModel<TModelInputData, TModelOutputData>
     {
-        public Task<ITrainingResult> Fit(TModel model, List<TModelInputData> x_datas, List<TModelOutputData> t_datas);
+        public Task<ITrainingResult> Fit(TModel model, TModelInputData[] x_datas, TModelOutputData[] t_datas);
     }
 }

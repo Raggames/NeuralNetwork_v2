@@ -9,15 +9,12 @@ namespace Atom.MachineLearning.Unsupervised.PCA
     {
         public string AlgorithmName => "PCASimple";
 
-        private double[] _means;
-        private double[] _stdDeviations;
+        public NMatrix ProjectionMatrix { get; private set; }
 
         public NVector Predict(NVector inputData)
         {
-            // the input data has been standardised by the runner
-
-
-            throw new System.NotImplementedException();
+            // input data should be standardized
+            return ProjectionMatrix * inputData;    
         }
 
 

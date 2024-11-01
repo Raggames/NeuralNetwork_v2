@@ -1,10 +1,11 @@
-﻿using System;
+﻿using Sirenix.OdinInspector;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
-using Unity.Collections;
 using UnityEngine;
 
 namespace NeuralNetwork
@@ -52,6 +53,7 @@ namespace NeuralNetwork
         public double[] run_inputs;
         public double[] run_outputs;
         public double[] run_test_outputs;
+        private CancellationTokenSource _source;
 
         public void Start()
         {
@@ -62,27 +64,53 @@ namespace NeuralNetwork
 
             if (Mode == RunningMode.Train)
             {
-                PrepareTraining();
-
-                ExecutionCoroutine = StartCoroutine(DoBackPropagationTraining());
+                TrainAsync();
             }
             else
             {
-                PrepareExecution();
-
-                ExecutionCoroutine = StartCoroutine(DoExecuting(Epochs));
+                PredictAsync();
             }
+        }
+
+        private void PredictAsync()
+        {
+            Initialize();
+            PrepareExecution();
+
+            ExecutionCoroutine = StartCoroutine(DoExecuting(Epochs));
+        }
+
+        [Button]
+        private async void TrainAsync()
+        {
+            Initialize();
+            PrepareTraining();
+
+            _source = new CancellationTokenSource();
+            await DoBackPropagationTraining(_source.Token);
+        }
+
+        [Button]
+        private void Cancel()
+        {
+            _source.Cancel();
+        }
+
+        [Button]
+        private void SaveModel()
+        {
+            SaveCurrentModel(NeuralNetwork);
         }
 
         private void OnGUI()
         {
-            if (GUI.Button(new Rect(10, 10, 100, 30), "Train"))
+           /* if (GUI.Button(new Rect(10, 10, 100, 30), "Train"))
             {
                 PrepareTraining();
 
                 ExecutionCoroutine = StartCoroutine(DoBackPropagationTraining());
             }
-
+*/
             if (GUI.Button(new Rect(10, 100, 100, 30), "Load"))
             {
                 PrepareExecution();
@@ -155,7 +183,7 @@ namespace NeuralNetwork
 
         #region BackpropagationTraining
 
-        private IEnumerator DoBackPropagationTraining()
+        private async Task DoBackPropagationTraining(CancellationToken cancellationToken)
         {
             CurrentEpoch = 0;
 
@@ -174,6 +202,8 @@ namespace NeuralNetwork
 
             for (int i = 0; i < Epochs; ++i)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 int dataIndex = 0;
 
                 // Shuffle datas each epoch
@@ -194,14 +224,16 @@ namespace NeuralNetwork
                         ComputeAccuracy(run_test_outputs, run_outputs);
 
                         mean_error_sum += GetLoss(run_outputs, run_test_outputs);
-                        dataIndex++;                                              
-                        
-                        current_time += Time.deltaTime;
+                        dataIndex++;
+
+                        await Task.Delay(1);
+
+                        /*current_time += Time.deltaTime;
                         if (current_time > max_frame_time)
                         {
                             current_time = 0;
-                            yield return null;
-                        }
+                            //yield return null;
+                        }*/
                     }
 
                     // Computing gradients average over batchsize
@@ -229,8 +261,9 @@ namespace NeuralNetwork
 
                 DecayLearningRate();
 
+
                 CurrentEpoch++;
-                epochs_per_second = CurrentEpoch / Time.realtimeSinceStartup;
+                //epochs_per_second = CurrentEpoch / Time.realtimeSinceStartup;
             }
 
             //NeuralNetwork.GetAndSaveWeights();

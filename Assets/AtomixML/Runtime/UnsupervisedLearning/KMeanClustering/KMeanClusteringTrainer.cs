@@ -1,4 +1,5 @@
 ﻿using Atom.MachineLearning.Core;
+using Atom.MachineLearning.IO;
 using Sirenix.OdinInspector;
 using System;
 using System.Collections.Generic;
@@ -24,10 +25,88 @@ namespace Atom.MachineLearning.Unsupervised.KMeanClustering
         /// </summary>
         private List<List<(NVector, double)>> _epoch_results = new List<List<(NVector, double)>>();
         private List<double[]> _clusters_barycenter = new List<double[]>();
-        private List<NVector> _trainingDatas;
+        private NVector[] _trainingDatas;
         private KMeanClusteringModel _model;
 
-        public async Task<ITrainingResult> Fit(KMeanClusteringModel model, List<NVector> trainingDatas)
+        [Button]
+        public async void TestFit_SimpleKMC2D(int minClusters = 2, int maxClusters = 6, int parallelRuns = 3)
+        {
+            var set = new SimpleKMCTwoDimensionalTrainingSet();
+
+            int delta = maxClusters - minClusters;
+
+            for (int i = 0; i < delta; ++i)
+            {
+                int clusterCount = minClusters + i;
+
+                for (int j = 0; j < parallelRuns; ++j)
+                {
+                    var model = new KMeanClusteringModel(clusterCount, new double[] { 10, 10 });
+                    var result = await Fit(model, set.Features);
+
+                    Debug.Log($"Parallel run {j} > {clusterCount} clusters, total variance = {result.Accuracy}");
+
+                }
+            }
+        }
+
+        [Button]
+        private async void TestFitFlowers(int minClusters = 2, int maxClusters = 6, int parallelRuns = 3, string csvpaath = "Assets/AtomixML/Runtime/UnsupervisedLearning/PCA/Resources/flowers/iris.data.txt", int maximumSetSize = 50)
+        {
+            var datas = DatasetReader.ReadCSV(csvpaath, ',');
+
+            DatasetReader.SplitLastColumn(datas, out var features, out var labels);
+
+            var vectorized_labels = VectorizationUtils.RuledVectorization(labels, 3, new Dictionary<string, double[]>()
+            {
+                { "Iris-setosa", new double[] { 0, 0, 1 } },
+                { "Iris-versicolor", new double[] { 0, 1, 0 } },
+                { "Iris-virginica", new double[] { 1, 0, 0 } },
+            });
+
+            var vectorized_features = NVector.Standardize(VectorizationUtils.StringMatrix2DToDoubleMatrix2D(features).ToNVectorArray(), out var means, out var stdDeviations);            
+
+            int delta = maxClusters - minClusters;
+
+            for (int i = 0; i < delta; ++i)
+            {
+                int clusterCount = minClusters + i;
+
+                for (int j = 0; j < parallelRuns; ++j)
+                {
+                    var model = new KMeanClusteringModel(clusterCount, new double[] { 2, 2, 2, 2 });
+                    var result = await Fit(model, vectorized_features);
+                    Debug.Log($"Parallel run {j} > {clusterCount} clusters, total variance = {result.Accuracy}");
+                }
+            }
+        }
+
+        [Button]
+        public void TestRunFlower(string csvpaath = "Assets/AtomixML/Runtime/UnsupervisedLearning/PCA/Resources/flowers/iris.data.txt")
+        {
+            var datas = DatasetReader.ReadCSV(csvpaath, ',');
+
+            DatasetReader.SplitLastColumn(datas, out var features, out var labels);
+
+            var vectorized_labels = VectorizationUtils.RuledVectorization(labels, 3, new Dictionary<string, double[]>()
+            {
+                { "Iris-setosa", new double[] { 0, 0, 1 } },
+                { "Iris-versicolor", new double[] { 0, 1, 0 } },
+                { "Iris-virginica", new double[] { 1, 0, 0 } },
+            });
+
+            var vectorized_features = NVector.Standardize(VectorizationUtils.StringMatrix2DToDoubleMatrix2D(features).ToNVectorArray(), out var means, out var stdDeviations);
+
+            for(int i = 0; i < vectorized_features.Length; ++i)
+            {
+                var output = _model.Predict(vectorized_features[i]);
+
+                Debug.Log($"Output class : {output.ClassLabel}. Real expected label : {labels[i]}");
+            }
+        }
+
+
+        public async Task<ITrainingResult> Fit(KMeanClusteringModel model, NVector[] trainingDatas)
         {
             _model = model;
             _trainingDatas = trainingDatas;
@@ -44,7 +123,7 @@ namespace Atom.MachineLearning.Unsupervised.KMeanClustering
             for (_currentEpoch = 0; _currentEpoch < Epochs; _currentEpoch++)
             {
                 // run the batch 
-                for (int j = 0; j < _trainingDatas.Count; ++j)
+                for (int j = 0; j < _trainingDatas.Length; ++j)
                 {
                     // predict
                     var result = model.Predict(_trainingDatas[j]);
@@ -70,7 +149,7 @@ namespace Atom.MachineLearning.Unsupervised.KMeanClustering
             }
 
             // test run
-            for (int j = 0; j < _trainingDatas.Count; ++j)
+            for (int j = 0; j < _trainingDatas.Length; ++j)
             {
                 // predict
                 var result = model.Predict(_trainingDatas[j]);
@@ -128,28 +207,6 @@ namespace Atom.MachineLearning.Unsupervised.KMeanClustering
         // TODO proper visualization
 
         #region Tests 
-
-        [Button]
-        public async void TestFit_SimpleKMC2D(int minClusters = 2, int maxClusters = 6, int parallelRuns = 3)
-        {
-            var set = new SimpleKMCTwoDimensionalTrainingSet();
-
-            int delta = maxClusters - minClusters;
-
-            for(int i = 0; i < delta; ++i)
-            {
-                int clusterCount = minClusters + i;
-
-                for(int j = 0; j < parallelRuns; ++j)
-                {
-                    var model = new KMeanClusteringModel(clusterCount, new double[] { 10, 10 });
-                    var result = await Fit(model, set.Features.ToList());
-
-                    Debug.Log($"Parallel run {j} > {clusterCount} clusters, total variance = {result.Accuracy}");
-
-                }
-            }
-        }
 
         Color[] _epochs_colors;
 
