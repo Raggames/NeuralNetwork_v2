@@ -55,6 +55,12 @@ namespace NeuralNetwork
             }
         }
 
+        /// <summary>
+        /// Activation map is 3-dimensional with 1 to many 'layers' of 2D Arrays. Each layer is a sub-filter and is runned in parallel along the convolution
+        /// </summary>
+        /// <param name="input_activation_map"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         public override double[][,] ComputeForward(double[][,] input_activation_map)
         {
             inputs = input_activation_map;

@@ -15,6 +15,7 @@ public class MathTests
 
         var check = new NVector(vr1, vr2);
         var result = matrix * vector;
+        var result2 = vector * matrix;
 
         Assert.AreEqual(check.x, result.x);
         Assert.AreEqual(check.y, result.y);
@@ -32,5 +33,17 @@ public class MathTests
         Assert.AreEqual(check.x, result.x);
         Assert.AreEqual(check.y, result.y);
         Assert.AreEqual(check.z, result.z);
+    }
+
+    [TestCase(0, 1, 2, 3)]
+    public void Check_2_Vector2_DenseOfColumn_Matrix2x2(int v1, int v2, int v3, int v4)
+    {
+        var vector_a = new NVector(new double[] { v1, v2 });
+        var vector_b = new NVector(new double[] { v3, v4 });
+
+        var check = new NMatrix(new double[,] { { v1, v3 }, { v2, v4 } });
+        var result = NMatrix.DenseOfColumnVectors(vector_a, vector_b);
+
+        Assert.IsTrue(check == result);
     }
 }

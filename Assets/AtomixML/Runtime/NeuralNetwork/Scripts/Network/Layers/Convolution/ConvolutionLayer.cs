@@ -65,6 +65,8 @@ namespace NeuralNetwork
         //3x3 Filter
         public int FilterSize = 3;
 
+        public int Depth => FeatureMaps.Count;
+
         public List<ConvolutionFeatureMap> FeatureMaps = new List<ConvolutionFeatureMap>();
         private double[][,] output;
 

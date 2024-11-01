@@ -115,8 +115,8 @@ namespace NeuralNetwork
             PoolingLayer poolingLayer = new PoolingLayer(
                             convolutionLayer.OutputWidth,
                             convolutionLayer.OutputHeight,
-                            2, // depth = features map length
-                            2, // filter size
+                            convolutionLayer.Depth, // depth = features map length
+                            2, // filter size > how much we 'loose' data 
                             Padding,
                             PoolingRule.Max);
 

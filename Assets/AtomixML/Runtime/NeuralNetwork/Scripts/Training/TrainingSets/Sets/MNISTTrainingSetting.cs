@@ -79,7 +79,7 @@ namespace NeuralNetwork
 
         public override void GetTrainDatas(out double[][] x_datas, out double[][] t_datas)
         {
-            x_datas = X_Datas.Select(t => VectorizationUtils.Matrix2DToArray(t)).ToArray();
+            x_datas = X_Datas.Select(t => VectorizationUtils.MatrixToArray(t)).ToArray();
             t_datas = T_Datas;
         }
 

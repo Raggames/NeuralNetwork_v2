@@ -9,18 +9,24 @@ namespace Atom.MachineLearning.Unsupervised.PCA
     {
         public string AlgorithmName => "PCASimple";
 
+        // for transformation of input data
         protected NMatrix projectionMatrix { get; private set; }
 
         // for standardisation of input data
-        protected double[] means { get; private set; }
-        protected double[] stdDeviations { get; private set; }  
+        protected NVector meanVector { get; private set; }
+        protected NVector stdDeviationVector { get; private set; }  
 
-        //public void Initialize(NMatrix projectionMatrix, )
+        public void Initialize(NMatrix projectionMatrix, NVector meanVector, NVector stdDeviationVector)
+        {
+            this.projectionMatrix = projectionMatrix;
+            this.meanVector = meanVector;
+            this.stdDeviationVector = stdDeviationVector;
+        }
 
         public NVector Predict(NVector inputData)
         {
             // input data should be standardized with the same mean and deviation from the learning process
-            var standardizedInput = NVector.Standardize(inputData, means, stdDeviations);
+            var standardizedInput = NVector.Standardize(inputData, meanVector, stdDeviationVector);
 
             return projectionMatrix * standardizedInput;    
         }
