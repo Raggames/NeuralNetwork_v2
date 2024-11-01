@@ -55,15 +55,15 @@ namespace Atom.MachineLearning.Core
 
         public static NVector operator *(NMatrix a, NVector b)
         {
-            if (a.Datas.GetLength(0) != b.Data.Length)
+            if (a.Datas.GetLength(1) != b.Data.Length)
                 throw new InvalidOperationException($"Matrix to Vector dimensions mismatch");
 
-            double[] result = new double[a.Datas.GetLength(0)];
+            double[] result = new double[a.Datas.GetLength(1)];
             for (int i = 0; i < a.Datas.GetLength(0); i++)
             {
                 for (int j = 0; j < a.Datas.GetLength(1); j++)
                 {
-                    result[i] += a.Datas[i, j] * b.Data[j];
+                    result[j] += a.Datas[i, j] * b.Data[j];
                 }
             }
 
@@ -73,14 +73,15 @@ namespace Atom.MachineLearning.Core
         public static NVector operator *(NVector b, NMatrix a)
         {
             if (a.Datas.GetLength(0) != b.Data.Length)
-                throw new InvalidOperationException($"Matrix to Vector dimensions mismatch");
+                throw new InvalidOperationException("Matrix to Vector dimensions mismatch");
 
             double[] result = new double[a.Datas.GetLength(1)];
-            for (int i = 0; i < a.Datas.GetLength(1); i++)
+
+            for (int i = 0; i < a.Datas.GetLength(1); i++) // Loop over columns in the result
             {
-                for (int j = 0; j < a.Datas.GetLength(0); j++)
+                for (int j = 0; j < a.Datas.GetLength(0); j++) // Loop over rows in 'a'
                 {
-                    result[i] += a.Datas[i, j] * b.Data[j];
+                    result[i] += a.Datas[j, i] * b.Data[j];
                 }
             }
 
@@ -103,6 +104,22 @@ namespace Atom.MachineLearning.Core
             return matrix;
         }
 
+        public static NMatrix Transpose(NMatrix matrix)
+        {
+            int rows = matrix.Datas.GetLength(0);
+            int columns = matrix.Datas.GetLength(1);
+            double[,] transpose = new double[columns, rows];
+
+            for (int i = 0; i < rows; i++)
+            {
+                for (int j = 0; j < columns; j++)
+                {
+                    transpose[j, i] = matrix.Datas[i, j];
+                }
+            }
+
+            return new NMatrix(transpose);
+        }
 
         /// <summary>
         /// Concat column vectors 'horizontaly' to build the matrix

@@ -26,11 +26,16 @@ namespace Atom.MachineLearning.Unsupervised.PCA
         public NVector Predict(NVector inputData)
         {
             // input data should be standardized with the same mean and deviation from the learning process
-            var standardizedInput = NVector.Standardize(inputData, meanVector, stdDeviationVector);
+            var standardizedInput = NVector.Standardize(inputData, meanVector, stdDeviationVector, stdDeviationVector.Average());
 
-            return projectionMatrix * standardizedInput;    
+            return standardizedInput * projectionMatrix;    
         }
 
+        public NVector Decompress(NVector predictedData)
+        {
+            var transposed = NMatrix.Transpose(projectionMatrix);
+            return predictedData * transposed;
+        }
 
         public void Load(string filename)
         {

@@ -8,9 +8,9 @@ public class MathTests
 {
     [TestCase(1, 2, 3, 4, 5, 6, 17, 39)]
     [TestCase(2, 0, 7, 4, 2, 2, 4, 22)]
-    public void Check_Matrix2x2_Multiply_Vector2(int m1, int m2, int m3, int m4, int v1, int v2, int vr1, int vr2)
+    public void Check_Matrix4x2_Multiply_Vector2(int m1, int m2, int m3, int m4, int v1, int v2, int vr1, int vr2)
     {
-        var matrix = new NMatrix(new double[,] { { m1, m2 }, { m3, m4 } });
+        var matrix = new NMatrix(new double[,] { { m1, m2 }, { m3, m4 }, { m1, m2 }, { m3, m4 } });
         var vector = new NVector(new double[] { v1, v2 });
 
         var check = new NVector(vr1, vr2);

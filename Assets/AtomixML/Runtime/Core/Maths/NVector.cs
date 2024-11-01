@@ -219,28 +219,31 @@ namespace Atom.MachineLearning.Core
             }
 
             // compute standardDeviation for each feature of the n-dimensional vector array
+            var mean_std_dev = 0.0;
             for (int i = 0; i < dimensions; ++i)
             {
                 stdDeviationsVector.Data[i] = NVector.FeatureStandardDeviation(vectors, meanVector[i], i);
+                mean_std_dev += stdDeviationsVector.Data[i];
             }
+            mean_std_dev /= dimensions;
 
             // apply standardisation to ech n-vector
             NVector[] result = new NVector[vectors.Length];
             for (int i = 0; i < vectors.Length; ++i)
             {
-                result[i] = Standardize(vectors[i], meanVector, stdDeviationsVector);
+                result[i] = Standardize(vectors[i], meanVector, stdDeviationsVector, mean_std_dev);
             }
 
             return result;
         }
 
-        public static NVector Standardize(NVector vector, NVector meanVector, NVector stdDeviations)
+        public static NVector Standardize(NVector vector, NVector meanVector, NVector stdDeviations, double mean_std_dev)
         {
             var result = new NVector(vector.Length);
 
             for (int j = 0; j < vector.Length; ++j)
             {
-                result.Data[j] = (vector[j] - meanVector[j]) / stdDeviations[j];
+                result.Data[j] = (vector[j] - meanVector[j]) / (stdDeviations[j] != 0f ? stdDeviations[j] : mean_std_dev);
             }
 
             return result;

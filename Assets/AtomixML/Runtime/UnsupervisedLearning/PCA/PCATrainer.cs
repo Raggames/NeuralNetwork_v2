@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Unity.Plastic.Newtonsoft.Json;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Atom.MachineLearning.Unsupervised.PCA
 {
@@ -30,8 +31,10 @@ namespace Atom.MachineLearning.Unsupervised.PCA
         private NVector[] _test_results;
         private Color[] _labelColors;
 
+        private PCAModel _model;
+
         [Button]
-        private async void TestMNISTFit(string texturesPath = "mnist", int maximumSetSize = 50)
+        private async void TestMNISTFit(string texturesPath = "mnist")
         {
             var model = new PCAModel();
             var textures = DatasetReader.ReadTextures(texturesPath);
@@ -39,23 +42,47 @@ namespace Atom.MachineLearning.Unsupervised.PCA
             var vectorized = new NVector[textures.Count];
             for (int i = 0; i < textures.Count; ++i)
             {
-                if (i > maximumSetSize)
-                    break;
-
-                vectorized[i] = new NVector(VectorizationUtils.Texture2DToArray(textures[i]));
+                var matrix = VectorizationUtils.Texture2DToMatrix(textures[i]);
+                matrix = VectorizationUtils.PoolAverage(matrix, 4, 2);
+                var array = VectorizationUtils.MatrixToArray(matrix);
+                vectorized[i] = new NVector(array);
             }
 
             var result = await Fit(model, vectorized);
+
+            Debug.Log($"End fitting, accuracy (kept variance) => {result.Accuracy}");
+        }
+
+        [SerializeField] private RawImage _rawImage;
+
+        [Button]
+        private Texture2D TestMNISTCompressionOutput(string texturesPath = "mnist", int imageIndex = 0)
+        {
+            var textures = DatasetReader.ReadTextures(texturesPath);
+
+            var matrix = VectorizationUtils.Texture2DToMatrix(textures[imageIndex]);
+            matrix = VectorizationUtils.PoolAverage(matrix, 4, 2);
+            var array = VectorizationUtils.MatrixToArray(matrix);
+            var inputVector = new NVector(array);
+
+            var output_vector = _model.Predict(inputVector);
+            output_vector = _model.Decompress(output_vector);
+            var output_to_matrix = VectorizationUtils.ArrayToMatrix(output_vector.Data);
+            var texture = VectorizationUtils.MatrixToTexture2D(output_to_matrix);
+
+            _rawImage.texture = texture;
+
+            return texture;
         }
 
         [Button]
-        private Texture2D TestMatrixToTexture(string texturesPath = "mnist", int index = 0)
+        private Texture2D TestMatrixToTexture(Texture2D input, int filterSize = 2, int padding = 2)
         {
             var model = new PCAModel();
-            var textures = DatasetReader.ReadTextures(texturesPath);
 
-            var array = VectorizationUtils.Texture2DToArray(textures[index]);
-            var matrix = VectorizationUtils.ArrayToMatrix(array);
+            var array = VectorizationUtils.Texture2DToArray(input);
+            var matrix = VectorizationUtils.ArrayToMatrix(array); // pour tester les conversions
+            matrix = VectorizationUtils.PoolAverage(matrix, filterSize, padding);
             var texture = VectorizationUtils.MatrixToTexture2D(matrix);
 
             return texture;
@@ -96,6 +123,7 @@ namespace Atom.MachineLearning.Unsupervised.PCA
 
         public async Task<ITrainingResult> Fit(PCAModel model, NVector[] trainingDatas)
         {
+            _model = model;
             var standardizedDatas = NVector.Standardize(trainingDatas, out _meanVector, out _stdDeviationVector);
             var covariance_matrix = NVector.CovarianceMatrix(standardizedDatas);
 
@@ -180,7 +208,7 @@ namespace Atom.MachineLearning.Unsupervised.PCA
             if (_test_results == null)
                 return;
 
-            for(int i = 0;i < _test_results.Length; ++i)
+            for (int i = 0; i < _test_results.Length; ++i)
             {
                 Gizmos.color = _labelColors[i];
                 Gizmos.DrawSphere(new UnityEngine.Vector3((float)_test_results[i].Data[0] * _scale, (float)_test_results[i].Data[1], 0) * _scale, .15f);

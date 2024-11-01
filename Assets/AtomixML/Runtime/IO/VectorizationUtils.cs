@@ -43,7 +43,14 @@ namespace Atom.MachineLearning.IO
             return texture;
         }
 
-        public static double[,] Pool(double[,] inputMatrix, int filterSize = 2, int padding = 2)
+        /// <summary>
+        /// An average pooling function for a matrix
+        /// </summary>
+        /// <param name="inputMatrix"></param>
+        /// <param name="filterSize"></param>
+        /// <param name="padding"></param>
+        /// <returns></returns>
+        public static double[,] PoolAverage(double[,] inputMatrix, int filterSize = 2, int padding = 2)
         {
             int pool_width = inputMatrix.GetLength(0) - filterSize - padding;
             int pool_height = inputMatrix.GetLength(1) - filterSize - padding;
@@ -55,6 +62,7 @@ namespace Atom.MachineLearning.IO
 
             int index_i = 0;
             int index_j = 0;
+
             double[,] output = new double[outputWidth, outputHeight];
 
             for (int i = 0; i < pool_width; i += filterSize)
@@ -114,7 +122,7 @@ namespace Atom.MachineLearning.IO
             double[,] matrix = new double[width, width];
             for (int i = 0; i < width; ++i)
                 for (int j = 0; j < width; ++j)
-                    matrix[i, j] = data[i * j];
+                    matrix[i, j] = data[i * width + j];
 
             return matrix;
         }
