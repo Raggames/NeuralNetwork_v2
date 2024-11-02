@@ -16,7 +16,7 @@ namespace NeuralNetwork
         public Vector2Int ImageDimensions;
 
         public int Padding = 1;
-        public int Stride = 1;
+        public int Stride = 2;
 
         public ConvolutionnalNeuralNetwork NeuralNetwork;
 
@@ -68,6 +68,7 @@ namespace NeuralNetwork
             NeuralNetwork = new ConvolutionnalNeuralNetwork();
 
             // Convolute from 28x28 input to 27x27 feature map
+            // Convolute from 28x28 input to 13x13 feature map with P1 / S2
             ConvolutionLayer convolutionLayer = new ConvolutionLayer(ImageDimensions.x, ImageDimensions.y, Padding, Stride)
                 .AddFilter(KernelType.Random)
                 .AddFilter(KernelType.Random);
@@ -75,7 +76,6 @@ namespace NeuralNetwork
             convolutionLayer.Initialize();
 
             NeuralNetwork.CNNLayers.Add(convolutionLayer);
-
 
             // *************************
 

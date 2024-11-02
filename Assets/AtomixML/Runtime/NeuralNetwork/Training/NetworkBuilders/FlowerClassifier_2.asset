@@ -16,8 +16,8 @@ MonoBehaviour:
     ActivationFunction: 1
     NeuronsCount: 4
   HiddenLayers:
-  - ActivationFunction: 8
-    NeuronsCount: 200
+  - ActivationFunction: 3
+    NeuronsCount: 25
   - ActivationFunction: 8
     NeuronsCount: 10
   OutputLayer:

@@ -71,10 +71,10 @@ namespace NeuralNetwork
         protected double currentMeanError { get => _currentMeanError; set => _currentMeanError = value; }
 
         [Header("---- RUNTIME ----")]
-        [ReadOnly] protected float accuracy;
-        [ReadOnly] protected int correctRuns;
-        [ReadOnly] protected int wrongRuns;
-        [ReadOnly] protected int CurrentEpoch;
+        [ShowInInspector, ReadOnly] protected float accuracy;
+        [ShowInInspector, ReadOnly] protected int correctRuns;
+        [ShowInInspector, ReadOnly] protected int wrongRuns;
+        [ShowInInspector, ReadOnly] protected int CurrentEpoch;
 
         [ReadOnly] protected double _currentBestMeanError;
         protected double[][,] Training_Best_Weigths;

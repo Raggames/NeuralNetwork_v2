@@ -89,20 +89,7 @@ namespace Atom.MachineLearning.Unsupervised.PCA
         }
 
         [Button]
-        private Texture2D TestMatrixToTexture(Texture2D input, int filterSize = 2, int padding = 2)
-        {
-            var array = TransformationUtils.Texture2DToArray(input);
-            var matrix = TransformationUtils.ArrayToMatrix(array); // pour tester les conversions
-            matrix = TransformationUtils.PoolAverage(matrix, filterSize, padding);
-            var texture = TransformationUtils.MatrixToTexture2D(matrix);
-
-            _rawImage.texture = texture;
-
-            return texture;
-        }
-
-        [Button]
-        private async void TestFitFlowers(string csvpaath = "Assets/AtomixML/Resources/Datasets/flowers", int maximumSetSize = 50)
+        private async void TestFitFlowers(string csvpaath = "Assets/AtomixML/Resources/Datasets/flowers/iris.data.txt", int maximumSetSize = 50)
         {
             var model = new PCAModel();
             model.ModelName = "pca_flowers";
