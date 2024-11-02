@@ -1,3 +1,20 @@
 {
-	"name": "Atomix.ML.Runtime"
+    "name": "Atomix.ML.Runtime",
+    "rootNamespace": "",
+    "references": [
+        "GUID:ad968d605628d06499b62cdc30f11cf8"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "Newtonsoft.Json.dll",
+        "Sirenix.OdinInspector.Attributes.dll",
+        "MathNet.Numerics.dll"
+    ],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
 }

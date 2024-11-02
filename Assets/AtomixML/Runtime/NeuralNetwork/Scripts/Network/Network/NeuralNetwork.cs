@@ -9,9 +9,6 @@ namespace NeuralNetwork
     [Serializable]
     public class NeuralNetwork
     {
-        private NeuralNetworkTrainer trainer;
-        private ModelBuilder builder;
-
         public List<DenseLayer> DenseLayers = new List<DenseLayer>();
 
         [SerializeField, ReadOnly] protected double[] _inputs;
@@ -19,18 +16,16 @@ namespace NeuralNetwork
 
         public string ArchitectureString()
         {
-            string result = "Inp_"+ builder.InputLayer.NeuronsCount + "_";
+            string result = "Inp_"+ DenseLayers[0].Weights.GetLength(1) + "_";
             for(int i = 0; i < DenseLayers.Count; ++i)
             {
-                result += "H_" + DenseLayers[i].NeuronCount + "_";
+                result += "H_" + DenseLayers[i].NeuronsCount + "_";
             }
             return result;
         }
 
-        public void CreateNetwork(NeuralNetworkTrainer trainer, ModelBuilder builder)
+        public void CreateNetwork(ModelBuilder builder)
         {
-            Initialize(trainer, builder);
-
             int previous_layer_neuron_count = builder.InputLayer.NeuronsCount;
             for (int i = 0; i < builder.HiddenLayers.Count; ++i)
             {
@@ -41,23 +36,53 @@ namespace NeuralNetwork
             DenseLayers.Add(new DenseLayer().Create(LayerType.Output, builder.OutputLayer.ActivationFunction, previous_layer_neuron_count, builder.OutputLayer.NeuronsCount));
         }
 
-        public void Initialize(NeuralNetworkTrainer trainer, ModelBuilder builder)
+        #region Layer building
+
+        /// <summary>
+        /// Adding the first layer, we specify the input vector feature dimensions
+        /// </summary>
+        /// <param name="inputFeaturesCount"></param>
+        public void AddDenseLayer(int inputFeaturesCount, int neuronsCount, ActivationFunctions activationFunction)
         {
-            this.trainer = trainer;
-            this.builder = builder;
+            if (DenseLayers.Count > 0)
+                throw new Exception($"Cannot use this function to add hidden layer.");
+
+            DenseLayers.Add(new DenseLayer().Create(LayerType.DenseHidden, activationFunction, inputFeaturesCount, neuronsCount));
         }
 
-        public void InitializeWeights()
-        {
-            UnityEngine.Random.InitState(trainer.InitialWeightSeed);
 
+        public void AddDenseLayer(int neuronsCount, ActivationFunctions activationFunction)
+        {
+            if(DenseLayers.Count == 0)
+                throw new Exception($"Cannot use this function to add first layer.");
+
+            var previous_layer = DenseLayers[DenseLayers.Count - 1];
+            DenseLayers.Add(new DenseLayer().Create(LayerType.DenseHidden, activationFunction, previous_layer.NeuronsCount, neuronsCount));
+        }
+
+        public void AddOutputLayer(int neuronsCount, ActivationFunctions activationFunction)
+        {
+            if (DenseLayers.Count == 0)
+                throw new Exception($"There should be at least one hidden layer before output.");
+
+            var previous_layer = DenseLayers[DenseLayers.Count - 1];
+            DenseLayers.Add(new DenseLayer().Create(LayerType.Output, activationFunction, previous_layer.NeuronsCount, neuronsCount));
+        }
+        #endregion
+
+        /// <summary>
+        /// Initialize the
+        /// </summary>
+        public void SeedRandomWeights(double minWeightValue, double maxWeightValue)
+        {
             for (int i = 0; i < DenseLayers.Count; ++i)
             {
-                DenseLayers[i].InitializeWeights(this.trainer.InitialWeightRange);
+                DenseLayers[i].SeedRandomWeight(minWeightValue, maxWeightValue);
             }            
         }
 
         // EXECUTION ***************************************************************************************************
+
         #region Execution
 
         public void FeedForward(double[] inputs, out double[] results)
@@ -69,7 +94,7 @@ namespace NeuralNetwork
 
             for (int i = 0; i < DenseLayers.Count; ++i)
             {
-                current_output = DenseLayers[i].ComputeForward(current_output);
+                current_output = DenseLayers[i].FeedForward(current_output);
             }
 
             // Just for debug visualization
@@ -81,6 +106,7 @@ namespace NeuralNetwork
         #endregion
 
         // WEIGHT SETTING **********************************************************************************************
+
         #region Weights
 
         private double[] weigthts_set;
@@ -154,7 +180,7 @@ namespace NeuralNetwork
             UpdateDenseWeights(learningRate, momentum, weightDecay, biasRate);
         }
 
-        public void MeanDenseGradients(float value)
+        public void MeanDenseGradients(int value)
         {
             for (int i =  0; i < DenseLayers.Count; ++i)
             {
@@ -168,12 +194,12 @@ namespace NeuralNetwork
             {
                 if (i == DenseLayers.Count - 1)
                 {
-                    gradient_inputs = DenseLayers[i].ComputeBackward(gradient_inputs, null, testvalues);
+                    gradient_inputs = DenseLayers[i].Backpropagate(gradient_inputs, null, testvalues);
 
                 }
                 else
                 {
-                    gradient_inputs = DenseLayers[i].ComputeBackward(gradient_inputs, DenseLayers[i + 1].Weights, testvalues);
+                    gradient_inputs = DenseLayers[i].Backpropagate(gradient_inputs, DenseLayers[i + 1].Weights, testvalues);
                 }
             }
 

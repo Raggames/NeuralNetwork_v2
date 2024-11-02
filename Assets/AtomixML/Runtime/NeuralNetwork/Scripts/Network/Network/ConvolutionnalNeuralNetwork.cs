@@ -13,22 +13,21 @@ namespace NeuralNetwork
         public List<AbstractCNNLayer> CNNLayers = new List<AbstractCNNLayer>();
         public FlattenLayer FlattenLayer;
 
-        public double[] ComputeTexture2DForward(Texture2D image)
+        #region Layers building
+
+
+        public void AddConvolutionLayer()
         {
-            double[,] input_array = new double[image.width, image.height];
 
-            for(int i = 0; i < image.width; ++i)
-            {
-                for(int j = 0; j < image.height; ++j)
-                {
-                    var pix = image.GetPixel(i, j);
-                    float value = ((pix.r + pix.g + pix.b) / 3f) * pix.a;
-                    input_array[i, j] = value;
-                }
-            }
-
-            return ComputeForward(input_array);
         }
+
+        public void AddPoolingLayer()
+        {
+
+        }
+
+        #endregion
+
 
         public double[] ComputeForward(double[,] matrix2Din)
         {
@@ -51,7 +50,7 @@ namespace NeuralNetwork
             Array.Copy(flatten, result, flatten.Length);
             for(int i = 0; i < DenseLayers.Count; ++i)
             {
-                result = DenseLayers[i].ComputeForward(result);
+                result = DenseLayers[i].FeedForward(result);
             }
 
             return result;

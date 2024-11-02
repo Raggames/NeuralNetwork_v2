@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Atom.MachineLearning.Core.Maths;
+using System;
 using Unity.Collections;
 using UnityEngine;
 
@@ -15,7 +16,7 @@ namespace NeuralNetwork
     [Serializable]
     public class DenseLayer : AbstractLayer
     {
-        public int NeuronCount => outputs.Length;
+        public int NeuronsCount => outputs.Length;
         public double[,] Weights => weights;
         public double[,] PreviousWeightDelta => previous_weights_delta;
         public double[] Biases => biases;
@@ -64,6 +65,15 @@ namespace NeuralNetwork
             }
         }
 
+        /// <summary>
+        /// Create the layer weight matrices, gradient matrices, biases array and sets everything up before training/computing
+        /// </summary>
+        /// <param name="layerType"></param>
+        /// <param name="activationFunction"></param>
+        /// <param name="neurons_count"></param>
+        /// <param name="next_layer_neurons_count"></param>
+        /// <param name="use_backpropagation"></param>
+        /// <returns></returns>
         public DenseLayer Create(LayerType layerType, ActivationFunctions activationFunction, int neurons_count, int next_layer_neurons_count, bool use_backpropagation = true)
         {
             inputs = new double[neurons_count];
@@ -85,23 +95,35 @@ namespace NeuralNetwork
             return this;
         }
 
-        public void InitializeWeights(Vector2 weight_range)
-        {
+        /// <summary>
+        /// Set a random set of weight between min-max value.
+        /// Useful before start training a new network.
+        /// Those min-max values should be small to avoid long convergence.
+        /// </summary>
+        /// <param name="min_weight"></param>
+        /// <param name="max_weight"></param>
+        public void SeedRandomWeight(double min_weight, double max_weight)
+        {           
             for (int i = 0; i < weights.GetLength(0); ++i)
             {
                 for (int j = 0; j < weights.GetLength(1); ++j)
                 {
-                    weights[i, j] = UnityEngine.Random.Range(weight_range.x, weight_range.y); //;
+                    weights[i, j] = MLRandom.Shared.Range(min_weight, max_weight); //;
                 }
             }
 
             for (int i = 0; i < biases.Length; ++i)
             {
-                biases[i] = UnityEngine.Random.Range(weight_range.x, weight_range.y);
+                biases[i] = MLRandom.Shared.Range(min_weight, max_weight);
             }
         }
 
-        public double[] ComputeForward(double[] inputs)
+        /// <summary>
+        /// Runs a forward pass (neuron-weight matrice * input column vector operation)
+        /// </summary>
+        /// <param name="inputs"></param>
+        /// <returns></returns>
+        public double[] FeedForward(double[] inputs)
         {
             this.inputs = inputs;
 
@@ -110,21 +132,26 @@ namespace NeuralNetwork
                 current_sums[i] = 0;
             }
 
+            // matrix to vector 'right' product 
             for (int i = 0; i < weights.GetLength(1); ++i)
             {
-                for (int j = 0; j < inputs.Length; ++j) // == weight.GetLenght(0)
+                for (int j = 0; j < inputs.Length; ++j) 
                 {
                     current_sums[i] += inputs[j] * weights[j, i];
                 }
             }
 
+            // biase add
             for (int i = 0; i < weights.GetLength(1); ++i)
             {
                 current_sums[i] += biases[i];
             }
 
+            // activation function
             if (layerType == LayerType.Output)
             {
+                // softmax activation is not like other activation functions
+                // it takes all the output neurons outputs at once
                 if (activationFunction != ActivationFunctions.Softmax)
                 {
                     for (int i = 0; i < weights.GetLength(1); ++i)
@@ -148,7 +175,20 @@ namespace NeuralNetwork
             return outputs;
         }
 
-        public double[] ComputeBackward(double[] prev_layer_gradients, double[,] prev_layer_weights, double[] testvalues)
+        /// <summary>
+        /// Runs a backward pass.
+        /// The input of the backward pass are the gradients from the next layer in forward pass direction.
+        /// The input of the backward pass for the output layer is the predicted - label vector.
+        /// Each backward pass computation will accumulate gradients.
+        /// Gradients are set to zero when weight are updated.
+        /// With batch-training (stochastic gradient descent), there are many backprogragation pass before updating weight.
+        /// In this case, the gradients are averaged by the size of the batch
+        /// </summary>
+        /// <param name="prev_layer_gradients"></param>
+        /// <param name="prev_layer_weights"></param>
+        /// <param name="testvalues"></param>
+        /// <returns></returns>
+        public double[] Backpropagate(double[] prev_layer_gradients, double[,] prev_layer_weights, double[] testvalues)
         {
             double[] current_gradients = new double[gradients.Length];
 
@@ -181,6 +221,11 @@ namespace NeuralNetwork
             return current_gradients;
         }
 
+        /// <summary>
+        /// Averaging the gradient vector by a value
+        /// Value is useually the size of the batch in batch-training
+        /// </summary>
+        /// <param name="value"></param>
         public void MeanGradients(float value)
         {
             for (int i = 0; i < gradients.Length; ++i)
@@ -189,6 +234,18 @@ namespace NeuralNetwork
             }
         }
 
+        /// <summary>
+        /// Updates the weights from trainer hyperparameters and current gradient state.
+        /// We use here momentum and weight decay version of training for faster convergence.
+        /// 
+        /// To be synthetic, Momentum avoid to be stuck in local minimums of the learning space by pushing the weight in the direction of previous
+        /// Backprogragation passes event if the current gradient state wouldn't.
+        /// Weight decay on the other hand, tries to avoid the weight to go too high (which can cause overfitting, instabilities, and slow convergence)
+        /// </summary>
+        /// <param name="learningRate"></param>
+        /// <param name="momentum"></param>
+        /// <param name="weightDecay"></param>
+        /// <param name="biasRate"></param>
         public override void UpdateWeights(float learningRate, float momentum, float weightDecay, float biasRate)
         {
             for (int i = 0; i < weights.GetLength(0); ++i)

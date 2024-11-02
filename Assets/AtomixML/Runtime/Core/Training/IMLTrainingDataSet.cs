@@ -1,6 +1,4 @@
-﻿using NUnit.Framework;
-using System.Collections.Generic;
-
+﻿
 namespace Atom.MachineLearning.Core
 {
     /// <summary>

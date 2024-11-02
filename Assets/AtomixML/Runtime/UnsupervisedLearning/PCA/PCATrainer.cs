@@ -2,15 +2,10 @@
 using Atom.MachineLearning.IO;
 using MathNet.Numerics.LinearAlgebra;
 using Sirenix.OdinInspector;
-using Syrus.Plugins.ChartEditor;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Numerics;
-using System.Text;
 using System.Threading.Tasks;
-using Unity.Plastic.Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.UI;
 

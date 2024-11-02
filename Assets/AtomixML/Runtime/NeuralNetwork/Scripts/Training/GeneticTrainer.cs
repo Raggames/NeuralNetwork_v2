@@ -56,13 +56,13 @@ namespace NeuralNetwork
 
             for (int i = 0; i < GenerationSize; ++i)
             {
-                currentNetworks[i].CreateNetwork(this, Builder);
+                currentNetworks[i].CreateNetwork(Builder);
             }
         }
 
         public virtual async void Train()
         {
-            Training_Best_Mean_Error = -1;
+            _currentBestMeanError = -1;
             TrainingSetting.Init();
 
             InitializeTrainingBestWeightSet(currentNetworks[0]);
@@ -147,12 +147,12 @@ namespace NeuralNetwork
                     best_accuracy = Math.Max(best_accuracy, accuracy);
                 }
 
-                if (best_accuracy < Training_Best_Mean_Error)
+                if (best_accuracy < _currentBestMeanError)
                 {
                     LowerBestAccuracyCount++;
                 }
 
-                if (best_accuracy > Training_Best_Mean_Error)
+                if (best_accuracy > _currentBestMeanError)
                 {
                     // Keeping a trace of the set
                     MemorizeBestSet(currentNetworks[best_index], best_accuracy);
@@ -160,7 +160,7 @@ namespace NeuralNetwork
                     ResetToBestCount = 0;
                 }
 
-                if (best_accuracy >= Training_Best_Mean_Error || LowerBestAccuracyCount < LowerBestAccuracyThreshold)
+                if (best_accuracy >= _currentBestMeanError || LowerBestAccuracyCount < LowerBestAccuracyThreshold)
                 {
                     for (int g = 0; g < GenerationSize; ++g)
                     {

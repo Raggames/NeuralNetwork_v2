@@ -1,21 +1,13 @@
-﻿using System;
+﻿using Sirenix.OdinInspector;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Unity.Collections;
 using UnityEngine;
 
 namespace NeuralNetwork
 {
-    public enum LossFunctions
-    {
-        MeanSquarredError, // Regression
-        MeanAbsoluteError,
-        MeanCrossEntropy, // Binary Classification
-        HingeLoss, // Binary Classification
-        MultiClassCrossEntropy, // Multiclass Classification
-    }
 
     public abstract class NeuralNetworkTrainer : MonoBehaviour
     {
@@ -75,17 +67,20 @@ namespace NeuralNetwork
 
         [Header("---- LOSS ----")]
         public float Target_Mean_Error = 0.05f;
-        public double Current_Mean_Error;
+        [ShowInInspector, ReadOnly] protected double _currentMeanError;
+        protected double currentMeanError { get => _currentMeanError; set => _currentMeanError = value; }
 
         [Header("---- RUNTIME ----")]
-        [ReadOnly] public float Accuracy;
-        [ReadOnly] public int correctRuns;
-        [ReadOnly] public int wrongRuns;
-        [ReadOnly] public int CurrentEpoch;
-        [ReadOnly] public double Training_Best_Mean_Error;
+        [ReadOnly] protected float accuracy;
+        [ReadOnly] protected int correctRuns;
+        [ReadOnly] protected int wrongRuns;
+        [ReadOnly] protected int CurrentEpoch;
 
+        [ReadOnly] protected double _currentBestMeanError;
         protected double[][,] Training_Best_Weigths;
         protected double[][] Training_Best_Biases;
+
+
 
         protected void InitializeTrainingBestWeightSet(NeuralNetwork neuralNetwork)
         {
@@ -104,7 +99,7 @@ namespace NeuralNetwork
 
         protected void MemorizeBestSet(NeuralNetwork bestSet, double mean_error)
         {
-            Training_Best_Mean_Error = mean_error;
+            _currentBestMeanError = mean_error;
 
             for (int l = 0; l < bestSet.DenseLayers.Count; ++l)
             {
@@ -166,7 +161,7 @@ namespace NeuralNetwork
 
                 momentum = Momentum,
                 weightDecay = WeightDecay,
-                accuracy = (float)Training_Best_Mean_Error,
+                accuracy = (float)_currentBestMeanError,
             };
 
             NetworkDataSerializer.Save(data, data.Version);
@@ -210,7 +205,7 @@ namespace NeuralNetwork
             return cost;
         }
 
-        public double GetLoss(double[] outputs = null, double[] testValues = null)
+        public double ComputeLossFunction(double[] outputs = null, double[] testValues = null)
         {
             double lossResult = 0f;
             double[] errors = ComputeError(outputs, testValues);
@@ -273,8 +268,8 @@ namespace NeuralNetwork
 
             }
 
-            Accuracy = ((float)correctRuns * 1) / (float)(correctRuns + wrongRuns); // ugly 2 - check for divide by zero
-            Accuracy *= 100f;
+            accuracy = ((float)correctRuns * 1) / (float)(correctRuns + wrongRuns); // ugly 2 - check for divide by zero
+            accuracy *= 100f;
 
             return correct;
         }

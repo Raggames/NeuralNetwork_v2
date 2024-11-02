@@ -1,10 +1,10 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Unity.Plastic.Newtonsoft.Json;
 using UnityEngine;
 
 namespace Atom.MachineLearning.Core
@@ -79,7 +79,7 @@ namespace Atom.MachineLearning.Core
                 version = "1.0.0";
 
             string modelFilePath =  $"{model_impl_path}/{model.ModelName}_{version}.json";
-
+                        
             json = JsonConvert.SerializeObject(model);
             File.WriteAllText(modelFilePath, json);
         }

@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace Assets
 {
-    public class Activation
+    public class ActivationFunctions
     {
         public ActivationType activationType;
-        public Activation(ActivationType type)
+        public ActivationFunctions(ActivationType type)
         {
             activationType = type;
         }

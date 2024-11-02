@@ -22,5 +22,10 @@ namespace Atom.MachineLearning.Core.Maths
                 return _shared;
             }
         }
+
+        public static double Range(this Random random, double minValue, double maxValue)
+        {
+            return random.NextDouble() * (maxValue - minValue) + minValue;
+        }
     }
 }

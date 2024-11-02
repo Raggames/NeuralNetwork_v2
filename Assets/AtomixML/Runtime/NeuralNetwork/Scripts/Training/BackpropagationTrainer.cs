@@ -52,7 +52,7 @@ namespace NeuralNetwork
 
         public double[] run_inputs;
         public double[] run_outputs;
-        public double[] run_test_outputs;
+        public double[] run_labels;
         private CancellationTokenSource _source;
 
         public void Start()
@@ -130,13 +130,13 @@ namespace NeuralNetwork
         public virtual void Initialize()
         {
             NeuralNetwork = new NeuralNetwork();
-            NeuralNetwork.CreateNetwork(this, Builder);
+            NeuralNetwork.CreateNetwork(Builder);
             TrainingSetting.Init();
         }
 
         public void PrepareTraining()
         {
-            NeuralNetwork.InitializeWeights();
+            NeuralNetwork.SeedRandomWeights(InitialWeightRange.x, InitialWeightRange.y);
             InitializeTrainingBestWeightSet(NeuralNetwork);
         }
 
@@ -169,10 +169,10 @@ namespace NeuralNetwork
                 }
 
                 run_inputs = x_datas[sequence_indexes[i]];
-                run_test_outputs = t_datas[sequence_indexes[i]]; 
+                run_labels = t_datas[sequence_indexes[i]]; 
                 
                 NeuralNetwork.FeedForward(run_inputs, out run_outputs);
-                ComputeAccuracy(run_test_outputs, run_outputs);
+                ComputeAccuracy(run_labels, run_outputs);
 
                 CurrentEpoch++;
                 count++;
@@ -210,20 +210,23 @@ namespace NeuralNetwork
                 Shuffle(sequence_indexes);
 
                 // Going through all data batched, mini-batch or stochastic, depending on BatchSize value
-                double mean_error_sum = 0;
+                double error_sum = 0;
                 for(int d = 0; d < iterations_per_epoch; ++d)
                 {
                     for (int j = 0; j < BatchSize; ++j)
                     {
                         run_inputs = x_datas[sequence_indexes[dataIndex]];
-                        run_test_outputs = t_datas[sequence_indexes[dataIndex]];
+                        run_labels = t_datas[sequence_indexes[dataIndex]];
 
                         NeuralNetwork.FeedForward(run_inputs, out run_outputs);
-                        NeuralNetwork.ComputeDenseGradients(run_test_outputs, run_outputs);
 
-                        ComputeAccuracy(run_test_outputs, run_outputs);
+                        // we accumulate gradients each pass of the batch
+                        NeuralNetwork.ComputeDenseGradients(run_labels, run_outputs);
 
-                        mean_error_sum += GetLoss(run_outputs, run_test_outputs);
+                        // updating accuracy by simply count correct/uncorrect runs
+                        ComputeAccuracy(run_labels, run_outputs);
+
+                        error_sum += ComputeLossFunction(run_outputs, run_labels);
                         dataIndex++;
 
                         await Task.Delay(1);
@@ -242,19 +245,20 @@ namespace NeuralNetwork
                     NeuralNetwork.UpdateDenseWeights(LearningRate, Momentum, WeightDecay, BiasRate);
                 }
 
-                double last_mean_error = Current_Mean_Error;
-                // Computing the mean error
-                Current_Mean_Error = mean_error_sum / x_datas.Length;
+                double last_mean_error = currentMeanError;
 
-                if (Current_Mean_Error < last_mean_error)
+                // Computing the mean error
+                currentMeanError = error_sum / x_datas.Length;
+
+                if (currentMeanError < last_mean_error)
                 {
                     // Keeping a trace of the best set we have
                     // if the accuracy falls appart at some point we have the best iteration avalaible for saving
-                    MemorizeBestSet(NeuralNetwork, Current_Mean_Error);
+                    MemorizeBestSet(NeuralNetwork, currentMeanError);
                 }
 
                 // If under target error, stop
-                if (Current_Mean_Error < Target_Mean_Error)
+                if (currentMeanError < Target_Mean_Error)
                 {
                     break;
                 }
@@ -272,7 +276,7 @@ namespace NeuralNetwork
 
         public void ExecuteFeedForward()
         {
-            TrainingSetting.GetNextValues(out run_inputs, out run_test_outputs);
+            TrainingSetting.GetNextValues(out run_inputs, out run_labels);
             NeuralNetwork.FeedForward(run_inputs, out run_outputs);
         }
 

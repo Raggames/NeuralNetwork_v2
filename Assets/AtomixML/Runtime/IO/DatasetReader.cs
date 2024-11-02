@@ -1,11 +1,7 @@
-﻿using Atom.MachineLearning.Core;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Unity.Plastic.Newtonsoft.Json;
 using UnityEngine;
 
 namespace Atom.MachineLearning.IO

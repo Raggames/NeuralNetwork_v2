@@ -100,8 +100,7 @@ namespace NeuralNetwork
             
             NeuralNetwork.DenseLayers.Add(new DenseLayer(LayerType.Output, ActivationFunctions.Softmax, NeuralNetwork.FlattenLayer.NodeCount, 10));
 
-            NeuralNetwork.Initialize(this, null);
-            NeuralNetwork.InitializeWeights();
+            NeuralNetwork.SeedRandomWeights(InitialWeightRange.x, InitialWeightRange.y);
 
             InitializeTrainingBestWeightSet(NeuralNetwork);
         }
@@ -186,22 +185,17 @@ namespace NeuralNetwork
 
                         ComputeAccuracy(run_test_outputs, run_outputs);
 
-                        mean_error_sum += GetLoss(run_outputs, run_test_outputs);
+                        mean_error_sum += ComputeLossFunction(run_outputs, run_test_outputs);
                         dataIndex++;
 
                         current_time += Time.deltaTime;
 
-                        yield return null;
-                        /*if (current_time > max_frame_time)
-                        {
-                            current_time = 0;
-                            yield return null;
-                        }*/
+                        yield return null;                        
                     }
                 }
 
                 // Computing the mean error
-                Current_Mean_Error = mean_error_sum / x_datas.Length;
+                currentMeanError = mean_error_sum / x_datas.Length;
 
                 CurrentEpoch++;
             }
@@ -248,7 +242,7 @@ namespace NeuralNetwork
 
                             ComputeAccuracy(run_test_outputs, run_outputs);
 
-                            mean_error_sum += GetLoss(run_outputs, run_test_outputs);
+                            mean_error_sum += ComputeLossFunction(run_outputs, run_test_outputs);
                             dataIndex++;
 
                             await Task.Delay(delay);
@@ -262,18 +256,18 @@ namespace NeuralNetwork
                         NeuralNetwork.UpdateWeights(LearningRate, Momentum, WeightDecay, BiasRate);
                     }
 
-                    double last_mean_error = Current_Mean_Error;
+                    double last_mean_error = currentMeanError;
                     // Computing the mean error
-                    Current_Mean_Error = mean_error_sum / x_datas.Length;
+                    currentMeanError = mean_error_sum / x_datas.Length;
 
-                    if (Current_Mean_Error < last_mean_error)
+                    if (currentMeanError < last_mean_error)
                     {
                         // Keeping a trace of the set
-                        MemorizeBestSet(NeuralNetwork, Current_Mean_Error);
+                        MemorizeBestSet(NeuralNetwork, currentMeanError);
                     }
 
                     // If under target error, stop
-                    if (Current_Mean_Error < Target_Mean_Error)
+                    if (currentMeanError < Target_Mean_Error)
                     {
                         break;
                     }

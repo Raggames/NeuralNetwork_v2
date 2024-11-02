@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Atom.MachineLearning.IO;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -57,7 +58,7 @@ namespace NeuralNetwork
             {
                 var stopwatch = new Stopwatch();
                 stopwatch.Start();
-                cnn.ComputeTexture2DForward(InputImage);
+                cnn.ComputeForward(TransformationUtils.Texture2DToMatrix(InputImage));
 
                 stopwatch.Stop();
 
