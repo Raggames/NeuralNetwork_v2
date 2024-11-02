@@ -53,23 +53,37 @@ namespace Atom.MachineLearning.Core
             return false;
         }
 
+        /// <summary>
+        /// Matrix * column vector
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException"></exception>
         public static NVector operator *(NMatrix a, NVector b)
         {
-            if (a.Datas.GetLength(1) != b.Data.Length)
+            if (a.Datas.GetLength(0) != b.Data.Length)
                 throw new InvalidOperationException($"Matrix to Vector dimensions mismatch");
 
-            double[] result = new double[a.Datas.GetLength(1)];
+            double[] result = new double[a.Datas.GetLength(0)];
             for (int i = 0; i < a.Datas.GetLength(0); i++)
             {
                 for (int j = 0; j < a.Datas.GetLength(1); j++)
                 {
-                    result[j] += a.Datas[i, j] * b.Data[j];
+                    result[i] += a.Datas[i, j] * b.Data[j];
                 }
             }
 
             return new NVector(result);
         }
 
+        /// <summary>
+        /// Row vector * Matrix
+        /// </summary>
+        /// <param name="b"></param>
+        /// <param name="a"></param>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException"></exception>
         public static NVector operator *(NVector b, NMatrix a)
         {
             if (a.Datas.GetLength(0) != b.Data.Length)
