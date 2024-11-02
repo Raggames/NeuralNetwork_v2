@@ -6,9 +6,13 @@ using System.Threading.Tasks;
 
 namespace Atom.MachineLearning.Core
 {
+    [Serializable]
     public struct NMatrix
     {
         public double[,] Datas { get; set; }
+
+        public int Columns => Datas.GetLength(0);
+        public int Rows => Datas.GetLength(1);
 
         public NMatrix(int squareRowColumns)
         {

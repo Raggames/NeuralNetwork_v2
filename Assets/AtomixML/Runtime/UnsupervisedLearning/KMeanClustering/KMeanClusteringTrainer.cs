@@ -57,14 +57,14 @@ namespace Atom.MachineLearning.Unsupervised.KMeanClustering
 
             DatasetReader.SplitLastColumn(datas, out var features, out var labels);
 
-            var vectorized_labels = VectorizationUtils.RuledVectorization(labels, 3, new Dictionary<string, double[]>()
+            var vectorized_labels = TransformationUtils.RuledVectorization(labels, 3, new Dictionary<string, double[]>()
             {
                 { "Iris-setosa", new double[] { 0, 0, 1 } },
                 { "Iris-versicolor", new double[] { 0, 1, 0 } },
                 { "Iris-virginica", new double[] { 1, 0, 0 } },
             });
 
-            var vectorized_features = NVector.Standardize(VectorizationUtils.StringMatrix2DToDoubleMatrix2D(features).ToNVectorArray(), out var means, out var stdDeviations);            
+            var vectorized_features = NVector.Standardize(TransformationUtils.StringMatrix2DToDoubleMatrix2D(features).ToNVectorRowsArray(), out var means, out var stdDeviations);            
 
             int delta = maxClusters - minClusters;
 
@@ -88,14 +88,14 @@ namespace Atom.MachineLearning.Unsupervised.KMeanClustering
 
             DatasetReader.SplitLastColumn(datas, out var features, out var labels);
 
-            var vectorized_labels = VectorizationUtils.RuledVectorization(labels, 3, new Dictionary<string, double[]>()
+            var vectorized_labels = TransformationUtils.RuledVectorization(labels, 3, new Dictionary<string, double[]>()
             {
                 { "Iris-setosa", new double[] { 0, 0, 1 } },
                 { "Iris-versicolor", new double[] { 0, 1, 0 } },
                 { "Iris-virginica", new double[] { 1, 0, 0 } },
             });
 
-            var vectorized_features = NVector.Standardize(VectorizationUtils.StringMatrix2DToDoubleMatrix2D(features).ToNVectorArray(), out var means, out var stdDeviations);
+            var vectorized_features = NVector.Standardize(TransformationUtils.StringMatrix2DToDoubleMatrix2D(features).ToNVectorRowsArray(), out var means, out var stdDeviations);
 
             for(int i = 0; i < vectorized_features.Length; ++i)
             {

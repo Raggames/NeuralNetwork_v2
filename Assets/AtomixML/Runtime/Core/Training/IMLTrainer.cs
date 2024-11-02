@@ -30,4 +30,19 @@ namespace Atom.MachineLearning.Core
     {
         public Task<ITrainingResult> Fit(TModel model, TModelInputData[] x_datas, TModelOutputData[] t_datas);
     }
+       
+    /*public interface IMLSerializationContext
+    {
+        /// <summary>
+        /// Saves the model after fitting
+        /// </summary>
+        /// <param name="outputFilename"></param>
+        public void Save(string outputFilename);
+
+        /// <summary>
+        /// Load the model from a filename 
+        /// </summary>
+        /// <param name="filename"></param>
+        public void Load(string filename);
+    }*/
 }

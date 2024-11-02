@@ -1,12 +1,9 @@
-﻿using Sirenix.Utilities;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Atom.MachineLearning.Core
 {
+    [Serializable]
     public struct NVector : IMLInOutData
     {
         public double[] Data { get; set; }
@@ -44,6 +41,30 @@ namespace Atom.MachineLearning.Core
             }
 
             return new NVector(temp);
+        }
+
+        public static bool operator ==(NVector a, NVector b)
+        {
+            if (a.Length != b.Length) return false;
+
+            for (int i = 0; i < a.Length; i++)
+            {
+                if (a[i] != b[i]) return false;
+            }
+
+            return true;
+        }
+
+        public static bool operator !=(NVector a, NVector b)
+        {
+            if (a.Length != b.Length) return true;
+
+            for (int i = 0; i < a.Length; i++)
+            {
+                if (a[i] != b[i]) return true;
+            }
+
+            return false;
         }
 
         public static NVector operator *(NVector a, double b)
@@ -96,6 +117,56 @@ namespace Atom.MachineLearning.Core
             Data = new double[] { x, y, z,w};
         }
 
+        /// <summary>
+        /// Dot product of the two n-dimensional vectors
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns> The dot product, a scalar </returns>
+        /// <exception cref="ArgumentException"></exception>
+        public static double Dot(NVector a, NVector b)
+        {
+            if (a.Length != b.Length) throw new ArgumentException($"Vector dimensions aren't equals. A is {a.Length} and B is {b.Length}");
+
+            double dot = 0.0;
+            for(int i = 0; i < a.Length; ++i)
+                dot += a[i] * b[i];
+
+            return dot;
+        }
+
+        /// <summary>
+        /// WIP
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        public static NVector Cross(NVector a, NVector b)
+        {
+            if (a.Length != b.Length) throw new ArgumentException($"Vector dimensions aren't equals. A is {a.Length} and B is {b.Length}");
+            if(a.Length < 3) throw new ArgumentException($"Vector should have at least 3 dimensions");
+
+            int columns = a.Length;
+            for(int i = 0; i < columns; ++i)
+            {
+                for(int j = 0; j < columns; ++j)
+                {
+                    UnityEngine.Debug.Log("/" + a[j] + " < j > " + b[j]);
+
+                    if (j == i) continue;
+
+                    UnityEngine.Debug.Log(a[j] + " < j > " + b[j]);
+                    UnityEngine.Debug.Log(a[i] + " < i > " + b[i]);
+                }
+
+                UnityEngine.Debug.Log("----");
+            }
+
+            return new NVector();
+        }
+
+
         public static NVector Mean(NVector[] vectors)
         {
             int dimensions = vectors[0].Length;
@@ -137,23 +208,6 @@ namespace Atom.MachineLearning.Core
             return Math.Sqrt((sum / vectors.Length));
         }
 
-
-        public static double SampleCovariance(NVector a, NVector b)
-        {
-            if (a.Length != b.Length) throw new ArgumentException($"Vector dimensions aren't equals. A is {a.Length} and B is {b.Length}");
-
-            double mean_a = a.Average();
-            double mean_b = b.Average();
-
-            double sum = 0.0;
-            for (int i = 0; i < a.Length; i++)
-            {
-                sum += (a[i] - mean_a) * (b[i] - mean_b);
-            }
-
-            return sum / (a.Length - 1); // Use n-1 for sample covariance
-        }
-
         public static double Covariance(NVector a, NVector b)
         {
             return Covariance(a.Data, b.Data);
@@ -186,7 +240,7 @@ namespace Atom.MachineLearning.Core
             int dimensions = datas[0].Length;
             var matrix = new double[datas[0].Length, datas[0].Length];
 
-            // Iterate over each pair of features
+            // Iterate over each vector arrays column
             for (int i = 0; i < dimensions; ++i)
             {
                 for (int j = 0; j < dimensions; ++j)
@@ -195,13 +249,15 @@ namespace Atom.MachineLearning.Core
                     double[] featureIValues = new double[datas.Length];
                     double[] featureJValues = new double[datas.Length];
 
+                    // summing each column into two arrays
                     for (int k = 0; k < datas.Length; k++)
                     {
                         featureIValues[k] = datas[k][i];
                         featureJValues[k] = datas[k][j];
                     }
 
-                    // Compute covariance between features i and j
+                    // Compute covariance matrix between features i and j
+                    // covariance matrix is a matrix of all couple feature i - j
                     matrix[i, j] = Covariance(featureIValues, featureJValues);
                 }
             }
@@ -286,7 +342,13 @@ namespace Atom.MachineLearning.Core
             return val / vector.Length;
         }
 
-        public static NVector[] ToNVectorArray(this double[,] matrix2D)
+
+        /// <summary>
+        /// Transform the input matrix into an array of row vectors
+        /// </summary>
+        /// <param name="matrix2D"></param>
+        /// <returns></returns>
+        public static NVector[] ToNVectorRowsArray(this double[,] matrix2D)
         {
             var result = new NVector[matrix2D.GetLength(0)];
             double[] temp = new double[matrix2D.GetLength(1)];

@@ -4,6 +4,7 @@ using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace Atom.MachineLearning.Unsupervised.KMeanClustering
 {
@@ -14,26 +15,14 @@ namespace Atom.MachineLearning.Unsupervised.KMeanClustering
         IMLModel<NVector, KMeanClusteringOutputData>,
         IMLPipelineElement<NVector, KMeanClusteringOutputData>
     {
-        public string AlgorithmName => "KMeanClustering";
+        [MachineLearnedParameter, SerializeField] private List<NVector> _centroids;
 
-        private List<NVector> _centroids;
         public List<NVector> centroids => _centroids;
-
         public int clustersCount => _centroids.Count;
 
-/*        public enum CentroidInitializationModes
-        {
-            /// <summary>
-            /// Totally random centroid
-            /// </summary>
-            Random,
+        public string ModelName { get ; set; } = "KMeanClustering";
+        public string ModelVersion { get; set; } = "1.0.0";
 
-            /// <summary>
-            /// Centroid randomly placed on a trainind set element
-            /// </summary>
-            RandomOnPoint,
-        }
-*/
         /// <summary>
         /// 
         /// </summary>
@@ -50,7 +39,18 @@ namespace Atom.MachineLearning.Unsupervised.KMeanClustering
                 for (int j = 0; j < dimensions.Length; ++j)
                     _centroids[i].Data[j] = MLRandom.Shared.NextDouble() * dimensions[j];
             }
-        } 
+        }
+
+        /// <summary>
+        /// Called by the trainer each iteration to modify the centroids positions
+        /// </summary>
+        /// <param name="newCentroids"></param>
+        public void UpdateCentroids(List<double[]> newCentroids)
+        {
+            for (int i = 0; i < _centroids.Count; ++i)
+                for (int k = 0; k < _centroids[i].Length; ++k)
+                    _centroids[i].Data[k] = newCentroids[i][k];
+        }
 
         /// <summary>
         /// Predict the label for the input data
@@ -74,27 +74,5 @@ namespace Atom.MachineLearning.Unsupervised.KMeanClustering
 
             return new KMeanClusteringOutputData() { ClassLabel = cluster_index, Euclidian = min_distance };
         }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="newCentroids"></param>
-        public void UpdateCentroids(List<double[]> newCentroids)
-        {
-            for (int i = 0; i < _centroids.Count; ++i)
-                for(int k = 0; k < _centroids[i].Length; ++k)
-                    _centroids[i].Data[k] = newCentroids[i][k]; 
-        }
-
-        public void Save(string outputFilename)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public void Load(string filename)
-        {
-            throw new System.NotImplementedException();
-        }
     }
-
 }

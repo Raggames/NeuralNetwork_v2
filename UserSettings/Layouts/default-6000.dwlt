@@ -121,8 +121,8 @@ MonoBehaviour:
     y: 0
     width: 665
     height: 941
-  m_MinSize: {x: 275, y: 50}
-  m_MaxSize: {x: 4000, y: 4000}
+  m_MinSize: {x: 276, y: 76}
+  m_MaxSize: {x: 4001, y: 4026}
   m_ActualView: {fileID: 15}
   m_Panes:
   - {fileID: 15}
@@ -322,8 +322,8 @@ MonoBehaviour:
     y: 0
     width: 947
     height: 514
-  m_MinSize: {x: 200, y: 200}
-  m_MaxSize: {x: 4000, y: 4000}
+  m_MinSize: {x: 202, y: 226}
+  m_MaxSize: {x: 4002, y: 4026}
   m_ActualView: {fileID: 17}
   m_Panes:
   - {fileID: 17}
@@ -352,8 +352,8 @@ MonoBehaviour:
     m_TextWithWhitespace: "Project\u200B"
   m_Pos:
     serializedVersion: 2
-    x: 763
-    y: 593
+    x: 764
+    y: 24
     width: 490
     height: 401
   m_SerializedDataModeController:
@@ -397,21 +397,21 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 367}
     m_SelectedIDs: 049b0000
     m_LastClickedID: 39684
-    m_ExpandedIDs: 000000002e9a0000309a0000329a0000349a0000369a00003a9a00003c9a00003e9a0000aa9a0000bc9a0000c09a0000ec9a0000bab7000000ca9a3b
+    m_ExpandedIDs: 000000006c9a00006e9a0000709a0000729a0000749a0000769a0000789a00007a9a00007c9a00007e9a0000809a0000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
-      m_Name: NeuralNetwork
-      m_OriginalName: NeuralNetwork
+      m_Name: 
+      m_OriginalName: 
       m_EditFieldRect:
         serializedVersion: 2
         x: 0
         y: 0
         width: 0
         height: 0
-      m_UserData: 39472
+      m_UserData: 0
       m_IsWaitingForDelay: 0
       m_IsRenaming: 0
-      m_OriginalEventType: 0
+      m_OriginalEventType: 11
       m_IsRenamingFilename: 1
       m_TrimLeadingAndTrailingWhitespace: 0
       m_ClientGUIView: {fileID: 7}
@@ -426,7 +426,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: 
     m_LastClickedID: 0
-    m_ExpandedIDs: 000000002e9a0000309a0000329a0000349a0000369a0000389a00003a9a00003c9a00003e9a0000409a0000429a0000
+    m_ExpandedIDs: 000000006c9a00006e9a0000709a0000729a0000749a0000769a0000789a00007a9a00007c9a00007e9a0000809a0000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -506,8 +506,8 @@ MonoBehaviour:
     m_TextWithWhitespace: "Inspector\u200B"
   m_Pos:
     serializedVersion: 2
-    x: 1255
-    y: 79
+    x: 1256
+    y: 24
     width: 664
     height: 915
   m_SerializedDataModeController:
@@ -557,7 +557,7 @@ MonoBehaviour:
   m_Pos:
     serializedVersion: 2
     x: 0
-    y: 79
+    y: 24
     width: 307
     height: 488
   m_SerializedDataModeController:
@@ -623,8 +623,8 @@ MonoBehaviour:
     m_TextWithWhitespace: "Scene\u200B"
   m_Pos:
     serializedVersion: 2
-    x: 308
-    y: 79
+    x: 309
+    y: 24
     width: 945
     height: 488
   m_SerializedDataModeController:
@@ -1203,11 +1203,11 @@ MonoBehaviour:
   m_Rotation:
     m_Target: {x: -0.06775875, y: -0.003896837, z: 0.000224046, w: -0.99771667}
     speed: 2
-    m_Value: {x: -0.06775723, y: -0.0038967496, z: 0.00022404098, w: -0.9976943}
+    m_Value: {x: -0.06775875, y: -0.0038968371, z: 0.000224046, w: -0.9977167}
   m_Size:
     m_Target: 10.453777
     speed: 2
-    m_Value: 10.003614
+    m_Value: 10.453777
   m_Ortho:
     m_Target: 0
     speed: 2
@@ -1362,7 +1362,7 @@ MonoBehaviour:
   m_Pos:
     serializedVersion: 2
     x: 0
-    y: 593
+    y: 24
     width: 762
     height: 401
   m_SerializedDataModeController:

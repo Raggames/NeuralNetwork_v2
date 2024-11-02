@@ -2,6 +2,7 @@
 using Atom.MachineLearning.IO;
 using MathNet.Numerics.LinearAlgebra;
 using Sirenix.OdinInspector;
+using Syrus.Plugins.ChartEditor;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -24,7 +25,8 @@ namespace Atom.MachineLearning.Unsupervised.PCA
         /// </summary>
         [SerializeField] private float _componentSelectionThreshold;
 
-        [SerializeField] private float _scale = 3f;
+        public NVector NVector;
+        public NMatrix NMatrix;
 
         private NVector _meanVector;
         private NVector _stdDeviationVector;
@@ -33,42 +35,58 @@ namespace Atom.MachineLearning.Unsupervised.PCA
 
         private PCAModel _model;
 
+        [Header("Debug show")]
+        [SerializeField] private float _scale = 3f;
+        [SerializeField] private RawImage _rawImage;
+
         [Button]
-        private async void TestMNISTFit(string texturesPath = "mnist")
+        private async void TestMNISTFit(string texturesPath = "Datasets/mnist")
         {
             var model = new PCAModel();
+            model.ModelName = "pca_mnist";
             var textures = DatasetReader.ReadTextures(texturesPath);
 
             var vectorized = new NVector[textures.Count];
             for (int i = 0; i < textures.Count; ++i)
             {
-                var matrix = VectorizationUtils.Texture2DToMatrix(textures[i]);
-                matrix = VectorizationUtils.PoolAverage(matrix, 4, 2);
-                var array = VectorizationUtils.MatrixToArray(matrix);
+                var matrix = TransformationUtils.Texture2DToMatrix(textures[i]);
+                matrix = TransformationUtils.PoolAverage(matrix, 4, 2);
+                var array = TransformationUtils.MatrixToArray(matrix);
                 vectorized[i] = new NVector(array);
             }
 
             var result = await Fit(model, vectorized);
 
+            ModelSerializationService.SaveModel(model);
             Debug.Log($"End fitting, accuracy (kept variance) => {result.Accuracy}");
         }
 
-        [SerializeField] private RawImage _rawImage;
+        [Button]
+        private void TestLoadMNIST()
+        {
+            _model = ModelSerializationService.LoadModel<PCAModel>("pca_mnist");
+        }
 
         [Button]
-        private Texture2D TestMNISTCompressionOutput(string texturesPath = "mnist", int imageIndex = 0)
+        private Texture2D TestMNISTCompressionOutput(Texture2D text)
         {
-            var textures = DatasetReader.ReadTextures(texturesPath);
-
-            var matrix = VectorizationUtils.Texture2DToMatrix(textures[imageIndex]);
-            matrix = VectorizationUtils.PoolAverage(matrix, 4, 2);
-            var array = VectorizationUtils.MatrixToArray(matrix);
+            // this code is all about data transformation/préparation
+            // we first get a numerical matrix representation of the image
+            var matrix = TransformationUtils.Texture2DToMatrix(text);
+            // we pool the matrice to reduce the dimensions of the image from 32x32 to 8x8
+            matrix = TransformationUtils.PoolAverage(matrix, 4, 2);
+            // we flatten the data to a row vector
+            var array = TransformationUtils.MatrixToArray(matrix);
+            // instantiating the vector as a struct
             var inputVector = new NVector(array);
 
+            // executing a 'forward' path. dimensions are reduced
             var output_vector = _model.Predict(inputVector);
+
+            // executing a 'backward' path, a very interesting thing that PCAs can do 
             output_vector = _model.Decompress(output_vector);
-            var output_to_matrix = VectorizationUtils.ArrayToMatrix(output_vector.Data);
-            var texture = VectorizationUtils.MatrixToTexture2D(output_to_matrix);
+            var output_to_matrix = TransformationUtils.ArrayToMatrix(output_vector.Data);
+            var texture = TransformationUtils.MatrixToTexture2D(output_to_matrix);
 
             _rawImage.texture = texture;
 
@@ -78,25 +96,27 @@ namespace Atom.MachineLearning.Unsupervised.PCA
         [Button]
         private Texture2D TestMatrixToTexture(Texture2D input, int filterSize = 2, int padding = 2)
         {
-            var model = new PCAModel();
+            var array = TransformationUtils.Texture2DToArray(input);
+            var matrix = TransformationUtils.ArrayToMatrix(array); // pour tester les conversions
+            matrix = TransformationUtils.PoolAverage(matrix, filterSize, padding);
+            var texture = TransformationUtils.MatrixToTexture2D(matrix);
 
-            var array = VectorizationUtils.Texture2DToArray(input);
-            var matrix = VectorizationUtils.ArrayToMatrix(array); // pour tester les conversions
-            matrix = VectorizationUtils.PoolAverage(matrix, filterSize, padding);
-            var texture = VectorizationUtils.MatrixToTexture2D(matrix);
+            _rawImage.texture = texture;
 
             return texture;
         }
 
         [Button]
-        private async void TestFitFlowers(string csvpaath = "Assets/AtomixML/Runtime/UnsupervisedLearning/PCA/Resources/flowers/iris.data.txt", int maximumSetSize = 50)
+        private async void TestFitFlowers(string csvpaath = "Assets/AtomixML/Resources/Datasets/flowers", int maximumSetSize = 50)
         {
             var model = new PCAModel();
+            model.ModelName = "pca_flowers";
+
             var datas = DatasetReader.ReadCSV(csvpaath, ',');
 
             DatasetReader.SplitLastColumn(datas, out var features, out var labels);
 
-            var vectorized_labels = VectorizationUtils.RuledVectorization(labels, 3, new Dictionary<string, double[]>()
+            var vectorized_labels = TransformationUtils.RuledVectorization(labels, 3, new Dictionary<string, double[]>()
             {
                 { "Iris-setosa", new double[] { 0, 0, 1 } },
                 { "Iris-versicolor", new double[] { 0, 1, 0 } },
@@ -108,7 +128,7 @@ namespace Atom.MachineLearning.Unsupervised.PCA
             for (int i = 0; i < vectorized_labels.GetLength(0); ++i)
                 _labelColors[i] = new Color((float)vectorized_labels[i, 0], (float)vectorized_labels[i, 1], (float)vectorized_labels[i, 2], 1);
 
-            var vectorized_features = VectorizationUtils.StringMatrix2DToDoubleMatrix2D(features).ToNVectorArray();
+            var vectorized_features = TransformationUtils.StringMatrix2DToDoubleMatrix2D(features).ToNVectorRowsArray();
 
             var result = await Fit(model, vectorized_features);
 
@@ -119,6 +139,8 @@ namespace Atom.MachineLearning.Unsupervised.PCA
             {
                 _test_results[i] = model.Predict(vectorized_features[i]);
             }
+
+            ModelSerializationService.SaveModel(model);
         }
 
         public async Task<ITrainingResult> Fit(PCAModel model, NVector[] trainingDatas)

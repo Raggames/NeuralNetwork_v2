@@ -6,29 +6,22 @@ using System.Threading.Tasks;
 
 namespace Atom.MachineLearning.Core
 {
-    /// <summary>
-    /// Abstraction of a learning model 
-    /// Cann be an unsupervised algorithm, a trained neural network, or anything that can do prediction
-    /// </summary>
-    public interface IMLModel<T, K> where T : IMLInOutData// where K : IMLOutputData
+    public interface IMLModelCore
     {
         /// <summary>
         /// Nom de l'algorithme (hardcodé)
         /// </summary>
-        public string AlgorithmName { get; }
+        public string ModelName { get; set; }
+        public string ModelVersion { get; set; }
+    }
 
+    /// <summary>
+    /// Abstraction of a learning model 
+    /// Cann be an unsupervised algorithm, a trained neural network, or anything that can do prediction
+    /// </summary>
+    public interface IMLModel<T, K> : IMLModelCore where T : IMLInOutData// where K : IMLOutputData
+    {       
         public K Predict(T inputData);
 
-        /// <summary>
-        /// Saves the model after fitting
-        /// </summary>
-        /// <param name="outputFilename"></param>
-        public void Save(string outputFilename);
-
-        /// <summary>
-        /// Load the model from a filename 
-        /// </summary>
-        /// <param name="filename"></param>
-        public void Load(string filename);
     }
 }
