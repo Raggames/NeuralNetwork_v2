@@ -91,6 +91,10 @@ namespace Atom.MachineLearning.Core
             Data = new double[] { x, y, z };
         }
 
+        public NVector(double x, double y, double z, double w)
+        {
+            Data = new double[] { x, y, z,w};
+        }
 
         public static NVector Mean(NVector[] vectors)
         {

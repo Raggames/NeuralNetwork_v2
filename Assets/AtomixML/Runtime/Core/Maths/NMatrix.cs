@@ -60,7 +60,7 @@ namespace Atom.MachineLearning.Core
         /// <param name="b"></param>
         /// <returns></returns>
         /// <exception cref="InvalidOperationException"></exception>
-        public static NVector operator *(NMatrix a, NVector b)
+       public static NVector operator *(NMatrix a, NVector b)
         {
             if (a.Datas.GetLength(0) != b.Data.Length)
                 throw new InvalidOperationException($"Matrix to Vector dimensions mismatch");
@@ -76,6 +76,8 @@ namespace Atom.MachineLearning.Core
 
             return new NVector(result);
         }
+
+
 
         /// <summary>
         /// Row vector * Matrix

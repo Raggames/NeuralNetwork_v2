@@ -6,15 +6,14 @@ using UnityEngine;
 [TestFixture]
 public class MathTests 
 {
-    [TestCase(1, 2, 3, 4, 5, 6, 17, 39)]
-    [TestCase(2, 0, 7, 4, 2, 2, 4, 22)]
-    public void Check_Matrix4x2_Multiply_Vector2(int m1, int m2, int m3, int m4, int v1, int v2, int vr1, int vr2)
+    [TestCase(1, 2, 3, 4, 5, 6, 17, 39,4,4,4,4)]
+    public void Check_Matrix4x2_Multiply_Vector4(int m1, int m2, int m3, int m4, int v1, int v2, int v3, int v4, int vr1, int vr2, int vr3, int vr4)
     {
         var matrix = new NMatrix(new double[,] { { m1, m2 }, { m3, m4 }, { m1, m2 }, { m3, m4 } });
-        var vector = new NVector(new double[] { v1, v2 });
+        var vector = new NVector(new double[] { v1, v2, v3, v4 });
 
-        var check = new NVector(vr1, vr2);
-        var result = vector * matrix;
+        var check = new NVector(vr1, vr2, vr3, vr4);
+        var result = matrix * vector;
 
         Assert.AreEqual(check.x, result.x);
         Assert.AreEqual(check.y, result.y);
