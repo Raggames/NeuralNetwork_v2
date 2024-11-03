@@ -47,34 +47,6 @@ namespace Atom.MachineLearning.Unsupervised.SelfOrganizingMap
         private Color[,] _labelColoredMatrix;
         private int[,] _labelIterationMatrix;
 
-        [Button]
-        private async void TrainFlowers()
-        {
-            var datas = Datasets.Flowers_All();
-
-            DatasetReader.SplitLastColumn(datas, out var features, out var labels);
-            DatasetReader.ShuffleRows(datas);
-
-            // to do split train/test
-            //DatasetReader.SplitRows(datas, 100, out _x_datas, out _t_datas);
-
-            // transform label column as a vector matrix of nx3 
-            // we could also generate a nx1 with class label -1, 0, 1 or anything else, 
-            // but that was a practical way to generate colors depending on the class
-
-            var x_datas = TransformationUtils.StringMatrix2DToDoubleMatrix2D(features).ToNVectorRowsArray();
-
-            var model = new SOMModel();
-
-            int neuronsCount = ComputeNodesCount(datas.GetLength(0));
-
-            model.InitializeMap(neuronsCount, 4);
-
-            await Fit(model, x_datas);
-
-            PlotKohonenMatrix();
-        }
-
         public int ComputeNodesCount(int trainingSetLength)
         {
             var count = (int)Math.Round(5 * Math.Sqrt(trainingSetLength) * _neuronCountMultiplier);
@@ -113,6 +85,8 @@ namespace Atom.MachineLearning.Unsupervised.SelfOrganizingMap
             await _epochSupervisor.Run(1000);
 
             var quantized_error = QuantizationError(x_datas);
+
+            ModelSerializationService.SaveModel(_model);
 
             return new TrainingResult()
             {
@@ -191,11 +165,46 @@ namespace Atom.MachineLearning.Unsupervised.SelfOrganizingMap
             return sum;
         }
 
+        #region testing and visualizing
+
+        [Button]
+        private async void TrainFlowers()
+        {
+            var datas = Datasets.Flowers_All();
+
+            DatasetReader.SplitLastColumn(datas, out var features, out var labels);
+            DatasetReader.ShuffleRows(datas);
+
+            // to do split train/test
+            //DatasetReader.SplitRows(datas, 100, out _x_datas, out _t_datas);
+
+            // transform label column as a vector matrix of nx3 
+            // we could also generate a nx1 with class label -1, 0, 1 or anything else, 
+            // but that was a practical way to generate colors depending on the class
+
+            var x_datas = TransformationUtils.StringMatrix2DToDoubleMatrix2D(features).ToNVectorRowsArray();
+
+            var model = new SOMModel();
+            model.ModelName = "som-flowers";
+
+            int neuronsCount = ComputeNodesCount(datas.GetLength(0));
+
+            model.InitializeMap(neuronsCount, 4);
+
+            await Fit(model, x_datas);
+
+            PlotKohonenMatrix();
+        }
+
+        [Button]
         /// <summary>
         /// Iterate the set with labels, and outputs a colorized sphere at the position of the bmu node 
         /// </summary>
         public void PlotKohonenMatrix()
         {
+            if (_model == null)
+                _model = ModelSerializationService.LoadModel<SOMModel>("som-flowers");
+
             _labelColoredMatrix = new Color[_model.kohonenMap.GetLength(0), _model.kohonenMap.GetLength(1)];
             _labelIterationMatrix = new int[_model.kohonenMap.GetLength(0), _model.kohonenMap.GetLength(1)];
 
@@ -261,5 +270,7 @@ namespace Atom.MachineLearning.Unsupervised.SelfOrganizingMap
                         .05f + _labelIterationMatrix[i, j] * _radiusMultiplier);
                 }
         }
+
+        #endregion
     }
 }

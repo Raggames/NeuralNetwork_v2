@@ -19,6 +19,12 @@ namespace Atom.MachineLearning.Core
             Datas = new double[squareRowColumns, squareRowColumns];
         }
 
+        public NMatrix(int columns, int rows)
+        {
+            Datas = new double[columns, rows];
+        }
+
+
         public NMatrix(double[,] datas)
         {
             Datas = new double[datas.GetLength(0), datas.GetLength(1)];
