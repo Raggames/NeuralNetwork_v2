@@ -13,6 +13,16 @@ namespace Atom.MachineLearning.IO
     public static class DatasetReader
     {
         /// <summary>
+        /// Returns textures from Unity's resource folder
+        /// </summary>
+        /// <param name="folderpath"></param>
+        /// <returns></returns>
+        public static List<Texture2D> ReadTextures(string folderpath)
+        {
+            return Resources.LoadAll<Texture2D>(folderpath).ToList();
+        }
+
+        /// <summary>
         /// Reads a csv file at path, and split it with separator char
         /// </summary>
         /// <param name="filepath"></param>
@@ -140,6 +150,10 @@ namespace Atom.MachineLearning.IO
             }
         }
 
+        /// <summary>
+        /// Shuffle rows of the matrix 
+        /// </summary>
+        /// <param name="datas"></param>
         public static void ShuffleRows(string[,] datas)
         {
             int rowCount = datas.GetLength(0); // Number of rows
@@ -161,13 +175,28 @@ namespace Atom.MachineLearning.IO
         }
 
         /// <summary>
-        /// Returns textures from Unity's resource folder
+        /// Shuffle rows of the matrix 
         /// </summary>
-        /// <param name="folderpath"></param>
-        /// <returns></returns>
-        public static List<Texture2D> ReadTextures(string folderpath)
+        /// <param name="datas"></param>
+        public static void ShuffleRows(double[,] datas)
         {
-            return Resources.LoadAll<Texture2D>(folderpath).ToList();
+            int rowCount = datas.GetLength(0); // Number of rows
+            int colCount = datas.GetLength(1); // Number of columns
+
+            for (int i = 0; i < rowCount; i++)
+            {
+                // Pick a random row to swap with
+                int j = MLRandom.Shared.Next(i, rowCount);
+
+                // Swap row i with row j
+                for (int k = 0; k < colCount; k++)
+                {
+                    double temp = datas[i, k];
+                    datas[i, k] = datas[j, k];
+                    datas[j, k] = temp;
+                }
+            }
         }
+
     }
 }

@@ -15,7 +15,22 @@ namespace Atom.MachineLearning.Core.Training
         where TModelOutputData : IMLInOutData
         where TModel : IMLModel<TModelInputData, TModelOutputData>
     {
+        /// <summary>
+        /// Train the model 
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="x_datas"></param>
+        /// <returns></returns>
         public Task<ITrainingResult> Fit(TModel model, TModelInputData[] x_datas);
+/*
+        /// <summary>
+        /// Return the accuracy of the model after running a test train
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="x_datas"></param>
+        /// <returns></returns>
+        public Task<double> Test(TModel model, TModelInputData[] x_datas);*/
+
     }
 
     /// <summary>

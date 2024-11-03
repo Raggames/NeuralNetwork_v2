@@ -10,5 +10,6 @@ namespace Atom.MachineLearning.Core
     public interface ITrainingResult
     {
         public float Accuracy { get; set; }
+
     }
 }

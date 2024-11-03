@@ -27,6 +27,8 @@ namespace Atom.MachineLearning.Unsupervised.SelfOrganizingMap
         /// </summary>
         [HyperParameter, SerializeField] private int _neighboorHoodRadius = 4;
         [HyperParameter, SerializeField] private float _learningRate = .01f;
+        // computed value
+        [HyperParameter, ShowInInspector, ReadOnly] private double _timeConstant;
 
         // runtime
         private EpochSupervisorAsync _epochSupervisor;
@@ -36,23 +38,19 @@ namespace Atom.MachineLearning.Unsupervised.SelfOrganizingMap
         private NVector[] _t_datas;
         private List<NVector> _shuffle_x_datas;
 
-        [ShowInInspector, ReadOnly] private float _currentNeighboorHoodRadius;
-        [ShowInInspector, ReadOnly] private float _currentLearningRate;
+        [ShowInInspector, ReadOnly] private double _currentNeighboorHoodRadius;
+        [ShowInInspector, ReadOnly] private double _currentLearningRate;
 
         [Header("Visualization")]
         [SerializeField] private float _sizeMultiplier = 1;
-        [SerializeField] private float _radiusMultiplier = 1;
-
-        /// <summary>
-        /// Neighborhood function, often Gaussian or decreasing linearly with distance from the BMU (Best Matching Unit)
-        /// </summary>
-        private Func<NVector, NVector, double> _neighboorHoodFunction;
+        [SerializeField] private float _radiusMultiplier = 1;        
         private Color[,] _labelColoredMatrix;
+        private int[,] _labelIterationMatrix;
 
         [Button]
         private async void TrainFlowers()
         {
-            var datas = Datasets.Flowers();
+            var datas = Datasets.Flowers_All();
 
             DatasetReader.SplitLastColumn(datas, out var features, out var labels);
             DatasetReader.ShuffleRows(datas);
@@ -83,17 +81,132 @@ namespace Atom.MachineLearning.Unsupervised.SelfOrganizingMap
             return count;
         }
 
+        public void ComputeTimeConstant()
+        {
+            _timeConstant = _epochs / Math.Log(_neighboorHoodRadius);
+        }
+
+        public double CurrentLearningRate(int currentEpoch)
+        {
+            return _learningRate * Math.Exp(-currentEpoch / _timeConstant);
+        }
+
+        public double CurrentNeighborhoodRadius(int currentEpoch)
+        {
+           return  _neighboorHoodRadius * Math.Exp(-currentEpoch / _timeConstant);
+        }
+
+        public async Task<ITrainingResult> Fit(SOMModel model, NVector[] x_datas)
+        {
+            ComputeTimeConstant();
+
+            _x_datas = x_datas;
+            _model = model;
+
+            _shuffle_x_datas = new List<NVector>();
+            _shuffle_x_datas.AddRange(x_datas);
+
+            _currentNeighboorHoodRadius = _neighboorHoodRadius;
+            _currentLearningRate = _learningRate;
+
+            _epochSupervisor = new EpochSupervisorAsync(EpochIterationCallback);
+            await _epochSupervisor.Run(1000);
+
+            var quantized_error = QuantizationError(x_datas);
+
+            return new TrainingResult()
+            {
+                Accuracy = 1f / (float)quantized_error,
+            };
+        }
+
+        private void EpochIterationCallback(int epoch)
+        {
+            while (_shuffle_x_datas.Count > 0)
+            {
+                if (_currentNeighboorHoodRadius <= .001f)
+                {
+                    Debug.Log($"Current neghboorhood radius is too small");
+                    _epochSupervisor.Cancel();
+                    break;
+                }
+
+                var index = MLRandom.Shared.Range(0, _shuffle_x_datas.Count - 1);
+                var next_input = _shuffle_x_datas[index];
+                _shuffle_x_datas.RemoveAt(index);
+
+                var best_matching_unit = _model.Predict(next_input);
+
+                // update weight of unit and neighboors
+                var neighboors = _model.GetNeighboors(best_matching_unit.XCoordinate, best_matching_unit.YCoordinate, _currentNeighboorHoodRadius);
+
+                neighboors.Insert(0, best_matching_unit);
+
+                foreach (var element in neighboors)
+                {
+                    var influence_ratio = MLMath.Gaussian(element.Distance, _currentNeighboorHoodRadius);
+                    var delta = next_input - element.WeightVector;
+                    var new_weight = element.WeightVector + delta * (_currentLearningRate * influence_ratio);
+                    _model.UpdateWeight(element.XCoordinate, element.YCoordinate, new_weight);
+                }
+            }
+
+            // decay learning rate
+            // decay neighboordHoodDistance
+            // for instance, linear degression
+
+
+            _currentLearningRate = CurrentLearningRate(epoch);
+            _currentNeighboorHoodRadius = CurrentNeighborhoodRadius(epoch);
+        }
+
+        /*
+        Quantization error (QE) is a technique to measure the
+        quality of SOM. It is computed from the average distance of
+        input vectors, x to the weight vector on the winner node of the BMU. 
+        A SOM with lower average error is more
+        accurate than a SOM with higher average error [12]. 
+        
+        Appropriate Learning Rate and Neighborhood Function of
+        Self-organizing Map (SOM) for Specific Humidity Pattern
+        Classification over Southern Thailand
+        W. Natita, W. Wiboonsak, and S. Dusade
+         */
+        /// <summary>
+        /// Compute quantization of the model
+        /// </summary>
+        /// <param name="x_datas"></param>
+        /// <returns></returns>
+        public double QuantizationError(NVector[] x_datas)
+        {
+            var sum = 0.0;
+            for(int i = 0; i < x_datas.Length; ++i)
+            {
+                var bmu = _model.Predict(x_datas[i]);
+                sum += bmu.Distance;
+            }
+
+            sum /= x_datas.Length;
+
+            return sum;
+        }
+
         /// <summary>
         /// Iterate the set with labels, and outputs a colorized sphere at the position of the bmu node 
         /// </summary>
         public void PlotKohonenMatrix()
         {
             _labelColoredMatrix = new Color[_model.kohonenMap.GetLength(0), _model.kohonenMap.GetLength(1)];
+            _labelIterationMatrix = new int[_model.kohonenMap.GetLength(0), _model.kohonenMap.GetLength(1)];
+
             for (int i = 0; i < _model.kohonenMap.GetLength(0); ++i)
                 for (int j = 0; j < _model.kohonenMap.GetLength(1); ++j)
+                {
                     _labelColoredMatrix[i, j] = Color.white;
+                    _labelIterationMatrix[i, j] = 0;
+                }
 
-            var datas = Datasets.Flowers();
+            var datas = Datasets.Flowers_All();
 
             DatasetReader.SplitLastColumn(datas, out var features, out var labels);
 
@@ -123,66 +236,10 @@ namespace Atom.MachineLearning.Unsupervised.SelfOrganizingMap
                 Debug.Log($"Prediction vector magnitude {prediction_weight}/{average_weight}");
 
                 _labelColoredMatrix[prediction.XCoordinate, prediction.YCoordinate] = colors[i];
+                _labelIterationMatrix[prediction.XCoordinate, prediction.YCoordinate]++;
             }
         }
 
-        public async Task<ITrainingResult> Fit(SOMModel model, NVector[] x_datas)
-        {
-            _x_datas = x_datas;
-            _model = model;
-
-            _shuffle_x_datas = new List<NVector>();
-            _shuffle_x_datas.AddRange(x_datas);
-
-            _currentNeighboorHoodRadius = _neighboorHoodRadius;
-            _currentLearningRate = _learningRate;
-
-            _epochSupervisor = new EpochSupervisorAsync(EpochIterationCallback);
-            await _epochSupervisor.Run(1000);
-
-            return new TrainingResult()
-            {
-                Accuracy = 0,
-            };
-        }
-
-        private void EpochIterationCallback(int epoch)
-        {
-            while (_shuffle_x_datas.Count > 0)
-            {
-                if (_currentNeighboorHoodRadius <= .001f)
-                {
-                    Debug.Log($"Current neghboorhood radius is too small");
-                    _epochSupervisor.Cancel();
-                    break;
-                }
-
-                var index = MLRandom.Shared.Range(0, _shuffle_x_datas.Count - 1);
-                var next_input = _shuffle_x_datas[index];
-                _shuffle_x_datas.RemoveAt(index);
-
-                var best_matching_unit = _model.Predict(next_input);
-
-                // update weight of unit and neighboors
-                var neighboors = _model.GetNeighboors(best_matching_unit.XCoordinate, best_matching_unit.YCoordinate, _currentNeighboorHoodRadius);
-                neighboors.Insert(0, best_matching_unit);
-
-                foreach (var element in neighboors)
-                {
-                    var influence_ratio = MLMath.Gaussian(element.Distance, _currentNeighboorHoodRadius);
-                    var delta = next_input - element.WeightVector;
-                    var new_weight = element.WeightVector + delta * (_currentLearningRate * influence_ratio);
-                    _model.UpdateWeight(element.XCoordinate, element.YCoordinate, new_weight);
-                }
-            }
-
-            // decay learning rate
-            // decay neighboordHoodDistance
-            // for instance, linear degression
-
-            /*_currentLearningRate -= _learningRate / _epochs;
-            _currentNeighboorHoodRadius -= _currentNeighboorHoodRadius / _epochs;*/
-        }
 
         void OnDrawGizmos()
         {
@@ -193,10 +250,15 @@ namespace Atom.MachineLearning.Unsupervised.SelfOrganizingMap
             for (int i = 0; i < _model.kohonenMap.GetLength(0); ++i)
                 for (int j = 0; j < _model.kohonenMap.GetLength(1); ++j)
                 {
-                    var magn = _model.kohonenMap[i, j].magnitude;
 
                     Gizmos.color = _labelColoredMatrix[i, j];
-                    Gizmos.DrawSphere(new Vector3(i * _sizeMultiplier, j * _sizeMultiplier, 0), (float)magn * _radiusMultiplier);
+
+                    /*var magn = _model.kohonenMap[i, j].magnitude;
+                    Gizmos.DrawSphere(new Vector3(i * _sizeMultiplier, j * _sizeMultiplier, 0), 
+                        .05f + (float)magn * _radiusMultiplier);*/
+
+                    Gizmos.DrawSphere(new Vector3(i * _sizeMultiplier, j * _sizeMultiplier, 0), 
+                        .05f + _labelIterationMatrix[i, j] * _radiusMultiplier);
                 }
         }
     }

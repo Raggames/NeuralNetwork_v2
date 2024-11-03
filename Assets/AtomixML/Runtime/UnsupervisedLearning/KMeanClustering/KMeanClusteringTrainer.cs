@@ -54,7 +54,7 @@ namespace Atom.MachineLearning.Unsupervised.KMeanClustering
         [Button]
         private async void TestFitFlowers(int minClusters = 2, int maxClusters = 6, int parallelRuns = 3)
         {
-            var datas = Datasets.Flowers();
+            var datas = Datasets.Flowers_All();
 
             DatasetReader.SplitLastColumn(datas, out var features, out var labels);
 
@@ -85,7 +85,7 @@ namespace Atom.MachineLearning.Unsupervised.KMeanClustering
         [Button]
         public void TestRunFlower()
         {
-            var datas = Datasets.Flowers();
+            var datas = Datasets.Flowers_All();
 
             DatasetReader.SplitLastColumn(datas, out var features, out var labels);
 

@@ -133,7 +133,7 @@ namespace Atom.MachineLearning.Unsupervised.SelfOrganizingMap
                             WeightVector = matching_unit_vector,
                             XCoordinate = x,
                             YCoordinate = y,
-                            Distance = 0,
+                            Distance = dist,
                         };
                     }
                 }

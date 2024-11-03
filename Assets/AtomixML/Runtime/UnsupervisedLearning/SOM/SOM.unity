@@ -254,11 +254,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2fa71f696b2bc694586790d54a269f14, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _epochs: 993
-  _neuronCountMultiplier: 3.27
-  _neighboorHoodRadius: 3
-  _learningRate: 0.4
-  _sizeMultiplier: 0.67
+  _epochs: 250
+  _neuronCountMultiplier: 2
+  _neighboorHoodRadius: 4
+  _learningRate: 0.12
+  _sizeMultiplier: 0.62
   _radiusMultiplier: 0.02
 --- !u!1 &2083315921
 GameObject:

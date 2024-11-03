@@ -95,7 +95,7 @@ namespace Atom.MachineLearning.Unsupervised.PCA
             var model = new PCAModel();
             model.ModelName = "pca_flowers";
 
-            var datas = Datasets.Flowers();
+            var datas = Datasets.Flowers_All();
 
             // splitting labels from x datas
             DatasetReader.SplitLastColumn(datas, out var features, out var labels);

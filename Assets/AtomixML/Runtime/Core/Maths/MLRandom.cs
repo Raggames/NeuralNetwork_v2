@@ -23,6 +23,11 @@ namespace Atom.MachineLearning.Core.Maths
             }
         }
 
+        public static void SeedShared(int seed)
+        {
+            _shared = new System.Random(seed);
+        }
+
         public static double Range(this Random random, double minValue, double maxValue)
         {
             return random.NextDouble() * (maxValue - minValue) + minValue;
