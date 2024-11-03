@@ -46,22 +46,22 @@ namespace NeuralNetwork
 
         }
 
-        public DenseLayer(LayerType layerType, ActivationFunctions activationFunction, int neurons_count, int next_layer_neurons_count, bool use_backpropagation = true)
+        public DenseLayer(LayerType layerType, ActivationFunctions activationFunction, int inputs_count, int neurons_count, bool use_backpropagation = true)
         {
-            inputs = new double[neurons_count];
+            inputs = new double[inputs_count];
 
-            weights = NeuralNetworkMathHelper.MakeMatrix(neurons_count, next_layer_neurons_count);
-            biases = new double[next_layer_neurons_count];
-            outputs = new double[next_layer_neurons_count];
-            current_sums = new double[next_layer_neurons_count];
+            weights = NeuralNetworkMathHelper.MakeMatrix(inputs_count, neurons_count);
+            biases = new double[neurons_count];
+            outputs = new double[neurons_count];
+            current_sums = new double[neurons_count];
             this.layerType = layerType;
             this.activationFunction = activationFunction;
 
             if (use_backpropagation)
             {
-                previous_weights_delta = NeuralNetworkMathHelper.MakeMatrix(neurons_count, next_layer_neurons_count);
-                previous_biases_delta = new double[next_layer_neurons_count];
-                gradients = new double[next_layer_neurons_count];
+                previous_weights_delta = NeuralNetworkMathHelper.MakeMatrix(inputs_count, neurons_count);
+                previous_biases_delta = new double[neurons_count];
+                gradients = new double[neurons_count];
             }
         }
 
@@ -70,26 +70,26 @@ namespace NeuralNetwork
         /// </summary>
         /// <param name="layerType"></param>
         /// <param name="activationFunction"></param>
+        /// <param name="inputs_count"></param>
         /// <param name="neurons_count"></param>
-        /// <param name="next_layer_neurons_count"></param>
         /// <param name="use_backpropagation"></param>
         /// <returns></returns>
-        public DenseLayer Create(LayerType layerType, ActivationFunctions activationFunction, int neurons_count, int next_layer_neurons_count, bool use_backpropagation = true)
+        public DenseLayer Create(LayerType layerType, ActivationFunctions activationFunction, int inputs_count, int neurons_count, bool use_backpropagation = true)
         {
-            inputs = new double[neurons_count];
+            inputs = new double[inputs_count];
 
-            weights = NeuralNetworkMathHelper.MakeMatrix(neurons_count, next_layer_neurons_count);
-            biases = new double[next_layer_neurons_count];
-            outputs = new double[next_layer_neurons_count];
-            current_sums = new double[next_layer_neurons_count];
+            weights = NeuralNetworkMathHelper.MakeMatrix(inputs_count, neurons_count);
+            biases = new double[neurons_count];
+            outputs = new double[neurons_count];
+            current_sums = new double[neurons_count];
             this.layerType = layerType;
             this.activationFunction = activationFunction;
 
             if (use_backpropagation)
             {
-                previous_weights_delta = NeuralNetworkMathHelper.MakeMatrix(neurons_count, next_layer_neurons_count);
-                previous_biases_delta = new double[next_layer_neurons_count];
-                gradients = new double[next_layer_neurons_count];
+                previous_weights_delta = NeuralNetworkMathHelper.MakeMatrix(inputs_count, neurons_count);
+                previous_biases_delta = new double[neurons_count];
+                gradients = new double[neurons_count];
             }
 
             return this;

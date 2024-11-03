@@ -13,7 +13,7 @@ OcclusionCullingSettings:
 --- !u!104 &2
 RenderSettings:
   m_ObjectHideFlags: 0
-  serializedVersion: 9
+  serializedVersion: 10
   m_Fog: 0
   m_FogColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   m_FogMode: 3
@@ -38,13 +38,11 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
-  serializedVersion: 11
-  m_GIWorkflowMode: 1
+  serializedVersion: 12
   m_GISettings:
     serializedVersion: 2
     m_BounceScale: 1
@@ -67,9 +65,6 @@ LightmapSettings:
     m_LightmapParameters: {fileID: 0}
     m_LightmapsBakeMode: 1
     m_TextureCompression: 1
-    m_FinalGather: 0
-    m_FinalGatherFiltering: 1
-    m_FinalGatherRayCount: 256
     m_ReflectionCompression: 2
     m_MixedBakeMode: 2
     m_BakeBackend: 1
@@ -98,13 +93,14 @@ LightmapSettings:
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
   m_LightingDataAsset: {fileID: 0}
-  m_UseShadowmask: 1
+  m_LightingSettings: {fileID: 4890085278179872738, guid: cfd09e0911db76f41b75144f7131769e,
+    type: 2}
 --- !u!196 &4
 NavMeshSettings:
   serializedVersion: 2
   m_ObjectHideFlags: 0
   m_BuildSettings:
-    serializedVersion: 2
+    serializedVersion: 3
     agentTypeID: 0
     agentRadius: 0.5
     agentHeight: 2
@@ -117,7 +113,9 @@ NavMeshSettings:
     cellSize: 0.16666667
     manualTileSize: 0
     tileSize: 256
-    accuratePlacement: 0
+    buildHeightMesh: 0
+    maxJobWorkers: 0
+    preserveTilesOutsideBounds: 0
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
@@ -179,6 +177,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
+  m_PresetInfoIsWorld: 0
 --- !u!223 &335697269
 Canvas:
   m_ObjectHideFlags: 0
@@ -196,7 +195,9 @@ Canvas:
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
+  m_VertexColorAlwaysGammaSpace: 0
   m_AdditionalShaderChannelsFlag: 0
+  m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
@@ -210,9 +211,9 @@ RectTransform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0, y: 0, z: 0}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -250,6 +251,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   TrainingSetting: {fileID: 11400000, guid: a350216cd4ff3be44a5ad367f3ec2741, type: 2}
   SaveName: 
+  LossFunction: 0
   InitialWeightRange: {x: -0.1, y: 0.1}
   InitialWeightSeed: 0
   LearningRate: 0.3
@@ -259,8 +261,7 @@ MonoBehaviour:
   WeightDecay: 0.0001
   Epochs: 100000
   BatchSize: 1
-  CurrentEpoch: 0
-  Training_Best_Mean_Error: 0
+  Target_Mean_Error: 0.05
   Builder: {fileID: 0}
   currentNetworks: []
   BestSetAutoStop: 1000
@@ -280,12 +281,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 666736768}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &671918579
 GameObject:
@@ -327,9 +329,17 @@ Camera:
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
+  m_Iso: 200
+  m_ShutterSpeed: 0.005
+  m_Aperture: 16
+  m_FocusDistance: 10
+  m_FocalLength: 50
+  m_BladeCount: 5
+  m_Curvature: {x: 2, y: 11}
+  m_BarrelClipping: 0.25
+  m_Anamorphism: 0
   m_SensorSize: {x: 36, y: 24}
   m_LensShift: {x: 0, y: 0}
-  m_FocalLength: 50
   m_NormalizedViewPortRect:
     serializedVersion: 2
     x: 0
@@ -363,12 +373,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 671918579}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 1, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1446874246
 GameObject:
@@ -395,9 +406,8 @@ Light:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1446874246}
   m_Enabled: 1
-  serializedVersion: 10
+  serializedVersion: 11
   m_Type: 1
-  m_Shape: 0
   m_Color: {r: 1, g: 0.95686275, b: 0.8392157, a: 1}
   m_Intensity: 1
   m_Range: 10
@@ -446,8 +456,13 @@ Light:
   m_UseColorTemperature: 0
   m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
   m_UseBoundingSphereOverride: 0
+  m_UseViewFrustumForShadowCasterCull: 1
+  m_ForceVisible: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+  m_LightUnit: 1
+  m_LuxAtDistance: 1
+  m_EnableSpotReflector: 1
 --- !u!4 &1446874248
 Transform:
   m_ObjectHideFlags: 0
@@ -455,12 +470,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1446874246}
+  serializedVersion: 2
   m_LocalRotation: {x: 0.40821788, y: -0.23456968, z: 0.10938163, w: 0.8754261}
   m_LocalPosition: {x: 0, y: 3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
 --- !u!1 &1572371787
 GameObject:
@@ -492,6 +508,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f231c4fb786f3946a6b90b886c48677, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_SendPointerHoverToParent: 1
   m_HorizontalAxis: Horizontal
   m_VerticalAxis: Vertical
   m_SubmitButton: Submit
@@ -521,12 +538,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1572371787}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1734960324
 GameObject:
@@ -557,41 +575,364 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c68d3e88d3060a542bdaf6696479c195, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TrainingSetting: {fileID: 11400000, guid: a350216cd4ff3be44a5ad367f3ec2741, type: 2}
+  TrainingSetting: {fileID: 11400000, guid: 26f0fb3c8f8759e439f616165f90ba7d, type: 2}
   SaveName: MultiLanguageClassificationTrainingSetting_11_20_57_Inp_6_H_30_H_4_H_2__BestSet
+  LossFunction: 1
   InitialWeightRange: {x: -0.1, y: 0.1}
   InitialWeightSeed: 0
-  LearningRate: 0.006
+  LearningRate: 0.294
   Momentum: 0.02
   BiasRate: 1
   LearningRateDecay: 0
   WeightDecay: 0
   Epochs: 200
-  BatchSize: 1
-  CurrentEpoch: 0
-  Training_Best_Mean_Error: 0
+  BatchSize: 4
+  Target_Mean_Error: 0.01
   AutoStart: 1
-  Builder: {fileID: 11400000, guid: 4dfb7a91728ef354b93f9b3d6a9a79e1, type: 2}
+  Builder: {fileID: 11400000, guid: c16b94d61cd915e4c8ba464071426100, type: 2}
   NeuralNetwork:
-    layers: []
-    _inputs: []
-    _outputs: []
+    DenseLayers:
+    - inputs:
+      - 0.25120773911476135
+      - 0.28985506296157837
+      - 0.30434781312942505
+      - 0.28985506296157837
+      - 0.3140096664428711
+      - 0.2801932394504547
+      biases:
+      - 0.04432034677648632
+      - -0.0030238165566494027
+      - -0.014702813451914334
+      - -0.0874676972128223
+      - 0.032768634450150436
+      - 0.09422301145027302
+      - 0.024331975052805058
+      - 0.08484577715788473
+      - -0.04793372494853612
+      - 0.08567929880944507
+      - 0.013317308909203046
+      - -0.018158042403627263
+      - -0.05503057081698105
+      - 0.021471452437228127
+      - 0.01387951187994415
+      - 0.0679918353899188
+      - -0.09909208663473726
+      - -0.0413579018633534
+      - 0.07896691053886663
+      - 0.07218897866598664
+      - -0.07772822139773938
+      - 0.046019094011034864
+      - -0.022818863963683586
+      - -0.0721084009326489
+      - -0.04923143669827711
+      - 0.048311411048289586
+      - -0.08655022649316184
+      - 0.09154095330803737
+      - -0.05029184269459105
+      - -0.05910268154643774
+      previous_biases_delta:
+      - 0.0000028362250333033387
+      - -0.000004939570211194678
+      - 0.000014671227621347103
+      - -0.0000002143273038105797
+      - 0.00001116983351811323
+      - 0.0000027460072248367775
+      - -0.00000022244192663058265
+      - 0.000003954692316017417
+      - -0.000002528603400853812
+      - -0.0000072098169070945225
+      - -0.00000022215841265580132
+      - -0.0000045064693451178494
+      - 0.0000005550077681474345
+      - 0.0000032058657617626213
+      - 0.0000016017870278396897
+      - -0.000002951556616365095
+      - 0.00000008631229757799655
+      - -0.0000008112452039282866
+      - -0.0000041409185490849446
+      - -0.000004208237008738989
+      - 0.00000012183821263132006
+      - 0.0000009221136208360795
+      - 0.000005354578526778117
+      - 0.0000006379982948368537
+      - 0.0000027899531092593645
+      - 0.0000006836015906700034
+      - -0.0000003705917145618898
+      - 0.000007343331071133418
+      - 0.0000018450732275689905
+      - 0.0000034673339414420805
+      gradients:
+      - 0.000012838834261043861
+      - 0.00018711169729231908
+      - 0.000008109952601922558
+      - -0.000005903446743977992
+      - -0.00001569934470757008
+      - 0.0000633972869721889
+      - 0.000011480929592877723
+      - -0.00007444284769361035
+      - 0.000014728604033034626
+      - -0.0002607811510764519
+      - 0.00008278374121122156
+      - -0.000014335961073809424
+      - 0.000024680750717271338
+      - 0.000007220274381749148
+      - -0.00010546063260436541
+      - -0.00012052375227840301
+      - -0.00000039771563417307
+      - -0.000025460470480361426
+      - 0.00019057421847107212
+      - 0.0002205250777638587
+      - 0.000004679862929625819
+      - 0.00010230188257421224
+      - -0.0002020983808376854
+      - 0.000008800677271474279
+      - 0.0000007907618583799299
+      - 0.000012516926703499821
+      - -0.000025325896056770845
+      - 0.00008694729123439215
+      - -0.00004496772523803419
+      - -0.000019066502853127132
+      outputs:
+      - 0.09316275495786167
+      - 0.023662665097284416
+      - -0.0007108613158800323
+      - -0.007039085064074989
+      - -0.0022661869528290716
+      - 0.2130225118850929
+      - 0.036334190638555836
+      - 0.033655137656558906
+      - -0.008926680090335879
+      - 0.09751630582684274
+      - 0.02904613124685213
+      - -0.002590667128447744
+      - -0.013048311988138907
+      - 0.03239900374094441
+      - 0.036562777798750126
+      - 0.003888675867897623
+      - -0.01089363155488861
+      - -0.0074938596108649275
+      - 0.11965311918299298
+      - 0.052145959802486735
+      - -0.0009351057868573137
+      - 0.07247505578545929
+      - 0.01826740191247663
+      - -0.006746281234988309
+      - -0.008157575221369248
+      - -0.0019499119574443147
+      - -0.006154695131582812
+      - 0.06619334120505511
+      - 0.027411411624464067
+      - -0.0018201315677288624
+    - inputs:
+      - 0.09316275495786167
+      - 0.023662665097284416
+      - -0.0007108613158800323
+      - -0.007039085064074989
+      - -0.0022661869528290716
+      - 0.2130225118850929
+      - 0.036334190638555836
+      - 0.033655137656558906
+      - -0.008926680090335879
+      - 0.09751630582684274
+      - 0.02904613124685213
+      - -0.002590667128447744
+      - -0.013048311988138907
+      - 0.03239900374094441
+      - 0.036562777798750126
+      - 0.003888675867897623
+      - -0.01089363155488861
+      - -0.0074938596108649275
+      - 0.11965311918299298
+      - 0.052145959802486735
+      - -0.0009351057868573137
+      - 0.07247505578545929
+      - 0.01826740191247663
+      - -0.006746281234988309
+      - -0.008157575221369248
+      - -0.0019499119574443147
+      - -0.006154695131582812
+      - 0.06619334120505511
+      - 0.027411411624464067
+      - -0.0018201315677288624
+      biases:
+      - -0.03599754844995154
+      - -0.07226934945970254
+      - -0.05913790739730604
+      - -0.07282067824076015
+      - 0.0916575939866401
+      - -0.0006539251555153061
+      - -0.07274763472354227
+      - -0.07322583220310311
+      - -0.00010909984107730847
+      - 0.05894369565823947
+      - -0.054494514136805165
+      - 0.04958763220302668
+      - 0.08765159156602538
+      - 0.0037948993008036966
+      - 0.05840238672208235
+      previous_biases_delta:
+      - 0.0000024899772788322165
+      - 0.00003172027575673141
+      - 0.00005011183278912871
+      - -0.0000019023653454906597
+      - -0.00004473627142945299
+      - 0.000042810945500308715
+      - -0.0000015401600712103911
+      - -0.00005213542050459612
+      - 0.0000006905195578286291
+      - 0.000042699151665583384
+      - 0.0000016904820525959477
+      - 0.000039938955030479446
+      - 0.00001687796534232145
+      - -0.000010905272580615504
+      - 0.00001871846803146372
+      gradients:
+      - 0.00031725168111989513
+      - 0.0005504198863251012
+      - 0.0010789009812300768
+      - 0.001054307980896188
+      - -0.0010518665621683336
+      - 0.0004961775614785211
+      - -0.0003822582374710695
+      - -0.001098944864683786
+      - -0.0006149701424530758
+      - 0.0008471404371876132
+      - 0.00047106824256592334
+      - 0.0007819128558129174
+      - 0.00042561217204810576
+      - -0.0006847893841356792
+      - 0.0007688413595753094
+      outputs:
+      - 0.4838473881782243
+      - 0.4815676327816963
+      - 0.4848628399577263
+      - 0.4850898115605794
+      - 0.5186721992832963
+      - 0.4998885008870692
+      - 0.48865788876168176
+      - 0.4731715709495704
+      - 0.509745303417083
+      - 0.5090519658851774
+      - 0.48839670506895566
+      - 0.512053753060579
+      - 0.5251794941061614
+      - 0.49725222055749485
+      - 0.5176228442019405
+    - inputs:
+      - 0.4838473881782243
+      - 0.4815676327816963
+      - 0.4848628399577263
+      - 0.4850898115605794
+      - 0.5186721992832963
+      - 0.4998885008870692
+      - 0.48865788876168176
+      - 0.4731715709495704
+      - 0.509745303417083
+      - 0.5090519658851774
+      - 0.48839670506895566
+      - 0.512053753060579
+      - 0.5251794941061614
+      - 0.49725222055749485
+      - 0.5176228442019405
+      biases:
+      - -0.023604889912487
+      - -0.023180740196720385
+      - -0.014631545044776277
+      - 0.07057860054055262
+      - 0.06658160818245303
+      - -0.04414931473530627
+      - -0.02454607550289352
+      - 0.0004505492957492477
+      previous_biases_delta:
+      - -0.0012143031981789695
+      - 0.00171412887132417
+      - -0.0001605395686536038
+      - 0.00023829411697582636
+      - -0.0008780604455265441
+      - 0.0017667808411535725
+      - 0.0005105880046932642
+      - -0.00011716303715257041
+      gradients:
+      - -0.020298408278759346
+      - 0.02731600039739151
+      - -0.007228041939236919
+      - 0.006981950520259948
+      - -0.02141924655296448
+      - 0.014997082323927288
+      - -0.00755280785862317
+      - 0.013051219411614433
+      outputs:
+      - -0.024005828571146037
+      - 0.05490568160889089
+      - -0.0027372500198140247
+      - 0.02323364477304576
+      - -0.05382579349987276
+      - 0.017040669495089512
+      - -0.06953559361270799
+      - 0.02720870837655215
+    - inputs:
+      - -0.024005828571146037
+      - 0.05490568160889089
+      - -0.0027372500198140247
+      - 0.02323364477304576
+      - -0.05382579349987276
+      - 0.017040669495089512
+      - -0.06953559361270799
+      - 0.02720870837655215
+      biases:
+      - 0.03966486851500285
+      - -0.19038713501296306
+      - -0.10795564317445842
+      - -0.2443623469936954
+      previous_biases_delta:
+      - -0.037451016570687015
+      - 0.02819730165294334
+      - -0.000527167488195228
+      - 0.0031950091634340757
+      gradients:
+      - -0.12059268701642457
+      - -0.08302548374200715
+      - 0.28342461406364766
+      - -0.07526403219625513
+      outputs:
+      - 0.2917849710087017
+      - 0.2325811277091506
+      - 0.2560410937629171
+      - 0.2195928075192305
+    _inputs:
+    - 0.25120773911476135
+    - 0.28985506296157837
+    - 0.30434781312942505
+    - 0.28985506296157837
+    - 0.3140096664428711
+    - 0.2801932394504547
+    _outputs:
+    - 0.2917849710087017
+    - 0.2325811277091506
+    - 0.2560410937629171
+    - 0.2195928075192305
   Mode: 0
   Save: 0
   AutoSaveEveryEpochs: 5000
-  StopOnAccuracyAchieved: 0
-  TargetAccuracy: 99.9
-  Target_Mean_Error: 0.01
   epochs_per_second: 0
   max_frame_time: 2
-  LossFunction: 0
-  Current_Mean_Error: 0
-  Accuracy: 0
-  correctRuns: 0
-  wrongRuns: 0
-  run_inputs: []
-  run_outputs: []
-  run_test_outputs: []
+  run_inputs:
+  - 0.25120773911476135
+  - 0.28985506296157837
+  - 0.30434781312942505
+  - 0.28985506296157837
+  - 0.3140096664428711
+  - 0.2801932394504547
+  run_outputs:
+  - 0.2917849710087017
+  - 0.2325811277091506
+  - 0.2560410937629171
+  - 0.2195928075192305
+  run_labels:
+  - 0
+  - 0
+  - 1
+  - 0
 --- !u!4 &1734960326
 Transform:
   m_ObjectHideFlags: 0
@@ -599,12 +940,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1734960324}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2091950183
 GameObject:
@@ -637,6 +979,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   TrainingSetting: {fileID: 11400000, guid: 227a7491acac35642a7b40a87ecc40a2, type: 2}
   SaveName: MultiLanguageClassificationTrainingSetting_11_20_57_Inp_6_H_30_H_4_H_2__BestSet
+  LossFunction: 0
   InitialWeightRange: {x: -0.1, y: 0.1}
   InitialWeightSeed: 0
   LearningRate: 0.006
@@ -646,30 +989,21 @@ MonoBehaviour:
   WeightDecay: 0
   Epochs: 200
   BatchSize: 1
-  CurrentEpoch: 0
-  Training_Best_Mean_Error: 0
+  Target_Mean_Error: 0.01
   AutoStart: 1
   Builder: {fileID: 11400000, guid: 08eaf7bc1da4e26458b362f8df95dc2c, type: 2}
   NeuralNetwork:
-    layers: []
+    DenseLayers: []
     _inputs: []
     _outputs: []
   Mode: 0
   Save: 0
   AutoSaveEveryEpochs: 5000
-  StopOnAccuracyAchieved: 0
-  TargetAccuracy: 99.9
-  Target_Mean_Error: 0.01
   epochs_per_second: 0
   max_frame_time: 2
-  LossFunction: 0
-  Current_Mean_Error: 0
-  Accuracy: 0
-  correctRuns: 0
-  wrongRuns: 0
   run_inputs: []
   run_outputs: []
-  run_test_outputs: []
+  run_labels: []
 --- !u!4 &2091950185
 Transform:
   m_ObjectHideFlags: 0
@@ -677,10 +1011,22 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2091950183}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1660057539 &9223372036854775807
+SceneRoots:
+  m_ObjectHideFlags: 0
+  m_Roots:
+  - {fileID: 671918582}
+  - {fileID: 1446874248}
+  - {fileID: 1734960326}
+  - {fileID: 666736770}
+  - {fileID: 335697270}
+  - {fileID: 1572371790}
+  - {fileID: 2091950185}

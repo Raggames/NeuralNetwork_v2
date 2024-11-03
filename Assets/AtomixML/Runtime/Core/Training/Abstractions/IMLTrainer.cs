@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 
 
-namespace Atom.MachineLearning.Core
+namespace Atom.MachineLearning.Core.Training
 {
     /// <summary>
     /// Abstraction d'un trainer
@@ -28,7 +28,7 @@ namespace Atom.MachineLearning.Core
         where TModelOutputData : IMLInOutData
         where TModel : IMLModel<TModelInputData, TModelOutputData>
     {
-        public Task<ITrainingResult> Fit(TModel model, TModelInputData[] x_datas, TModelOutputData[] t_datas);
+        public Task<ITrainingResult> Fit(TModel model, TModelInputData[] x_datas, TModelOutputData t_datas);
     }
        
     /*public interface IMLSerializationContext

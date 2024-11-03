@@ -30,7 +30,7 @@ namespace Atom.MachineLearning.Core
         }
 
         public static bool operator ==(NMatrix a, NMatrix b)
-        {           
+        {
             for (int i = 0; i < a.Datas.GetLength(0); i++)
             {
                 for (int j = 0; j < a.Datas.GetLength(1); j++)
@@ -64,7 +64,7 @@ namespace Atom.MachineLearning.Core
         /// <param name="b"></param>
         /// <returns></returns>
         /// <exception cref="InvalidOperationException"></exception>
-       public static NVector operator *(NMatrix a, NVector b)
+        public static NVector operator *(NMatrix a, NVector b)
         {
             if (a.Datas.GetLength(0) != b.Data.Length)
                 throw new InvalidOperationException($"Matrix to Vector dimensions mismatch");
@@ -171,8 +171,95 @@ namespace Atom.MachineLearning.Core
                 for (int j = 0; j < rows; j++) // rows
                     m_data[j, i] = columnVectors[i][j];
             }
-                           
+
             return new NMatrix(m_data);
+        }
+
+        /// <summary>
+        /// Toy function (O(n!) complexity)
+        /// 
+        /// There is error in the algorithm with signs
+        /// 
+        /// WORK IN PROGRESS
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException"></exception>
+        public double LaplaceExpansionDeterminant()
+        {
+            if (Rows != Columns)
+                throw new InvalidOperationException("Matrix must be square for determinant calculation");
+
+            return ComputeLaplaceDeterminantRecursive(Datas);
+        }
+
+        private double ComputeLaplaceDeterminantRecursive(double[,] matrix, int factor_x = 0, int depth = 0)
+        {
+            var sum = 0.0;
+
+            for (int i = 0; i < matrix.GetLength(0); ++i)
+            {
+                int y = 0;
+                double[,] submatrice = new double[matrix.GetLength(0) - 1, matrix.GetLength(1) - 1];
+
+                // compute submatrix
+                // factor is a(subindex, 0)
+                for (int c = 1; c < matrix.GetLength(0); ++c)
+                {
+                    int x = 0;
+
+                    for (int r = 0; r < matrix.GetLength(1); ++r)
+                    {
+                        //  | a0 a1 a2 a3   
+                        //  | b0 b1 b2 b3
+                        //  | c0 c1 c2 c3
+                        //  | d0 d1 d2 d3
+
+                        // if c = r we ignore 
+                        if (r == i)
+                        {
+                            continue;
+                        }
+
+                        submatrice[x, y] = matrix[c, r];
+                        x++;
+                    }
+                    y++;
+
+                }
+
+                // for matrix | a b |   => ad - bc
+                //            | c d |
+                if (submatrice.GetLength(0) == 2)
+                {
+                    double a = submatrice[0, 0];
+                    double d = submatrice[1, 1];
+                    double b = submatrice[1, 0];
+                    double c = submatrice[0, 1];
+                    double factor = matrix[0, i];
+
+                    //UnityEngine.Debug.Log($"factor position is [{}, {}]");
+                    // we have to deal with the sign of det elements 
+                    // keeping indexing on the 'main position' of the submatrix factor 
+                    //  | + - + -   
+                    //  | - + - +
+                    //  | + - + -
+                    //  | - + - +
+                    int sign = (factor_x + i + depth) % 2 == 0 ? 1 : -1;
+                    UnityEngine.Debug.Log(sign);
+
+                    sum += factor * (a * d - b * c) * sign;
+                }
+                else
+                {
+                    
+                    // rec call and sum 
+                    sum += ComputeLaplaceDeterminantRecursive(submatrice, depth + 1 + i, depth + 1); // factor_y + i ?
+                }
+            }
+
+            return sum;
+
         }
     }
 }

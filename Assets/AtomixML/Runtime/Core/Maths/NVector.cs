@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Atom.MachineLearning.Core.Maths;
+using Sirenix.OdinInspector;
+using System;
 using System.Linq;
 
 namespace Atom.MachineLearning.Core
@@ -6,7 +8,7 @@ namespace Atom.MachineLearning.Core
     [Serializable]
     public struct NVector : IMLInOutData
     {
-        public double[] Data { get; set; }
+        [ShowInInspector, ReadOnly] public double[] Data { get; set; }
 
         public int Length => Data.Length;
 
@@ -102,6 +104,15 @@ namespace Atom.MachineLearning.Core
                 Data[i] = arr[i];
         }
 
+        /// <summary>
+        /// scalar
+        /// </summary>
+        /// <param name="x"></param>
+        public NVector(double x)
+        {
+            Data = new double[] { x };
+        }
+
         public NVector(double x, double y)
         {
             Data = new double[] { x, y };
@@ -114,7 +125,61 @@ namespace Atom.MachineLearning.Core
 
         public NVector(double x, double y, double z, double w)
         {
-            Data = new double[] { x, y, z,w};
+            Data = new double[] { x, y, z, w };
+        }
+
+        /// <summary>
+        /// Returns the magnitude of the vector
+        /// </summary>
+        public double magnitude
+        {
+            get
+            {
+                double magn = 0.0;
+                for(int i = 0; i < Data.Length; ++i)
+                {
+                    magn += Math.Pow(Data[i], 2);
+                }
+
+                return Math.Sqrt(magn);
+            }
+        }
+
+        /// <summary>
+        /// Returns a normalized duplicate of the vector
+        /// </summary>
+        public NVector normalized
+        {
+            get
+            {
+                var vect = new NVector(Data);
+                vect.Normalize();
+                return vect;
+            }
+        }
+
+        public NVector Random(double min = 0, double max = 1)
+        {
+            for(int i = 0; i < Data.Length; ++i)
+            {
+                Data[i] = MLRandom.Shared.Range(min, max);
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Normalizes the vector
+        /// </summary>
+        public NVector Normalize()
+        {
+            double mag = magnitude;
+
+            if (mag > 0.0)
+                for (int i = 0; i < Data.Length; ++i)
+                    Data[i] /= mag;
+
+            return this;
         }
 
         /// <summary>
@@ -129,10 +194,82 @@ namespace Atom.MachineLearning.Core
             if (a.Length != b.Length) throw new ArgumentException($"Vector dimensions aren't equals. A is {a.Length} and B is {b.Length}");
 
             double dot = 0.0;
-            for(int i = 0; i < a.Length; ++i)
+            for (int i = 0; i < a.Length; ++i)
                 dot += a[i] * b[i];
 
             return dot;
+        }
+
+        /// <summary>
+        /// Srt euclidian distance between two multidimensionnal vectors represented by float arrays
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        public static double Manhattan(NVector a, NVector b)
+        {
+            if (a.Length != b.Length) throw new ArgumentException($"Vector dimensions aren't equals. A is {a.Length} and B is {b.Length}");
+
+            double result = 0;
+            for (int i = 0; i < a.Length; ++i)
+            {
+                result += Math.Abs(a[i] - b[i]);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Srt euclidian distance between two multidimensionnal vectors represented by float arrays
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        public static double Euclidian(NVector a, NVector b)
+        {
+            if (a.Length != b.Length) throw new ArgumentException($"Vector dimensions aren't equals. A is {a.Length} and B is {b.Length}");
+
+            double result = 0;
+            for (int i = 0; i < a.Length; ++i)
+            {
+                result += Math.Pow(a[i] - b[i], 2);
+            }
+
+            return Math.Sqrt(result);
+        }
+
+        /// <summary>
+        /// Euclidian (without square root) distance between two multidimensionnal vectors represented by float arrays
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        public static double SquaredEuclidian(NVector a, NVector b)
+        {
+            if (a.Length != b.Length) throw new ArgumentException($"Vector dimensions aren't equals. A is {a.Length} and B is {b.Length}");
+
+            double result = 0;
+            for (int i = 0; i < a.Length; ++i)
+            {
+                result += Math.Pow(a[i] - b[i], 2);
+            }
+
+            return result;
+        }
+
+        public static double Mnkowski(NVector a, NVector b, double power)
+        {
+            if (a.Length != b.Length) throw new ArgumentException($"Vector dimensions aren't equals. A is {a.Length} and B is {b.Length}");
+
+            double result = 0;
+            for (int i = 0; i < a.Length; ++i)
+            {
+                result += Math.Pow(Math.Abs(a[i] - b[i]), power);
+            }
+
+            double z = 1 / power;
+
+            return Math.Pow(result, z);
         }
 
         /// <summary>
@@ -145,12 +282,12 @@ namespace Atom.MachineLearning.Core
         public static NVector Cross(NVector a, NVector b)
         {
             if (a.Length != b.Length) throw new ArgumentException($"Vector dimensions aren't equals. A is {a.Length} and B is {b.Length}");
-            if(a.Length < 3) throw new ArgumentException($"Vector should have at least 3 dimensions");
+            if (a.Length < 3) throw new ArgumentException($"Vector should have at least 3 dimensions");
 
             int columns = a.Length;
-            for(int i = 0; i < columns; ++i)
+            for (int i = 0; i < columns; ++i)
             {
-                for(int j = 0; j < columns; ++j)
+                for (int j = 0; j < columns; ++j)
                 {
                     UnityEngine.Debug.Log("/" + a[j] + " < j > " + b[j]);
 
@@ -313,22 +450,25 @@ namespace Atom.MachineLearning.Core
     public static class NVectorExtensions
     {
         /// <summary>
+        /// Srt euclidian distance between two multidimensionnal vectors represented by float arrays
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        public static double SqrtEuclidian(this NVector a, NVector b)
+        {
+            return NVector.Euclidian(a, b);
+        }
+
+        /// <summary>
         /// Euclidian distance between two multidimensionnal vectors represented by float arrays
         /// </summary>
         /// <param name="a"></param>
         /// <param name="b"></param>
         /// <returns></returns>
-        public static double EuclidianDistanceTo(this NVector a, NVector b)
+        public static double Euclidian(this NVector a, NVector b)
         {
-            if (a.Length != b.Length) throw new ArgumentException($"Vector dimensions aren't equals. A is {a.Length} and B is {b.Length}");
-
-            double result = 0;
-            for (int i = 0; i < a.Length; ++i)
-            {
-                result += Math.Pow(a[i] - b[i], 2);
-            }
-
-            return Math.Sqrt(result);
+            return NVector.SquaredEuclidian(a, b);
         }
 
         public static double Average(this NVector vector)
@@ -342,9 +482,8 @@ namespace Atom.MachineLearning.Core
             return val / vector.Length;
         }
 
-
         /// <summary>
-        /// Transform the input matrix into an array of row vectors
+        /// Transform the input matrix into an array of row n-vectors
         /// </summary>
         /// <param name="matrix2D"></param>
         /// <returns></returns>
@@ -355,7 +494,7 @@ namespace Atom.MachineLearning.Core
 
             for (int i = 0; i < result.Length; ++i)
             {
-                for(int j = 0; j < temp.Length; ++j)
+                for (int j = 0; j < temp.Length; ++j)
                 {
                     temp[j] = matrix2D[i, j];
                 }

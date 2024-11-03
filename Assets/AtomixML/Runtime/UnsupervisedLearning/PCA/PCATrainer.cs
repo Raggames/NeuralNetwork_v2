@@ -1,4 +1,5 @@
 ﻿using Atom.MachineLearning.Core;
+using Atom.MachineLearning.Core.Training;
 using Atom.MachineLearning.IO;
 using MathNet.Numerics.LinearAlgebra;
 using Sirenix.OdinInspector;
@@ -89,15 +90,19 @@ namespace Atom.MachineLearning.Unsupervised.PCA
         }
 
         [Button]
-        private async void TestFitFlowers(string csvpaath = "Assets/AtomixML/Resources/Datasets/flowers/iris.data.txt", int maximumSetSize = 50)
+        private async void TestFitFlowers()
         {
             var model = new PCAModel();
             model.ModelName = "pca_flowers";
 
-            var datas = DatasetReader.ReadCSV(csvpaath, ',');
+            var datas = Datasets.Flowers();
 
+            // splitting labels from x datas
             DatasetReader.SplitLastColumn(datas, out var features, out var labels);
 
+            // transform label column as a vector matrix of nx3 
+            // we could also generate a nx1 with class label -1, 0, 1 or anything else, 
+            // but that was a practical way to generate colors depending on the class
             var vectorized_labels = TransformationUtils.RuledVectorization(labels, 3, new Dictionary<string, double[]>()
             {
                 { "Iris-setosa", new double[] { 0, 0, 1 } },

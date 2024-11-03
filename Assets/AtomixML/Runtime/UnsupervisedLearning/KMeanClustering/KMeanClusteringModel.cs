@@ -12,7 +12,7 @@ namespace Atom.MachineLearning.Unsupervised.KMeanClustering
         IMLModel<NVector, KMeanClusteringOutputData>,
         IMLPipelineElement<NVector, KMeanClusteringOutputData>
     {
-        [MachineLearnedParameter, SerializeField] private List<NVector> _centroids;
+        [LearnedParameter, SerializeField] private List<NVector> _centroids;
 
         public List<NVector> centroids => _centroids;
         public int clustersCount => _centroids.Count;
@@ -61,7 +61,7 @@ namespace Atom.MachineLearning.Unsupervised.KMeanClustering
 
             for (int i = 0; i < _centroids.Count; ++i)
             {
-                var distance = inputData.EuclidianDistanceTo(_centroids[i]);
+                var distance = inputData.Euclidian(_centroids[i]);
                 if (distance < min_distance)
                 {
                     min_distance = distance;

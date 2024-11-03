@@ -29,6 +29,7 @@ namespace NeuralNetwork
             all_datas.Add(data_es);
         }
 
+
         public override void GetTrainDatas(out double[][] x_datas, out double[][] t_datas)
         {
             x_datas = new double[TrainingDataLenght][];

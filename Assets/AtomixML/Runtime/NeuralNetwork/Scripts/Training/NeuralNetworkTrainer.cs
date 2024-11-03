@@ -44,7 +44,7 @@ namespace NeuralNetwork
         /// <summary>
         /// The learning rate for the biases
         /// </summary>
-        public float BiasRate = 1;
+        public float BiasRate = 0.01f;
 
         /// <summary>
         /// Control the decreasing of the learning rate over epochs

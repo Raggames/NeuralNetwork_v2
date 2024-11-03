@@ -86,7 +86,7 @@ namespace NeuralNetwork
         }
 
         public ConvolutionLayer AddFilter(KernelType kernelType = KernelType.Default)
-        {           
+        {
             FeatureMaps.Add(new ConvolutionFeatureMap(kernelType, OutputWidth, OutputHeight, FilterSize));
             return this;
         }
@@ -94,7 +94,7 @@ namespace NeuralNetwork
         public void Initialize()
         {
             output = new double[FeatureMaps.Count][,];
-            for(int i = 0; i < output.Length; ++i)
+            for (int i = 0; i < output.Length; ++i)
             {
                 output[i] = new double[FeatureMaps[i].ActivationMap.GetLength(0), FeatureMaps[i].ActivationMap.GetLength(1)];
             }
@@ -105,11 +105,11 @@ namespace NeuralNetwork
         {
             //ComputeConvolution();
 
-            for(int i = 0; i < input.Length; ++i)
+            for (int i = 0; i < input.Length; ++i)
             {
                 FeatureMaps[i].ComputeConvolution(input[i], Stride, Padding);
             }
-           
+
             // Compute non linearity for each feature map
             for (int k = 0; k < FeatureMaps.Count; ++k)
             {
@@ -147,8 +147,17 @@ namespace NeuralNetwork
         {
             for (int k = 0; k < FeatureMaps.Count; ++k)
             {
-                FeatureMaps[k].UpdateFilterWeights(Stride, Padding, learningRate, momentum, weightDecay,biasRate);
+                FeatureMaps[k].UpdateFilterWeights(Stride, Padding, learningRate, momentum, weightDecay, biasRate);
             }
+        }
+
+        public override void MeanGradients(float value)
+        {
+            for (int k = 0; k < FeatureMaps.Count; ++k)
+                for (int j = 0; j < FeatureMaps[k].Gradients.GetLength(0); ++j)
+                    for (int l = 0; l < FeatureMaps[k].Gradients.GetLength(1); ++l)
+                        FeatureMaps[k].Gradients[j, l] /= value;
+
         }
     }
 }

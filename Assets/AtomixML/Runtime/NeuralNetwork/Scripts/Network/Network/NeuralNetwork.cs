@@ -173,6 +173,7 @@ namespace NeuralNetwork
 
         #region BackPropagation
 
+
         public void BackPropagate(double[] outputs, double[] testvalues, float learningRate, float momentum, float weightDecay, float biasRate)
         {
             ComputeDenseGradients(testvalues, outputs);

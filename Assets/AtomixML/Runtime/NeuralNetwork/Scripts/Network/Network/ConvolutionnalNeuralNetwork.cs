@@ -28,26 +28,38 @@ namespace NeuralNetwork
 
         #endregion
 
-
+        /// <summary>
+        /// Forward pass of the convolutional network
+        /// </summary>
+        /// <param name="matrix2Din"></param>
+        /// <returns></returns>
         public double[] ComputeForward(double[,] matrix2Din)
         {
+            // convolutions have many features map of 2x2 dimensions
+            // the signal is 3dimensional
             int features_dimension = (CNNLayers[0] as ConvolutionLayer).FeatureMaps.Count;
             double[][,] conv_result = new double[features_dimension][,];
 
+            // copy the input
             for (int i = 0; i < features_dimension; ++i)
             {
                 conv_result[i] = new double[matrix2Din.GetLength(0), matrix2Din.GetLength(1)];
                 Array.Copy(matrix2Din, conv_result[i], matrix2Din.Length);
             }
 
+            // convolutions
             for (int i = 0; i < CNNLayers.Count; ++i)
             {
                 conv_result = CNNLayers[i].ComputeForward(conv_result);
             }
 
+            // flattening
             double[] flatten = FlattenLayer.ComputeForward(conv_result);
             double[] result = new double[flatten.Length];
-            Array.Copy(flatten, result, flatten.Length);
+
+            Array.Copy(flatten, result, flatten.Length); // why ?
+
+            // dense pass, classic network
             for(int i = 0; i < DenseLayers.Count; ++i)
             {
                 result = DenseLayers[i].FeedForward(result);
@@ -74,11 +86,20 @@ namespace NeuralNetwork
             }
         }
 
-        // Update all weights from gradients
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="learningRate"></param>
+        /// <param name="momentum"></param>
+        /// <param name="weightDecay"></param>
+        /// <param name="biasRate"></param>
         public void UpdateWeights(float learningRate, float momentum, float weightDecay, float biasRate)
         {
+            // the order is not important there
+            // first dense
             UpdateDenseWeights(learningRate, momentum, weightDecay, biasRate);
 
+            // then convolution
             for (int i = CNNLayers.Count - 1; i >= 0; --i)
             {
                 CNNLayers[i].UpdateWeights(learningRate, momentum, weightDecay, biasRate);
@@ -91,7 +112,7 @@ namespace NeuralNetwork
 
             for (int i = 0; i < CNNLayers.Count; ++i)
             {
-                //CNNLayers[i].MeanGradients(value);
+                CNNLayers[i].MeanGradients(value);
             }
         }
     }

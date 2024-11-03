@@ -12,9 +12,9 @@ namespace Atom.MachineLearning.Unsupervised.PCA
         public string ModelName { get; set; } = "PCASimple";
         public string ModelVersion { get; set; } = "1.0.0";
 
-        [MachineLearnedParameter, SerializeField] public NMatrix _projectionMatrix;
-        [MachineLearnedParameter, SerializeField] public NVector _meanVector;
-        [MachineLearnedParameter, SerializeField] public NVector _stdDeviationVector;
+        [LearnedParameter, SerializeField] private NMatrix _projectionMatrix;
+        [LearnedParameter, SerializeField] private NVector _meanVector;
+        [LearnedParameter, SerializeField] private NVector _stdDeviationVector;
 
         // for transformation of input data
         protected NMatrix projectionMatrix { get => _projectionMatrix; private set => _projectionMatrix = value; }

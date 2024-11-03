@@ -1,4 +1,5 @@
 ﻿using Atom.MachineLearning.Core;
+using Atom.MachineLearning.Core.Training;
 using Atom.MachineLearning.IO;
 using Sirenix.OdinInspector;
 using System;
@@ -51,9 +52,9 @@ namespace Atom.MachineLearning.Unsupervised.KMeanClustering
         }
 
         [Button]
-        private async void TestFitFlowers(int minClusters = 2, int maxClusters = 6, int parallelRuns = 3, string csvpaath = "Assets/AtomixML/Runtime/UnsupervisedLearning/PCA/Resources/flowers/iris.data.txt", int maximumSetSize = 50)
+        private async void TestFitFlowers(int minClusters = 2, int maxClusters = 6, int parallelRuns = 3)
         {
-            var datas = DatasetReader.ReadCSV(csvpaath, ',');
+            var datas = Datasets.Flowers();
 
             DatasetReader.SplitLastColumn(datas, out var features, out var labels);
 
@@ -82,9 +83,9 @@ namespace Atom.MachineLearning.Unsupervised.KMeanClustering
         }
 
         [Button]
-        public void TestRunFlower(string csvpaath = "Assets/AtomixML/Runtime/UnsupervisedLearning/PCA/Resources/flowers/iris.data.txt")
+        public void TestRunFlower()
         {
-            var datas = DatasetReader.ReadCSV(csvpaath, ',');
+            var datas = Datasets.Flowers();
 
             DatasetReader.SplitLastColumn(datas, out var features, out var labels);
 
@@ -214,6 +215,9 @@ namespace Atom.MachineLearning.Unsupervised.KMeanClustering
         void OnDrawGizmos()
         {
             if (_trainingDatas == null)
+                return;
+
+            if (_model == null)
                 return;
 
             foreach (var item in _trainingDatas)

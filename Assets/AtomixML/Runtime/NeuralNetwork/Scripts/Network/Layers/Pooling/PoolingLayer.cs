@@ -274,6 +274,11 @@ namespace NeuralNetwork
             renderer.GetComponent<Renderer>().material.mainTexture = textureOut;
         }
 
+        public override void MeanGradients(float value)
+        {
+            // No gradients to update here
+        }
+
         public override void UpdateWeights(float learningRate, float momentum, float weightDecay, float biasRate)
         {
             // No weights to update here
