@@ -12,5 +12,6 @@ namespace Atom.MachineLearning.Core.Maths
         {
             return Math.Exp(-distance / (2 * radius * radius));
         }
+
     }
 }

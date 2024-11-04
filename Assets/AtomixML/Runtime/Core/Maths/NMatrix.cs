@@ -11,8 +11,8 @@ namespace Atom.MachineLearning.Core
     {
         public double[,] Datas { get; set; }
 
-        public int Columns => Datas.GetLength(0);
-        public int Rows => Datas.GetLength(1);
+        public int Columns => Datas.GetLength(1);
+        public int Rows => Datas.GetLength(0);
 
         public NMatrix(int squareRowColumns)
         {
@@ -21,7 +21,7 @@ namespace Atom.MachineLearning.Core
 
         public NMatrix(int columns, int rows)
         {
-            Datas = new double[columns, rows];
+            Datas = new double[rows, columns];
         }
 
 
@@ -72,7 +72,7 @@ namespace Atom.MachineLearning.Core
         /// <exception cref="InvalidOperationException"></exception>
         public static NVector operator *(NMatrix a, NVector b)
         {
-            if (a.Datas.GetLength(0) != b.Data.Length)
+            if (a.Datas.GetLength(1) != b.Data.Length)
                 throw new InvalidOperationException($"Matrix to Vector dimensions mismatch");
 
             double[] result = new double[a.Datas.GetLength(0)];

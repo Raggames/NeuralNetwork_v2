@@ -11,8 +11,19 @@ public class MathTests
     /// </summary>  
     public void Check_Matrix4x2_Multiply_Vector4()
     {
-        var matrix = new NMatrix(new double[,] { { 1, -3, 7, 2 }, { 0, -3, 8, 2 } });
-        var vector = new NVector(new double[] { 1, 0, 1, 0 });
+        var matrix = new NMatrix(new double[,] 
+        { 
+            { 1, -3, 7, 2 }, 
+            { 0, -3, 8, 2 } 
+        });
+
+        var vector = new NVector(new double[] 
+        { 
+            1, 
+            0, 
+            1, 
+            0 
+        });
 
         var check = new NVector(8, 8);
         var result = matrix * vector;

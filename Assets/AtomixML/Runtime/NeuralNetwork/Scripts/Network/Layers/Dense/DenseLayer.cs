@@ -188,7 +188,7 @@ namespace NeuralNetwork
         /// <param name="prev_layer_weights"></param>
         /// <param name="testvalues"></param>
         /// <returns></returns>
-        public double[] Backpropagate(double[] prev_layer_gradients, double[,] prev_layer_weights, double[] testvalues)
+        public double[] Backpropagate(double[] prev_layer_gradients, double[,] prev_layer_weights, double[] testvalues = null)
         {
             double[] current_gradients = new double[gradients.Length];
 

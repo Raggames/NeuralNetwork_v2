@@ -200,7 +200,7 @@ namespace NeuralNetwork
                 }
                 else
                 {
-                    gradient_inputs = DenseLayers[i].Backpropagate(gradient_inputs, DenseLayers[i + 1].Weights, testvalues);
+                    gradient_inputs = DenseLayers[i].Backpropagate(prev_layer_gradients: gradient_inputs, DenseLayers[i + 1].Weights);
                 }
             }
 

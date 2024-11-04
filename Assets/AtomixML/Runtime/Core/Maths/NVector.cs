@@ -17,7 +17,17 @@ namespace Atom.MachineLearning.Core
         public double z => Data[2];
         public double w => Data[3];
 
-        public double this[int index] => Data[index];
+        public double this[int index]
+        {
+            get
+            {
+                return Data[index];
+            }
+            set
+            {
+                Data[index] = value;
+            }
+        }
 
         public static NVector operator +(NVector a, NVector b)
         {
@@ -126,6 +136,11 @@ namespace Atom.MachineLearning.Core
         public NVector(double x, double y, double z, double w)
         {
             Data = new double[] { x, y, z, w };
+        }
+
+        public override string ToString()
+        {
+            return string.Join(", ", Data);
         }
 
         /// <summary>
@@ -304,7 +319,7 @@ namespace Atom.MachineLearning.Core
         }
 
 
-        public static NVector Mean(NVector[] vectors)
+        public static NVector Average(NVector[] vectors)
         {
             int dimensions = vectors[0].Length;
 
@@ -317,13 +332,33 @@ namespace Atom.MachineLearning.Core
             return mean /= vectors.Length;
         }
 
+        public double FeaturesMin()
+        {
+            double result = 0.0;
+            for (int i = 0; i < Data.Length; ++i)
+            {
+                result = Math.Min(result, Data[i]);
+            }
+            return result;
+        }
+
+        public double FeaturesMax()
+        {
+            double result = 0.0;
+            for (int i = 0; i < Data.Length; ++i)
+            {
+                result = Math.Max(result, Data[i]);
+            }
+            return result;
+        }
+
         /// <summary>
         /// Compute the mean of a column of the array of vectors at the featureIndex (aka the feature of the vector we want to sum)
         /// </summary>
         /// <param name="vectors"></param>
         /// <param name="featureIndex"></param>
         /// <returns></returns>
-        public static double FeatureMean(NVector[] vectors, int featureIndex)
+        public static double FeatureAverage(NVector[] vectors, int featureIndex)
         {
             double sum = 0.0;
             for (int i = 0; i < vectors.Length; ++i)
@@ -412,7 +447,7 @@ namespace Atom.MachineLearning.Core
             // compute mean for each feature of the n-dimensional vector array
             for (int i = 0; i < dimensions; ++i)
             {
-                meanVector.Data[i] = NVector.FeatureMean(vectors, i);
+                meanVector.Data[i] = NVector.FeatureAverage(vectors, i);
             }
 
             // compute standardDeviation for each feature of the n-dimensional vector array
@@ -444,6 +479,38 @@ namespace Atom.MachineLearning.Core
             }
 
             return result;
+        }
+
+        public static NVector[] Normalize(NVector[] datas)
+        {
+            int dimension = datas[0].Length;
+            NVector[] normalizedData = new NVector[datas.Length];
+            double minValue = int.MaxValue;
+            double maxValue = 0;
+
+            for (int i = 0; i < normalizedData.Length; ++i)
+            {
+                double minTemp = datas[i].FeaturesMax();
+                minValue = minTemp < minValue ? minTemp : minValue;
+
+                double maxTemp = datas[i].FeaturesMin();
+                maxValue = maxTemp > maxValue ? maxTemp : maxValue;
+            }
+
+            double delta = maxValue - minValue;
+
+            for (int i = 0; i < normalizedData.Length; ++i)
+            {
+                NVector normalized = new NVector(dimension);
+                for (int j = 0; j < normalizedData[i].Length; ++j)
+                {
+                    normalized.Data[j] = (normalizedData[i][j] - minValue) / delta;                       
+                }
+
+                normalizedData[i] = normalized;
+            }
+
+            return normalizedData;
         }
     }
 
