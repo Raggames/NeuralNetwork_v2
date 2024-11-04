@@ -87,7 +87,27 @@ namespace Atom.MachineLearning.Core
             return new NVector(result);
         }
 
+        /// <summary>
+        /// Multiply matrix * column vector without allocation
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        public static NVector RightMultiplyNonAlloc(NMatrix a, NVector b, ref NVector result)
+        {
+            if (a.Datas.GetLength(1) != b.Data.Length)
+                throw new InvalidOperationException($"Matrix to Vector dimensions mismatch");
 
+            for (int i = 0; i < a.Datas.GetLength(0); i++)
+            {
+                for (int j = 0; j < a.Datas.GetLength(1); j++)
+                {
+                    result[i] += a.Datas[i, j] * b.Data[j];
+                }
+            }
+
+            return result;
+        }
 
         /// <summary>
         /// Row vector * Matrix
@@ -112,6 +132,28 @@ namespace Atom.MachineLearning.Core
             }
 
             return new NVector(result);
+        }
+
+        /// <summary>
+        /// Multiply matrix * column vector without allocation
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        public static NVector LeftMultiplyNonAlloc(NMatrix a, NVector b, ref NVector result)
+        {
+            if (a.Datas.GetLength(0) != b.Data.Length)
+                throw new InvalidOperationException("Matrix to Vector dimensions mismatch");
+
+            for (int i = 0; i < a.Datas.GetLength(1); i++) // Loop over columns in the result
+            {
+                for (int j = 0; j < a.Datas.GetLength(0); j++) // Loop over rows in 'a'
+                {
+                    result[i] += a.Datas[j, i] * b.Data[j];
+                }
+            }
+
+            return result;
         }
 
         /// <summary>

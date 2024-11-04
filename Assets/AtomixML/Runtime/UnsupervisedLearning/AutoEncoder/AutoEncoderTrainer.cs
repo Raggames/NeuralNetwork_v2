@@ -18,24 +18,24 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
         private async void TestMnist()
         {
             var autoEncoder = new AutoEncoderModel(
-                24,
-                new int[] { 12, 6, 3 },
-                2,
-                new int[] { 3, 6, 12 },
-                24);
+                64,
+                new int[] { 32, 16, 8 },
+                4,
+                new int[] { 8, 32, 16 },
+                64);
 
 
         }
 
         [Button]
-        private async void TestSimpleNetwork(int iterations = 50, float lr = .05f)
+        private async void TestSimpleNetwork(double x = 1, double y =1, double z = 1, int iterations = 50, float lr = .05f)
         {
             var l1 = new AutoEncoderModel.DenseLayer(3, 24);
             var l2 = new AutoEncoderModel.DenseLayer(24, 3);
             l1.Seed();
             l2.Seed();
 
-            var x1 = new NVector(1, 1, 1);
+            var x1 = new NVector(x, y, z);
             NVector error = new NVector();
 
             for (int i = 0; i < iterations; ++i)

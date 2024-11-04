@@ -69,6 +69,9 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
                     for(int j = 0; j < _weigths.Columns; ++j)
                         _weigths.Datas[i, j] = MLRandom.Shared.Range(-.01f, .01f);
 
+                for (int i = 0; i < _bias.Length; ++i)
+                    _bias.Data[i] += MLRandom.Shared.Range(-.01f, .01f);
+
                 return this;
             }
 
@@ -77,7 +80,8 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
                 _input = input;
 
                 // output is buffered by the layer for backward pass
-                _output = _activationFunction(_weigths * input + _bias);
+                NMatrix.RightMultiplyNonAlloc(_weigths, input, ref _output);
+                _output = _activationFunction(_output + _bias);
 
                 return _output;
             }
