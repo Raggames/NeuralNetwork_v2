@@ -159,13 +159,13 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
             }
         }
 
-        public AutoEncoderModel(int[] encoderLayersDimensions, int[] decoderLayerDimensions)
+        public AutoEncoderModel(int[] encoderLayersDimensions, int[] decoderLayerDimensions, Func<NVector, NVector> activation = null, Func<NVector, NVector> derivation = null)
         {
             _encoder = new DenseLayer[encoderLayersDimensions.Length - 1];
 
             for (int i = 0; i < encoderLayersDimensions.Length - 1; ++i)
             {
-                _encoder[i] = new DenseLayer(encoderLayersDimensions[i], encoderLayersDimensions[i + 1]);
+                _encoder[i] = new DenseLayer(encoderLayersDimensions[i], encoderLayersDimensions[i + 1], activation, derivation);
                 _encoder[i].Seed();
             }
 
@@ -179,7 +179,7 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
 
             for (int i = 0; i < decoderLayerDimensions.Length - 1; ++i)
             {
-                _decoder[i] = new DenseLayer(decoderLayerDimensions[i], decoderLayerDimensions[i + 1]);
+                _decoder[i] = new DenseLayer(decoderLayerDimensions[i], decoderLayerDimensions[i + 1], activation, derivation);
                 _decoder[i].Seed();
             }
         }

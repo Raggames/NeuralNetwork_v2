@@ -21,7 +21,7 @@ namespace Atom.MachineLearning.IO
                 for (int j = 0; j < image.height; ++j)
                 {
                     var pix = image.GetPixel(i, j);
-                    float value = ((pix.r + pix.g + pix.b) / 3f) * pix.a;
+                    float value = ((pix.r + pix.g + pix.b) / 3f);
                     result[i, j] = value;
                 }
             }

@@ -24,6 +24,8 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
         [HyperParameter, SerializeField] private float _momentum = .01f;
         [HyperParameter, SerializeField] private float _weightDecay = .0001f;
         [HyperParameter, SerializeField] private AnimationCurve _learningRateCurve;
+        
+        [SerializeField] private bool _normalizeDataSet;
 
         [ShowInInspector, ReadOnly] private int _currentEpoch;
         [ShowInInspector, ReadOnly] private float _currentLearningRate;
@@ -39,12 +41,24 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
         [ShowInInspector, ReadOnly] private Texture2D _inputVisualization;
         [SerializeField] private RawImage _inputRawImage;
 
+        [Button]
+        private void VisualizeRandomMnist()
+        {
+            var mnist = Datasets.Mnist_8x8_TexturePooled_All();
+            var input = mnist[MLRandom.Shared.Range(0, _x_datas.Length - 1)];
+            _inputRawImage.texture = input;
+        }
+
 
         [Button]
         private void LoadMnist()
         {
             var mnist = Datasets.Mnist_8x8_Vectorized_All();
-            _x_datas = NVector.Normalize(mnist);
+
+            if (_normalizeDataSet)
+                _x_datas = NVector.Normalize(mnist);
+            else
+                _x_datas = mnist;
         }
 
         [Button]
@@ -55,8 +69,22 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
                 new int[] { 8, 16, 32, 64 } );*/
 
             var autoEncoder = new AutoEncoderModel(
-                new int[] { 64, 16, 8 },
-                new int[] { 8, 16, 64 });
+                new int[] { 64, 32, 8 },
+                new int[] { 8, 32, 64 },
+                (r) =>
+                {
+                    for (int i = 0; i < r.Length; ++i)
+                        r[i] = MLActivationFunctions.Sigmoid(r[i]);
+
+                    return r;
+                },
+                (r) =>
+                {
+                    for (int i = 0; i < r.Length; ++i)
+                        r[i] = MLActivationFunctions.DSigmoid(r[i]);
+
+                    return r;
+                });
 
             autoEncoder.ModelName = "auto-encoder-mnist";
 
@@ -171,7 +199,7 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
             // accuracy ?
             ModelSerializationService.SaveModel(trainedModel);
 
-           
+
             return new TrainingResult();
         }
 
@@ -199,8 +227,8 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
             }
 
 
-            _currentLoss = (float) error_sum / _x_datas.Length;
-           
+            _currentLoss = (float)error_sum / _x_datas.Length;
+
             // decay learning rate
             // decay neighboordHoodDistance
             // for instance, linear degression

@@ -42,7 +42,7 @@ namespace Atom.MachineLearning.Core
             }
 
             // Find the latest version
-            var versions = Directory.GetFiles(model_impl_path, ".json");
+            var versions = Directory.GetFiles(model_impl_path);
             var latestVersion = versions.OrderByDescending(v => v).FirstOrDefault();
             if (latestVersion != null)
             {

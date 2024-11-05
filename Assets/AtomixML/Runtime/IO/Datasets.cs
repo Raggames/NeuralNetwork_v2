@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace Atom.MachineLearning.IO
 {
@@ -38,6 +39,22 @@ namespace Atom.MachineLearning.IO
                 var pooled = TransformationUtils.PoolAverage(matrix, 4, 2);
                 var array = TransformationUtils.MatrixToArray(pooled);
                 vectors_array[i] = new NVector(array);
+            }
+
+            return vectors_array;
+        }
+        
+        public static Texture2D[] Mnist_8x8_TexturePooled_All()
+        {
+            var textures = DatasetReader.ReadTextures("Datasets/mnist");
+
+            var vectors_array = new Texture2D[textures.Count];
+            for (int i = 0; i < textures.Count; ++i)
+            {
+                var matrix = TransformationUtils.Texture2DToMatrix(textures[i]);
+                var pooled = TransformationUtils.PoolAverage(matrix, 4, 2);
+                var array = TransformationUtils.MatrixToTexture2D(pooled);
+                vectors_array[i] = array;
             }
 
             return vectors_array;
