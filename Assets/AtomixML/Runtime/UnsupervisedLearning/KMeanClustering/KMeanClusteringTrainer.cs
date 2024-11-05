@@ -13,13 +13,12 @@ namespace Atom.MachineLearning.Unsupervised.KMeanClustering
 {
     public class KMeanClusteringTrainer : MonoBehaviour, IMLTrainer<KMeanClusteringModel, NVector, KMeanClusteringOutputData>
     {
-        [SerializeField] private int _epochs;
-
-        public int Epochs { get => _epochs; set => _epochs = value; }
-
+        [HyperParameter, SerializeField] private int _epochs;
 
         [ShowInInspector, ReadOnly] private int _currentEpoch;
         public int currentEpoch => _currentEpoch;
+
+        public KMeanClusteringModel trainedModel { get; set ; }
 
         /// <summary>
         /// Euclidian distance computed for each point and classified by label
@@ -121,7 +120,7 @@ namespace Atom.MachineLearning.Unsupervised.KMeanClustering
             }
 
             // run epochs
-            for (_currentEpoch = 0; _currentEpoch < Epochs; _currentEpoch++)
+            for (_currentEpoch = 0; _currentEpoch < _epochs; _currentEpoch++)
             {
                 // run the batch 
                 for (int j = 0; j < _trainingDatas.Length; ++j)

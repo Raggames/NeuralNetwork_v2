@@ -1,9 +1,11 @@
 ﻿using Atom.MachineLearning.Core;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace Atom.MachineLearning.Unsupervised.SelfOrganizingMap
 {
@@ -30,9 +32,9 @@ namespace Atom.MachineLearning.Unsupervised.SelfOrganizingMap
         /// The map is a 2D grid representation of the input features iteratively computed during the training process
         /// 3rd dimension is the weight vector of each neuron of the 2D grid
         /// </summary>
-        [LearnedParameter] private NVector[,] _kohonenMap;
+        [LearnedParameter, SerializeField] private NVector[,] _kohonenMap;
 
-        public NVector[,] kohonenMap => _kohonenMap;
+        [JsonIgnore] public NVector[,] kohonenMap => _kohonenMap;
 
         private Func<NVector, NVector, double> _distanceFunction;
 

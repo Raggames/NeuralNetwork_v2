@@ -255,9 +255,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _epochs: 250
-  _neuronCountMultiplier: 2
   _neighboorHoodRadius: 4
   _learningRate: 0.12
+  _neuronCountMultiplier: 2
   _sizeMultiplier: 0.62
   _radiusMultiplier: 0.02
 --- !u!1 &2083315921

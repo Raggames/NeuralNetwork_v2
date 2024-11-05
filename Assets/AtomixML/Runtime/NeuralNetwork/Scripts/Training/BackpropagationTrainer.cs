@@ -201,9 +201,7 @@ namespace NeuralNetwork
                 sequence_indexes[i] = i;
 
             for (int i = 0; i < Epochs; ++i)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-
+            {                
                 int dataIndex = 0;
 
                 // Shuffle datas each epoch
@@ -213,6 +211,8 @@ namespace NeuralNetwork
                 double error_sum = 0;
                 for(int d = 0; d < iterations_per_epoch; ++d)
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
+
                     for (int j = 0; j < BatchSize; ++j)
                     {
                         run_inputs = x_datas[sequence_indexes[dataIndex]];

@@ -29,11 +29,11 @@ namespace Atom.MachineLearning.Unsupervised.PCA
         private NVector[] _test_results;
         private Color[] _labelColors;
 
-        private PCAModel _model;
-
         [Header("Debug show")]
         [SerializeField] private float _scale = 3f;
         [SerializeField] private RawImage _rawImage;
+
+        public PCAModel trainedModel { get; set; }
 
         [Button]
         private async void TestMNISTFit(string texturesPath = "Datasets/mnist")
@@ -60,7 +60,7 @@ namespace Atom.MachineLearning.Unsupervised.PCA
         [Button]
         private void TestLoadMNIST()
         {
-            _model = ModelSerializationService.LoadModel<PCAModel>("pca_mnist");
+            trainedModel = ModelSerializationService.LoadModel<PCAModel>("pca_mnist");
         }
 
         [Button]
@@ -77,10 +77,10 @@ namespace Atom.MachineLearning.Unsupervised.PCA
             var inputVector = new NVector(array);
 
             // executing a 'forward' path. dimensions are reduced
-            var output_vector = _model.Predict(inputVector);
+            var output_vector = trainedModel.Predict(inputVector);
 
             // executing a 'backward' path, a very interesting thing that PCAs can do 
-            output_vector = _model.Decompress(output_vector);
+            output_vector = trainedModel.Decompress(output_vector);
             var output_to_matrix = TransformationUtils.ArrayToMatrix(output_vector.Data);
             var texture = TransformationUtils.MatrixToTexture2D(output_to_matrix);
 
@@ -132,7 +132,7 @@ namespace Atom.MachineLearning.Unsupervised.PCA
 
         public async Task<ITrainingResult> Fit(PCAModel model, NVector[] trainingDatas)
         {
-            _model = model;
+            trainedModel = model;
             var standardizedDatas = NVector.Standardize(trainingDatas, out _meanVector, out _stdDeviationVector);
             var covariance_matrix = NVector.CovarianceMatrix(standardizedDatas);
 

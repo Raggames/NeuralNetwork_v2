@@ -50,7 +50,6 @@ namespace NeuralNetwork
             DenseLayers.Add(new DenseLayer().Create(LayerType.DenseHidden, activationFunction, inputFeaturesCount, neuronsCount));
         }
 
-
         public void AddDenseLayer(int neuronsCount, ActivationFunctions activationFunction)
         {
             if(DenseLayers.Count == 0)

@@ -15,6 +15,8 @@ namespace Atom.MachineLearning.Core.Training
         where TModelOutputData : IMLInOutData
         where TModel : IMLModel<TModelInputData, TModelOutputData>
     {
+        public TModel trainedModel { get; set; }
+
         /// <summary>
         /// Train the model 
         /// </summary>

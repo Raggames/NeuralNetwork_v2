@@ -2,6 +2,7 @@
 using Atom.MachineLearning.Core.Maths;
 using Atom.MachineLearning.Core.Training;
 using Atom.MachineLearning.IO;
+using Newtonsoft.Json;
 using Sirenix.OdinInspector;
 using System;
 using System.Collections.Generic;
@@ -14,14 +15,9 @@ namespace Atom.MachineLearning.Unsupervised.SelfOrganizingMap
 {
     public class SOMTrainer : MonoBehaviour, IMLTrainer<SOMModel, NVector, KohonenMatchingUnit>
     {
-        [SerializeField] private int _epochs = 1000;
+        public SOMModel trainedModel { get; set; }
 
-        /// <summary>
-        /// Used while computing the count of neuron using kohonen rule of thumb
-        /// Increasing this value will increase the dimensions of the kohonen map
-        /// </summary>
-        [SerializeField] private float _neuronCountMultiplier = 1;
-
+        [HyperParameter, SerializeField] private int _epochs = 1000;
         /// <summary>
         /// Influence range of each neuron 
         /// </summary>
@@ -30,9 +26,13 @@ namespace Atom.MachineLearning.Unsupervised.SelfOrganizingMap
         // computed value
         [HyperParameter, ShowInInspector, ReadOnly] private double _timeConstant;
 
+        /// <summary>
+        /// Used while computing the count of neuron using kohonen rule of thumb
+        /// Increasing this value will increase the dimensions of the kohonen map
+        /// </summary>
+        [SerializeField] private float _neuronCountMultiplier = 1;
         // runtime
         private EpochSupervisorAsync _epochSupervisor;
-        private SOMModel _model;
 
         private NVector[] _x_datas;
         private NVector[] _t_datas;
@@ -73,20 +73,19 @@ namespace Atom.MachineLearning.Unsupervised.SelfOrganizingMap
             ComputeTimeConstant();
 
             _x_datas = x_datas;
-            _model = model;
+            trainedModel = model;
 
             _shuffle_x_datas = new List<NVector>();
-            _shuffle_x_datas.AddRange(x_datas);
 
             _currentNeighboorHoodRadius = _neighboorHoodRadius;
             _currentLearningRate = _learningRate;
 
             _epochSupervisor = new EpochSupervisorAsync(EpochIterationCallback);
-            await _epochSupervisor.Run(1000);
+            await _epochSupervisor.Run(_epochs);
 
             var quantized_error = QuantizationError(x_datas);
-
-            ModelSerializationService.SaveModel(_model);
+            Debug.Log("Error > " + quantized_error);
+            ModelSerializationService.SaveModel(trainedModel);
 
             return new TrainingResult()
             {
@@ -96,6 +95,8 @@ namespace Atom.MachineLearning.Unsupervised.SelfOrganizingMap
 
         private void EpochIterationCallback(int epoch)
         {
+            _shuffle_x_datas.AddRange(_x_datas);
+
             while (_shuffle_x_datas.Count > 0)
             {
                 if (_currentNeighboorHoodRadius <= .001f)
@@ -109,10 +110,10 @@ namespace Atom.MachineLearning.Unsupervised.SelfOrganizingMap
                 var next_input = _shuffle_x_datas[index];
                 _shuffle_x_datas.RemoveAt(index);
 
-                var best_matching_unit = _model.Predict(next_input);
+                var best_matching_unit = trainedModel.Predict(next_input);
 
                 // update weight of unit and neighboors
-                var neighboors = _model.GetNeighboors(best_matching_unit.XCoordinate, best_matching_unit.YCoordinate, _currentNeighboorHoodRadius);
+                var neighboors = trainedModel.GetNeighboors(best_matching_unit.XCoordinate, best_matching_unit.YCoordinate, _currentNeighboorHoodRadius);
 
                 neighboors.Insert(0, best_matching_unit);
 
@@ -121,14 +122,9 @@ namespace Atom.MachineLearning.Unsupervised.SelfOrganizingMap
                     var influence_ratio = MLMath.Gaussian(element.Distance, _currentNeighboorHoodRadius);
                     var delta = next_input - element.WeightVector;
                     var new_weight = element.WeightVector + delta * (_currentLearningRate * influence_ratio);
-                    _model.UpdateWeight(element.XCoordinate, element.YCoordinate, new_weight);
+                    trainedModel.UpdateWeight(element.XCoordinate, element.YCoordinate, new_weight);
                 }
             }
-
-            // decay learning rate
-            // decay neighboordHoodDistance
-            // for instance, linear degression
-
 
             _currentLearningRate = CurrentLearningRate(epoch);
             _currentNeighboorHoodRadius = CurrentNeighborhoodRadius(epoch);
@@ -156,7 +152,7 @@ namespace Atom.MachineLearning.Unsupervised.SelfOrganizingMap
             var sum = 0.0;
             for(int i = 0; i < x_datas.Length; ++i)
             {
-                var bmu = _model.Predict(x_datas[i]);
+                var bmu = trainedModel.Predict(x_datas[i]);
                 sum += bmu.Distance;
             }
 
@@ -202,14 +198,14 @@ namespace Atom.MachineLearning.Unsupervised.SelfOrganizingMap
         /// </summary>
         public void PlotKohonenMatrix()
         {
-            if (_model == null)
-                _model = ModelSerializationService.LoadModel<SOMModel>("som-flowers");
+            if (trainedModel == null)
+                trainedModel = ModelSerializationService.LoadModel<SOMModel>("som-flowers");
 
-            _labelColoredMatrix = new Color[_model.kohonenMap.GetLength(0), _model.kohonenMap.GetLength(1)];
-            _labelIterationMatrix = new int[_model.kohonenMap.GetLength(0), _model.kohonenMap.GetLength(1)];
+            _labelColoredMatrix = new Color[trainedModel.kohonenMap.GetLength(0), trainedModel.kohonenMap.GetLength(1)];
+            _labelIterationMatrix = new int[trainedModel.kohonenMap.GetLength(0), trainedModel.kohonenMap.GetLength(1)];
 
-            for (int i = 0; i < _model.kohonenMap.GetLength(0); ++i)
-                for (int j = 0; j < _model.kohonenMap.GetLength(1); ++j)
+            for (int i = 0; i < trainedModel.kohonenMap.GetLength(0); ++i)
+                for (int j = 0; j < trainedModel.kohonenMap.GetLength(1); ++j)
                 {
                     _labelColoredMatrix[i, j] = Color.white;
                     _labelIterationMatrix[i, j] = 0;
@@ -232,15 +228,15 @@ namespace Atom.MachineLearning.Unsupervised.SelfOrganizingMap
                 colors[i] = new Color((float)vectorized_labels[i, 0], (float)vectorized_labels[i, 1], (float)vectorized_labels[i, 2], 1);
 
             var average_weight = 0.0;
-            for (int i = 0; i < _model.kohonenMap.GetLength(0); ++i)
-                for (int j = 0; j < _model.kohonenMap.GetLength(1); ++j)
-                    average_weight += _model.kohonenMap[i, j].magnitude;
+            for (int i = 0; i < trainedModel.kohonenMap.GetLength(0); ++i)
+                for (int j = 0; j < trainedModel.kohonenMap.GetLength(1); ++j)
+                    average_weight += trainedModel.kohonenMap[i, j].magnitude;
 
-            average_weight /= _model.kohonenMap.GetLength(0) * _model.kohonenMap.GetLength(1);
+            average_weight /= trainedModel.kohonenMap.GetLength(0) * trainedModel.kohonenMap.GetLength(1);
 
             for (int i = 0; i < _x_datas.Length; ++i)
             {
-                var prediction = _model.Predict(_x_datas[i]);
+                var prediction = trainedModel.Predict(_x_datas[i]);
                 var prediction_weight = prediction.WeightVector.magnitude;
                 Debug.Log($"Prediction vector magnitude {prediction_weight}/{average_weight}");
 
@@ -252,12 +248,12 @@ namespace Atom.MachineLearning.Unsupervised.SelfOrganizingMap
 
         void OnDrawGizmos()
         {
-            if (_model == null || _model.kohonenMap == null || _labelColoredMatrix == null)
+            if (trainedModel == null || trainedModel.kohonenMap == null || _labelColoredMatrix == null)
                 return;
 
             // showing the current state of the kohonen map weights
-            for (int i = 0; i < _model.kohonenMap.GetLength(0); ++i)
-                for (int j = 0; j < _model.kohonenMap.GetLength(1); ++j)
+            for (int i = 0; i < trainedModel.kohonenMap.GetLength(0); ++i)
+                for (int j = 0; j < trainedModel.kohonenMap.GetLength(1); ++j)
                 {
 
                     Gizmos.color = _labelColoredMatrix[i, j];

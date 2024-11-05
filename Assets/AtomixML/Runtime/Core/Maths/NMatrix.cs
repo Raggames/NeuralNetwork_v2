@@ -23,6 +23,17 @@ namespace Atom.MachineLearning.Core
         {
             Datas = new double[rows, columns];
         }
+        public double this[int x, int y]
+        {
+            get
+            {
+                return Datas[x, y];
+            }
+            set
+            {
+                Datas[x, y] = value;
+            }
+        }
 
 
         public NMatrix(double[,] datas)
@@ -87,36 +98,23 @@ namespace Atom.MachineLearning.Core
             return new NVector(result);
         }
 
-        /// <summary>
-        /// Matrix * column vector
-        /// </summary>
-        /// <param name="a"></param>
-        /// <param name="b"></param>
-        /// <returns></returns>
-        /// <exception cref="InvalidOperationException"></exception>
-        public static NVector operator *(NMatrix a, NVector b, ref NVector result)
+        public static NMatrix OuterProduct(NVector a, NVector b)
         {
-            if (a.Datas.GetLength(1) != b.Data.Length)
-                throw new InvalidOperationException($"Matrix to Vector dimensions mismatch");
+            var matrix = new NMatrix(a.Length, b.Length);
+            for (int i = 0; i < a.Length; ++i)
+                for (int j = 0; j < b.Length; ++j)
+                    matrix.Datas[i, j] = a.Data[i] * b.Data[j];
 
-            for (int i = 0; i < a.Datas.GetLength(0); i++)
-            {
-                for (int j = 0; j < a.Datas.GetLength(1); j++)
-                {
-                    result[i] += a.Datas[i, j] * b.Data[j];
-                }
-            }
-
-            return result;
+            return matrix;
         }
 
         /// <summary>
-        /// Multiply matrix * column vector without allocation
+        /// Multiply matrix * column vector without allocation of a result vector
         /// </summary>
         /// <param name="a"></param>
         /// <param name="b"></param>
         /// <returns></returns>
-        public static NVector RightMultiplyNonAlloc(NMatrix a, NVector b, ref NVector result)
+        public static NVector MatrixRightMultiplyNonAlloc(NMatrix a, NVector b, ref NVector result)
         {
             if (a.Datas.GetLength(1) != b.Data.Length)
                 throw new InvalidOperationException($"Matrix to Vector dimensions mismatch");
@@ -163,7 +161,7 @@ namespace Atom.MachineLearning.Core
         /// <param name="a"></param>
         /// <param name="b"></param>
         /// <returns></returns>
-        public static NVector LeftMultiplyNonAlloc(NMatrix a, NVector b, ref NVector result)
+        public static NVector MatrixLeftMultiplyNonAlloc(NMatrix a, NVector b, ref NVector result)
         {
             if (a.Datas.GetLength(0) != b.Data.Length)
                 throw new InvalidOperationException("Matrix to Vector dimensions mismatch");
@@ -195,22 +193,43 @@ namespace Atom.MachineLearning.Core
             return matrix;
         }
 
-        public static NMatrix Transpose(NMatrix matrix)
+        public NMatrix Transpose()
         {
-            int rows = matrix.Datas.GetLength(0);
-            int columns = matrix.Datas.GetLength(1);
+            int rows = Datas.GetLength(0);
+            int columns = Datas.GetLength(1);
             double[,] transpose = new double[columns, rows];
 
             for (int i = 0; i < rows; i++)
             {
                 for (int j = 0; j < columns; j++)
                 {
-                    transpose[j, i] = matrix.Datas[i, j];
+                    transpose[j, i] = Datas[i, j];
                 }
             }
 
             return new NMatrix(transpose);
         }
+
+
+        public NVector Diagonal()
+        {
+            if(this.Columns != this.Rows)
+                throw new InvalidOperationException("Matrix must be square to calculate diagonal");
+
+            var data = new double[Rows];
+            int index = 0;
+            for (int i = 0; i < Rows; i++)
+                for (int j = 0; j < Columns; j++)
+                {
+                    if(i == j)
+                    {
+                        data[index] = Datas[i, j];
+                    }
+                }
+
+            return new NVector(data);
+        }
+
 
         /// <summary>
         /// Concat column vectors 'horizontaly' to build the matrix

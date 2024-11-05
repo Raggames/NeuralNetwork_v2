@@ -502,9 +502,9 @@ namespace Atom.MachineLearning.Core
             for (int i = 0; i < normalizedData.Length; ++i)
             {
                 NVector normalized = new NVector(dimension);
-                for (int j = 0; j < normalizedData[i].Length; ++j)
+                for (int j = 0; j < dimension; ++j)
                 {
-                    normalized.Data[j] = (normalizedData[i][j] - minValue) / delta;                       
+                    normalized[j] = (datas[i][j] - minValue) / delta;                       
                 }
 
                 normalizedData[i] = normalized;

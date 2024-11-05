@@ -60,7 +60,7 @@ namespace Atom.MachineLearning.Unsupervised.PCA
             if (predictedData.Length != projectionMatrix.Columns) throw new System.Exception($"The input vector should be an output of the prediction. " +
                 $"It should have a number of features equals to the number of components (aka the reduced dimensions from input data");
 
-            var transposed = NMatrix.Transpose(projectionMatrix);
+            var transposed = projectionMatrix.Transpose();
             return predictedData * transposed;
         }
     }
