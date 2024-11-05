@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.UI;
 using static Atom.MachineLearning.Unsupervised.AutoEncoder.AutoEncoderModel;
 
 namespace Atom.MachineLearning.Unsupervised.AutoEncoder
@@ -26,6 +27,7 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
 
         [ShowInInspector, ReadOnly] private int _currentEpoch;
         [ShowInInspector, ReadOnly] private float _currentLearningRate;
+        [ShowInInspector, ReadOnly] private float _currentLoss;
 
         private NVector[] _x_datas;
         private List<NVector> _x_datas_buffer;
@@ -33,22 +35,59 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
         private AutoEncoderModel _model;
 
         [ShowInInspector, ReadOnly] private Texture2D _outputVisualization;
+        [SerializeField] private RawImage _outputRawImage;
+        [ShowInInspector, ReadOnly] private Texture2D _inputVisualization;
+        [SerializeField] private RawImage _inputRawImage;
+
 
         [Button]
-        private async void TestMnist()
+        private void LoadMnist()
         {
-            var autoEncoder = new AutoEncoderModel(
-                64,
-                new int[] { 32, 16, 8 },
-                4,
-                new int[] { 8, 16, 32 },
-                64);
-
             var mnist = Datasets.Mnist_8x8_Vectorized_All();
-            var normalized_mnist = NVector.Normalize(mnist);
-            await Fit(autoEncoder, normalized_mnist);
+            _x_datas = NVector.Normalize(mnist);
+        }
+
+        [Button]
+        private async void FitMnist()
+        {
+            /*var autoEncoder = new AutoEncoderModel(
+                new int[] { 64, 32, 16, 8 },
+                new int[] { 8, 16, 32, 64 } );*/
+
+            var autoEncoder = new AutoEncoderModel(
+                new int[] { 64, 16, 8 },
+                new int[] { 8, 16, 64 });
+
+            autoEncoder.ModelName = "auto-encoder-mnist";
+
+            LoadMnist();
+
+            await Fit(autoEncoder, _x_datas);
 
             Debug.Log("End fit");
+        }
+
+        [Button]
+        private void LoadLast()
+        {
+            trainedModel = ModelSerializationService.LoadModel<AutoEncoderModel>("auto-encoder-mnist");
+        }
+
+        [Button]
+        private void Visualize()
+        {
+            LoadMnist();
+
+            var input = _x_datas[MLRandom.Shared.Range(0, _x_datas.Length - 1)];
+
+            _inputVisualization = TransformationUtils.MatrixToTexture2D(TransformationUtils.ArrayToMatrix(input.Data));
+            _inputRawImage.texture = _inputVisualization;
+
+            var output = trainedModel.Predict(input);
+
+            // visualize each epoch the output of the last run
+            _outputVisualization = TransformationUtils.MatrixToTexture2D(TransformationUtils.ArrayToMatrix(output.Data));
+            _outputRawImage.texture = _outputVisualization;
         }
 
         [Button]
@@ -66,13 +105,33 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
             // à passer également dans une fonction qui permet de gérer le maximum de magnitude du moment, relatif aux composantes de poids actuelles
             // et hyperparamétriser ça avec un momentum_ratio
 
-            var l1 = new AutoEncoderModel.DenseLayer(3, 24);
-            var l2 = new AutoEncoderModel.DenseLayer(24, 3);
+            var l1 = new AutoEncoderModel.DenseLayer(2, 4);
+            var l2 = new AutoEncoderModel.DenseLayer(4, 8);
             l1.Seed();
             l2.Seed();
 
-            var x1 = new NVector(x, y, z);
+            var x1 = new NVector(x, y);
+            var t1 = new NVector(new double[] { 1, 1, 1, 1, 0, 0, 0, 0 });
             NVector error = new NVector();
+
+            Debug.Log("NN 1 ****************");
+
+            var nn = new NeuralNetwork.NeuralNetwork();
+            nn.AddDenseLayer(2, 4, ActivationFunctions.Sigmoid);
+            nn.AddOutputLayer(8, ActivationFunctions.Sigmoid);
+            nn.SeedRandomWeights(-.01, .01);
+
+            for (int i = 0; i < iterations; ++i)
+            {
+                nn.FeedForward(x1.Data, out var result);
+                nn.BackPropagate(result, t1.Data, lr, mt, wd, lr);
+
+                error = (t1 - new NVector(result)) * 2; // derivative of mse  *2
+            }
+            Debug.Log("err > " + error.ToString());
+
+
+            Debug.Log("NN 2 ****************");
 
             for (int i = 0; i < iterations; ++i)
             {
@@ -81,7 +140,7 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
                 var o2 = l2.Forward(o1);
                 //Debug.Log("o2 > " + o2.ToString());
 
-                error = (x1 - o2) * 2; // derivative of mse  *2
+                error = (t1 - o2) * 2; // derivative of mse  *2
 
                 var g2 = l2.Backward(error);
                 //Debug.Log("g2 > " + g2.ToString());
@@ -95,21 +154,6 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
             }
             Debug.Log("err > " + error.ToString());
 
-            Debug.Log("NN 2 ****************");
-
-            var nn = new NeuralNetwork.NeuralNetwork();
-            nn.AddDenseLayer(3, 24, ActivationFunctions.Sigmoid);
-            nn.AddOutputLayer(3, ActivationFunctions.Sigmoid);
-            nn.SeedRandomWeights(-.01, .01);
-
-            for (int i = 0; i < iterations; ++i)
-            {
-                nn.FeedForward(x1.Data, out var result);
-                nn.BackPropagate(result, x1.Data, lr, mt, wd, lr);
-
-                error = (x1 - new NVector(result)) * 2; // derivative of mse  *2
-            }
-            Debug.Log("err > " + error.ToString());
         }
 
         public async Task<ITrainingResult> Fit(AutoEncoderModel model, NVector[] x_datas)
@@ -125,15 +169,19 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
 
             // test train ? 
             // accuracy ?
+            ModelSerializationService.SaveModel(trainedModel);
 
+           
             return new TrainingResult();
         }
 
         private void EpochIterationCallback(int epoch)
         {
+            _currentEpoch = epoch;
             _x_datas_buffer.AddRange(_x_datas);
-            NVector error_sum = new NVector(_x_datas.GetLength(0));
-            NVector output = new NVector(_x_datas.GetLength(0));
+
+            double error_sum = 0.0;
+            NVector output = new NVector(trainedModel.tensorDimensions);
 
             while (_x_datas_buffer.Count > 0)
             {
@@ -144,20 +192,15 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
                 output = trainedModel.Predict(input);
 
                 // we try to reconstruct the input while autoencoding
-                var error = DLoss(output, input);
-                error_sum += error;
+                var error = Cost(output, input);
+                error_sum += MSE_Loss(error);
                 trainedModel.Backpropagate(error);
                 trainedModel.UpdateWeights(_currentLearningRate, _momentum, _weightDecay);
             }
 
 
-            var mean_error = error_sum / _x_datas.Length;
-            Debug.Log("Mean error magnitude " + mean_error.magnitude);
-
-            // visualize each epoch the output of the last run
-            var last_output_matrix = TransformationUtils.ArrayToMatrix(output.Data);
-            _outputVisualization = TransformationUtils.MatrixToTexture2D(last_output_matrix);
-
+            _currentLoss = (float) error_sum / _x_datas.Length;
+           
             // decay learning rate
             // decay neighboordHoodDistance
             // for instance, linear degression
@@ -165,13 +208,25 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
             _currentLearningRate = _learningRateCurve.Evaluate(((float)epoch / (float)_epochs)) * _learningRate;
         }
 
-        public double Loss(NVector output, NVector test)
+        /// <summary>
+        /// Mean squarred
+        /// </summary>
+        /// <param name="error"></param>
+        /// <returns></returns>
+        public double MSE_Loss(NVector error)
         {
-            // return Math.Exp()
-            return 0;
+            var result = 0.0;
+            for (int i = 0; i < error.Length; ++i)
+            {
+                result += Math.Pow(error[i], 2);
+            }
+
+            result /= error.Length;
+
+            return result;
         }
 
-        public NVector DLoss(NVector output, NVector test)
+        public NVector Cost(NVector output, NVector test)
         {
             return (test - output) * 2;
         }

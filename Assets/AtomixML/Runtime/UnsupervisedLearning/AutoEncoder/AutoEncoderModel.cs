@@ -1,5 +1,6 @@
 using Atom.MachineLearning.Core;
 using Atom.MachineLearning.Core.Maths;
+using Newtonsoft.Json;
 using System;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -15,6 +16,11 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
         [LearnedParameter, SerializeField] private DenseLayer[] _encoder;
         [LearnedParameter, SerializeField] private CodeLayer _code;
         [LearnedParameter, SerializeField] private DenseLayer[] _decoder;
+
+        /// <summary>
+        /// Dimensions of the input-output tensor of the encoder
+        /// </summary>
+        [JsonIgnore] public int tensorDimensions => _encoder[0]._input.Length;
 
         public class CodeLayer
         {
@@ -35,11 +41,11 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
             public Func<NVector, NVector> _activationFunction;
             public Func<NVector, NVector> _derivativeFunction;
 
-            public DenseLayer(int input, int output, Func<NVector, NVector> activation = null, Func<NVector, NVector> derivation = null) 
+            public DenseLayer(int input, int output, Func<NVector, NVector> activation = null, Func<NVector, NVector> derivation = null)
             {
-                _weigths = new NMatrix(input, output);
+                _weigths = new NMatrix(output, input); // an output = a neuron = a row / an input = a weight for each neuron = a column
 
-                _weightsInertia = new NMatrix(input, output);
+                _weightsInertia = new NMatrix(output, input);
 
                 _bias = new NVector(output);
                 _biasInertia = new NVector(output);
@@ -54,14 +60,15 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
                 if (_activationFunction == null)
                     _activationFunction = (r) =>
                     {
-                        for(int i = 0; i < r.Length; ++i)
+                        for (int i = 0; i < r.Length; ++i)
                             r[i] = MLActivationFunctions.Sigmoid(r[i]);
 
                         return r;
                     };
 
                 if (_derivativeFunction == null)
-                    _derivativeFunction = (r) => {
+                    _derivativeFunction = (r) =>
+                    {
                         for (int i = 0; i < r.Length; ++i)
                             r[i] = MLActivationFunctions.DSigmoid(r[i]);
 
@@ -72,7 +79,7 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
             public DenseLayer Seed()
             {
                 for (int i = 0; i < _weigths.Rows; ++i)
-                    for(int j = 0; j < _weigths.Columns; ++j)
+                    for (int j = 0; j < _weigths.Columns; ++j)
                         _weigths.Datas[i, j] = MLRandom.Shared.Range(-.01f, .01f);
 
                 for (int i = 0; i < _bias.Length; ++i)
@@ -100,9 +107,9 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
             /// <returns></returns>
             public NVector Backward(NVector nextlayerGradient)
             {
-                var output_derivative = _derivativeFunction(_output);    
+                var output_derivative = _derivativeFunction(_output);
 
-                for(int i = 0; i < output_derivative.Length; ++i)
+                for (int i = 0; i < output_derivative.Length; ++i)
                     _gradient.Data[i] += output_derivative[i] * nextlayerGradient[i];
 
                 return _gradient;
@@ -118,8 +125,8 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
             public void UpdateWeights(float lr = .05f, float momentum = .005f, float weigthDecay = .0005f)
             {
                 double step = 0.0;
-                for(int i = 0; i < _weigths.Rows; ++i)
-                    for(int j = 0; j < _weigths.Columns; ++j)
+                for (int i = 0; i < _weigths.Rows; ++i)
+                    for (int j = 0; j < _weigths.Columns; ++j)
                     {
                         step = _gradient[i] * _input[j] * lr;
 
@@ -128,12 +135,12 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
                         _weigths[i, j] -= weigthDecay * _weigths[i, j];
                         _weightsInertia[i, j] = step;
 
-                       /* _weigths[i, j] += step + _weightsInertia[i, j] * momentumAcc;
-                        _weightsInertia[i, j] += step * momentum;
-                        _weightsInertia[i, j] -= _weightsInertia[i, j] * mt_decay;*/
+                        /* _weigths[i, j] += step + _weightsInertia[i, j] * momentumAcc;
+                         _weightsInertia[i, j] += step * momentum;
+                         _weightsInertia[i, j] -= _weightsInertia[i, j] * mt_decay;*/
                     }
 
-                for(int i = 0; i < _bias.Length; ++i)
+                for (int i = 0; i < _bias.Length; ++i)
                 {
                     step = _gradient[i] * lr;
                     _bias[i] += step;
@@ -152,45 +159,41 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
             }
         }
 
-        public AutoEncoderModel(int inputDimensions, int[] encoderLayersDimensions, int codeLayerDimension, int[] decoderLayerDimensions, int outputDimensions)
+        public AutoEncoderModel(int[] encoderLayersDimensions, int[] decoderLayerDimensions)
         {
-            _encoder = new DenseLayer[encoderLayersDimensions.Length];
+            _encoder = new DenseLayer[encoderLayersDimensions.Length - 1];
 
-            for (int i = 0; i < encoderLayersDimensions.Length; ++i)
+            for (int i = 0; i < encoderLayersDimensions.Length - 1; ++i)
             {
-                if (i == 0)
-                    _encoder[i] = new DenseLayer(inputDimensions, encoderLayersDimensions[i]);
-                else 
-                    _encoder[i] = new DenseLayer(encoderLayersDimensions[i - 1], encoderLayersDimensions[i]);
+                _encoder[i] = new DenseLayer(encoderLayersDimensions[i], encoderLayersDimensions[i + 1]);
+                _encoder[i].Seed();
             }
 
-            _code = new CodeLayer()
+            /*_code = new CodeLayer()
             {
                 _enterLayer = new DenseLayer(encoderLayersDimensions[encoderLayersDimensions.Length - 1], codeLayerDimension),
-                _exitLayer = new DenseLayer(codeLayerDimension, decoderLayerDimensions[0]),             
-            };
+                //_exitLayer = new DenseLayer(codeLayerDimension, decoderLayerDimensions[0]),             
+            };*/
 
-            _decoder = new DenseLayer[decoderLayerDimensions.Length];
+            _decoder = new DenseLayer[decoderLayerDimensions.Length - 1];
 
-            for (int i = 0; i < decoderLayerDimensions.Length; ++i)
+            for (int i = 0; i < decoderLayerDimensions.Length - 1; ++i)
             {
-                if(i < encoderLayersDimensions.Length - 1)
-                    _decoder[i] = new DenseLayer(decoderLayerDimensions[i], decoderLayerDimensions[i + 1]);
-                else
-                    _decoder[i] = new DenseLayer(decoderLayerDimensions[i], outputDimensions);
+                _decoder[i] = new DenseLayer(decoderLayerDimensions[i], decoderLayerDimensions[i + 1]);
+                _decoder[i].Seed();
             }
         }
 
         public NVector Predict(NVector inputData)
         {
-            var temp  = inputData;
-            for(int i = 0; i < _encoder.Length; ++i)
+            var temp = inputData;
+            for (int i = 0; i < _encoder.Length; ++i)
             {
                 temp = _encoder[i].Forward(temp);
             }
 
-            temp = _code._enterLayer.Forward(temp);
-            temp = _code._exitLayer.Forward(temp);
+            //temp = _code._enterLayer.Forward(temp);
+            //temp = _code._exitLayer.Forward(temp);
 
             for (int i = 0; i < _decoder.Length; ++i)
             {
@@ -202,21 +205,29 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
 
         public NVector Backpropagate(NVector gradient)
         {
-            var temp = gradient;
-            for (int i = _decoder.Length -1; i >= 0; ++i)
+            var outputLayer = _decoder[_decoder.Length - 1];
+            var decoder_gradient_temp = outputLayer.Backward(gradient);
+
+            for (int i = _decoder.Length - 2; i >= 0; --i)
             {
-                temp = _decoder[i].Backward(temp);
+                decoder_gradient_temp = _decoder[i].Backward(decoder_gradient_temp * _decoder[i + 1]._weigths);
+            }
+            /*
+                        var code_exit_gradient = _code._exitLayer.Backward(_decoder[0]._weigths * decoder_gradient_temp);
+                        var code_enter_gradient = _code._enterLayer.Backward(_code._exitLayer._weigths * code_exit_gradient);
+
+                        // last encode layer
+                        ;
+            */
+            var encoder_gradient_temp = _encoder[_encoder.Length - 1].Backward(decoder_gradient_temp * _decoder[0]._weigths);
+
+            for (int i = _encoder.Length - 2; i >= 0; --i)
+            {
+                encoder_gradient_temp = _encoder[i].Backward(encoder_gradient_temp * _encoder[i + 1]._weigths);
             }
 
-            temp = _code._exitLayer.Backward(temp);
-            temp = _code._enterLayer.Backward(temp);
-
-            for (int i = _encoder.Length - 1; i >= 0; ++i)
-            {
-                temp = _encoder[i].Backward(temp);
-            }
-
-            return temp;
+            // returning the gradient of the very first layer
+            return encoder_gradient_temp;
         }
 
         public void UpdateWeights(float learningRate = .05f, float momentum = .005f, float weigthDecay = .0005f)
@@ -226,8 +237,8 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
                 _encoder[i].UpdateWeights(learningRate, momentum, weigthDecay);
             }
 
-            _code._enterLayer.UpdateWeights(learningRate, momentum, weigthDecay);
-            _code._exitLayer.UpdateWeights(learningRate, momentum, weigthDecay);
+           /* _code._enterLayer.UpdateWeights(learningRate, momentum, weigthDecay);
+            _code._exitLayer.UpdateWeights(learningRate, momentum, weigthDecay);*/
 
             for (int i = 0; i < _decoder.Length; ++i)
             {

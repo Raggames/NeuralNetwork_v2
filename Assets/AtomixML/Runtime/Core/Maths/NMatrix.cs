@@ -19,10 +19,11 @@ namespace Atom.MachineLearning.Core
             Datas = new double[squareRowColumns, squareRowColumns];
         }
 
-        public NMatrix(int columns, int rows)
+        public NMatrix(int rows, int columns)
         {
             Datas = new double[rows, columns];
         }
+
         public double this[int x, int y]
         {
             get
@@ -87,9 +88,11 @@ namespace Atom.MachineLearning.Core
                 throw new InvalidOperationException($"Matrix to Vector dimensions mismatch");
 
             double[] result = new double[a.Datas.GetLength(0)];
-            for (int i = 0; i < a.Datas.GetLength(0); i++)
+            int l0 = a.Datas.GetLength(0);
+            int l1 = a.Datas.GetLength(1);
+            for (int i = 0; i < l0; i++)
             {
-                for (int j = 0; j < a.Datas.GetLength(1); j++)
+                for (int j = 0; j < l1; j++)
                 {
                     result[i] += a.Datas[i, j] * b.Data[j];
                 }
@@ -119,9 +122,11 @@ namespace Atom.MachineLearning.Core
             if (a.Datas.GetLength(1) != b.Data.Length)
                 throw new InvalidOperationException($"Matrix to Vector dimensions mismatch");
 
-            for (int i = 0; i < a.Datas.GetLength(0); i++)
+            int l0 = a.Datas.GetLength(0);
+            int l1 = a.Datas.GetLength(1);
+            for (int i = 0; i < l0; i++)
             {
-                for (int j = 0; j < a.Datas.GetLength(1); j++)
+                for (int j = 0; j < l1; j++)
                 {
                     result[i] += a.Datas[i, j] * b.Data[j];
                 }
