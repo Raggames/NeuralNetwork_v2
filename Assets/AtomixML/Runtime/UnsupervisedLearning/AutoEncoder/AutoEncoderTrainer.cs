@@ -30,6 +30,12 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
         [Button]
         private async void TestSimpleNetwork(double x = 1, double y =1, double z = 1, int iterations = 50, float lr = .05f)
         {
+            // TODO tester du momentum avec une fonction de momemtum accumulé 
+            // au lieu de prendre previous weight delta * momentum ratio
+            // on accumule momentum_increment * delta weigth à chaque iteration
+            // à passer également dans une fonction qui permet de gérer le maximum de magnitude du moment, relatif aux composantes de poids actuelles
+            // et hyperparamétriser ça avec un momentum_ratio
+
             var l1 = new AutoEncoderModel.DenseLayer(3, 24);
             var l2 = new AutoEncoderModel.DenseLayer(24, 3);
             l1.Seed();

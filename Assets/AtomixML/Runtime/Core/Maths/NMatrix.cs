@@ -88,6 +88,29 @@ namespace Atom.MachineLearning.Core
         }
 
         /// <summary>
+        /// Matrix * column vector
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException"></exception>
+        public static NVector operator *(NMatrix a, NVector b, ref NVector result)
+        {
+            if (a.Datas.GetLength(1) != b.Data.Length)
+                throw new InvalidOperationException($"Matrix to Vector dimensions mismatch");
+
+            for (int i = 0; i < a.Datas.GetLength(0); i++)
+            {
+                for (int j = 0; j < a.Datas.GetLength(1); j++)
+                {
+                    result[i] += a.Datas[i, j] * b.Data[j];
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
         /// Multiply matrix * column vector without allocation
         /// </summary>
         /// <param name="a"></param>
