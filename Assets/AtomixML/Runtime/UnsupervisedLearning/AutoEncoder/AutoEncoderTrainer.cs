@@ -15,6 +15,7 @@ using static Atom.MachineLearning.Unsupervised.AutoEncoder.AutoEncoderModel;
 
 namespace Atom.MachineLearning.Unsupervised.AutoEncoder
 {
+    [ExecuteInEditMode]
     public class AutoEncoderTrainer : MonoBehaviour, IMLTrainer<AutoEncoderModel, NVector, NVector>
     {
         public AutoEncoderModel trainedModel { get; set; }
@@ -24,7 +25,7 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
         [HyperParameter, SerializeField] private float _momentum = .01f;
         [HyperParameter, SerializeField] private float _weightDecay = .0001f;
         [HyperParameter, SerializeField] private AnimationCurve _learningRateCurve;
-        
+
         [SerializeField] private bool _normalizeDataSet;
 
         [ShowInInspector, ReadOnly] private int _currentEpoch;
@@ -62,6 +63,35 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
         }
 
         [Button]
+        private void LoadRndbw()
+        {
+            var mnist = Datasets.Rnd_bw_2x2_Vectorized_All();
+
+            _x_datas = mnist;
+        }
+
+        [Button]
+        private void LoadRndbw8x8()
+        {
+            var mnist = Datasets.Rnd_bw_8x8_Vectorized_All();
+
+            _x_datas = mnist;
+        }
+
+        [Button]
+        private void CheckInOutRndbw()
+        {
+            var datas = Datasets.Rnd_bw_2x2_Texture_All();
+
+            var input = datas[MLRandom.Shared.Range(0, _x_datas.Length - 1)];
+            _inputRawImage.texture = input;
+
+            var array = TransformationUtils.Texture2DToArray(input);
+
+            _outputRawImage.texture = TransformationUtils.MatrixToTexture2D(TransformationUtils.ArrayToMatrix(array));
+        }
+
+        [Button]
         private async void FitMnist()
         {
             /*var autoEncoder = new AutoEncoderModel(
@@ -96,6 +126,36 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
         }
 
         [Button]
+        private async void FitRndbw()
+        {
+            var autoEncoder = new AutoEncoderModel(
+                new int[] { 4, 2, 1 },
+                new int[] { 1, 2, 4 },
+                (r) =>
+                {
+                    for (int i = 0; i < r.Length; ++i)
+                        r[i] = MLActivationFunctions.Sigmoid(r[i]);
+
+                    return r;
+                },
+                (r) =>
+                {
+                    for (int i = 0; i < r.Length; ++i)
+                        r[i] = MLActivationFunctions.DSigmoid(r[i]);
+
+                    return r;
+                });
+
+            autoEncoder.ModelName = "auto-encoder-mnist";
+
+            LoadRndbw();
+
+            await Fit(autoEncoder, _x_datas);
+
+            Debug.Log("End fit");
+        }
+
+        [Button]
         private void LoadLast()
         {
             trainedModel = ModelSerializationService.LoadModel<AutoEncoderModel>("auto-encoder-mnist");
@@ -104,8 +164,6 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
         [Button]
         private void Visualize()
         {
-            LoadMnist();
-
             var input = _x_datas[MLRandom.Shared.Range(0, _x_datas.Length - 1)];
 
             _inputVisualization = TransformationUtils.MatrixToTexture2D(TransformationUtils.ArrayToMatrix(input.Data));
@@ -125,63 +183,149 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
         }
 
         [Button]
-        private async void TestSimpleNetwork(double x = 1, double y = 1, double z = 1, int iterations = 50, float lr = .05f, float mt = .05f, float wd = .005f)
+        private async void TestBothNetworksWithRnd_bw(int iterations = 50)
         {
-            // TODO tester du momentum avec une fonction de momemtum accumulé 
-            // au lieu de prendre previous weight delta * momentum ratio
-            // on accumule momentum_increment * delta weigth à chaque iteration
-            // à passer également dans une fonction qui permet de gérer le maximum de magnitude du moment, relatif aux composantes de poids actuelles
-            // et hyperparamétriser ça avec un momentum_ratio
 
-            var l1 = new AutoEncoderModel.DenseLayer(2, 4);
-            var l2 = new AutoEncoderModel.DenseLayer(4, 8);
-            l1.Seed();
-            l2.Seed();
+            MLRandom.SeedShared(0);
+            var nn_1 = new NeuralNetwork.NeuralNetwork();
+            nn_1.AddDenseLayer(4, 2, ActivationFunctions.Sigmoid);
+            nn_1.AddOutputLayer(4, ActivationFunctions.Sigmoid);
+            nn_1.SeedRandomWeights(-1, 1);
 
-            var x1 = new NVector(x, y);
-            var t1 = new NVector(new double[] { 1, 1, 1, 1, 0, 0, 0, 0 });
-            NVector error = new NVector();
+            var nn_2 = new AutoEncoderModel(new int[] { 4, 2 }, new int[] { 2, 4 });
+            MLRandom.SeedShared(0);
+            nn_2.SeedWeigths(-1, 1);                      
 
-            Debug.Log("NN 1 ****************");
-
-            var nn = new NeuralNetwork.NeuralNetwork();
-            nn.AddDenseLayer(2, 4, ActivationFunctions.Sigmoid);
-            nn.AddOutputLayer(8, ActivationFunctions.Sigmoid);
-            nn.SeedRandomWeights(-.01, .01);
+            LoadRndbw();
 
             for (int i = 0; i < iterations; ++i)
             {
-                nn.FeedForward(x1.Data, out var result);
-                nn.BackPropagate(result, t1.Data, lr, mt, wd, lr);
+                var _x_input = _x_datas[MLRandom.Shared.Range(0, _x_datas.Length - 1)];
+                nn_1.FeedForward(_x_input.Data, out var nn1_result);
 
-                error = (t1 - new NVector(result)) * 2; // derivative of mse  *2
+                var nn2_result = nn_2.Predict(_x_input);
+
+                var error_1 = MSE_Error(new NVector(nn1_result), _x_input);
+                var error_2 = MSE_Error(nn2_result, _x_input);
+
+                nn_1.ComputeDenseGradients(_x_input.Data, nn1_result);
+                nn_1.UpdateDenseWeights(_learningRate, _momentum, _weightDecay, _learningRate);
+
+                nn_2.Backpropagate(error_2);
+                nn_2.UpdateWeights(_learningRate, _momentum, _weightDecay);
             }
-            Debug.Log("err > " + error.ToString());
+
+        }
 
 
-            Debug.Log("NN 2 ****************");
+        private NeuralNetwork.NeuralNetwork _neuralNetwork;
 
-            for (int i = 0; i < iterations; ++i)
+
+        [Button]
+        private void VisualizeOld()
+        {
+            var input = _x_datas[MLRandom.Shared.Range(0, _x_datas.Length - 1)];
+
+            _inputVisualization = TransformationUtils.MatrixToTexture2D(TransformationUtils.ArrayToMatrix(input.Data));
+            _inputRawImage.texture = _inputVisualization;
+
+            _neuralNetwork.FeedForward(input.Data, out var output);
+
+            // visualize each epoch the output of the last run
+            _outputVisualization = TransformationUtils.MatrixToTexture2D(TransformationUtils.ArrayToMatrix(output));
+            _outputRawImage.texture = _outputVisualization;
+        }
+
+        [Button]
+        public async void TestFitOldNetworkRnwbw()
+        {
+            _neuralNetwork = new NeuralNetwork.NeuralNetwork();
+            _neuralNetwork.AddDenseLayer(64, 16, ActivationFunctions.Sigmoid);
+            _neuralNetwork.AddDenseLayer(8, ActivationFunctions.Sigmoid);
+            _neuralNetwork.AddDenseLayer(16, ActivationFunctions.Sigmoid);
+            _neuralNetwork.AddOutputLayer(64, ActivationFunctions.Sigmoid);
+
+            LoadRndbw8x8();
+
+            _x_datas_buffer = new List<NVector>();
+            _currentLearningRate = _learningRate;
+
+            for (int i = 0; i < _epochs; ++i)
             {
-                var o1 = l1.Forward(x1);
-                //Debug.Log("o1 > " + o1.ToString());
-                var o2 = l2.Forward(o1);
-                //Debug.Log("o2 > " + o2.ToString());
+                _currentEpoch = i;
+                _x_datas_buffer.AddRange(_x_datas);
 
-                error = (t1 - o2) * 2; // derivative of mse  *2
+                double error_sum = 0.0;
+                double[] output = new double[_neuralNetwork.DenseLayers[0].NeuronsCount];
 
-                var g2 = l2.Backward(error);
-                //Debug.Log("g2 > " + g2.ToString());
-                var g1 = l1.Backward(l1._weigths * g2);
+                while (_x_datas_buffer.Count > 0)
+                {
+                    var index = MLRandom.Shared.Range(0, _x_datas_buffer.Count - 1);
+                    var input = _x_datas_buffer[index];
+                    _x_datas_buffer.RemoveAt(index);
+
+                    _neuralNetwork.FeedForward(input.Data, out output);
+
+                    // we try to reconstruct the input while autoencoding
+                    var error = MSE_Error(new NVector(output), input);
+                    error_sum += MSE_Loss(error);
+
+                    _neuralNetwork.BackPropagate(output, input.Data, _currentLearningRate, _momentum, _weightDecay, _learningRate);
+                }
 
 
-                //Debug.Log("g1 > " + g1.ToString());
+                _currentLoss = (float)error_sum / _x_datas.Length;
 
-                l1.UpdateWeights(lr, mt, wd);
-                l2.UpdateWeights(lr, mt, wd);
+                _currentLearningRate = _learningRateCurve.Evaluate(((float)i / (float)_epochs)) * _learningRate;
             }
-            Debug.Log("err > " + error.ToString());
+        }
 
+        [Button]
+        public async void TestFitOldNetworkMnist()
+        {
+            _neuralNetwork = new NeuralNetwork.NeuralNetwork();
+            _neuralNetwork.AddDenseLayer(64, 32, ActivationFunctions.ReLU);
+            _neuralNetwork.AddDenseLayer(16, ActivationFunctions.Sigmoid);
+            _neuralNetwork.AddDenseLayer(8, ActivationFunctions.Sigmoid);
+            _neuralNetwork.AddDenseLayer(16, ActivationFunctions.Sigmoid);
+            _neuralNetwork.AddDenseLayer(32, ActivationFunctions.Sigmoid);
+            _neuralNetwork.AddOutputLayer(64, ActivationFunctions.ReLU);
+
+            LoadMnist();
+
+            _x_datas_buffer = new List<NVector>();
+            _currentLearningRate = _learningRate;
+
+            for (int i = 0; i < _epochs; ++i)
+            {
+                _currentEpoch = i;
+                _x_datas_buffer.AddRange(_x_datas);
+
+                double error_sum = 0.0;
+                double[] output = new double[_neuralNetwork.DenseLayers[0].NeuronsCount];
+
+                while (_x_datas_buffer.Count > 0)
+                {
+                    var index = MLRandom.Shared.Range(0, _x_datas_buffer.Count - 1);
+                    var input = _x_datas_buffer[index];
+                    _x_datas_buffer.RemoveAt(index);
+
+                    _neuralNetwork.FeedForward(input.Data, out output);
+
+                    // we try to reconstruct the input while autoencoding
+                    var error = MSE_Error(new NVector(output), input);
+                    error_sum += MSE_Loss(error);
+
+                    _neuralNetwork.BackPropagate(output, input.Data, _currentLearningRate, _momentum, _weightDecay, _learningRate);
+                }
+
+
+                _currentLoss = (float)error_sum / _x_datas.Length;
+
+                _currentLearningRate = _learningRateCurve.Evaluate(((float)i / (float)_epochs)) * _learningRate;
+
+                await Task.Delay(1);
+            }
         }
 
         public async Task<ITrainingResult> Fit(AutoEncoderModel model, NVector[] x_datas)
@@ -220,7 +364,7 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
                 output = trainedModel.Predict(input);
 
                 // we try to reconstruct the input while autoencoding
-                var error = Cost(output, input);
+                var error = MSE_Error(output, input);
                 error_sum += MSE_Loss(error);
                 trainedModel.Backpropagate(error);
                 trainedModel.UpdateWeights(_currentLearningRate, _momentum, _weightDecay);
@@ -254,7 +398,7 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
             return result;
         }
 
-        public NVector Cost(NVector output, NVector test)
+        public NVector MSE_Error(NVector output, NVector test)
         {
             return (test - output) * 2;
         }

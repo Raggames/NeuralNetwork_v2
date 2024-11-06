@@ -76,14 +76,14 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
                     };
             }
 
-            public DenseLayer Seed()
+            public DenseLayer SeedWeigths(double minWeight = -0.01, double maxWeight = 0.01)
             {
                 for (int i = 0; i < _weigths.Rows; ++i)
                     for (int j = 0; j < _weigths.Columns; ++j)
-                        _weigths.Datas[i, j] = MLRandom.Shared.Range(-.01f, .01f);
+                        _weigths.Datas[i, j] = MLRandom.Shared.Range(minWeight, maxWeight);
 
                 for (int i = 0; i < _bias.Length; ++i)
-                    _bias.Data[i] += MLRandom.Shared.Range(-.01f, .01f);
+                    _bias.Data[i] = MLRandom.Shared.Range(minWeight, maxWeight);
 
                 return this;
             }
@@ -91,6 +91,9 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
             public NVector Forward(NVector input)
             {
                 _input = input;
+
+                for (int i = 0; i < _output.Length; ++i)
+                    _output[i] = 0;
 
                 // output is buffered by the layer for backward pass
                 NMatrix.MatrixRightMultiplyNonAlloc(_weigths, input, ref _output);
@@ -166,21 +169,28 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
             for (int i = 0; i < encoderLayersDimensions.Length - 1; ++i)
             {
                 _encoder[i] = new DenseLayer(encoderLayersDimensions[i], encoderLayersDimensions[i + 1], activation, derivation);
-                _encoder[i].Seed();
+                _encoder[i].SeedWeigths();
             }
-
-            /*_code = new CodeLayer()
-            {
-                _enterLayer = new DenseLayer(encoderLayersDimensions[encoderLayersDimensions.Length - 1], codeLayerDimension),
-                //_exitLayer = new DenseLayer(codeLayerDimension, decoderLayerDimensions[0]),             
-            };*/
 
             _decoder = new DenseLayer[decoderLayerDimensions.Length - 1];
 
             for (int i = 0; i < decoderLayerDimensions.Length - 1; ++i)
             {
                 _decoder[i] = new DenseLayer(decoderLayerDimensions[i], decoderLayerDimensions[i + 1], activation, derivation);
-                _decoder[i].Seed();
+                _decoder[i].SeedWeigths();
+            }
+        }
+
+        public void SeedWeigths(double minWeight = -0.01, double maxWeight = 0.01)
+        {
+            for (int i = 0; i < _encoder.Length - 1; ++i)
+            {
+                _encoder[i].SeedWeigths(minWeight, maxWeight);
+            }
+
+            for (int i = 0; i < _decoder.Length - 1; ++i)
+            {
+                _decoder[i].SeedWeigths(minWeight, maxWeight);
             }
         }
 
@@ -237,8 +247,8 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
                 _encoder[i].UpdateWeights(learningRate, momentum, weigthDecay);
             }
 
-           /* _code._enterLayer.UpdateWeights(learningRate, momentum, weigthDecay);
-            _code._exitLayer.UpdateWeights(learningRate, momentum, weigthDecay);*/
+            /* _code._enterLayer.UpdateWeights(learningRate, momentum, weigthDecay);
+             _code._exitLayer.UpdateWeights(learningRate, momentum, weigthDecay);*/
 
             for (int i = 0; i < _decoder.Length; ++i)
             {

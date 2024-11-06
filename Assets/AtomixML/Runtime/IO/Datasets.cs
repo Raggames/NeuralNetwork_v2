@@ -43,7 +43,7 @@ namespace Atom.MachineLearning.IO
 
             return vectors_array;
         }
-        
+
         public static Texture2D[] Mnist_8x8_TexturePooled_All()
         {
             var textures = DatasetReader.ReadTextures("Datasets/mnist");
@@ -58,6 +58,39 @@ namespace Atom.MachineLearning.IO
             }
 
             return vectors_array;
+        }
+
+        public static NVector[] Rnd_bw_2x2_Vectorized_All()
+        {
+            var textures = DatasetReader.ReadTextures("Datasets/rnd_bw");
+
+            var vectors_array = new NVector[textures.Count];
+            for (int i = 0; i < textures.Count; ++i)
+            {
+                var array = TransformationUtils.Texture2DToArray(textures[i]);
+                vectors_array[i] = new NVector(array);
+            }
+
+            return vectors_array;
+        }
+
+        public static NVector[] Rnd_bw_8x8_Vectorized_All()
+        {
+            var textures = DatasetReader.ReadTextures("Datasets/rnd_bw_10x10");
+
+            var vectors_array = new NVector[textures.Count];
+            for (int i = 0; i < textures.Count; ++i)
+            {
+                var array = TransformationUtils.Texture2DToArray(textures[i]);
+                vectors_array[i] = new NVector(array);
+            }
+
+            return vectors_array;
+        }
+
+        public static Texture2D[] Rnd_bw_2x2_Texture_All()
+        {
+            return DatasetReader.ReadTextures("Datasets/rnd_bw").ToArray();
         }
     }
 }
