@@ -103,7 +103,7 @@ namespace Atom.MachineLearning.Unsupervised.PCA
             // transform label column as a vector matrix of nx3 
             // we could also generate a nx1 with class label -1, 0, 1 or anything else, 
             // but that was a practical way to generate colors depending on the class
-            var vectorized_labels = TransformationUtils.RuledVectorization(labels, 3, new Dictionary<string, double[]>()
+            var vectorized_labels = TransformationUtils.Encode(labels, 3, new Dictionary<string, double[]>()
             {
                 { "Iris-setosa", new double[] { 0, 0, 1 } },
                 { "Iris-versicolor", new double[] { 0, 1, 0 } },

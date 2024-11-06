@@ -44,6 +44,20 @@ namespace Atom.MachineLearning.IO
             return vectors_array;
         }
 
+        public static NVector[] Mnist_28x28_Vectorized_All()
+        {
+            var textures = DatasetReader.ReadTextures("Datasets/mnist_28x28");
+
+            var vectors_array = new NVector[textures.Count];
+            for (int i = 0; i < textures.Count; ++i)
+            {
+                var array = TransformationUtils.Texture2DToArray(textures[i]);
+                vectors_array[i] = new NVector(array);
+            }
+
+            return vectors_array;
+        }
+
         public static Texture2D[] Mnist_8x8_TexturePooled_All()
         {
             var textures = DatasetReader.ReadTextures("Datasets/mnist");

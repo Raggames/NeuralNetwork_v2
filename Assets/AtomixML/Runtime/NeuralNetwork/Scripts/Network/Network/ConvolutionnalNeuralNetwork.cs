@@ -10,7 +10,7 @@ namespace NeuralNetwork
     [Serializable]
     public class ConvolutionnalNeuralNetwork : NeuralNetwork
     {
-        public List<AbstractCNNLayer> CNNLayers = new List<AbstractCNNLayer>();
+        public List<ConvolutionalLayerBase> CNNLayers = new List<ConvolutionalLayerBase>();
         public FlattenLayer FlattenLayer;
 
         #region Layers building

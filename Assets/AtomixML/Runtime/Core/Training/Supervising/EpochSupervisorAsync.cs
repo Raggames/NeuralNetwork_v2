@@ -12,7 +12,7 @@ namespace Atom.MachineLearning.Core
     /// </summary>
     public class EpochSupervisorAsync
     {
-        public delegate void IterationCallbackHandler(int epochIndex);
+        public delegate void IterationCallbackHandler(int epochIndex, CancellationToken cancellationToken);
         public delegate void EndEpochsCallbacHandler();
 
         private readonly IterationCallbackHandler _iterationCallbackHandler;
@@ -43,9 +43,10 @@ namespace Atom.MachineLearning.Core
 
         private void AsyncRunner(int epochs)
         {
-            for(int i = 0; i < epochs; i++)
+            var token = _cancellationTokenSource.Token;
+            for (int i = 0; i < epochs; i++)
             {
-                _iterationCallbackHandler(i);
+                _iterationCallbackHandler(i, token);
             }
 
             _cancellationTokenSource = null;

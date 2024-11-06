@@ -42,7 +42,7 @@ namespace NeuralNetwork
         };
     }
 
-    public class ConvolutionLayer : AbstractCNNLayer
+    public class ConvolutionLayer : ConvolutionalLayerBase
     {
         public int Width;
         public int Height;

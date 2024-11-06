@@ -27,67 +27,26 @@ namespace Atom.MachineLearning.Core.Maths
             BipolarSigmoid
         }
 
-        public static double Activate(ActivationType type, double x)
+        public static double[] Softmax(double[] oSums)
         {
-            switch (type)
-            {
-                case ActivationType.Identity:
-                    return x;
-                case ActivationType.BinaryStep:
-                    return BinaryStep(x);
-                case ActivationType.Logistic:
-                    return Sigmoid(x);
-                case ActivationType.Tanh:
-                    return Tanh(x);
-                case ActivationType.ArcTan:
-                    return ArcTan(x);
-                case ActivationType.ReLU:
-                    return ReLU(x);
-                case ActivationType.SoftPlus:
-                    return SoftPlus(x);
-                case ActivationType.BentIdentity:
-                    return BentIdentity(x);
-                case ActivationType.Sinusoid:
-                    return Sinusoid(x);
-                case ActivationType.Sinc:
-                    return Sinc(x);
-                case ActivationType.Gaussian:
-                    return Gaussian(x);
-                case ActivationType.Bipolar:
-                    return Bipolar(x);
-                case ActivationType.BipolarSigmoid:
-                    return BipolarSigmoid(x);
-            }
-            return 0;
+            // does all output nodes at once so scale doesn't have to be re-computed each time
+            // 1. determine max output sum
+            double max = oSums[0];
+            for (int i = 0; i < oSums.Length; ++i)
+                if (oSums[i] > max) max = oSums[i];
+
+            // 2. determine scaling factor -- sum of exp(each val - max)
+            double scale = 0.0;
+            for (int i = 0; i < oSums.Length; ++i)
+                scale += Math.Exp(oSums[i] - max);
+
+            double[] result = new double[oSums.Length];
+            for (int i = 0; i < oSums.Length; ++i)
+                result[i] = Math.Exp(oSums[i] - max) / scale;
+
+            return result; // now scaled so that xi sum to 1.0
         }
 
-        public static double Derivate(ActivationType activationType, double x)
-        {
-            switch (activationType)
-            {
-                case ActivationType.Logistic:
-                    return DSigmoid(x);
-                case ActivationType.Tanh:
-                    return DTanh(x);
-                case ActivationType.ArcTan:
-                    return DArcTan(x);
-                case ActivationType.ReLU:
-                    return DReLU(x);
-                case ActivationType.SoftPlus:
-                    return DSoftPlus(x);
-                case ActivationType.BentIdentity:
-                    return DBentIdentity(x);
-                case ActivationType.Sinusoid:
-                    return DSinusoid(x);
-                case ActivationType.Sinc:
-                    return DSinc(x);
-                case ActivationType.Gaussian:
-                    return DGaussian(x);
-                case ActivationType.BipolarSigmoid:
-                    return DBipolarSigmoid(x);
-            }
-            return 0;
-        }
 
         public static double BinaryStep(double x)
         {
@@ -118,14 +77,17 @@ namespace Atom.MachineLearning.Core.Maths
         {
             return 2 / (1 + Math.Pow(Math.E, -(2 * x))) - 1;
         }
+
         public static double DTanh(double x)
         {
             return 1 - Math.Pow(Tanh(x), 2);
         }
+
         public static double ArcTan(double x)
         {
             return Math.Atan(x);
         }
+
         public static double DArcTan(double x)
         {
             return 1 / Math.Pow(x, 2) + 1;
@@ -136,6 +98,7 @@ namespace Atom.MachineLearning.Core.Maths
         {
             return Math.Max(0, x);// x < 0 ? 0 : x;
         }
+
         public static double DReLU(double x)
         {
             return Math.Max(0, 1);// x < 0 ? 0 : x;
@@ -146,23 +109,28 @@ namespace Atom.MachineLearning.Core.Maths
         {
             return x < 0 ? a * x : x;
         }
+
         public static double DPReLU(double x, double a)
         {
             return x < 0 ? a : 1;
         }
+
         //Exponential Linear Unit 
         public static double ELU(double x, double a)
         {
             return x < 0 ? a * (Math.Pow(Math.E, x) - 1) : x;
         }
+
         public static double DELU(double x, double a)
         {
             return x < 0 ? ELU(x, a) + a : 1;
         }
+
         public static double SoftPlus(double x)
         {
             return Math.Log(Math.Exp(x) + 1);
         }
+
         public static double DSoftPlus(double x)
         {
             return Sigmoid(x);

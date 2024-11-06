@@ -12,23 +12,6 @@ namespace Atom.MachineLearning.IO
     /// </summary>
     public static class TransformationUtils
     {
-        public static double[,] Texture2DToMatrix(Texture2D image)
-        {
-            double[,] result = new double[image.width, image.height];
-
-            for (int i = 0; i < image.width; ++i)
-            {
-                for (int j = 0; j < image.height; ++j)
-                {
-                    var pix = image.GetPixel(i, j);
-                    float value = ((pix.r + pix.g + pix.b) / 3f);
-                    result[i, j] = value;
-                }
-            }
-
-            return result;
-        }
-
         public static Texture2D MatrixToTexture2D(double[,] matrix)
         {
             var texture = new Texture2D(matrix.GetLength(0), matrix.GetLength(1));
@@ -44,6 +27,41 @@ namespace Atom.MachineLearning.IO
 
             texture.Apply();
             return texture;
+        }
+
+        public static double[] Texture2DToArray(Texture2D image)
+        {
+            double[] result = new double[image.width * image.height];
+            int index = 0;
+
+            for (int i = 0; i < image.width; ++i)
+            {
+                for (int j = 0; j < image.height; ++j)
+                {
+                    var pix = image.GetPixel(i, j);
+                    float value = ((pix.r + pix.g + pix.b) / 3f) * pix.a;
+                    result[index++] = value;
+                }
+            }
+
+            return result;
+        }
+
+        public static double[,] Texture2DToMatrix(Texture2D image)
+        {
+            double[,] result = new double[image.width, image.height];
+
+            for (int i = 0; i < image.width; ++i)
+            {
+                for (int j = 0; j < image.height; ++j)
+                {
+                    var pix = image.GetPixel(i, j);
+                    float value = ((pix.r + pix.g + pix.b) / 3f);
+                    result[i, j] = value;
+                }
+            }
+
+            return result;
         }
 
         /// <summary>
@@ -90,24 +108,6 @@ namespace Atom.MachineLearning.IO
             return output;
         }
 
-        public static double[] Texture2DToArray(Texture2D image)
-        {
-            double[] result = new double[image.width * image.height];
-            int index = 0;
-
-            for (int i = 0; i < image.width; ++i)
-            {
-                for (int j = 0; j < image.height; ++j)
-                {
-                    var pix = image.GetPixel(i, j);
-                    float value = ((pix.r + pix.g + pix.b) / 3f) * pix.a;
-                    result[index++] = value;
-                }
-            }
-
-            return result;
-        }
-
         public static double[] MatrixToArray(double[,] data)
         {
             int index = 0;
@@ -144,15 +144,15 @@ namespace Atom.MachineLearning.IO
         /// Transforms a string matrix to assign a string array to a double array, given rules from the dictionary
         /// </summary>
         /// <param name="datas"></param>
-        /// <param name="vectorizationRule"></param>
+        /// <param name="encodingRule"></param>
         /// <returns></returns>
-        public static double[,] RuledVectorization(string[] datas, int dimensions, Dictionary<string, double[]> vectorizationRule)
+        public static double[,] Encode(string[] datas, int dimensions, Dictionary<string, double[]> encodingRule)
         {
             double[,] result = new double[datas.Length, dimensions];
 
             for (int i = 0; i < datas.Length; ++i)
             {
-                var vector = vectorizationRule[datas[i]];
+                var vector = encodingRule[datas[i]];
 
                 if (vector.Length != dimensions)
                     throw new Exception($"All the vectorization rule output vectors should have {dimensions} dimensions");

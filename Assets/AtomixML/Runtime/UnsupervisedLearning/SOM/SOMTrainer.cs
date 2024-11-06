@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -93,12 +94,14 @@ namespace Atom.MachineLearning.Unsupervised.SelfOrganizingMap
             };
         }
 
-        private void EpochIterationCallback(int epoch)
+        private void EpochIterationCallback(int epoch, CancellationToken cancellationToken)
         {
             _shuffle_x_datas.AddRange(_x_datas);
 
             while (_shuffle_x_datas.Count > 0)
             {
+                cancellationToken.ThrowIfCancellationRequested();   
+
                 if (_currentNeighboorHoodRadius <= .001f)
                 {
                     Debug.Log($"Current neghboorhood radius is too small");
@@ -215,7 +218,7 @@ namespace Atom.MachineLearning.Unsupervised.SelfOrganizingMap
 
             DatasetReader.SplitLastColumn(datas, out var features, out var labels);
 
-            var vectorized_labels = TransformationUtils.RuledVectorization(labels, 3, new Dictionary<string, double[]>()
+            var vectorized_labels = TransformationUtils.Encode(labels, 3, new Dictionary<string, double[]>()
             {
                 { "Iris-setosa", new double[] { 0, 0, 1 } },
                 { "Iris-versicolor", new double[] { 0, 1, 0 } },

@@ -13,7 +13,7 @@ namespace NeuralNetwork
         Max,
     }
 
-    public class PoolingLayer : AbstractCNNLayer
+    public class PoolingLayer : ConvolutionalLayerBase
     {
         public int OutputWidth;
         public int OutputHeight;

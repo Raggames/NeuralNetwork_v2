@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
@@ -41,6 +42,9 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
         [SerializeField] private RawImage _outputRawImage;
         [ShowInInspector, ReadOnly] private Texture2D _inputVisualization;
         [SerializeField] private RawImage _inputRawImage;
+
+
+        #region testings 
 
         [Button]
         private void VisualizeRandomMnist()
@@ -98,23 +102,11 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
                 new int[] { 64, 32, 16, 8 },
                 new int[] { 8, 16, 32, 64 } );*/
 
-            var autoEncoder = new AutoEncoderModel(
-                new int[] { 64, 32, 8 },
-                new int[] { 8, 32, 64 },
-                (r) =>
-                {
-                    for (int i = 0; i < r.Length; ++i)
-                        r[i] = MLActivationFunctions.Sigmoid(r[i]);
-
-                    return r;
-                },
-                (r) =>
-                {
-                    for (int i = 0; i < r.Length; ++i)
-                        r[i] = MLActivationFunctions.DSigmoid(r[i]);
-
-                    return r;
-                });
+            var encoder = new NeuralNetworkModel();
+            encoder.AddDenseLayer(64, 8, ActivationFunctions.ReLU);
+            var decoder = new NeuralNetworkModel();
+            decoder.AddBridgeOutputLayer(8, 64, ActivationFunctions.Sigmoid);
+            var autoEncoder = new AutoEncoderModel(encoder, decoder);
 
             autoEncoder.ModelName = "auto-encoder-mnist";
 
@@ -126,29 +118,22 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
         }
 
         [Button]
-        private async void FitRndbw()
+        private async void FitMnit28x28()
         {
-            var autoEncoder = new AutoEncoderModel(
-                new int[] { 4, 2, 1 },
-                new int[] { 1, 2, 4 },
-                (r) =>
-                {
-                    for (int i = 0; i < r.Length; ++i)
-                        r[i] = MLActivationFunctions.Sigmoid(r[i]);
-
-                    return r;
-                },
-                (r) =>
-                {
-                    for (int i = 0; i < r.Length; ++i)
-                        r[i] = MLActivationFunctions.DSigmoid(r[i]);
-
-                    return r;
-                });
-
+            var encoder = new NeuralNetworkModel();
+            encoder.AddDenseLayer(784, 32, ActivationFunctions.ReLU);
+            var decoder = new NeuralNetworkModel();
+            decoder.AddBridgeOutputLayer(32, 784, ActivationFunctions.Sigmoid);
+            var autoEncoder = new AutoEncoderModel(encoder, decoder);
+               
             autoEncoder.ModelName = "auto-encoder-mnist";
 
-            LoadRndbw();
+            var mnist = Datasets.Mnist_28x28_Vectorized_All();
+
+            if (_normalizeDataSet)
+                _x_datas = NVector.Normalize(mnist);
+            else
+                _x_datas = mnist;
 
             await Fit(autoEncoder, _x_datas);
 
@@ -181,7 +166,7 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
         {
             _epochSupervisor?.Cancel();
         }
-
+/*
         [Button]
         private async void TestBothNetworksWithRnd_bw(int iterations = 50)
         {
@@ -216,7 +201,7 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
             }
 
         }
-
+*/
 
         private NeuralNetwork.NeuralNetwork _neuralNetwork;
 
@@ -328,6 +313,163 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
             }
         }
 
+
+        [Button]
+        private void Test_Flowers()
+        {
+            var datas = Datasets.Flowers_All();
+
+            DatasetReader.SplitLastColumn(datas, out var features, out var labels);
+
+            var vectorized_labels = TransformationUtils.Encode(labels, 3, new Dictionary<string, double[]>()
+            {
+                { "Iris-setosa", new double[] { 0, 0, 1 } },
+                { "Iris-versicolor", new double[] { 0, 1, 0 } },
+                { "Iris-virginica", new double[] { 1, 0, 0 } },
+            }).ToNVectorRowsArray();
+
+            _x_datas = NVector.Standardize(TransformationUtils.StringMatrix2DToDoubleMatrix2D(features).ToNVectorRowsArray(), out var means, out var stdDeviations);
+           
+            var network = new NeuralNetworkModel();
+            network.AddDenseLayer(4, 7, ActivationFunctions.Tanh);
+            network.AddOutputLayer(3, ActivationFunctions.Sigmoid);
+            network.SeedWeigths(-.01, .01);
+
+            _x_datas_buffer = new List<NVector>();
+            _currentLearningRate = _learningRate;
+            var t_datas_buffer = new List<NVector>();
+
+
+            for (int i = 0; i < _epochs; ++i)
+            {
+                var correctRun = 0;
+                var wrongRun = 0;
+                _currentEpoch = i;
+                _x_datas_buffer.AddRange(_x_datas);
+                t_datas_buffer.AddRange(vectorized_labels);
+
+                double error_sum = 0.0;
+                NVector output = new NVector(network.Layers[0].neuronCount);
+
+                while (_x_datas_buffer.Count > 0)
+                {
+                    var index = MLRandom.Shared.Range(0, _x_datas_buffer.Count - 1);
+                    var input = _x_datas_buffer[index];
+                    var test = t_datas_buffer[index];
+
+                    _x_datas_buffer.RemoveAt(index);
+                    t_datas_buffer.RemoveAt(index);
+
+                    output = network.Forward(input);
+
+                    int ind = NeuralNetworkMathHelper.MaxIndex(output.Data);
+                    int tMaxIndex = NeuralNetworkMathHelper.MaxIndex(test.Data);
+                    if (ind.Equals(tMaxIndex))
+                    {
+                        correctRun++;
+                    }
+                    else
+                    {
+                        wrongRun++;
+                    }
+
+                    // we try to reconstruct the input while autoencoding
+                    var error = MSE_Error(output, test);
+                    error_sum += MSE_Loss(error);
+
+                    network.Backpropagate(error);
+
+                    for (int l = network.Layers.Count - 1; l >= 0; --l)
+                    {
+                        network.Layers[l].UpdateWeights(_currentLearningRate, _momentum, _weightDecay);
+                    }
+                }
+
+                _currentLoss = (float)error_sum / _x_datas.Length;
+
+                _currentLearningRate = _learningRateCurve.Evaluate(((float)i / (float)_epochs)) * _learningRate;
+
+                Debug.Log($"{correctRun} / {wrongRun + correctRun}");
+            }
+
+        }
+
+        [Button]
+        private void Test_Flowers_Old()
+        {
+            var datas = Datasets.Flowers_All();
+
+            DatasetReader.SplitLastColumn(datas, out var features, out var labels);
+
+            var vectorized_labels = TransformationUtils.Encode(labels, 3, new Dictionary<string, double[]>()
+            {
+                { "Iris-setosa", new double[] { 0, 0, 1 } },
+                { "Iris-versicolor", new double[] { 0, 1, 0 } },
+                { "Iris-virginica", new double[] { 1, 0, 0 } },
+            }).ToNVectorRowsArray();
+
+            _x_datas = NVector.Standardize(TransformationUtils.StringMatrix2DToDoubleMatrix2D(features).ToNVectorRowsArray(), out var means, out var stdDeviations);
+
+            var network = new NeuralNetwork.NeuralNetwork();
+            network.AddDenseLayer(4, 7, ActivationFunctions.Tanh);
+            network.AddOutputLayer(3, ActivationFunctions.Softmax);
+            network.SeedRandomWeights(-.01, .01);
+
+            var t_datas_buffer = new List<NVector>();
+            _x_datas_buffer = new List<NVector>();
+            _currentLearningRate = _learningRate;
+
+            for (int i = 0; i < _epochs; ++i)
+            {
+                _currentEpoch = i;
+                _x_datas_buffer.AddRange(_x_datas);
+                t_datas_buffer.AddRange(vectorized_labels);
+
+                double error_sum = 0.0;
+                double[] output = new double[3];
+                var correctRun = 0;
+                var wrongRun = 0;
+
+                while (_x_datas_buffer.Count > 0)
+                {                   
+                    var index = MLRandom.Shared.Range(0, _x_datas_buffer.Count - 1);
+                    var input = _x_datas_buffer[index];
+                    var test = t_datas_buffer[index];
+
+                    _x_datas_buffer.RemoveAt(index);
+                    t_datas_buffer.RemoveAt(index);
+
+                    network.FeedForward(input.Data, out output);
+
+                    int ind = NeuralNetworkMathHelper.MaxIndex(output);
+                    int tMaxIndex = NeuralNetworkMathHelper.MaxIndex(test.Data);
+                    if (ind.Equals(tMaxIndex))
+                    {
+                        correctRun++;
+                    }
+                    else
+                    {
+                        wrongRun++;
+                    }
+
+                    // we try to reconstruct the input while autoencoding
+                    var error = MSE_Error(new NVector(output), test);
+                    error_sum += MSE_Loss(error);
+
+                    network.BackPropagate(output, test.Data, _currentLearningRate, _momentum, _weightDecay,_currentLearningRate);
+                }
+                Debug.Log($"{correctRun} / {wrongRun + correctRun}");
+
+                _currentLoss = (float)error_sum / _x_datas.Length;
+
+                _currentLearningRate = _learningRateCurve.Evaluate(((float)i / (float)_epochs)) * _learningRate;
+            }
+
+        }
+
+
+        #endregion
+
         public async Task<ITrainingResult> Fit(AutoEncoderModel model, NVector[] x_datas)
         {
             trainedModel = model;
@@ -347,7 +489,7 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
             return new TrainingResult();
         }
 
-        private void EpochIterationCallback(int epoch)
+        private void EpochIterationCallback(int epoch, CancellationToken cancellationToken)
         {
             _currentEpoch = epoch;
             _x_datas_buffer.AddRange(_x_datas);
@@ -357,6 +499,8 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
 
             while (_x_datas_buffer.Count > 0)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 var index = MLRandom.Shared.Range(0, _x_datas_buffer.Count - 1);
                 var input = _x_datas_buffer[index];
                 _x_datas_buffer.RemoveAt(index);
