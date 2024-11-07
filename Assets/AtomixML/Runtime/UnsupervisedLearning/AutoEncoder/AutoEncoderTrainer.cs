@@ -2,7 +2,7 @@
 using Atom.MachineLearning.Core.Maths;
 using Atom.MachineLearning.Core.Training;
 using Atom.MachineLearning.IO;
-using NeuralNetwork;
+using Atom.MachineLearning.NeuralNetwork;
 using Sirenix.OdinInspector;
 using System;
 using System.Collections.Generic;
@@ -17,7 +17,7 @@ using static Atom.MachineLearning.Unsupervised.AutoEncoder.AutoEncoderModel;
 namespace Atom.MachineLearning.Unsupervised.AutoEncoder
 {
     [ExecuteInEditMode]
-    public class AutoEncoderTrainer : MonoBehaviour, IMLTrainer<AutoEncoderModel, NVector, NVector>
+    public class AutoEncoderTrainer : MonoBehaviour, IMLTrainer<AutoEncoderModel, NVector, NVector>, IEpochIteratable, ITrainIteratable
     {
         public AutoEncoderModel trainedModel { get; set; }
 
@@ -35,13 +35,17 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
 
         private NVector[] _x_datas;
         private List<NVector> _x_datas_buffer;
-        private EpochSupervisorAsync _epochSupervisor;
+        private StandardTrainingSupervisor _epochSupervisor;
         private AutoEncoderModel _model;
 
         [ShowInInspector, ReadOnly] private Texture2D _outputVisualization;
         [SerializeField] private RawImage _outputRawImage;
         [ShowInInspector, ReadOnly] private Texture2D _inputVisualization;
         [SerializeField] private RawImage _inputRawImage;
+
+
+        private double _errorSum = 0.0;
+        private NVector _outputBuffer;
 
 
         #region testings 
@@ -106,13 +110,13 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
             encoder.AddDenseLayer(64, 8, ActivationFunctions.ReLU);
             var decoder = new NeuralNetworkModel();
             decoder.AddBridgeOutputLayer(8, 64, ActivationFunctions.Sigmoid);
-            var autoEncoder = new AutoEncoderModel(encoder, decoder);
+            trainedModel = new AutoEncoderModel(encoder, decoder);
 
-            autoEncoder.ModelName = "auto-encoder-mnist";
+            trainedModel.ModelName = "auto-encoder-mnist";
 
             LoadMnist();
 
-            await Fit(autoEncoder, _x_datas);
+            await Fit(_x_datas);
 
             Debug.Log("End fit");
         }
@@ -124,9 +128,9 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
             encoder.AddDenseLayer(784, 32, ActivationFunctions.ReLU);
             var decoder = new NeuralNetworkModel();
             decoder.AddBridgeOutputLayer(32, 784, ActivationFunctions.Sigmoid);
-            var autoEncoder = new AutoEncoderModel(encoder, decoder);
-               
-            autoEncoder.ModelName = "auto-encoder-mnist";
+            trainedModel = new AutoEncoderModel(encoder, decoder);
+
+            trainedModel.ModelName = "auto-encoder-mnist";
 
             var mnist = Datasets.Mnist_28x28_Vectorized_All();
 
@@ -135,7 +139,7 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
             else
                 _x_datas = mnist;
 
-            await Fit(autoEncoder, _x_datas);
+            await Fit(_x_datas);
 
             Debug.Log("End fit");
         }
@@ -143,7 +147,7 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
         [Button]
         private void LoadLast()
         {
-            trainedModel = ModelSerializationService.LoadModel<AutoEncoderModel>("auto-encoder-mnist");
+            trainedModel = ModelSerializer.LoadModel<AutoEncoderModel>("auto-encoder-mnist");
         }
 
         [Button]
@@ -252,8 +256,8 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
                     _neuralNetwork.FeedForward(input.Data, out output);
 
                     // we try to reconstruct the input while autoencoding
-                    var error = MSE_Error(new NVector(output), input);
-                    error_sum += MSE_Loss(error);
+                    var outpputvec = new NVector(output);
+                    error_sum += MLCostFunctions.MSE(input, outpputvec);
 
                     _neuralNetwork.BackPropagate(output, input.Data, _currentLearningRate, _momentum, _weightDecay, _learningRate);
                 }
@@ -298,13 +302,13 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
                     _neuralNetwork.FeedForward(input.Data, out output);
 
                     // we try to reconstruct the input while autoencoding
-                    var error = MSE_Error(new NVector(output), input);
-                    error_sum += MSE_Loss(error);
+                    var outpt = new NVector(output);
+                    error_sum += MLCostFunctions.MSE(input, outpt);
 
                     _neuralNetwork.BackPropagate(output, input.Data, _currentLearningRate, _momentum, _weightDecay, _learningRate);
                 }
 
-
+                // mean squarred error
                 _currentLoss = (float)error_sum / _x_datas.Length;
 
                 _currentLearningRate = _learningRateCurve.Evaluate(((float)i / (float)_epochs)) * _learningRate;
@@ -312,7 +316,6 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
                 await Task.Delay(1);
             }
         }
-
 
         [Button]
         private void Test_Flowers()
@@ -328,8 +331,9 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
                 { "Iris-virginica", new double[] { 1, 0, 0 } },
             }).ToNVectorRowsArray();
 
-            _x_datas = NVector.Standardize(TransformationUtils.StringMatrix2DToDoubleMatrix2D(features).ToNVectorRowsArray(), out var means, out var stdDeviations);
-           
+            //_x_datas = NVector.Standardize(TransformationUtils.StringMatrix2DToDoubleMatrix2D(features).ToNVectorRowsArray(), out var means, out var stdDeviations);
+            _x_datas = NVector.Normalize(TransformationUtils.StringMatrix2DToDoubleMatrix2D(features).ToNVectorRowsArray());
+
             var network = new NeuralNetworkModel();
             network.AddDenseLayer(4, 7, ActivationFunctions.Tanh);
             network.AddOutputLayer(3, ActivationFunctions.Sigmoid);
@@ -374,10 +378,10 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
                     }
 
                     // we try to reconstruct the input while autoencoding
-                    var error = MSE_Error(output, test);
-                    error_sum += MSE_Loss(error);
+                    var error = MLCostFunctions.MSE_Derivative(test, output);
+                    error_sum += MLCostFunctions.MSE(test, output);
 
-                    network.Backpropagate(error);
+                    network.Backpropagate2(error);
 
                     for (int l = network.Layers.Count - 1; l >= 0; --l)
                     {
@@ -453,8 +457,8 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
                     }
 
                     // we try to reconstruct the input while autoencoding
-                    var error = MSE_Error(new NVector(output), test);
-                    error_sum += MSE_Loss(error);
+                    var error = MLCostFunctions.MSE_Derivative(new NVector(output), test);
+                    error_sum += MLCostFunctions.MSE(test, new NVector(output));
 
                     network.BackPropagate(output, test.Data, _currentLearningRate, _momentum, _weightDecay,_currentLearningRate);
                 }
@@ -464,87 +468,69 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
 
                 _currentLearningRate = _learningRateCurve.Evaluate(((float)i / (float)_epochs)) * _learningRate;
             }
-
         }
-
 
         #endregion
 
-        public async Task<ITrainingResult> Fit(AutoEncoderModel model, NVector[] x_datas)
+        public async Task<ITrainingResult> Fit(NVector[] x_datas)
         {
-            trainedModel = model;
-
             _x_datas = x_datas;
             _x_datas_buffer = new List<NVector>();
             _currentLearningRate = _learningRate;
 
-            var _epochSupervisor = new EpochSupervisorAsync(EpochIterationCallback);
-            await _epochSupervisor.Run(_epochs);
+            _outputBuffer = new NVector(trainedModel.tensorDimensions);
+
+            _epochSupervisor = new StandardTrainingSupervisor()
+                .SetEpochIteration(this)
+                .SetTrainIteration(this)
+                .SetAutosave(_epochs / 100);
+
+            await _epochSupervisor.RunAsync(_epochs, _x_datas.Length, true);
 
             // test train ? 
             // accuracy ?
-            ModelSerializationService.SaveModel(trainedModel);
-
+            //ModelSerializer.SaveModel(trainedModel);
 
             return new TrainingResult();
         }
 
-        private void EpochIterationCallback(int epoch, CancellationToken cancellationToken)
+
+        public void OnBeforeEpoch(int epochIndex)
         {
-            _currentEpoch = epoch;
+            _currentEpoch = epochIndex;
             _x_datas_buffer.AddRange(_x_datas);
 
-            double error_sum = 0.0;
-            NVector output = new NVector(trainedModel.tensorDimensions);
-
-            while (_x_datas_buffer.Count > 0)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-
-                var index = MLRandom.Shared.Range(0, _x_datas_buffer.Count - 1);
-                var input = _x_datas_buffer[index];
-                _x_datas_buffer.RemoveAt(index);
-
-                output = trainedModel.Predict(input);
-
-                // we try to reconstruct the input while autoencoding
-                var error = MSE_Error(output, input);
-                error_sum += MSE_Loss(error);
-                trainedModel.Backpropagate(error);
-                trainedModel.UpdateWeights(_currentLearningRate, _momentum, _weightDecay);
-            }
-
-
-            _currentLoss = (float)error_sum / _x_datas.Length;
-
-            // decay learning rate
-            // decay neighboordHoodDistance
-            // for instance, linear degression
-
-            _currentLearningRate = _learningRateCurve.Evaluate(((float)epoch / (float)_epochs)) * _learningRate;
+            _errorSum = 0.0;
+            _outputBuffer = new NVector(trainedModel.tensorDimensions);
         }
-
-        /// <summary>
-        /// Mean squarred
-        /// </summary>
-        /// <param name="error"></param>
-        /// <returns></returns>
-        public double MSE_Loss(NVector error)
+        
+        public void OnTrainNext(int index)
         {
-            var result = 0.0;
-            for (int i = 0; i < error.Length; ++i)
-            {
-                result += Math.Pow(error[i], 2);
-            }
+            var _randomIndex = MLRandom.Shared.Range(0, _x_datas_buffer.Count - 1);
+            var input = _x_datas_buffer[_randomIndex];
+            _x_datas_buffer.RemoveAt(_randomIndex);
 
-            result /= error.Length;
+            _outputBuffer = trainedModel.Predict(input);
 
-            return result;
+            // we try to reconstruct the input while autoencoding
+            _errorSum += MLCostFunctions.MSE(input, _outputBuffer);
+
+            var error = MLCostFunctions.MSE_Derivative(input, _outputBuffer);
+            trainedModel.Backpropagate(error);
+            trainedModel.UpdateWeights(_currentLearningRate, _momentum, _weightDecay);
         }
 
-        public NVector MSE_Error(NVector output, NVector test)
+        public void OnAfterEpoch(int epochIndex)
         {
-            return (test - output) * 2;
+            _currentLoss = (float)_errorSum / _x_datas.Length;
+
+            _currentLearningRate = _learningRateCurve.Evaluate(((float)_currentEpoch / (float)_epochs)) * _learningRate;
         }
+
+        public Task<double> Score(NVector[] x_datas)
+        {
+            throw new NotImplementedException();
+        }
+
     }
 }

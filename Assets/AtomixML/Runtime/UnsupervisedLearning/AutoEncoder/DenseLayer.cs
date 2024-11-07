@@ -1,6 +1,6 @@
 ﻿using Atom.MachineLearning.Core;
 using Atom.MachineLearning.Core.Maths;
-using NeuralNetwork;
+using Atom.MachineLearning.NeuralNetwork;
 using System;
 using UnityEditor.PackageManager;
 
@@ -175,6 +175,29 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
             return _gradient;
         }
 
+        public virtual NVector Backward2(NVector preComputedGradient)
+        {
+            var output_derivative = _derivativeFunction(_output);
+
+            for (int i = 0; i < _gradient.Length; ++i)
+            {                
+                _gradient[i] = output_derivative[i] * preComputedGradient[i];
+            }
+
+            var prev_layer_gradient = new NVector(_weights.Columns);
+            for (int i = 0; i < prev_layer_gradient.Length; ++i)
+            {
+                double sum = 0.0;
+                for (int j = 0; j < _gradient.Length; ++j)
+                {
+                    sum += _gradient[j] * _weights[j, i];
+                }
+
+                prev_layer_gradient[i] = sum;
+            }
+
+            return prev_layer_gradient;
+        }
 
         /// <summary>
         /// This will be done by the trainer in a near future

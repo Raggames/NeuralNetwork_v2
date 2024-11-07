@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace NeuralNetwork
+namespace Atom.MachineLearning.NeuralNetwork
 {
     [CreateAssetMenu(menuName = "NetworkBuilder")]
     public class ModelBuilder : ScriptableObject

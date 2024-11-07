@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NeuralNetwork
+namespace Atom.MachineLearning.NeuralNetwork
 {
     public abstract class ConvolutionalLayerBase : AbstractLayer
     {

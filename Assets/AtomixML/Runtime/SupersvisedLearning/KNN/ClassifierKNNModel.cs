@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace Atom.MachineLearning.Supervised.KNN
 {
+    [Serializable]
     public class ClassifierKNNModel : IKNNModel
     {
         [HyperParameter] private bool _useNeighboorDistancePonderation;

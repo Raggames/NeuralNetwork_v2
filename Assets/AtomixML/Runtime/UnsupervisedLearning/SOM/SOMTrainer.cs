@@ -14,7 +14,7 @@ using UnityEngine;
 
 namespace Atom.MachineLearning.Unsupervised.SelfOrganizingMap
 {
-    public class SOMTrainer : MonoBehaviour, IMLTrainer<SOMModel, NVector, KohonenMatchingUnit>
+    public class SOMTrainer : MonoBehaviour, IMLTrainer<SOMModel, NVector, KohonenMatchingUnit>, IEpochIteratable
     {
         public SOMModel trainedModel { get; set; }
 
@@ -33,14 +33,14 @@ namespace Atom.MachineLearning.Unsupervised.SelfOrganizingMap
         /// </summary>
         [SerializeField] private float _neuronCountMultiplier = 1;
         // runtime
-        private EpochSupervisorAsync _epochSupervisor;
+        private StandardTrainingSupervisor _epochSupervisor;
 
         private NVector[] _x_datas;
-        private NVector[] _t_datas;
         private List<NVector> _shuffle_x_datas;
 
         [ShowInInspector, ReadOnly] private double _currentNeighboorHoodRadius;
         [ShowInInspector, ReadOnly] private double _currentLearningRate;
+        [ShowInInspector, ReadOnly] private int _currentEpoch;
 
         [Header("Visualization")]
         [SerializeField] private float _sizeMultiplier = 1;
@@ -69,24 +69,25 @@ namespace Atom.MachineLearning.Unsupervised.SelfOrganizingMap
            return  _neighboorHoodRadius * Math.Exp(-currentEpoch / _timeConstant);
         }
 
-        public async Task<ITrainingResult> Fit(SOMModel model, NVector[] x_datas)
+        public async Task<ITrainingResult> Fit(NVector[] x_datas)
         {
             ComputeTimeConstant();
 
             _x_datas = x_datas;
-            trainedModel = model;
 
             _shuffle_x_datas = new List<NVector>();
 
             _currentNeighboorHoodRadius = _neighboorHoodRadius;
             _currentLearningRate = _learningRate;
 
-            _epochSupervisor = new EpochSupervisorAsync(EpochIterationCallback);
-            await _epochSupervisor.Run(_epochs);
+            _epochSupervisor = new StandardTrainingSupervisor()
+                .SetEpochIteration(this);
+
+            await _epochSupervisor.RunAsync(_epochs);
 
             var quantized_error = QuantizationError(x_datas);
             Debug.Log("Error > " + quantized_error);
-            ModelSerializationService.SaveModel(trainedModel);
+            ModelSerializer.SaveModel(trainedModel);
 
             return new TrainingResult()
             {
@@ -94,14 +95,14 @@ namespace Atom.MachineLearning.Unsupervised.SelfOrganizingMap
             };
         }
 
-        private void EpochIterationCallback(int epoch, CancellationToken cancellationToken)
+
+        public void OnBeforeEpoch(int epochIndex)
         {
+            _currentEpoch = epochIndex;
             _shuffle_x_datas.AddRange(_x_datas);
 
             while (_shuffle_x_datas.Count > 0)
             {
-                cancellationToken.ThrowIfCancellationRequested();   
-
                 if (_currentNeighboorHoodRadius <= .001f)
                 {
                     Debug.Log($"Current neghboorhood radius is too small");
@@ -129,8 +130,19 @@ namespace Atom.MachineLearning.Unsupervised.SelfOrganizingMap
                 }
             }
 
-            _currentLearningRate = CurrentLearningRate(epoch);
-            _currentNeighboorHoodRadius = CurrentNeighborhoodRadius(epoch);
+            _currentLearningRate = CurrentLearningRate(_currentEpoch);
+            _currentNeighboorHoodRadius = CurrentNeighborhoodRadius(_currentEpoch);
+        }
+
+        public void OnAfterEpoch(int epochIndex)
+        {
+            //throw new NotImplementedException();
+        }
+
+        public async Task<double> Score(NVector[] x_datas)
+        {
+            await Task.Delay(1);
+            return QuantizationError(x_datas);
         }
 
         /*
@@ -183,14 +195,14 @@ namespace Atom.MachineLearning.Unsupervised.SelfOrganizingMap
 
             var x_datas = TransformationUtils.StringMatrix2DToDoubleMatrix2D(features).ToNVectorRowsArray();
 
-            var model = new SOMModel();
-            model.ModelName = "som-flowers";
+            trainedModel = new SOMModel();
+            trainedModel.ModelName = "som-flowers";
 
             int neuronsCount = ComputeNodesCount(datas.GetLength(0));
 
-            model.InitializeMap(neuronsCount, 4);
+            trainedModel.InitializeMap(neuronsCount, 4);
 
-            await Fit(model, x_datas);
+            await Fit(x_datas);
 
             PlotKohonenMatrix();
         }
@@ -202,7 +214,7 @@ namespace Atom.MachineLearning.Unsupervised.SelfOrganizingMap
         public void PlotKohonenMatrix()
         {
             if (trainedModel == null)
-                trainedModel = ModelSerializationService.LoadModel<SOMModel>("som-flowers");
+                trainedModel = ModelSerializer.LoadModel<SOMModel>("som-flowers");
 
             _labelColoredMatrix = new Color[trainedModel.kohonenMap.GetLength(0), trainedModel.kohonenMap.GetLength(1)];
             _labelIterationMatrix = new int[trainedModel.kohonenMap.GetLength(0), trainedModel.kohonenMap.GetLength(1)];
@@ -247,7 +259,6 @@ namespace Atom.MachineLearning.Unsupervised.SelfOrganizingMap
                 _labelIterationMatrix[prediction.XCoordinate, prediction.YCoordinate]++;
             }
         }
-
 
         void OnDrawGizmos()
         {

@@ -11,67 +11,83 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
         public string ModelName { get; set; } = "auto-encoder";
         public string ModelVersion { get; set; }
 
-        [LearnedParameter, SerializeField] public NeuralNetworkModel encoder;
-        [LearnedParameter, SerializeField] public NeuralNetworkModel decoder;
+        [LearnedParameter, SerializeField] private NeuralNetworkModel _encoder;
+        [LearnedParameter, SerializeField] private NeuralNetworkModel _decoder;
 
         /// <summary>
         /// Dimensions of the input-output tensor of the encoder
         /// </summary>
-        [JsonIgnore] public int tensorDimensions => encoder.inputDimensions;
+        [JsonIgnore] public int tensorDimensions => _encoder.inputDimensions;
 
         public AutoEncoderModel(NeuralNetworkModel encoder, NeuralNetworkModel decoder)
         {
-            this.encoder = encoder;
-            this.decoder = decoder;
+            this._encoder = encoder;
+            this._decoder = decoder;
         }
 
         public void SeedWeigths(double minWeight = -0.01, double maxWeight = 0.01)
         {
-            encoder.SeedWeigths(minWeight, maxWeight);
-            decoder.SeedWeigths(minWeight, maxWeight);
+            _encoder.SeedWeigths(minWeight, maxWeight);
+            _decoder.SeedWeigths(minWeight, maxWeight);
         }
 
         public NVector Predict(NVector inputData)
         {
             var temp = inputData;
 
-            temp = encoder.Forward(temp);
-            temp = decoder.Forward(temp);
+            temp = _encoder.Forward(temp);
+            temp = _decoder.Forward(temp);
 
             return temp;
         }
 
         public NVector Backpropagate(NVector error)
         {
-            var l_gradient = decoder.OutputLayer.Backward(error, decoder.OutputLayer._weights);
+            var l_gradient = _decoder.OutputLayer.Backward(error, _decoder.OutputLayer._weights);
 
-            for (int l = decoder.Layers.Count - 2; l >= 0; --l)
+            for (int l = _decoder.Layers.Count - 2; l >= 0; --l)
             {
-                l_gradient = decoder.Layers[l].Backward(l_gradient, decoder.Layers[l + 1]._weights);
+                l_gradient = _decoder.Layers[l].Backward(l_gradient, _decoder.Layers[l + 1]._weights);
             }
 
-            l_gradient = encoder.OutputLayer.Backward(error, decoder.Layers[0]._weights);
-            for (int l = encoder.Layers.Count - 2; l >= 0; --l)
+            l_gradient = _encoder.OutputLayer.Backward(error, _decoder.Layers[0]._weights);
+            for (int l = _encoder.Layers.Count - 2; l >= 0; --l)
             {
-                l_gradient = encoder.Layers[l].Backward(l_gradient, encoder.Layers[l + 1]._weights);
+                l_gradient = _encoder.Layers[l].Backward(l_gradient, _encoder.Layers[l + 1]._weights);
             }
 
             return l_gradient;
         }
 
+        public NVector Backpropagate2(NVector error)
+        {
+            var gradient = error;
+            for (int l = _decoder.Layers.Count - 1; l >= 0; --l)
+            {
+                gradient = _decoder.Layers[l].Backward2(gradient);
+            }
+
+            for (int l = _encoder.Layers.Count - 1; l >= 0; --l)
+            {
+                gradient = _encoder.Layers[l].Backward2(gradient);
+            }
+
+            return gradient;
+        }
+
         public void UpdateWeights(float learningRate = .05f, float momentum = .005f, float weigthDecay = .0005f)
         {
-            for (int i = 0; i < encoder.Layers.Count; ++i)
+            for (int i = 0; i < _encoder.Layers.Count; ++i)
             {
-                encoder.Layers[i].UpdateWeights(learningRate, momentum, weigthDecay);
+                _encoder.Layers[i].UpdateWeights(learningRate, momentum, weigthDecay);
             }
 
             /* _code._enterLayer.UpdateWeights(learningRate, momentum, weigthDecay);
              _code._exitLayer.UpdateWeights(learningRate, momentum, weigthDecay);*/
 
-            for (int i = 0; i < decoder.Layers.Count; ++i)
+            for (int i = 0; i < _decoder.Layers.Count; ++i)
             {
-                decoder.Layers[i].UpdateWeights(learningRate, momentum, weigthDecay);
+                _decoder.Layers[i].UpdateWeights(learningRate, momentum, weigthDecay);
             }
         }
     }

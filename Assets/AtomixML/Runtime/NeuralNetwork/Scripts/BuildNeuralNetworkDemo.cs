@@ -28,7 +28,7 @@ using System;
 // (use at your own risk, etc.)
  
  
-namespace NeuralNetwork
+namespace Atom.MachineLearning.NeuralNetwork
 {
   class NeuralNetworkProgram
   {

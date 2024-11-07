@@ -1,4 +1,5 @@
 ﻿using Atom.MachineLearning.Core;
+using Atom.MachineLearning.Core.Training;
 using Sirenix.OdinInspector;
 using System;
 using System.Collections.Generic;
@@ -9,27 +10,42 @@ using UnityEngine;
 
 namespace Atom.MachineLearning.Unsupervised.BoltzmanMachine
 {
+    [Serializable]
     /// <summary>
     /// Contrastive divergence / sampling in action
     /// </summary>
-    public class BooleanRBMTrainer : MonoBehaviour
+    public class BooleanRBMTrainer : IMLTrainer<BooleanRBMModel, NVector, NVector>
     {
-        [Button]
-        private void TestSampleHidden()
-        {
-            var rbm = new BooleanRBMModel(0, "test-brbm-6-2", 6, 2);
-            var input = new NVector(6).Random(0, 1);
-            var sample = rbm.SampleHidden(input);
-            
-            Debug.Log(sample);
+        public BooleanRBMModel trainedModel { get; set; }
 
-            var input2 = rbm.SampleVisible(input);
-            Debug.Log(input2);
+        /// <summary>
+        /// Number of gibbs sample per training data
+        /// </summary>
+        [HyperParameter, SerializeField] private int _K = 1;
+
+        /*
+         It is possible to update the weights after estimating the gradient on a single training case, but it is
+            often more ecient to divide the training set into small “mini-batches” of 10 to 100 cases
+         - Hinton, 2010
+        */
+        /// <summary>
+        /// Number of batches 
+        /// </summary>
+        [HyperParameter, SerializeField] private int _BatchSize = 5;
+
+        public BooleanRBMTrainer(BooleanRBMModel model)
+        {
+            trainedModel = model;
         }
 
-        private void TestSampleVisible()
+        public Task<ITrainingResult> Fit(NVector[] x_datas)
         {
+            throw new NotImplementedException();
+        }
 
+        public Task<double> Score(NVector[] x_datas)
+        {
+            throw new NotImplementedException();
         }
     }
 }

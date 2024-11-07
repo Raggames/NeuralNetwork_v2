@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace NeuralNetwork
+namespace Atom.MachineLearning.NeuralNetwork
 {
     public class ConvolutionFeatureMap
     {

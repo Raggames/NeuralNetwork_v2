@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 
 
-namespace NeuralNetwork
+namespace Atom.MachineLearning.NeuralNetwork
 {
     public static class NetworkDataSerializer
     {

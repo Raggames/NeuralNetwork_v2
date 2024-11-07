@@ -4,7 +4,7 @@ using System.IO;
 using Unity.Collections;
 using UnityEngine;
 
-namespace NeuralNetwork
+namespace Atom.MachineLearning.NeuralNetwork
 {
     [Serializable]
     public class NeuralNetwork

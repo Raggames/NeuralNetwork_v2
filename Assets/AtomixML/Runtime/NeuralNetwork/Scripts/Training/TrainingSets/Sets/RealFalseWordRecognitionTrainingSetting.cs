@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace NeuralNetwork
+namespace Atom.MachineLearning.NeuralNetwork
 {
     [CreateAssetMenu(menuName = "TrainingSets/RealFalseWordRecognitionTraining")]
     public class RealFalseWordRecognitionTrainingSetting : TrainingSettingBase

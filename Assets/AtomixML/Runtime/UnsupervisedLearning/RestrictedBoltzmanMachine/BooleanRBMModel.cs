@@ -4,6 +4,15 @@ using Atom.MachineLearning.Unsupervised.AutoEncoder;
 using System;
 using UnityEngine;
 
+/*
+ Source  :
+A Practical Guide to Training
+Restricted Boltzmann Machines
+Version 1
+Geoffrey Hinton
+Department of Computer Science, University of Toronto
+ */
+
 namespace Atom.MachineLearning.Unsupervised.BoltzmanMachine
 {
     [Serializable]
@@ -18,7 +27,9 @@ namespace Atom.MachineLearning.Unsupervised.BoltzmanMachine
         [SerializeField, LearnedParameter] private double[,] _weights;
         [SerializeField, LearnedParameter] private double[] _visibleBias;
         [SerializeField, LearnedParameter] private double[] _hiddenBias;
+
         private System.Random _random;
+        private NVector _hiddenResultBuffer;
 
         public BooleanRBMModel(int seed, string modelName, int visibleUnits, int hiddenUnits)
         {
@@ -36,41 +47,42 @@ namespace Atom.MachineLearning.Unsupervised.BoltzmanMachine
                     _weights[i, j] = _random.NextDouble() * 2 - 1;
                 }
             }
+
+            _hiddenResultBuffer = new NVector(_weights.GetLength(0));
         }
 
-        /*public NVector GibbsSample(int[] initialVisible)
+        public NVector GibbsSample(NVector initialVisible)
         {
-            int[] hidden = SampleHidden(initialVisible);
-            return SampleVisible(hidden);
-        }*/
+            SampleHidden(initialVisible, ref _hiddenResultBuffer);
+            return SampleVisible(_hiddenResultBuffer);
+        }
 
         /// <summary>
         /// Given a training example (a vector of visible units), compute the probabilities of the hidden units being activated. 
         /// This involves calculating the conditional probabilities of the hidden units given the visible units using the current model parameters.
-        /// </summary>
+        /// 
+        /// 
+         /// </summary>
         /// <returns></returns>
-        public NVector SampleHidden(NVector input)
+        public void SampleHidden(NVector visibleInput, ref NVector _hiddenResultBuffer)
         {
-            NVector result = new NVector(_weights.GetLength(0));
             // for each hidden neuron
-            for(int i = 0; i < _weights.GetLength(0); ++i)
+            for (int i = 0; i < _weights.GetLength(0); ++i)
             {
                 double activation = _hiddenBias[i];
 
-                for (int j= 0; j < _weights.GetLength(1); ++j)
+                for (int j = 0; j < _weights.GetLength(1); ++j)
                 {
-                    activation += _weights[i, j] * input[i];
+                    activation += _weights[i, j] * visibleInput[i];
                 }
 
                 double fire_probability = MLActivationFunctions.Sigmoid(activation);
 
-                result[i] = _random.NextDouble() < fire_probability ? 1 : 0;
+                _hiddenResultBuffer[i] = _random.NextDouble() < fire_probability ? 1 : 0;
             }
-
-            return result;
         }
 
-        public NVector SampleVisible(NVector input)
+        public NVector SampleVisible(NVector hiddenInput)
         {
             var result = new NVector(_weights.GetLength(1));
             for (int i = 0; i < _weights.GetLength(1); i++) // Loop over columns in the result
@@ -79,7 +91,7 @@ namespace Atom.MachineLearning.Unsupervised.BoltzmanMachine
 
                 for (int j = 0; j < _weights.GetLength(0); j++) // Loop over rows in 'a'
                 {
-                    activation += _weights[j, i] * input[j];
+                    activation += _weights[j, i] * hiddenInput[j];
                 }
                 double fire_probability = MLActivationFunctions.Sigmoid(activation);
                 result[i] = _random.NextDouble() < fire_probability ? 1 : 0;

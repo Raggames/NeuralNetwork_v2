@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace NeuralNetwork
+namespace Atom.MachineLearning.NeuralNetwork
 {
     [CreateAssetMenu(menuName = "TrainingSets/WordEncoderDecoderTrainingSetting")]
     class WordEncoderDecoderTrainingSetting : MultilanguageClassificationTrainingSetting

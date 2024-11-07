@@ -1,5 +1,6 @@
 ﻿using Atom.MachineLearning.Core;
-using NeuralNetwork;
+using Atom.MachineLearning.NeuralNetwork;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 
@@ -7,15 +8,15 @@ using System.Collections.Generic;
 namespace Atom.MachineLearning.Unsupervised.AutoEncoder
 {
     /// <summary>
-    /// New version
+    /// New version of neural network
     /// </summary>
     [Serializable]
     public class NeuralNetworkModel
     {
-        public int inputDimensions => Layers[0]._input.Length;
-
         public List<DenseLayer> Layers { get; protected set; } = new List<DenseLayer>();
-        public DenseLayer OutputLayer => Layers[Layers.Count - 1];
+
+        [JsonIgnore] public DenseLayer OutputLayer => Layers[Layers.Count - 1];
+        [JsonIgnore] public int inputDimensions => Layers[0]._input.Length;
 
         /// <summary>
         /// Adding the first layer, we specify the input vector feature dimensions
@@ -81,6 +82,24 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
             }
 
             return l_gradient;
+        }
+
+        /// <summary>
+        /// A better version of backward pass
+        /// Each layer compute its final gradient from the precomputed gradient from the next layer
+        /// And then precompute the gradient of the previous layer
+        /// </summary>
+        /// <param name="error"></param>
+        /// <returns></returns>
+        public NVector Backpropagate2(NVector error)
+        {
+            var gradient = error;
+            for (int l = Layers.Count - 1; l >= 0; --l)
+            {
+                gradient = Layers[l].Backward2(gradient);
+            }
+
+            return gradient;
         }
     }
 }

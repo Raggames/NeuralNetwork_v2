@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace NeuralNetwork
+namespace Atom.MachineLearning.NeuralNetwork
 {
     [CreateAssetMenu(menuName = "TrainingSets/WordGenerationTrainingSetting")]
     public class WordGenerationTrainingSetting : TrainingSettingBase

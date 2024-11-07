@@ -1,4 +1,4 @@
-﻿namespace NeuralNetwork
+﻿namespace Atom.MachineLearning.NeuralNetwork
 {
     public struct NetworkData
     {

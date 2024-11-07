@@ -26,8 +26,8 @@ namespace Atom.MachineLearning.Unsupervised.KMeanClustering
         private List<List<(NVector, double)>> _epoch_results = new List<List<(NVector, double)>>();
         private List<double[]> _clusters_barycenter = new List<double[]>();
         private NVector[] _trainingDatas;
-        private KMeanClusteringModel _model;
 
+        #region test / to be moved in implementation scripts
         [Button]
         public async void TestFit_SimpleKMC2D(int minClusters = 2, int maxClusters = 6, int parallelRuns = 3)
         {
@@ -41,8 +41,8 @@ namespace Atom.MachineLearning.Unsupervised.KMeanClustering
 
                 for (int j = 0; j < parallelRuns; ++j)
                 {
-                    var model = new KMeanClusteringModel(clusterCount, new double[] { 10, 10 });
-                    var result = await Fit(model, set.Features);
+                    trainedModel = new KMeanClusteringModel(clusterCount, new double[] { 10, 10 });
+                    var result = await Fit(set.Features);
 
                     Debug.Log($"Parallel run {j} > {clusterCount} clusters, total variance = {result.Accuracy}");
 
@@ -74,8 +74,8 @@ namespace Atom.MachineLearning.Unsupervised.KMeanClustering
 
                 for (int j = 0; j < parallelRuns; ++j)
                 {
-                    var model = new KMeanClusteringModel(clusterCount, new double[] { 2, 2, 2, 2 });
-                    var result = await Fit(model, vectorized_features);
+                    trainedModel = new KMeanClusteringModel(clusterCount, new double[] { 2, 2, 2, 2 });
+                    var result = await Fit(vectorized_features);
                     Debug.Log($"Parallel run {j} > {clusterCount} clusters, total variance = {result.Accuracy}");
                 }
             }
@@ -99,21 +99,20 @@ namespace Atom.MachineLearning.Unsupervised.KMeanClustering
 
             for(int i = 0; i < vectorized_features.Length; ++i)
             {
-                var output = _model.Predict(vectorized_features[i]);
+                var output = trainedModel.Predict(vectorized_features[i]);
 
                 Debug.Log($"Output class : {output.ClassLabel}. Real expected label : {labels[i]}");
             }
         }
+        #endregion
 
-
-        public async Task<ITrainingResult> Fit(KMeanClusteringModel model, NVector[] trainingDatas)
+        public async Task<ITrainingResult> Fit(NVector[] trainingDatas)
         {
-            _model = model;
             _trainingDatas = trainingDatas;
             _epoch_results.Clear();
             _clusters_barycenter.Clear();
 
-            for (int i = 0; i < model.clustersCount; ++i)
+            for (int i = 0; i < trainedModel.clustersCount; ++i)
             {
                 _epoch_results.Add(new List<(NVector, double)>());
                 _clusters_barycenter.Add(new double[_trainingDatas[0].Data.Length]);
@@ -126,7 +125,7 @@ namespace Atom.MachineLearning.Unsupervised.KMeanClustering
                 for (int j = 0; j < _trainingDatas.Length; ++j)
                 {
                     // predict
-                    var result = model.Predict(_trainingDatas[j]);
+                    var result = trainedModel.Predict(_trainingDatas[j]);
 
                     // save the result of each prediction in a cluster list
                     _epoch_results[result.ClassLabel].Add(new(_trainingDatas[j], result.Euclidian));
@@ -136,10 +135,10 @@ namespace Atom.MachineLearning.Unsupervised.KMeanClustering
                 ComputeClusterBarycenters();
 
                 // update centroids
-                model.UpdateCentroids(_clusters_barycenter);
+                trainedModel.UpdateCentroids(_clusters_barycenter);
 
                 // clear buffers
-                for (int i = 0; i < model.clustersCount; ++i)
+                for (int i = 0; i < trainedModel.clustersCount; ++i)
                 {
                     _epoch_results[i].Clear();
 
@@ -152,7 +151,7 @@ namespace Atom.MachineLearning.Unsupervised.KMeanClustering
             for (int j = 0; j < _trainingDatas.Length; ++j)
             {
                 // predict
-                var result = model.Predict(_trainingDatas[j]);
+                var result = trainedModel.Predict(_trainingDatas[j]);
 
                 // save the result of each prediction in a cluster list
                 _epoch_results[result.ClassLabel].Add(new(_trainingDatas[j], result.Euclidian));
@@ -160,7 +159,7 @@ namespace Atom.MachineLearning.Unsupervised.KMeanClustering
 
             // variance compute
             double total_variance = 0;
-            double[] clusters_variance = new double[model.clustersCount];
+            double[] clusters_variance = new double[trainedModel.clustersCount];
 
             for (int classIndex = 0; classIndex < _epoch_results.Count; ++classIndex)
             {
@@ -176,6 +175,11 @@ namespace Atom.MachineLearning.Unsupervised.KMeanClustering
             {
                 Accuracy = (float)total_variance
             };
+        }
+
+        public Task<double> Score(NVector[] x_datas)
+        {
+            throw new NotImplementedException();
         }
 
         private void ComputeClusterBarycenters()
@@ -216,7 +220,7 @@ namespace Atom.MachineLearning.Unsupervised.KMeanClustering
             if (_trainingDatas == null)
                 return;
 
-            if (_model == null)
+            if (trainedModel == null)
                 return;
 
             foreach (var item in _trainingDatas)
@@ -232,10 +236,10 @@ namespace Atom.MachineLearning.Unsupervised.KMeanClustering
                     _epochs_colors[i] = new Color(UnityEngine.Random.Range(0f, 1f), UnityEngine.Random.Range(0f, 1f), UnityEngine.Random.Range(0f, 1f));
             }
 
-            for (int i = 0; i < _model.centroids.Count; ++i)
+            for (int i = 0; i < trainedModel.centroids.Count; ++i)
             {
                 Gizmos.color = _epochs_colors[i];
-                Gizmos.DrawSphere(new Vector3((float)_model.centroids[i][0], (float)_model.centroids[i][1], 0), .5f);
+                Gizmos.DrawSphere(new Vector3((float)trainedModel.centroids[i][0], (float)trainedModel.centroids[i][1], 0), .5f);
 
                 foreach (var item in _epoch_results[i])
                 {
@@ -243,6 +247,7 @@ namespace Atom.MachineLearning.Unsupervised.KMeanClustering
                 }
             }
         }
+
         #endregion
     }
 }

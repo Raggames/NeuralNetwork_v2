@@ -3,7 +3,7 @@ using System;
 using Unity.Collections;
 using UnityEngine;
 
-namespace NeuralNetwork
+namespace Atom.MachineLearning.NeuralNetwork
 {
     public enum LayerType
     {

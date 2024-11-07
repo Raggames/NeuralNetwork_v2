@@ -38,8 +38,8 @@ namespace Atom.MachineLearning.Unsupervised.PCA
         [Button]
         private async void TestMNISTFit(string texturesPath = "Datasets/mnist")
         {
-            var model = new PCAModel();
-            model.ModelName = "pca_mnist";
+            trainedModel = new PCAModel();
+            trainedModel.ModelName = "pca_mnist";
             var textures = DatasetReader.ReadTextures(texturesPath);
 
             var vectorized = new NVector[textures.Count];
@@ -51,16 +51,16 @@ namespace Atom.MachineLearning.Unsupervised.PCA
                 vectorized[i] = new NVector(array);
             }
 
-            var result = await Fit(model, vectorized);
+            var result = await Fit(vectorized);
 
-            ModelSerializationService.SaveModel(model);
+            ModelSerializer.SaveModel(trainedModel);
             Debug.Log($"End fitting, accuracy (kept variance) => {result.Accuracy}");
         }
 
         [Button]
         private void TestLoadMNIST()
         {
-            trainedModel = ModelSerializationService.LoadModel<PCAModel>("pca_mnist");
+            trainedModel = ModelSerializer.LoadModel<PCAModel>("pca_mnist");
         }
 
         [Button]
@@ -92,8 +92,8 @@ namespace Atom.MachineLearning.Unsupervised.PCA
         [Button]
         private async void TestFitFlowers()
         {
-            var model = new PCAModel();
-            model.ModelName = "pca_flowers";
+            trainedModel = new PCAModel();
+            trainedModel.ModelName = "pca_flowers";
 
             var datas = Datasets.Flowers_All();
 
@@ -117,22 +117,21 @@ namespace Atom.MachineLearning.Unsupervised.PCA
 
             var vectorized_features = TransformationUtils.StringMatrix2DToDoubleMatrix2D(features).ToNVectorRowsArray();
 
-            var result = await Fit(model, vectorized_features);
+            var result = await Fit(vectorized_features);
 
             Debug.Log($"End fitting, accuracy (kept variance) => {result.Accuracy}");
 
             _test_results = new NVector[vectorized_features.Length];
             for (int i = 0; i < vectorized_features.Length; ++i)
             {
-                _test_results[i] = model.Predict(vectorized_features[i]);
+                _test_results[i] = trainedModel.Predict(vectorized_features[i]);
             }
 
-            ModelSerializationService.SaveModel(model);
+            ModelSerializer.SaveModel(trainedModel);
         }
 
-        public async Task<ITrainingResult> Fit(PCAModel model, NVector[] trainingDatas)
+        public async Task<ITrainingResult> Fit(NVector[] trainingDatas)
         {
-            trainedModel = model;
             var standardizedDatas = NVector.Standardize(trainingDatas, out _meanVector, out _stdDeviationVector);
             var covariance_matrix = NVector.CovarianceMatrix(standardizedDatas);
 
@@ -204,12 +203,17 @@ namespace Atom.MachineLearning.Unsupervised.PCA
 
             var projectionMatrix = NMatrix.DenseOfColumnVectors(selected_components.Select(t => t.EigenVector).ToArray());
 
-            model.Initialize(projectionMatrix, _meanVector, _stdDeviationVector);
+            trainedModel.Initialize(projectionMatrix, _meanVector, _stdDeviationVector);
 
             return new TrainingResult()
             {
                 Accuracy = (float)kept_variance,
             };
+        }
+
+        public Task<double> Score(NVector[] x_datas)
+        {
+            throw new NotImplementedException();
         }
 
         void OnDrawGizmos()
@@ -224,5 +228,6 @@ namespace Atom.MachineLearning.Unsupervised.PCA
 
             }
         }
+
     }
 }
