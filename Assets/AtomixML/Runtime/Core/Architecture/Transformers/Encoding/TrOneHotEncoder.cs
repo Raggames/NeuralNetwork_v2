@@ -8,15 +8,29 @@ using UnityEngine;
 
 namespace Atom.MachineLearning.Core.Transformers
 {
+    /// <summary>
+    /// Encode one column of a dataset to one hot
+    /// </summary>
     [Serializable]
     public class TrOneHotEncoder : IMLTransformer<NString, NVector>
     {
         [SerializeField] private Dictionary<string, double[]> _encodingRule;
         [SerializeField] private int _encodedColumn;
+        [SerializeField] private string _encodedColumnName;
         [SerializeField] private int _oneHotDimensions;
 
         /// <summary>
+        /// Simply by name
+        /// </summary>
+        /// <param name="encodedColumnName"></param>
+        public TrOneHotEncoder(string encodedColumnName)
+        {
+            _encodedColumnName = encodedColumnName;
+        }
+
+        /// <summary>
         /// Automatic encoding rule
+        /// If you know where you want
         /// </summary>
         public TrOneHotEncoder(int encodedColumn)
         {
@@ -25,6 +39,7 @@ namespace Atom.MachineLearning.Core.Transformers
 
         /// <summary>
         /// Hardcoded encoding rule
+        /// If you now what you want
         /// </summary>
         /// <param name="encodingRule"></param>
         public TrOneHotEncoder(int oneHotDimensions, int encodedColumn, Dictionary<string, double[]> encodingRule)
@@ -59,6 +74,8 @@ namespace Atom.MachineLearning.Core.Transformers
 
         /// <summary>
         /// Used for training, taking all training set or test sets
+        /// 
+        /// Transform a given column of the string matrix in a oneHot encoder vector matrix
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>

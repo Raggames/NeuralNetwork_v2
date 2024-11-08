@@ -47,7 +47,6 @@ namespace Atom.MachineLearning.Core.Maths
             return result; // now scaled so that xi sum to 1.0
         }
 
-
         public static double BinaryStep(double x)
         {
             return x < 0 ? 0 : 1;
@@ -75,12 +74,14 @@ namespace Atom.MachineLearning.Core.Maths
 
         public static double Tanh(double x)
         {
-            return 2 / (1 + Math.Pow(Math.E, -(2 * x))) - 1;
+            if (x < -20.0) return -1.0; // approximation is correct to 30 decimals
+            else if (x > 20.0) return 1.0;
+            else return Math.Tanh(x);
         }
 
         public static double DTanh(double x)
         {
-            return 1 - Math.Pow(Tanh(x), 2);
+            return (1 - x) * (1 + x);
         }
 
         public static double ArcTan(double x)

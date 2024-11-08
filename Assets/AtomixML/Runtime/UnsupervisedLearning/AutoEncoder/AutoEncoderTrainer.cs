@@ -1,6 +1,7 @@
 ﻿using Atom.MachineLearning.Core;
 using Atom.MachineLearning.Core.Maths;
 using Atom.MachineLearning.Core.Training;
+using Atom.MachineLearning.Core.Transformers;
 using Atom.MachineLearning.IO;
 using Atom.MachineLearning.NeuralNetwork;
 using Sirenix.OdinInspector;
@@ -332,12 +333,21 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
             }).ToNVectorRowsArray();
 
             //_x_datas = NVector.Standardize(TransformationUtils.StringMatrix2DToDoubleMatrix2D(features).ToNVectorRowsArray(), out var means, out var stdDeviations);
-            _x_datas = NVector.Normalize(TransformationUtils.StringMatrix2DToDoubleMatrix2D(features).ToNVectorRowsArray());
+            var minMaxNormalizer = new TrMinMaxNormalizer();
+            _x_datas = NVector.Standardize( TransformationUtils.StringMatrix2DToDoubleMatrix2D(features).ToNVectorRowsArray(), out _, out _);
 
             var network = new NeuralNetworkModel();
             network.AddDenseLayer(4, 7, ActivationFunctions.Tanh);
-            network.AddOutputLayer(3, ActivationFunctions.Sigmoid);
+            network.AddOutputLayer(3, ActivationFunctions.Softmax);
+            MLRandom.SeedShared(0);
             network.SeedWeigths(-.01, .01);
+
+            var networkOld = new NeuralNetwork.NeuralNetwork();
+            networkOld.AddDenseLayer(4, 7, ActivationFunctions.Tanh);
+            networkOld.AddOutputLayer(3, ActivationFunctions.Softmax);
+            MLRandom.SeedShared(0);
+            networkOld.SeedRandomWeights(-.01, .01);
+
 
             _x_datas_buffer = new List<NVector>();
             _currentLearningRate = _learningRate;
@@ -357,6 +367,7 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
 
                 while (_x_datas_buffer.Count > 0)
                 {
+                    Debug.Log("Train **************** " + i);
                     var index = MLRandom.Shared.Range(0, _x_datas_buffer.Count - 1);
                     var input = _x_datas_buffer[index];
                     var test = t_datas_buffer[index];
@@ -365,6 +376,8 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
                     t_datas_buffer.RemoveAt(index);
 
                     output = network.Forward(input);
+
+                    //networkOld.FeedForward(input.Data, out var outputOld);
 
                     int ind = NeuralNetworkMathHelper.MaxIndex(output.Data);
                     int tMaxIndex = NeuralNetworkMathHelper.MaxIndex(test.Data);
@@ -377,17 +390,20 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
                         wrongRun++;
                     }
 
+
                     // we try to reconstruct the input while autoencoding
                     var error = MLCostFunctions.MSE_Derivative(test, output);
                     error_sum += MLCostFunctions.MSE(test, output);
 
-                    network.Backpropagate2(error);
+                    network.Backpropagate(error);
+                    //networkOld.BackPropagate(outputOld, test.Data, _learningRate, _momentum, _weightDecay, _learningRate);
 
-                    for (int l = network.Layers.Count - 1; l >= 0; --l)
+                    for (int l = 0; l < network.Layers.Count; ++l)
                     {
                         network.Layers[l].UpdateWeights(_currentLearningRate, _momentum, _weightDecay);
                     }
                 }
+
 
                 _currentLoss = (float)error_sum / _x_datas.Length;
 
@@ -412,7 +428,14 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
                 { "Iris-virginica", new double[] { 1, 0, 0 } },
             }).ToNVectorRowsArray();
 
+            //_x_datas = TransformationUtils.StringMatrix2DToDoubleMatrix2D(features).ToNVectorRowsArray();
+            //NVector.Standardize(, out var means, out var stdDeviations);
+           //Normalize(_x_datas, new int[] { 0, 1, 2, 3 });
+
             _x_datas = NVector.Standardize(TransformationUtils.StringMatrix2DToDoubleMatrix2D(features).ToNVectorRowsArray(), out var means, out var stdDeviations);
+            //NVector.Standardize(, out var means, out var stdDeviations);
+            //Normalize(_x_datas, new int[] { 0, 1, 2, 3 });
+
 
             var network = new NeuralNetwork.NeuralNetwork();
             network.AddDenseLayer(4, 7, ActivationFunctions.Tanh);

@@ -23,6 +23,10 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
         public Func<NVector, NVector> _activationFunction;
         public Func<NVector, NVector> _derivativeFunction;
 
+        public Func<NVector, NVector> _activationFunctionUnit;
+        public Func<NVector, NVector> _derivativeFunctionUnit;
+
+
         public DenseLayer(int input, int output, ActivationFunctions activationFunction = ActivationFunctions.Sigmoid)
         {
             _weights = new NMatrix(output, input); // an output = a neuron = a row / an input = a weight for each neuron = a column
@@ -105,6 +109,7 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
                         for (int i = 0; i < r.Length; ++i)
                             r[i] = MLActivationFunctions.DTanh(r[i]);
 
+
                         return r;
                     };
                     break;
@@ -129,8 +134,10 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
 
         public NVector Forward(NVector activationVector)
         {
-            _input = activationVector;
+            for (int i = 0; i < _input.Length; ++i)
+                _input[i] = activationVector[i];
 
+            UnityEngine.Debug.Log("New inputs " + _input);
             for (int i = 0; i < _output.Length; ++i)
                 _output[i] = 0;
 
@@ -144,10 +151,13 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
             {
                 for (int j = 0; j < columns; j++)
                 {
-                    _output[i] += _weights[i, j] * activationVector[j] + _bias[i];
+                    _output[i] += _weights[i, j] * activationVector[j];
                 }
+
+                _output[i] += _bias[i];
             }
             _output = _activationFunction(_output);
+
             return _output;
         }
 
@@ -164,13 +174,15 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
             for (int i = 0; i < _gradient.Length; ++i)
             {
                 double sum = 0.0;
-                for(int j = 0; j < nextlayerGradient.Length; ++j)
+                for (int j = 0; j < nextlayerGradient.Length; ++j)
                 {
-                    sum += nextlayerGradient[j] * nextLayerWeight[j ,i];
+                    sum += nextlayerGradient[j] * nextLayerWeight[j, i];
                 }
 
                 _gradient[i] = output_derivative[i] * sum;
             }
+
+            //UnityEngine.Debug.Log("NEW gradient> " + _gradient);
 
             return _gradient;
         }
@@ -180,7 +192,9 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
             var output_derivative = _derivativeFunction(_output);
 
             for (int i = 0; i < _gradient.Length; ++i)
-            {                
+            {
+                //UnityEngine.Debug.Log($"NEW hidden derivative {i} > " + output_derivative[i]);
+
                 _gradient[i] = output_derivative[i] * preComputedGradient[i];
             }
 
@@ -208,35 +222,34 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
         /// <param name="momentumAcc"></param>
         public void UpdateWeights(float lr = .05f, float momentum = .005f, float weigthDecay = .0005f)
         {
-            double step = 0.0;
             for (int i = 0; i < _weights.Rows; ++i)
                 for (int j = 0; j < _weights.Columns; ++j)
                 {
-                    step = _gradient[i] * _input[j] * lr;
+                    //double old_weight = _weights[i, j];
+                    double step = lr * _gradient[i] * _input[j];
 
                     _weights[i, j] += step;
                     _weights[i, j] += _weightsInertia[i, j] * momentum;
                     _weights[i, j] -= weigthDecay * _weights[i, j];
                     _weightsInertia[i, j] = step;
 
-                    /* _weigths[i, j] += step + _weightsInertia[i, j] * momentumAcc;
-                     _weightsInertia[i, j] += step * momentum;
-                     _weightsInertia[i, j] -= _weightsInertia[i, j] * mt_decay;*/
+                    //UnityEngine.Debug.Log($"NEW weight {i},{j} from {old_weight} to {_weights[i, j]} ");
+
                 }
 
             for (int i = 0; i < _bias.Length; ++i)
             {
-                step = _gradient[i] * lr;
+                //double oldbias = _bias[i];
+                double step = _gradient[i] * lr * lr;
                 _bias[i] += step;
-
+                _bias[i] += momentum * _biasInertia[i];
                 _bias[i] -= weigthDecay * _bias[i];
-                _biasInertia[i] += momentum * _biasInertia[i];
                 _biasInertia[i] = step;
 
-                /*_bias[i] += step * _biasInertia[i] * momentumAcc;
-                _biasInertia[i] += step * momentum;
-                _biasInertia[i] -= mt_decay * _biasInertia[i];*/
+                //UnityEngine.Debug.Log($"NEW bias {i}, from {oldbias} to {_bias[i]} ");
+
             }
+            //UnityEngine.Debug.Log("NEW bias > " + _bias);
 
             for (int i = 0; i < _gradient.Length; ++i)
                 _gradient[i] = 0;
@@ -255,10 +268,38 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
 
             for (int i = 0; i < _gradient.Length; ++i)
             {
+                //UnityEngine.Debug.Log($"NEW output derivative {i} > " + derivated_error[i]);
+
                 _gradient[i] = derivated_error[i] * error[i];
             }
+            //UnityEngine.Debug.Log("NEW gradient> " + _gradient);
 
             return _gradient;
+        }
+
+        public override NVector Backward2(NVector preComputedGradient)
+        {
+            var derivated_error = _derivativeFunction(_output);
+
+            for (int i = 0; i < _gradient.Length; ++i)
+            {
+
+                _gradient[i] = derivated_error[i] * preComputedGradient[i];
+            }
+
+            var prev_layer_gradient = new NVector(_weights.Columns);
+            for (int i = 0; i < prev_layer_gradient.Length; ++i)
+            {
+                double sum = 0.0;
+                for (int j = 0; j < _gradient.Length; ++j)
+                {
+                    sum += _gradient[j] * _weights[j, i];
+                }
+
+                prev_layer_gradient[i] = sum;
+            }
+
+            return prev_layer_gradient;
         }
     }
 

@@ -55,7 +55,7 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
 
         public void SeedWeigths(double minWeight = -0.01, double maxWeight = 0.01)
         {
-            for (int i = 0; i < Layers.Count - 1; ++i)
+            for (int i = 0; i < Layers.Count; ++i)
             {
                 Layers[i].SeedWeigths(minWeight, maxWeight);
             }
