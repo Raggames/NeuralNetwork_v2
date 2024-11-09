@@ -42,7 +42,8 @@ RenderSettings:
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
-  serializedVersion: 12
+  serializedVersion: 13
+  m_BakeOnSceneLoad: 0
   m_GISettings:
     serializedVersion: 2
     m_BounceScale: 1
@@ -118,6 +119,52 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!28 &46123690
+Texture2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  m_ImageContentsHash:
+    serializedVersion: 2
+    Hash: 00000000000000000000000000000000
+  m_IsAlphaChannelOptional: 0
+  serializedVersion: 3
+  m_Width: 8
+  m_Height: 8
+  m_CompleteImageSize: 340
+  m_MipsStripped: 0
+  m_TextureFormat: 4
+  m_MipCount: 4
+  m_IsReadable: 1
+  m_IsPreProcessed: 0
+  m_IgnoreMipmapLimit: 1
+  m_MipmapLimitGroupName: 
+  m_StreamingMipmaps: 0
+  m_StreamingMipmapsPriority: 0
+  m_VTOnly: 0
+  m_AlphaIsTransparency: 0
+  m_ImageCount: 1
+  m_TextureDimension: 2
+  m_TextureSettings:
+    serializedVersion: 2
+    m_FilterMode: 1
+    m_Aniso: 1
+    m_MipBias: 0
+    m_WrapU: 0
+    m_WrapV: 0
+    m_WrapW: 0
+  m_LightmapFormat: 0
+  m_ColorSpace: 1
+  m_PlatformBlob: 
+  image data: 340
+  _typelessdata: 000000ff000000ff000000ff000000ff000000ff000000ff000000ff000000ff000000ffb3b3b3ffffffffffffffffffb7b7b7ff000000ff000000ff000000ff070707ffffffffffffffffff000000ffa3a3a3ffffffffff282828ff000000ffc6c6c6ffdfdfdfffffffffff000000ff000000ffecececffffffffff000000ff5a5a5aff000000ffffffffffffffffff000000ff9d9d9dffffffffff000000ff000000ff000000ff000000ffffffffff898989ffffffffffffffffff000000ff000000ff000000ff000000ff7a7a7affffffffffffffffff000000ff000000ff000000ff000000ff000000ff000000ff000000ff000000ff000000ff000000ff2c2c2cff7f7f7fff2d2d2dff000000ffaaaaaaff7f7f7fffa3a3a3ff494949ff161616ffbfbfbfff898989ff7f7f7fff000000ff1e1e1eff7f7f7fff000000ff747474ff464646ff3c3c3cff616161ff555555ff
+  m_StreamData:
+    serializedVersion: 2
+    offset: 0
+    size: 0
+    path: 
 --- !u!1 &424154159
 GameObject:
   m_ObjectHideFlags: 0
@@ -272,7 +319,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Texture: {fileID: 1019568560}
+  m_Texture: {fileID: 46123690}
   m_UVRect:
     serializedVersion: 2
     x: 0
@@ -379,52 +426,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!28 &1019568560
-Texture2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: 
-  m_ImageContentsHash:
-    serializedVersion: 2
-    Hash: 00000000000000000000000000000000
-  m_IsAlphaChannelOptional: 0
-  serializedVersion: 3
-  m_Width: 8
-  m_Height: 8
-  m_CompleteImageSize: 340
-  m_MipsStripped: 0
-  m_TextureFormat: 4
-  m_MipCount: 4
-  m_IsReadable: 1
-  m_IsPreProcessed: 0
-  m_IgnoreMipmapLimit: 1
-  m_MipmapLimitGroupName: 
-  m_StreamingMipmaps: 0
-  m_StreamingMipmapsPriority: 0
-  m_VTOnly: 0
-  m_AlphaIsTransparency: 0
-  m_ImageCount: 1
-  m_TextureDimension: 2
-  m_TextureSettings:
-    serializedVersion: 2
-    m_FilterMode: 1
-    m_Aniso: 1
-    m_MipBias: 0
-    m_WrapU: 0
-    m_WrapV: 0
-    m_WrapW: 0
-  m_LightmapFormat: 0
-  m_ColorSpace: 1
-  m_PlatformBlob: 
-  image data: 340
-  _typelessdata: 000000ff000000ff000000ff000000ff000000ff000000ff000000ff000000ff000000ff000000ff000000ff000000ff000000ff000000ff000000ff000000ff000000ff000000ff000000ffffffffff000000ff000000ff000000ff000000ff000000ff000000ff000000ffffffffff000000ff000000ff222222ff000000ff000000ff000000ff000000ff404040ff1b1b1bff979797ff505050ff000000ff000000ff000000ff000000ff000000ff000000ff000000ff4a4a4aff000000ff000000ff000000ff000000ff000000ff000000ff000000ff000000ff000000ff000000ff000000ff000000ff000000ff000000ff000000ff000000ff000000ff000000ff000000ff000000ff000000ff000000ff7f7f7fff000000ff080808ff000000ff101010ff2c2c2cff262626ff000000ff000000ff000000ff000000ff1f1f1fff020202ff040404ff141414ff0e0e0eff
-  m_StreamData:
-    serializedVersion: 2
-    offset: 0
-    size: 0
-    path: 
 --- !u!1 &1137100452
 GameObject:
   m_ObjectHideFlags: 0
@@ -470,7 +471,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _componentSelectionThreshold: 0.95
-  _scale: 2.09
+  _scale: 1.7
   _rawImage: {fileID: 435964712}
 --- !u!1 &1297091624
 GameObject:

@@ -13,7 +13,10 @@ namespace Atom.MachineLearning.Core.Transformers
         {
             for (int j = 0; j < _dimensions; ++j)
             {
-                input[j] = (input[j] - _minimums[j]) / (_maximums[j] - _minimums[j]);
+                if (_maximums[j] == _minimums[j])
+                    input[j] = 0;
+                else
+                    input[j] = (input[j] - _minimums[j]) / (_maximums[j] - _minimums[j]);
             }
 
             return input;
@@ -28,7 +31,7 @@ namespace Atom.MachineLearning.Core.Transformers
             _maximums = new NVector(_dimensions);
             _minimums = new NVector(_dimensions);
 
-            for(int i = 0; i < _minimums.Length; ++i)
+            for (int i = 0; i < _minimums.Length; ++i)
                 _minimums[i] = float.MaxValue;
 
             for (int i = 0; i < _maximums.Length; ++i)
@@ -36,7 +39,7 @@ namespace Atom.MachineLearning.Core.Transformers
 
             for (int i = 0; i < input.Length; ++i)
             {
-                for(int j = 0; j < _dimensions; ++j)
+                for (int j = 0; j < _dimensions; ++j)
                 {
                     _minimums[j] = Math.Min(_minimums[j], input[i][j]);
                     _maximums[j] = Math.Max(_maximums[j], input[i][j]);
@@ -47,7 +50,10 @@ namespace Atom.MachineLearning.Core.Transformers
             {
                 for (int j = 0; j < _dimensions; ++j)
                 {
-                    input[i][j] = (input[i][j] - _minimums[j]) / (_maximums[j] - _minimums[j]);
+                    if (_maximums[j] == _minimums[j])
+                        input[i][j] = 0;
+                    else
+                        input[i][j] = (input[i][j] - _minimums[j]) / (_maximums[j] - _minimums[j]);
                 }
             }
 

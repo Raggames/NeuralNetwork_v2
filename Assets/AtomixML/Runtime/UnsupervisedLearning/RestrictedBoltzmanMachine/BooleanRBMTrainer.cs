@@ -42,7 +42,9 @@ namespace Atom.MachineLearning.Unsupervised.BoltzmanMachine
         [HyperParameter, SerializeField] private int _testRunsOnEndEpoch = 10;
         [Space]
         [ShowInInspector, ReadOnly] private int _currentEpoch;
+
         [ShowInInspector, ReadOnly] private double _mse;
+        [ShowInInspector, ReadOnly] private double _freeVisibleEnergy;
 
         private ITrainingSupervisor _trainingSupervisor;
         private NVector[] _x_datas;
@@ -97,15 +99,19 @@ namespace Atom.MachineLearning.Unsupervised.BoltzmanMachine
                 return;
 
             _mse = 0.0;
+            _freeVisibleEnergy = 0.0;
             for (int i = 0; i < _testRunsOnEndEpoch; ++i)
             {
                 // todo test on test train 
                 var next = MLRandom.Shared.Range(0, _t_datas.Length);
                 var prediction = trainedModel.Predict(_t_datas[next]);
                 _mse += MLCostFunctions.MSE(_t_datas[next], prediction);
+
+                _freeVisibleEnergy = trainedModel.FreeVisibleEnergy(_t_datas[next]);
             }
 
             _mse /= _testRunsOnEndEpoch;
+            _freeVisibleEnergy /= _testRunsOnEndEpoch;
         }
 
         public void Cancel()

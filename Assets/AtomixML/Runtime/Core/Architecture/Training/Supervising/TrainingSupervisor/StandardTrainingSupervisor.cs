@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Atom.MachineLearning.Core.Maths;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -72,21 +73,50 @@ namespace Atom.MachineLearning.Core.Training
 
         private void FullRunner(int epochs, int trainIndex, CancellationToken cancellationToken)
         {
-            for (int i = 0; i < epochs; i++)
+            if (_shuffleTrainIndex)
             {
-                _epochIteratable.OnBeforeEpoch(i);
+                var indexes = new List<int>();
+                indexes.AddRange(Enumerable.Range(0, trainIndex));
 
-                for (int j = 0; j < trainIndex; j++)
+                for (int i = 0; i < epochs; i++)
                 {
-                    _trainIteratable.OnTrainNext(j);
+                    _epochIteratable.OnBeforeEpoch(i);
+
+                    while (indexes.Count > 0)
+                    {
+                        int index = MLRandom.Shared.Range(0, indexes.Count);
+                        int next_train_shuffled_index = indexes[index];
+                        _trainIteratable.OnTrainNext(next_train_shuffled_index);
+                        cancellationToken.ThrowIfCancellationRequested();
+
+                        indexes.RemoveAt(index);
+                    }
+                    
+                    _epochIteratable.OnAfterEpoch(i);
                     cancellationToken.ThrowIfCancellationRequested();
                 }
 
-                _epochIteratable.OnAfterEpoch(i);
-                cancellationToken.ThrowIfCancellationRequested();
+                _cancellationTokenSource = null;
             }
+            else
+            {
 
-            _cancellationTokenSource = null;
+                for (int i = 0; i < epochs; i++)
+                {
+                    _epochIteratable.OnBeforeEpoch(i);
+
+                    for (int j = 0; j < trainIndex; j++)
+                    {
+                        _trainIteratable.OnTrainNext(j);
+                        cancellationToken.ThrowIfCancellationRequested();
+                    }
+
+                    _epochIteratable.OnAfterEpoch(i);
+                    cancellationToken.ThrowIfCancellationRequested();
+                }
+
+                _cancellationTokenSource = null;
+            }
         }
 
         private void EpochRunner(int epochs, CancellationToken cancellationToken)

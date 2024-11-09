@@ -4,6 +4,7 @@ using Atom.MachineLearning.Core.Transformers;
 using Atom.MachineLearning.IO;
 using Sirenix.OdinInspector;
 using System.Collections;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -91,11 +92,22 @@ namespace Atom.MachineLearning.Unsupervised.BoltzmanMachine
 
             _booleanRBMTrainer.trainedModel = new BooleanRBMModel(0, "b-rbm-mnist", 784, _hiddenUnits);
 
+            await Train();
+        }
+
+        private async Task Train()
+        {
             StartCoroutine(VisualizationRoutine());
 
             await _booleanRBMTrainer.Fit(_normalized_mnist);
 
             StopAllCoroutines();
+        }
+
+        [Button]
+        private async void ContinueTraining()
+        {
+            await Train();
         }
 
         [Button]

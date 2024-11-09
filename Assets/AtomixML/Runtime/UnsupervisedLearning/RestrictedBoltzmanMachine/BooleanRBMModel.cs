@@ -81,9 +81,26 @@ namespace Atom.MachineLearning.Unsupervised.BoltzmanMachine
             }
         }
 
+        public NVector Predict(NVector inputData)
+        {
+            return GibbsSample(inputData);
+        }
+
         /*
          wij = lr*(<vihj>data - <vihj> imodel)
          */
+        /// <summary>
+        /// Iteration of a train data 
+        /// * Positive phase
+        /// * K-step negative phase
+        /// * Gradients coputing from outer products
+        /// * Weight and biases update with vanilla momentum and weightdecay
+        /// </summary>
+        /// <param name="activation"></param>
+        /// <param name="k_steps"></param>
+        /// <param name="learningRate"></param>
+        /// <param name="momentum"></param>
+        /// <param name="weightDecay"></param>
         public void Train(NVector activation, int k_steps, double learningRate, double momentum, double weightDecay)
         {
             var positivePhase = SampleHidden(activation);
@@ -102,7 +119,7 @@ namespace Atom.MachineLearning.Unsupervised.BoltzmanMachine
 
         public void UpdateWeightsAndBiases(NVector visible, NVector vPrime, NVector h, NVector hPrime, double learningRate, double momentum, double weightDecay)
         {
-            // Positive phase
+            // Positive & negative phase gradient computing in the same loop for efficiency
             for (int j = 0; j < _hiddenStates.Length; j++)
             {
                 for (int i = 0; i < _visibleStates.Length; i++)
@@ -156,11 +173,6 @@ namespace Atom.MachineLearning.Unsupervised.BoltzmanMachine
                 _visibleBias[i] += step;
                 _visibleBias[i] += _visibleBiasInertia[i] * momentum * learningRate;
 
-                /*
-                 Weight-cost is typically not applied to the hidden and visible biases because there
-                are far fewer of these so they are less likely to cause overfitting
-                 */
-
                 _visibleBias[i] -= weightDecay * learningRate * _visibleBias[i];
                 _visibleBiasInertia[i] = _visibleBias[i];
             }
@@ -182,11 +194,22 @@ namespace Atom.MachineLearning.Unsupervised.BoltzmanMachine
         }
 
         /// <summary>
+        /// Sample with returning real probabilities for the visible update
+        /// </summary>
+        /// <param name="initialVisible"></param>
+        /// <returns></returns>
+        public NVector GibbsSampleVisibleRealValues(NVector initialVisible)
+        {
+            var hiddenState = SampleHidden(initialVisible);
+            return SampleVisibleRealValues(hiddenState);
+        }
+
+        /// <summary>
         /// Given a training example (a vector of visible units), compute the probabilities of the hidden units being activated. 
         /// This involves calculating the conditional probabilities of the hidden units given the visible units using the current model parameters.
         /// 
-        /// Hinton equation 7
-         /// </summary>
+        /// Hinton equation 7 >  p(hj = 1 | v) 
+        /// </summary>
         /// <returns></returns>
         public NVector SampleHidden(NVector visibleInput)
         {
@@ -210,7 +233,7 @@ namespace Atom.MachineLearning.Unsupervised.BoltzmanMachine
         /// <summary>
         /// Reconstruction
         /// 
-        /// Hinton equation 8
+        /// Hinton equation 8 >  p(vi = 1 | h)
         /// </summary>
         /// <param name="hiddenInput"></param>
         /// <returns></returns>
@@ -230,9 +253,57 @@ namespace Atom.MachineLearning.Unsupervised.BoltzmanMachine
             return _visibleStates;
         }
 
-        public NVector Predict(NVector inputData)
+        public NVector SampleVisibleRealValues(NVector hiddenInput)
         {
-            return GibbsSample(inputData);  
+
+            for (int i = 0; i < _weights.GetLength(1); i++) // Loop over columns in the result
+            {
+                double activation = _visibleBias[i];
+
+                for (int j = 0; j < _weights.GetLength(0); j++) // Loop over rows in 'a'
+                {
+                    activation += _weights[j, i] * hiddenInput[j];
+                }
+
+                _visibleStates[i] = MLActivationFunctions.Sigmoid(activation);
+            }
+            return _visibleStates;
+        }
+
+        /// <summary>
+        /// The free energy of visible vector v is the energy that a single configuration would need to have in
+        /// order to have the same probability as all of the configurations that contain v:
+        /// 
+        /// Hinton equation 25
+        /// </summary>
+        /// <returns></returns>
+        public double FreeVisibleEnergy(NVector visibleInput)
+        {
+            var A = 0.0;
+            for (int i = 0; i < visibleInput.Length; ++i)
+            {
+                A += visibleInput[i] * _visibleBias[i];
+            }
+
+            // real value hidden pass 
+            NVector xJ = new NVector(_weights.GetLength(1));
+            for(int i = 0; i < _weights.GetLength(0); ++i)
+            {
+                for(int j = 0; j < _weights.GetLength(1); ++j)
+                {
+                    xJ[i] += _weights[i, j] * visibleInput[j];
+                }
+
+                xJ[i] += _hiddenBias[i];
+            }
+
+            var B = 0.0;
+            for (int i = 0; i < _weights.GetLength(1); ++i)
+            {
+                B += Math.Log(1 + Math.Exp(xJ[i]));
+            }
+
+            return -A - B;
         }
     }
 }
