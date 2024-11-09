@@ -5,27 +5,22 @@ using System;
 using UnityEditor.PackageManager;
 
 
-namespace Atom.MachineLearning.Unsupervised.AutoEncoder
+namespace Atom.MachineLearning.NeuralNetwork.V2
 {
-
     public class DenseLayer
     {
         public int neuronCount => _weights.Rows;
 
         public NVector _input;
         public NMatrix _weights;
-        public NMatrix _weightsInertia;
+        public NMatrix _weightsInertia; // momentum temp
         public NVector _bias;
-        public NVector _biasInertia;
+        public NVector _biasInertia; // momentum temp
         public NVector _output;
         public NVector _gradient;
 
-        public Func<NVector, NVector> _activationFunction;
-        public Func<NVector, NVector> _derivativeFunction;
-
-        public Func<NVector, NVector> _activationFunctionUnit;
-        public Func<NVector, NVector> _derivativeFunctionUnit;
-
+        protected Func<NVector, NVector> _activationFunction { get; set; }
+        protected Func<NVector, NVector> _derivativeFunction { get; set; }
 
         public DenseLayer(int input, int output, ActivationFunctions activationFunction = ActivationFunctions.Sigmoid)
         {
@@ -137,14 +132,9 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
             for (int i = 0; i < _input.Length; ++i)
                 _input[i] = activationVector[i];
 
-            //UnityEngine.Debug.Log("New inputs " + _input);
             for (int i = 0; i < _output.Length; ++i)
                 _output[i] = 0;
 
-            /*// output is buffered by the layer for backward pass
-            NMatrix.MatrixRightMultiplyNonAlloc(_weights, activationVector, ref _output);
-            _output = _activationFunction(_output + _bias);
-*/
             int neuron = _weights.Datas.GetLength(0);
             int columns = _weights.Datas.GetLength(1);
             for (int i = 0; i < neuron; i++)
@@ -187,14 +177,18 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
             return _gradient;
         }
 
-        public virtual NVector Backward2(NVector preComputedGradient, bool computeForPreviousLayer)
+        /// <summary>
+        /// Backward pass with precomputed gradient from next layer (the layer just apply derivative of output for its own local gradient)
+        /// </summary>
+        /// <param name="preComputedGradient"></param>
+        /// <param name="computeForPreviousLayer"></param>
+        /// <returns></returns>
+        public virtual NVector BackwardPrecomputed(NVector preComputedGradient, bool computeForPreviousLayer)
         {
             var output_derivative = _derivativeFunction(_output);
 
             for (int i = 0; i < _gradient.Length; ++i)
             {
-                //UnityEngine.Debug.Log($"NEW hidden derivative {i} > " + output_derivative[i]);
-
                 _gradient[i] = output_derivative[i] * preComputedGradient[i];
             }
 
@@ -234,11 +228,8 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
 
                     _weights[i, j] += step;
                     _weights[i, j] += _weightsInertia[i, j] * momentum;
-                    _weights[i, j] -= weigthDecay * _weights[i, j];
+                    _weights[i, j] -= weigthDecay * _weights[i, j]; // L2 Regularization on stochastic gradient descent
                     _weightsInertia[i, j] = step;
-
-                    //UnityEngine.Debug.Log($"NEW weight {i},{j} from {old_weight} to {_weights[i, j]} ");
-
                 }
 
             for (int i = 0; i < _bias.Length; ++i)
@@ -250,60 +241,10 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
                 _bias[i] -= weigthDecay * _bias[i];
                 _biasInertia[i] = step;
 
-                //UnityEngine.Debug.Log($"NEW bias {i}, from {oldbias} to {_bias[i]} ");
-
             }
-            //UnityEngine.Debug.Log("NEW bias > " + _bias);
 
             for (int i = 0; i < _gradient.Length; ++i)
                 _gradient[i] = 0;
-        }
-    }
-
-    public class OutputLayer : DenseLayer
-    {
-        public OutputLayer(int input, int output, ActivationFunctions activationFunction = ActivationFunctions.Sigmoid) : base(input, output, activationFunction)
-        {
-        }
-
-        public override NVector Backward(NVector error, NMatrix previousLayerWeight)
-        {
-            var derivated_error = _derivativeFunction(_output);
-
-            for (int i = 0; i < _gradient.Length; ++i)
-            {
-                //UnityEngine.Debug.Log($"NEW output derivative {i} > " + derivated_error[i]);
-
-                _gradient[i] = derivated_error[i] * error[i];
-            }
-            //UnityEngine.Debug.Log("NEW gradient> " + _gradient);
-
-            return _gradient;
-        }
-
-        public override NVector Backward2(NVector preComputedGradient, bool computeForPreviousLayer)
-        {
-            var derivated_error = _derivativeFunction(_output);
-
-            for (int i = 0; i < _gradient.Length; ++i)
-            {
-
-                _gradient[i] = derivated_error[i] * preComputedGradient[i];
-            }
-
-            var prev_layer_gradient = new NVector(_weights.Columns);
-            for (int i = 0; i < prev_layer_gradient.Length; ++i)
-            {
-                double sum = 0.0;
-                for (int j = 0; j < _gradient.Length; ++j)
-                {
-                    sum += _gradient[j] * _weights[j, i];
-                }
-
-                prev_layer_gradient[i] = sum;
-            }
-
-            return prev_layer_gradient;
         }
     }
 

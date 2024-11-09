@@ -11,7 +11,7 @@ using UnityEngine.UI;
 namespace Atom.MachineLearning.Unsupervised.BoltzmanMachine
 {
     [ExecuteInEditMode]
-    public class BooleanRBM_Test1 : MonoBehaviour
+    public class BRMB_Mnist : MonoBehaviour
     {
         [SerializeField] private BooleanRBMTrainer _booleanRBMTrainer;
 

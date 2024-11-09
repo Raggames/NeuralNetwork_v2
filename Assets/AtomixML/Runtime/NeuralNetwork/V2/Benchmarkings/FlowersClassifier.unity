@@ -371,7 +371,7 @@ GameObject:
   - component: {fileID: 820684233}
   - component: {fileID: 820684234}
   m_Layer: 0
-  m_Name: AE_Mnist
+  m_Name: NN_Flowers
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -402,42 +402,38 @@ MonoBehaviour:
   m_GameObject: {fileID: 820684231}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 867ddb6c6d32b634e9db2371a7defccc, type: 3}
+  m_Script: {fileID: 11500000, guid: 10e9f12b7c219094fb937bb3c8a48326, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _trainer:
-    _epochs: 25
-    _learningRate: 0.5
-    _momentum: 0.01
-    _weightDecay: 0.0001
-    _learningRateCurve:
-      serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: 0
-        value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 34
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      - serializedVersion: 3
-        time: 1
-        value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 34
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    _normalizeDataSet: 0
-  _visualizationUpdateTimer: 0.05
-  _outputRawImage: {fileID: 1045729522}
-  _inputRawImage: {fileID: 2098448619}
+  _epochs: 1000
+  _learningRate: 0.5
+  _momentum: 0.01
+  _weightDecay: 0.0001
+  _learningRateCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  _normalizeDataSet: 0
 --- !u!1 &885005128
 GameObject:
   m_ObjectHideFlags: 0

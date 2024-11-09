@@ -86,6 +86,12 @@ namespace Atom.MachineLearning.IO
             }
         }
 
+        public static void Split_TrainTest_NVector(NVector[] datas, float splitRatio01, out NVector[] train, out NVector[] test)
+        {
+            int split_index = (int)Math.Round((datas.Length * splitRatio01));
+            Split_TrainTest_NVector(datas, split_index, out train, out test);
+        }
+
 
         /// <summary>
         /// Allow, for instance, subselection of a set into a training rows and test rows

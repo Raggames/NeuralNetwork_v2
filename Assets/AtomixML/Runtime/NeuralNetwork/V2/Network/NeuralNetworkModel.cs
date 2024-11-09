@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 
 
-namespace Atom.MachineLearning.Unsupervised.AutoEncoder
+namespace Atom.MachineLearning.NeuralNetwork.V2
 {
     /// <summary>
     /// New version of neural network
@@ -45,12 +45,12 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
                 throw new Exception($"There should be at least one hidden layer before output.");
 
             var previous_layer = Layers[Layers.Count - 1];
-            Layers.Add(new OutputLayer(previous_layer.neuronCount, neuronsCount, activationFunction));
+            Layers.Add(new DenseOutputLayer(previous_layer.neuronCount, neuronsCount, activationFunction));
         }
 
         public void AddBridgeOutputLayer(int inputsCount, int neuronsCount, ActivationFunctions activationFunction)
         {
-            Layers.Add(new OutputLayer(inputsCount, neuronsCount, activationFunction));
+            Layers.Add(new DenseOutputLayer(inputsCount, neuronsCount, activationFunction));
         }
 
         public void SeedWeigths(double minWeight = -0.01, double maxWeight = 0.01)
@@ -96,7 +96,7 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
             var gradient = error;
             for (int l = Layers.Count - 1; l >= 0; --l)
             {
-                gradient = Layers[l].Backward2(gradient, l > 0);
+                gradient = Layers[l].BackwardPrecomputed(gradient, l > 0);
             }
 
             return gradient;

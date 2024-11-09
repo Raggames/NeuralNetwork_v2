@@ -1,11 +1,14 @@
 using Atom.MachineLearning.Core;
+using Atom.MachineLearning.NeuralNetwork.V2;
 using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-
 namespace Atom.MachineLearning.Unsupervised.AutoEncoder
 {
+    /// <summary>
+    /// A vanilla autoencoder, basically just two networks put together and with the ability to backpropagate to both
+    /// </summary>
     public class AutoEncoderModel : IMLModel<NVector, NVector>
     {
         public string ModelName { get; set; } = "auto-encoder";
@@ -40,7 +43,7 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
 
             return temp;
         }
-
+/*
         public NVector Backpropagate(NVector error)
         {
             var l_gradient = _decoder.OutputLayer.Backward(error, _decoder.OutputLayer._weights);
@@ -58,18 +61,18 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
 
             return l_gradient;
         }
-
-        public NVector Backpropagate2(NVector error)
+*/
+        public NVector Backpropagate(NVector error)
         {
             var gradient = error;
             for (int l = _decoder.Layers.Count - 1; l >= 0; --l)
             {
-                gradient = _decoder.Layers[l].Backward2(gradient, true);
+                gradient = _decoder.Layers[l].BackwardPrecomputed(gradient, true);
             }
 
             for (int l = _encoder.Layers.Count - 1; l >= 0; --l)
             {
-                gradient = _encoder.Layers[l].Backward2(gradient, l > 0);
+                gradient = _encoder.Layers[l].BackwardPrecomputed(gradient, l > 0);
             }
 
             return gradient;

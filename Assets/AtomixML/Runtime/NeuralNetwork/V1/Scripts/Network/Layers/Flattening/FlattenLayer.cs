@@ -13,8 +13,8 @@ namespace Atom.MachineLearning.NeuralNetwork
         public int Depth;
 
         public int NodeCount { get; private set; }
-        private double[] flatten_output;
-        private double[][,] deflatten_output;
+        private double[] _flatten_output;
+        private double[][,] _matrix_output;
 
         public FlattenLayer(int width, int height, int depth)
         {
@@ -23,12 +23,12 @@ namespace Atom.MachineLearning.NeuralNetwork
             Depth = depth;
 
             NodeCount = width * height * depth;
-            flatten_output = new double[NodeCount];
-            deflatten_output = new double[Depth][,];
+            _flatten_output = new double[NodeCount];
+            _matrix_output = new double[Depth][,];
 
             for(int i = 0; i < Depth; ++i)
             {
-                deflatten_output[i] = new double[Width, Height];
+                _matrix_output[i] = new double[Width, Height];
             }
         }
 
@@ -42,14 +42,20 @@ namespace Atom.MachineLearning.NeuralNetwork
                 {
                     for (int h = 0; h < feature_maps[d].GetLength(1); ++h)
                     {
-                        flatten_output[i++] = feature_maps[d][w, h];
+                        _flatten_output[i++] = feature_maps[d][w, h];
                     }
                 }
             }
 
-            return flatten_output;
+            return _flatten_output;
         }
 
+        /// <summary>
+        /// Computing a classic gradient descent update but then put all results back into the matrice for convolutional layers 
+        /// </summary>
+        /// <param name="prev_layer_gradients"></param>
+        /// <param name="prev_layer_weights"></param>
+        /// <returns></returns>
         public double[][,] ComputeBackward(double[] prev_layer_gradients, double[,] prev_layer_weights)
         {
             int i = 0;
@@ -58,7 +64,7 @@ namespace Atom.MachineLearning.NeuralNetwork
 
             for (int g = 0; g < gradients.Length; ++g)
             {
-                double derivative = flatten_output[g];
+                double derivative = _flatten_output[g];
                 double sum = 0.0;
                 for (int j = 0; j < prev_layer_gradients.Length; ++j)
                 {
@@ -75,17 +81,17 @@ namespace Atom.MachineLearning.NeuralNetwork
                 {
                     for (int h = 0; h < Height; ++h)
                     {
-                        deflatten_output[d][w, h] = gradients[i++];
+                        _matrix_output[d][w, h] = gradients[i++];
                     }
                 }
             }
 
-            return deflatten_output;
+            return _matrix_output;
         }
 
         public override void UpdateWeights(float learningRate, float momentum, float weightDecay, float biasRate)
         {
-            // Nothing to do here
+            // Nothing to do here, flatten layer doesn't apply any weight or biase
         }
     }
 }
