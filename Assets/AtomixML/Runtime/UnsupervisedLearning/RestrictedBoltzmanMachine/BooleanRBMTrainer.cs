@@ -33,8 +33,8 @@ namespace Atom.MachineLearning.Unsupervised.BoltzmanMachine
         [HyperParameter, SerializeField] private int _batchSize = 5;
 
         [HyperParameter, SerializeField, Range(.01f, .99f)] private double _learningRate = .5f;
-        [HyperParameter, SerializeField, Range(.001f, .1f)] private double _momentum = .01f;
-        [HyperParameter, SerializeField, Range(.01f, .1f)] private double _weightDecay = .001f;
+        [HyperParameter, SerializeField, Range(.001f, .99f)] private double _momentum = .01f;
+        [HyperParameter, SerializeField, Range(.01f, .99f)] private double _weightDecay = .001f;
         /// <summary>
         /// Number of gibbs sample per training data negative phase
         /// </summary>
@@ -93,6 +93,8 @@ namespace Atom.MachineLearning.Unsupervised.BoltzmanMachine
             the initial rapid descent. It may also oscillate gently with a period of a few mini-batches when using
             high momentum (see section 9).
              */
+            if (_t_datas == null || _t_datas.Length <= 1)
+                return;
 
             _mse = 0.0;
             for (int i = 0; i < _testRunsOnEndEpoch; ++i)

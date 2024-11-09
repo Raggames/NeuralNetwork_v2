@@ -122,6 +122,7 @@ namespace Atom.MachineLearning.IO
                 index++;
             }
         }
+        
         /// <summary>
         /// Allows, for instance, to split data columns from label columns
         /// </summary>

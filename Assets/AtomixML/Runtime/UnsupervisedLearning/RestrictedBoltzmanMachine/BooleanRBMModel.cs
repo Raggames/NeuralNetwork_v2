@@ -42,7 +42,6 @@ namespace Atom.MachineLearning.Unsupervised.BoltzmanMachine
         private NVector _hiddenStates;
 
         private System.Random _random;
-        private NVector _hiddenResultBuffer;
 
         public BooleanRBMModel(int seed, string modelName, int visibleUnits, int hiddenUnits)
         {
@@ -66,11 +65,20 @@ namespace Atom.MachineLearning.Unsupervised.BoltzmanMachine
             {
                 for (int j = 0; j < _weights.GetLength(1); ++j)
                 {
-                    _weights[i, j] = _random.NextDouble() * 2 - 1;
+                    //_weights[i, j] = _random.NextDouble() * 2 - 1;
+                    _weights[i, j] = _random.Range(-.01, .01);
                 }
             }
 
-            _hiddenResultBuffer = new NVector(_weights.GetLength(0));
+            for (int i = 0; i < _visibleBias.Length; i++)
+            {
+                _visibleBias[i] = _random.Range(-.01, .01);
+            }
+
+            for (int j = 0; j < _hiddenBias.Length; j++)
+            {
+                _hiddenBias[j] = _random.Range(-.01, .01);
+            }
         }
 
         /*
@@ -122,25 +130,38 @@ namespace Atom.MachineLearning.Unsupervised.BoltzmanMachine
                 {
                     double step = learningRate * (_positiveGradient[j, i] - _negativeGradient[j, i]);
                     _weights[j, i] += step;
-                    _weights[j, i] += _weightsInertia[j, i] * momentum;
-                    _weights[j, i] -= weightDecay * _weights[j, i];
+                    _weights[j, i] += _weightsInertia[j, i] * momentum * learningRate;
+                    _weights[j, i] -= weightDecay * learningRate * _weights[j, i];
                     _weightsInertia[j, i] = _weights[j, i];
                 }
 
                 double bstep = learningRate * (h[j] - hPrime[j]);
                 _hiddenBias[j] += bstep;
-                _hiddenBias[j] += _hiddenBiasInertia[j] * momentum;
-                _hiddenBias[j] -= weightDecay * _hiddenBias[j];
+                _hiddenBias[j] += _hiddenBiasInertia[j] * momentum * learningRate;
+
+                /*
+                 Weight-cost is typically not applied to the hidden and visible biases because there
+                are far fewer of these so they are less likely to cause overfitting
+                 */
+
+                _hiddenBias[j] -= weightDecay * learningRate * _hiddenBias[j];
                 _hiddenBiasInertia[j] = _hiddenBias[j];
             }
+
 
             // Update biases for visible and hidden layers
             for (int i = 0; i < _visibleStates.Length; i++)
             {
                 double step = learningRate * (visible[i] - vPrime[i]);
                 _visibleBias[i] += step;
-                _visibleBias[i] += _visibleBiasInertia[i] * momentum;
-                _visibleBias[i] -= weightDecay * _visibleBias[i];
+                _visibleBias[i] += _visibleBiasInertia[i] * momentum * learningRate;
+
+                /*
+                 Weight-cost is typically not applied to the hidden and visible biases because there
+                are far fewer of these so they are less likely to cause overfitting
+                 */
+
+                _visibleBias[i] -= weightDecay * learningRate * _visibleBias[i];
                 _visibleBiasInertia[i] = _visibleBias[i];
             }
 

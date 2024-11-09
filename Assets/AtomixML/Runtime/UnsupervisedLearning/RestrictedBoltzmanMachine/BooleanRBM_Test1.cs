@@ -22,7 +22,7 @@ namespace Atom.MachineLearning.Unsupervised.BoltzmanMachine
         [SerializeField] private RawImage _outputRawImage;
         [Range(.03f, 1f), SerializeField] private float _visualizationUpdateTimer;
 
-
+        [SerializeField] private int _hiddenUnits = 64;
 
         [Button]
         private void TestSampleHidden()
@@ -50,12 +50,12 @@ namespace Atom.MachineLearning.Unsupervised.BoltzmanMachine
         [Button]
         private async void ConvergenceTest(int selectedImage)
         {
-            var mnist = Datasets.Mnist_8x8_Vectorized_All();
+            var mnist = Datasets.Mnist_28x28_Vectorized_All();
 
             var trNormalizer = new TrMinMaxNormalizer();
             _normalized_mnist = trNormalizer.Transform(mnist);
             _normalized_mnist = new NVector[] { _normalized_mnist[selectedImage] };
-            _booleanRBMTrainer.trainedModel = new BooleanRBMModel(0, "b-rbm-mnist", 64, 8);
+            _booleanRBMTrainer.trainedModel = new BooleanRBMModel(0, "b-rbm-mnist", 784, _hiddenUnits);
 
             StartCoroutine(VisualizationRoutine());
 
@@ -89,7 +89,7 @@ namespace Atom.MachineLearning.Unsupervised.BoltzmanMachine
             var trNormalizer = new TrMinMaxNormalizer();
             _normalized_mnist = trNormalizer.Transform(mnist);
 
-            _booleanRBMTrainer.trainedModel = new BooleanRBMModel(0, "b-rbm-mnist", 784, 64);
+            _booleanRBMTrainer.trainedModel = new BooleanRBMModel(0, "b-rbm-mnist", 784, _hiddenUnits);
 
             StartCoroutine(VisualizationRoutine());
 
