@@ -64,12 +64,12 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
             var gradient = error;
             for (int l = _decoder.Layers.Count - 1; l >= 0; --l)
             {
-                gradient = _decoder.Layers[l].Backward2(gradient);
+                gradient = _decoder.Layers[l].Backward2(gradient, true);
             }
 
             for (int l = _encoder.Layers.Count - 1; l >= 0; --l)
             {
-                gradient = _encoder.Layers[l].Backward2(gradient);
+                gradient = _encoder.Layers[l].Backward2(gradient, l > 0);
             }
 
             return gradient;

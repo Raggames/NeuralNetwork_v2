@@ -82,6 +82,11 @@ namespace Atom.MachineLearning.Core.Transformers
         /// <exception cref="NotImplementedException"></exception>
         public NVector[] Transform(NString[] input)
         {
+            if (_encodedColumnName != null && _encodedColumn == 0)
+            {
+                _encodedColumn = Array.FindIndex<string>(input[0].Data, x => x.ToString() == _encodedColumnName);
+            }
+
             if (_encodingRule == null)
                 GenerateEncodingRule(input);
 
@@ -103,7 +108,7 @@ namespace Atom.MachineLearning.Core.Transformers
 
             return result;
         }
-        
+
         /// <summary>
         /// TODO
         /// run all data and detect individual classes

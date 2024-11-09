@@ -80,8 +80,8 @@ namespace Atom.MachineLearning.Unsupervised.SelfOrganizingMap
             _currentNeighboorHoodRadius = _neighboorHoodRadius;
             _currentLearningRate = _learningRate;
 
-            _epochSupervisor = new StandardTrainingSupervisor()
-                .SetEpochIteration(this);
+            _epochSupervisor = new StandardTrainingSupervisor();
+            _epochSupervisor.SetEpochIteration(this);
 
             await _epochSupervisor.RunAsync(_epochs);
 

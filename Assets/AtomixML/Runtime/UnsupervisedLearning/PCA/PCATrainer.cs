@@ -132,7 +132,7 @@ namespace Atom.MachineLearning.Unsupervised.PCA
 
         public async Task<ITrainingResult> Fit(NVector[] trainingDatas)
         {
-            var standardizedDatas = NVector.Standardize(trainingDatas, out _meanVector, out _stdDeviationVector);
+            var standardizedDatas = NVector.Standardize(trainingDatas, out _meanVector, out _stdDeviationVector, out _);
             var covariance_matrix = NVector.CovarianceMatrix(standardizedDatas);
 
             var matrix = Matrix<double>.Build.DenseOfArray(covariance_matrix);

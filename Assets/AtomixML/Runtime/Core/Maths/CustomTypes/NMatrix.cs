@@ -75,6 +75,34 @@ namespace Atom.MachineLearning.Core
             return false;
         }
 
+        public void Add(NMatrix other)
+        {
+            if (other.Rows != Rows || other.Columns != Columns)
+                throw new InvalidOperationException($"Matrix to Vector dimensions mismatch");
+
+            for (int i = 0; i < Rows; i++)
+            {
+                for (int j = 0; j < Columns; j++)
+                {
+                    Datas[i, j] += other.Datas[i, j];
+                }
+            }
+        }
+
+        public void Substract(NMatrix other)
+        {
+            if (other.Rows != Rows || other.Columns != Columns)
+                throw new InvalidOperationException($"Matrix to Vector dimensions mismatch");
+
+            for (int i = 0; i < Rows; i++)
+            {
+                for (int j = 0; j < Columns; j++)
+                {
+                    Datas[i, j] -= other.Datas[i, j];
+                }
+            }
+        }
+
         /// <summary>
         /// Matrix * column vector
         /// </summary>

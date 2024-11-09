@@ -126,7 +126,6 @@ namespace Atom.MachineLearning.NeuralNetwork
         public double[] FeedForward(double[] inputs)
         {
             this.inputs = inputs;
-            UnityEngine.Debug.Log("OLD > inputs " + string.Join(", ", inputs));
 
             for (int i = 0; i < current_sums.Length; ++i)
             {
@@ -198,8 +197,6 @@ namespace Atom.MachineLearning.NeuralNetwork
                 for (int i = 0; i < gradients.Length; ++i)
                 {
                     double derivative = NeuralNetworkMathHelper.ComputeActivation(activationFunction, true, outputs[i]);
-                    UnityEngine.Debug.Log($"OLD hidden derivative {i} > " + derivative);
-
                     // Derivative of the activation function relative to the actual output multiplied by the derivative of the cost function derivative (case of (t - y)^2 => 2(t - y))
                     current_gradients[i] = derivative * (testvalues[i] - outputs[i]) * 2;
                     gradients[i] += current_gradients[i];
@@ -211,8 +208,6 @@ namespace Atom.MachineLearning.NeuralNetwork
                 {
                     double derivative = NeuralNetworkMathHelper.ComputeActivation(activationFunction, true, outputs[i]);
 
-                    UnityEngine.Debug.Log($"OLD hidden derivative {i} > " + derivative);
-
                     double sum = 0.0;
                     for (int j = 0; j < prev_layer_gradients.Length; ++j)
                     {
@@ -223,8 +218,6 @@ namespace Atom.MachineLearning.NeuralNetwork
                     gradients[i] += current_gradients[i];
                 }
             }
-
-            UnityEngine.Debug.Log("OLD gradients > " + string.Join(", ", current_gradients));
 
             return current_gradients;
         }
@@ -268,8 +261,6 @@ namespace Atom.MachineLearning.NeuralNetwork
                     weights[i, j] += momentum * previous_weights_delta[i, j];
                     weights[i, j] -= weightDecay * weights[i, j];
                     previous_weights_delta[i, j] = delta;
-
-                    UnityEngine.Debug.Log($"OLD weight {i},{j} from {old_weight} to {weights[i, j]} ");
                 }
             }
 
@@ -282,13 +273,7 @@ namespace Atom.MachineLearning.NeuralNetwork
                 biases[i] += momentum * previous_biases_delta[i];
                 biases[i] -= weightDecay * biases[i];
                 previous_biases_delta[i] = delta;
-
-                UnityEngine.Debug.Log($"OLD bias {i}, from {oldbias} to {biases[i]} ");
-
             }
-
-            UnityEngine.Debug.Log("OLD bias > " + string.Join(", ", biases));
-
 
             // Reset all gradients
             for (int i = 0; i < gradients.Length; ++i)

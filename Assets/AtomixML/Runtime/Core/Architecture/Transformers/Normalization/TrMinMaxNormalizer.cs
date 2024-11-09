@@ -5,9 +5,18 @@ namespace Atom.MachineLearning.Core.Transformers
 {
     public class TrMinMaxNormalizer : IMLTransformer<NVector, NVector>
     {
-        public NVector Predict(NVector inputData)
+        [LearnedParameter, SerializeField] private NVector _maximums;
+        [LearnedParameter, SerializeField] private NVector _minimums;
+        [LearnedParameter, SerializeField] private int _dimensions;
+
+        public NVector Predict(NVector input)
         {
-            throw new System.NotImplementedException();
+            for (int j = 0; j < _dimensions; ++j)
+            {
+                input[j] = (input[j] - _minimums[j]) / (_maximums[j] - _minimums[j]);
+            }
+
+            return input;
         }
 
         public NVector[] Transform(NVector[] input)
@@ -15,30 +24,30 @@ namespace Atom.MachineLearning.Core.Transformers
             if (input.Length == 0)
                 throw new System.Exception("Input should be at least of length = 1");
 
-            int dimensions = input[0].Length;
-            NVector maximums = new NVector(dimensions);
-            NVector minimums = new NVector(dimensions);
+            _dimensions = input[0].Length;
+            _maximums = new NVector(_dimensions);
+            _minimums = new NVector(_dimensions);
 
-            for(int i = 0; i < minimums.Length; ++i)
-                minimums[i] = float.MaxValue;
+            for(int i = 0; i < _minimums.Length; ++i)
+                _minimums[i] = float.MaxValue;
 
-            for (int i = 0; i < maximums.Length; ++i)
-                maximums[i] = float.MinValue;
+            for (int i = 0; i < _maximums.Length; ++i)
+                _maximums[i] = float.MinValue;
 
             for (int i = 0; i < input.Length; ++i)
             {
-                for(int j = 0; j < dimensions; ++j)
+                for(int j = 0; j < _dimensions; ++j)
                 {
-                    minimums[j] = Math.Min(minimums[j], input[i][j]);
-                    maximums[j] = Math.Max(maximums[j], input[i][j]);
+                    _minimums[j] = Math.Min(_minimums[j], input[i][j]);
+                    _maximums[j] = Math.Max(_maximums[j], input[i][j]);
                 }
             }
 
             for (int i = 0; i < input.Length; ++i)
             {
-                for (int j = 0; j < dimensions; ++j)
+                for (int j = 0; j < _dimensions; ++j)
                 {
-                    input[i][j] = (input[i][j] - minimums[j]) / (maximums[j] - minimums[j]);
+                    input[i][j] = (input[i][j] - _minimums[j]) / (_maximums[j] - _minimums[j]);
                 }
             }
 

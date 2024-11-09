@@ -64,7 +64,7 @@ namespace Atom.MachineLearning.Unsupervised.KMeanClustering
                 { "Iris-virginica", new double[] { 1, 0, 0 } },
             });
 
-            var vectorized_features = NVector.Standardize(TransformationUtils.StringMatrix2DToDoubleMatrix2D(features).ToNVectorRowsArray(), out var means, out var stdDeviations);            
+            var vectorized_features = NVector.Standardize(TransformationUtils.StringMatrix2DToDoubleMatrix2D(features).ToNVectorRowsArray(), out var means, out var stdDeviations, out _);            
 
             int delta = maxClusters - minClusters;
 
@@ -95,7 +95,7 @@ namespace Atom.MachineLearning.Unsupervised.KMeanClustering
                 { "Iris-virginica", new double[] { 1, 0, 0 } },
             });
 
-            var vectorized_features = NVector.Standardize(TransformationUtils.StringMatrix2DToDoubleMatrix2D(features).ToNVectorRowsArray(), out var means, out var stdDeviations);
+            var vectorized_features = NVector.Standardize(TransformationUtils.StringMatrix2DToDoubleMatrix2D(features).ToNVectorRowsArray(), out var means, out var stdDeviations, out _);
 
             for(int i = 0; i < vectorized_features.Length; ++i)
             {

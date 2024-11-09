@@ -10,7 +10,7 @@ namespace Atom.MachineLearning.Core.Training
     /// <summary>
     /// A supervisor to manage epoch and trainset iterating, model saving, etc..
     /// </summary>
-    public class StandardTrainingSupervisor : ITrainingSupervisor<StandardTrainingSupervisor>
+    public class StandardTrainingSupervisor : ITrainingSupervisor
     {
         private IEpochIteratable _epochIteratable;
         private ITrainIteratable _trainIteratable;
@@ -23,22 +23,27 @@ namespace Atom.MachineLearning.Core.Training
         {
         }
 
-        public StandardTrainingSupervisor SetEpochIteration(IEpochIteratable target)
+        public ITrainingSupervisor SetEpochIteration(IEpochIteratable target)
         {
             _epochIteratable = target;
             return this;
         }
 
-        public StandardTrainingSupervisor SetTrainIteration(ITrainIteratable target)
+        public ITrainingSupervisor SetTrainIteration(ITrainIteratable target)
         {
             _trainIteratable = target;
             return this;
         }
 
-        public StandardTrainingSupervisor SetAutosave(int epoch_interval = 1)
+        public ITrainingSupervisor SetAutosave(int epoch_interval = 1)
         {
 
             return this;
+        }
+
+        public void Cancel()
+        {
+            _cancellationTokenSource?.Cancel();
         }
 
         public async Task RunAsync(int epochs, int trainLenght = 0, bool shuffleTrainIndex = true)
@@ -63,11 +68,6 @@ namespace Atom.MachineLearning.Core.Training
 
             }
             else throw new Exception($"Supervisor should be initialized with iterators");
-        }
-
-        public void Cancel()
-        {
-            _cancellationTokenSource?.Cancel();
         }
 
         private void FullRunner(int epochs, int trainIndex, CancellationToken cancellationToken)

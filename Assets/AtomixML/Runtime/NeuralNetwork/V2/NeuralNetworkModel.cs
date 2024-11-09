@@ -72,7 +72,7 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
             return temp;
         }
 
-        public NVector Backpropagate(NVector error)
+        /*public NVector Backpropagate(NVector error)
         {
             var l_gradient = OutputLayer.Backward(error, OutputLayer._weights);
 
@@ -82,7 +82,7 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
             }
 
             return l_gradient;
-        }
+        }*/
 
         /// <summary>
         /// A better version of backward pass
@@ -91,12 +91,12 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
         /// </summary>
         /// <param name="error"></param>
         /// <returns></returns>
-        public NVector Backpropagate2(NVector error)
+        public NVector Backpropagate(NVector error)
         {
             var gradient = error;
             for (int l = Layers.Count - 1; l >= 0; --l)
             {
-                gradient = Layers[l].Backward2(gradient);
+                gradient = Layers[l].Backward2(gradient, l > 0);
             }
 
             return gradient;

@@ -1,14 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 namespace Atom.MachineLearning.Core.Training
 {
-    public interface ITrainingSupervisor<T>
+    public interface ITrainingSupervisor
     {
-        public T SetEpochIteration(IEpochIteratable target);
-        public T SetTrainIteration(ITrainIteratable target);
+        public ITrainingSupervisor SetEpochIteration(IEpochIteratable target);
+        public ITrainingSupervisor SetTrainIteration(ITrainIteratable target);
+
+        public void Cancel();
+        public Task RunAsync(int epochs, int trainLenght = 0, bool shuffleTrainIndex = true);
+
     }
 }

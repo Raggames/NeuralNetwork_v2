@@ -54,21 +54,6 @@ namespace Atom.MachineLearning.IO
         }
 
         /// <summary>
-        /// Returns a subselection of columns by their names as a new matrice
-        /// </summary>
-        /// <param name="selectedColumnNames"></param>
-        /// <returns></returns>
-        public static string[,] GetSubCSVByHeaderColumnNames(string[] selectedColumnNames)
-        {
-            return null;
-        }
-
-        public static string[,] ColumnReplace(int columnIndex, Dictionary<string, string> rules)
-        {
-            return null;
-        }
-
-        /// <summary>
         /// Allow, for instance, subselection of a set into a training rows and test rows
         /// </summary>
         /// <param name="datas"></param>

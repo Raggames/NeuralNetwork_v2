@@ -171,42 +171,42 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
         {
             _epochSupervisor?.Cancel();
         }
-/*
-        [Button]
-        private async void TestBothNetworksWithRnd_bw(int iterations = 50)
-        {
+        /*
+                [Button]
+                private async void TestBothNetworksWithRnd_bw(int iterations = 50)
+                {
 
-            MLRandom.SeedShared(0);
-            var nn_1 = new NeuralNetwork.NeuralNetwork();
-            nn_1.AddDenseLayer(4, 2, ActivationFunctions.Sigmoid);
-            nn_1.AddOutputLayer(4, ActivationFunctions.Sigmoid);
-            nn_1.SeedRandomWeights(-1, 1);
+                    MLRandom.SeedShared(0);
+                    var nn_1 = new NeuralNetwork.NeuralNetwork();
+                    nn_1.AddDenseLayer(4, 2, ActivationFunctions.Sigmoid);
+                    nn_1.AddOutputLayer(4, ActivationFunctions.Sigmoid);
+                    nn_1.SeedRandomWeights(-1, 1);
 
-            var nn_2 = new AutoEncoderModel(new int[] { 4, 2 }, new int[] { 2, 4 });
-            MLRandom.SeedShared(0);
-            nn_2.SeedWeigths(-1, 1);                      
+                    var nn_2 = new AutoEncoderModel(new int[] { 4, 2 }, new int[] { 2, 4 });
+                    MLRandom.SeedShared(0);
+                    nn_2.SeedWeigths(-1, 1);                      
 
-            LoadRndbw();
+                    LoadRndbw();
 
-            for (int i = 0; i < iterations; ++i)
-            {
-                var _x_input = _x_datas[MLRandom.Shared.Range(0, _x_datas.Length - 1)];
-                nn_1.FeedForward(_x_input.Data, out var nn1_result);
+                    for (int i = 0; i < iterations; ++i)
+                    {
+                        var _x_input = _x_datas[MLRandom.Shared.Range(0, _x_datas.Length - 1)];
+                        nn_1.FeedForward(_x_input.Data, out var nn1_result);
 
-                var nn2_result = nn_2.Predict(_x_input);
+                        var nn2_result = nn_2.Predict(_x_input);
 
-                var error_1 = MSE_Error(new NVector(nn1_result), _x_input);
-                var error_2 = MSE_Error(nn2_result, _x_input);
+                        var error_1 = MSE_Error(new NVector(nn1_result), _x_input);
+                        var error_2 = MSE_Error(nn2_result, _x_input);
 
-                nn_1.ComputeDenseGradients(_x_input.Data, nn1_result);
-                nn_1.UpdateDenseWeights(_learningRate, _momentum, _weightDecay, _learningRate);
+                        nn_1.ComputeDenseGradients(_x_input.Data, nn1_result);
+                        nn_1.UpdateDenseWeights(_learningRate, _momentum, _weightDecay, _learningRate);
 
-                nn_2.Backpropagate(error_2);
-                nn_2.UpdateWeights(_learningRate, _momentum, _weightDecay);
-            }
+                        nn_2.Backpropagate(error_2);
+                        nn_2.UpdateWeights(_learningRate, _momentum, _weightDecay);
+                    }
 
-        }
-*/
+                }
+        */
 
         private NeuralNetwork.NeuralNetwork _neuralNetwork;
 
@@ -334,20 +334,20 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
 
             //_x_datas = NVector.Standardize(TransformationUtils.StringMatrix2DToDoubleMatrix2D(features).ToNVectorRowsArray(), out var means, out var stdDeviations);
             var minMaxNormalizer = new TrMinMaxNormalizer();
-            _x_datas = NVector.Standardize( TransformationUtils.StringMatrix2DToDoubleMatrix2D(features).ToNVectorRowsArray(), out _, out _);
+            _x_datas = NVector.Standardize(TransformationUtils.StringMatrix2DToDoubleMatrix2D(features).ToNVectorRowsArray(), out _, out _, out _);
 
             var network = new NeuralNetworkModel();
             network.AddDenseLayer(4, 7, ActivationFunctions.Tanh);
             network.AddOutputLayer(3, ActivationFunctions.Softmax);
             MLRandom.SeedShared(0);
             network.SeedWeigths(-.01, .01);
-
-            var networkOld = new NeuralNetwork.NeuralNetwork();
-            networkOld.AddDenseLayer(4, 7, ActivationFunctions.Tanh);
-            networkOld.AddOutputLayer(3, ActivationFunctions.Softmax);
-            MLRandom.SeedShared(0);
-            networkOld.SeedRandomWeights(-.01, .01);
-
+            /*
+                        var networkOld = new NeuralNetwork.NeuralNetwork();
+                        networkOld.AddDenseLayer(4, 7, ActivationFunctions.Tanh);
+                        networkOld.AddOutputLayer(3, ActivationFunctions.Softmax);
+                        MLRandom.SeedShared(0);
+                        networkOld.SeedRandomWeights(-.01, .01);
+            */
 
             _x_datas_buffer = new List<NVector>();
             _currentLearningRate = _learningRate;
@@ -367,7 +367,6 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
 
                 while (_x_datas_buffer.Count > 0)
                 {
-                    Debug.Log("Train **************** " + i);
                     var index = MLRandom.Shared.Range(0, _x_datas_buffer.Count - 1);
                     var input = _x_datas_buffer[index];
                     var test = t_datas_buffer[index];
@@ -430,9 +429,9 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
 
             //_x_datas = TransformationUtils.StringMatrix2DToDoubleMatrix2D(features).ToNVectorRowsArray();
             //NVector.Standardize(, out var means, out var stdDeviations);
-           //Normalize(_x_datas, new int[] { 0, 1, 2, 3 });
+            //Normalize(_x_datas, new int[] { 0, 1, 2, 3 });
 
-            _x_datas = NVector.Standardize(TransformationUtils.StringMatrix2DToDoubleMatrix2D(features).ToNVectorRowsArray(), out var means, out var stdDeviations);
+            _x_datas = NVector.Standardize(TransformationUtils.StringMatrix2DToDoubleMatrix2D(features).ToNVectorRowsArray(), out var means, out var stdDeviations, out _);
             //NVector.Standardize(, out var means, out var stdDeviations);
             //Normalize(_x_datas, new int[] { 0, 1, 2, 3 });
 
@@ -458,7 +457,7 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
                 var wrongRun = 0;
 
                 while (_x_datas_buffer.Count > 0)
-                {                   
+                {
                     var index = MLRandom.Shared.Range(0, _x_datas_buffer.Count - 1);
                     var input = _x_datas_buffer[index];
                     var test = t_datas_buffer[index];
@@ -483,7 +482,7 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
                     var error = MLCostFunctions.MSE_Derivative(new NVector(output), test);
                     error_sum += MLCostFunctions.MSE(test, new NVector(output));
 
-                    network.BackPropagate(output, test.Data, _currentLearningRate, _momentum, _weightDecay,_currentLearningRate);
+                    network.BackPropagate(output, test.Data, _currentLearningRate, _momentum, _weightDecay, _currentLearningRate);
                 }
                 Debug.Log($"{correctRun} / {wrongRun + correctRun}");
 
@@ -503,10 +502,10 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
 
             _outputBuffer = new NVector(trainedModel.tensorDimensions);
 
-            _epochSupervisor = new StandardTrainingSupervisor()
-                .SetEpochIteration(this)
-                .SetTrainIteration(this)
-                .SetAutosave(_epochs / 100);
+            _epochSupervisor = new StandardTrainingSupervisor();
+            _epochSupervisor.SetEpochIteration(this);
+            _epochSupervisor.SetTrainIteration(this);
+            _epochSupervisor.SetAutosave(_epochs / 100);
 
             await _epochSupervisor.RunAsync(_epochs, _x_datas.Length, true);
 
@@ -526,7 +525,7 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
             _errorSum = 0.0;
             _outputBuffer = new NVector(trainedModel.tensorDimensions);
         }
-        
+
         public void OnTrainNext(int index)
         {
             var _randomIndex = MLRandom.Shared.Range(0, _x_datas_buffer.Count - 1);

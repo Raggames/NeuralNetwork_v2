@@ -137,7 +137,7 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
             for (int i = 0; i < _input.Length; ++i)
                 _input[i] = activationVector[i];
 
-            UnityEngine.Debug.Log("New inputs " + _input);
+            //UnityEngine.Debug.Log("New inputs " + _input);
             for (int i = 0; i < _output.Length; ++i)
                 _output[i] = 0;
 
@@ -187,7 +187,7 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
             return _gradient;
         }
 
-        public virtual NVector Backward2(NVector preComputedGradient)
+        public virtual NVector Backward2(NVector preComputedGradient, bool computeForPreviousLayer)
         {
             var output_derivative = _derivativeFunction(_output);
 
@@ -197,6 +197,10 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
 
                 _gradient[i] = output_derivative[i] * preComputedGradient[i];
             }
+
+            // we stop propagating at the first hidden
+            if (!computeForPreviousLayer)
+                return _gradient;
 
             var prev_layer_gradient = new NVector(_weights.Columns);
             for (int i = 0; i < prev_layer_gradient.Length; ++i)
@@ -277,7 +281,7 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
             return _gradient;
         }
 
-        public override NVector Backward2(NVector preComputedGradient)
+        public override NVector Backward2(NVector preComputedGradient, bool computeForPreviousLayer)
         {
             var derivated_error = _derivativeFunction(_output);
 

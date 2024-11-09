@@ -437,7 +437,7 @@ namespace Atom.MachineLearning.Core
             return matrix;
         }
 
-        public static NVector[] Standardize(NVector[] vectors, out NVector meanVector, out NVector stdDeviationsVector)
+        public static NVector[] Standardize(NVector[] vectors, out NVector meanVector, out NVector stdDeviationsVector, out double mean_std_dev)
         {
             int dimensions = vectors[0].Length;
 
@@ -451,7 +451,7 @@ namespace Atom.MachineLearning.Core
             }
 
             // compute standardDeviation for each feature of the n-dimensional vector array
-            var mean_std_dev = 0.0;
+            mean_std_dev = 0.0;
             for (int i = 0; i < dimensions; ++i)
             {
                 stdDeviationsVector.Data[i] = NVector.FeatureStandardDeviation(vectors, meanVector[i], i);
