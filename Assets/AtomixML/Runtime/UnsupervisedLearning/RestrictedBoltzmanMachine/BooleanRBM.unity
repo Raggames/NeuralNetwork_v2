@@ -753,6 +753,7 @@ MonoBehaviour:
     _k_steps: 1
   _inputRawImage: {fileID: 1703577877}
   _outputRawImage: {fileID: 1360048684}
+  _visualizationUpdateTimer: 0.11
 --- !u!4 &2023491162
 Transform:
   m_ObjectHideFlags: 0

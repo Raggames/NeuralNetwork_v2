@@ -102,9 +102,13 @@ namespace Atom.MachineLearning.Unsupervised.BoltzmanMachine
             var wfs = 0.0;
             while (true)
             {
+                yield return null;
                 wfs += Time.deltaTime;
+
                 if (wfs < _visualizationUpdateTimer)
-                    yield return null;
+                {
+                    continue;
+                }
                 wfs = 0f;
                 Visualize();
             }

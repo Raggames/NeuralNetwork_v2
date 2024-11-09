@@ -397,7 +397,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 127}
     m_SelectedIDs: 66ae0000
     m_LastClickedID: 44646
-    m_ExpandedIDs: 00000000d0ad0000
+    m_ExpandedIDs: 00000000b6ad0000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -426,7 +426,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: 
     m_LastClickedID: 0
-    m_ExpandedIDs: 00000000d0ad0000
+    m_ExpandedIDs: 00000000b6ad0000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -1147,15 +1147,15 @@ MonoBehaviour:
   m_OverrideSceneCullingMask: 6917529027641081856
   m_SceneIsLit: 1
   m_SceneLighting: 1
-  m_2DMode: 0
+  m_2DMode: 1
   m_isRotationLocked: 0
   m_PlayAudio: 0
   m_AudioPlay: 0
   m_DebugDrawModesUseInteractiveLightBakingData: 0
   m_Position:
-    m_Target: {x: 491.8533, y: 203.69759, z: -0.82702255}
+    m_Target: {x: 522.1303, y: 240.24792, z: -4.4416294}
     speed: 2
-    m_Value: {x: 491.8533, y: 203.69759, z: -0.82702255}
+    m_Value: {x: 522.1303, y: 240.24792, z: -4.4416294}
   m_RenderMode: 0
   m_CameraMode:
     drawMode: 0
@@ -1201,17 +1201,17 @@ MonoBehaviour:
     m_GridAxis: 1
     m_gridOpacity: 0.5
   m_Rotation:
-    m_Target: {x: -0.0048082606, y: -0.02940084, z: 0.00009466905, w: -0.99962264}
+    m_Target: {x: 0, y: 0, z: 0, w: 1}
     speed: 2
-    m_Value: {x: -0.0048082606, y: -0.02940084, z: 0.00009466905, w: -0.99962264}
+    m_Value: {x: 0, y: 0, z: 0, w: 1}
   m_Size:
-    m_Target: 150.43495
+    m_Target: 154.36255
     speed: 2
-    m_Value: 150.43495
+    m_Value: 154.36255
   m_Ortho:
-    m_Target: 0
+    m_Target: 1
     speed: 2
-    m_Value: 0
+    m_Value: 1
   m_CameraSettings:
     m_Speed: 1
     m_SpeedNormalized: 0.5
@@ -1225,7 +1225,7 @@ MonoBehaviour:
     m_FarClip: 10000
     m_DynamicClip: 1
     m_OcclusionCulling: 0
-  m_LastSceneViewRotation: {x: 0, y: 0, z: 0, w: 0}
+  m_LastSceneViewRotation: {x: -0.08717229, y: 0.89959055, z: -0.21045254, w: -0.3726226}
   m_LastSceneViewOrtho: 0
   m_Viewpoint:
     m_SceneView: {fileID: 17}
