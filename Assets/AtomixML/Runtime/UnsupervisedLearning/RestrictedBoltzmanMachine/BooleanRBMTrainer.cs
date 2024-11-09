@@ -1,5 +1,7 @@
 ﻿using Atom.MachineLearning.Core;
+using Atom.MachineLearning.Core.Maths;
 using Atom.MachineLearning.Core.Training;
+using Atom.MachineLearning.IO;
 using Sirenix.OdinInspector;
 using System;
 using System.Collections.Generic;
@@ -18,7 +20,7 @@ namespace Atom.MachineLearning.Unsupervised.BoltzmanMachine
     {
         public BooleanRBMModel trainedModel { get; set; }
 
-        [HyperParameter, SerializeField] private int _epochs = 100;
+        [HyperParameter, SerializeField] private int _epochs = 10000;
 
         /*
          It is possible to update the weights after estimating the gradient on a single training case, but it is
@@ -30,19 +32,21 @@ namespace Atom.MachineLearning.Unsupervised.BoltzmanMachine
         /// </summary>
         [HyperParameter, SerializeField] private int _batchSize = 5;
 
-        [HyperParameter, SerializeField] private double _learningRate = .5f;
-        [HyperParameter, SerializeField] private double _momentum = .01f;
-        [HyperParameter, SerializeField] private double _weightDecay = .001f;
-
-
+        [HyperParameter, SerializeField, Range(.01f, .99f)] private double _learningRate = .5f;
+        [HyperParameter, SerializeField, Range(.001f, .1f)] private double _momentum = .01f;
+        [HyperParameter, SerializeField, Range(.01f, .1f)] private double _weightDecay = .001f;
         /// <summary>
         /// Number of gibbs sample per training data negative phase
         /// </summary>
-        [HyperParameter, SerializeField] private int _k_steps = 1;
-
+        [HyperParameter, SerializeField, Range(1, 10)] private int _k_steps = 1;
+        [HyperParameter, SerializeField] private int _testRunsOnEndEpoch = 10;
+        [Space]
         [ShowInInspector, ReadOnly] private int _currentEpoch;
+        [ShowInInspector, ReadOnly] private double _mse;
+
         private ITrainingSupervisor _trainingSupervisor;
         private NVector[] _x_datas;
+        private NVector[] _t_datas;
 
         public BooleanRBMTrainer(BooleanRBMModel model)
         {
@@ -51,12 +55,14 @@ namespace Atom.MachineLearning.Unsupervised.BoltzmanMachine
 
         public async Task<ITrainingResult> Fit(NVector[] x_datas)
         {
-            _x_datas = x_datas;
+            int split_index = (int)Math.Round((x_datas.Length * .8f));
+            DatasetReader.Split_TrainTest_NVector(x_datas, split_index, out _x_datas, out _t_datas);
+
             _trainingSupervisor = new StandardTrainingSupervisor();
             _trainingSupervisor.SetEpochIteration(this);
             _trainingSupervisor.SetTrainIteration(this);
 
-            await _trainingSupervisor.RunAsync(_epochs, x_datas.Length, true);
+            await _trainingSupervisor.RunAsync(_epochs, _x_datas.Length, true);
 
             return new TrainingResult();
         }
@@ -79,6 +85,25 @@ namespace Atom.MachineLearning.Unsupervised.BoltzmanMachine
 
         public void OnAfterEpoch(int epochIndex)
         {
+            /*
+             It is easy to compute the squared error between the data and the reconstructions, so this quantity
+            is often printed out during learning. The reconstruction error on the entire training set should fall
+            rapidly and consistently at the start of learning and then more slowly. Due to the noise in the
+            gradient estimates, the reconstruction error on the individual mini-batches will fluctuate gently after
+            the initial rapid descent. It may also oscillate gently with a period of a few mini-batches when using
+            high momentum (see section 9).
+             */
+
+            _mse = 0.0;
+            for (int i = 0; i < _testRunsOnEndEpoch; ++i)
+            {
+                // todo test on test train 
+                var next = MLRandom.Shared.Range(0, _t_datas.Length);
+                var prediction = trainedModel.Predict(_t_datas[next]);
+                _mse += MLCostFunctions.MSE(_t_datas[next], prediction);
+            }
+
+            _mse /= _testRunsOnEndEpoch;
         }
 
         public void Cancel()

@@ -1,4 +1,5 @@
-﻿using Atom.MachineLearning.Core.Maths;
+﻿using Atom.MachineLearning.Core;
+using Atom.MachineLearning.Core.Maths;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -60,7 +61,7 @@ namespace Atom.MachineLearning.IO
         /// <param name="splitIndex"></param>
         /// <param name="right"></param>
         /// <param name="left"></param>
-        public static void SplitRows(string[,] datas, int splitIndex, out string[,] before, out string[,] after)
+        public static void Split_TrainTest_StringArray(string[,] datas, int splitIndex, out string[,] before, out string[,] after)
         {
             before = new string[splitIndex, datas.GetLength(1)];
             after = new string[datas.GetLength(0) - splitIndex, datas.GetLength(1)];
@@ -85,6 +86,42 @@ namespace Atom.MachineLearning.IO
             }
         }
 
+
+        /// <summary>
+        /// Allow, for instance, subselection of a set into a training rows and test rows
+        /// </summary>
+        /// <param name="datas"></param>
+        /// <param name="splitIndex"></param>
+        /// <param name="right"></param>
+        /// <param name="left"></param>
+        public static void Split_TrainTest_NVector(NVector[] datas, int splitIndex, out NVector[] train, out NVector[] test)
+        {
+            train = new NVector[splitIndex];
+            test = new NVector[datas.GetLength(0) - splitIndex];
+            int dimensions = datas[0].Length; 
+            for (int i = 0; i < splitIndex; ++i)
+            {
+                train[i] = new NVector(dimensions);
+
+                for (int j = 0; j < dimensions; ++j)
+                {
+                    train[i][j] = datas[i][j];
+                }
+            }
+
+            int index = 0;
+            for (int i = splitIndex; i < datas.GetLength(0); ++i)
+            {
+                test[index] = new NVector(dimensions);
+
+                for (int j = 0; j < dimensions; ++j)
+                {
+                    test[index][j] = datas[i][j];
+                }
+
+                index++;
+            }
+        }
         /// <summary>
         /// Allows, for instance, to split data columns from label columns
         /// </summary>

@@ -65,7 +65,7 @@ namespace Atom.MachineLearning.Unsupervised.BoltzmanMachine
         }
 
         [Button]
-        private async void Mnist_Train()
+        private async void Mnist_Train_8x8()
         {
             var mnist = Datasets.Mnist_8x8_Vectorized_All();
 
@@ -73,6 +73,23 @@ namespace Atom.MachineLearning.Unsupervised.BoltzmanMachine
             _normalized_mnist = trNormalizer.Transform(mnist);
 
             _booleanRBMTrainer.trainedModel = new BooleanRBMModel(0, "b-rbm-mnist", 64, 8);
+
+            StartCoroutine(VisualizationRoutine());
+
+            await _booleanRBMTrainer.Fit(_normalized_mnist);
+
+            StopAllCoroutines();
+        }
+
+        [Button]
+        private async void Mnist_Train_28x28()
+        {
+            var mnist = Datasets.Mnist_28x28_Vectorized_All();
+
+            var trNormalizer = new TrMinMaxNormalizer();
+            _normalized_mnist = trNormalizer.Transform(mnist);
+
+            _booleanRBMTrainer.trainedModel = new BooleanRBMModel(0, "b-rbm-mnist", 784, 64);
 
             StartCoroutine(VisualizationRoutine());
 

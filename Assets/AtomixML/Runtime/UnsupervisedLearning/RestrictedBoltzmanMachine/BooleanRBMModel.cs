@@ -25,8 +25,14 @@ namespace Atom.MachineLearning.Unsupervised.BoltzmanMachine
         public string ModelVersion { get; set; }
 
         [SerializeField, LearnedParameter] private double[,] _weights;
+        [SerializeField, LearnedParameter] private double[,] _weightsInertia;
         [SerializeField, LearnedParameter] private double[] _visibleBias;
         [SerializeField, LearnedParameter] private double[] _hiddenBias;
+        [SerializeField, LearnedParameter] private double[] _visibleBiasInertia;
+        [SerializeField, LearnedParameter] private double[] _hiddenBiasInertia;
+
+        private double[,] _negativeGradient;
+        private double[,] _positiveGradient;
 
         /// <summary>
         /// using continuous vector whereas values will be discrete since the first hidden sample 
@@ -43,12 +49,18 @@ namespace Atom.MachineLearning.Unsupervised.BoltzmanMachine
             ModelName = modelName;
 
             this._weights = new double[hiddenUnits, visibleUnits];
+            this._weightsInertia = new double[hiddenUnits, visibleUnits];
             this._visibleBias = new double[visibleUnits];
             this._hiddenBias = new double[hiddenUnits];
+            this._visibleBiasInertia = new double[visibleUnits];
+            this._hiddenBiasInertia = new double[hiddenUnits];
             this._random = new System.Random(seed);
             
             this._visibleStates = new NVector(visibleUnits);
             this._hiddenStates = new NVector(hiddenUnits);
+
+            _negativeGradient = new double[_hiddenStates.Length, _visibleStates.Length];
+            _positiveGradient = new double[_hiddenStates.Length, _visibleStates.Length];
 
             for (int i = 0; i < _weights.GetLength(0); ++i)
             {
@@ -69,67 +81,77 @@ namespace Atom.MachineLearning.Unsupervised.BoltzmanMachine
             var positivePhase = SampleHidden(activation);
 
             // positive gradient
-            var positiveGradient = NMatrix.OuterProduct(activation, positivePhase);
+            //var positiveGradient = NMatrix.OuterProduct(activation, positivePhase);
 
-            var recontructedVisible = GibbsSample(activation);
-            var negativeGradient = NMatrix.OuterProduct(recontructedVisible, _hiddenStates);
-            /*
-                        positiveGradient.Substract(negativeGradient);
-
-                        // apply weight update
-                        for(int i = 0; i < _weights.GetLength(0); ++i)
-                        {
-                            for (int j = 0; j < _weights.GetLength(1); ++j)
-                            {
-                                _weights[i, j] += learningRate * (positiveGradient[j, i]);
-                            }
-                        }*/
-
-            Train2(activation, recontructedVisible, positivePhase, _hiddenStates, learningRate);
-         
+            NVector recontructedVisible = activation;
+            for (int i = 0; i < k_steps; ++i)
+            {
+                recontructedVisible = GibbsSample(recontructedVisible);
+            }
+            
+            UpdateWeightsAndBiases(activation, recontructedVisible, positivePhase, _hiddenStates, learningRate, momentum, weightDecay);         
         }
 
-        public void Train2(NVector visible, NVector vPrime, NVector h, NVector hPrime, double learningRate)
+        public void UpdateWeightsAndBiases(NVector visible, NVector vPrime, NVector h, NVector hPrime, double learningRate, double momentum, double weightDecay)
         {
             // Positive phase
-            double[,] positiveGradient = new double[_hiddenStates.Length, _visibleStates.Length];
             for (int j = 0; j < _hiddenStates.Length; j++)
             {
                 for (int i = 0; i < _visibleStates.Length; i++)
                 {
-                    positiveGradient[j, i] = h[j] * visible[i]; // Outer product
+                    _positiveGradient[j, i] = h[j] * visible[i]; // Outer product
+
+                    // *** to remove if problem
+                    _negativeGradient[j, i] = hPrime[j] * vPrime[i]; // Outer product
                 }
             }
 
-            // Negative phase
-            double[,] negativeGradient = new double[_hiddenStates.Length, _visibleStates.Length];
+            /*// Negative phase
             for (int j = 0; j < _hiddenStates.Length; j++)
             {
                 for (int i = 0; i < _visibleStates.Length; i++)
                 {
-                    negativeGradient[j, i] = hPrime[j] * vPrime[i]; // Outer product
+                    _negativeGradient[j, i] = hPrime[j] * vPrime[i]; // Outer product
                 }
-            }
+            }*/
 
             // Update weights
             for (int j = 0; j < _hiddenStates.Length; j++)
             {
                 for (int i = 0; i < _visibleStates.Length; i++)
                 {
-                    _weights[j, i] += learningRate * (positiveGradient[j, i] - negativeGradient[j, i]);
+                    double step = learningRate * (_positiveGradient[j, i] - _negativeGradient[j, i]);
+                    _weights[j, i] += step;
+                    _weights[j, i] += _weightsInertia[j, i] * momentum;
+                    _weights[j, i] -= weightDecay * _weights[j, i];
+                    _weightsInertia[j, i] = _weights[j, i];
                 }
+
+                double bstep = learningRate * (h[j] - hPrime[j]);
+                _hiddenBias[j] += bstep;
+                _hiddenBias[j] += _hiddenBiasInertia[j] * momentum;
+                _hiddenBias[j] -= weightDecay * _hiddenBias[j];
+                _hiddenBiasInertia[j] = _hiddenBias[j];
             }
 
             // Update biases for visible and hidden layers
             for (int i = 0; i < _visibleStates.Length; i++)
             {
-                _visibleBias[i] += learningRate * (visible[i] - vPrime[i]);
+                double step = learningRate * (visible[i] - vPrime[i]);
+                _visibleBias[i] += step;
+                _visibleBias[i] += _visibleBiasInertia[i] * momentum;
+                _visibleBias[i] -= weightDecay * _visibleBias[i];
+                _visibleBiasInertia[i] = _visibleBias[i];
             }
 
-            for (int j = 0; j < _hiddenStates.Length; j++)
+            /*for (int j = 0; j < _hiddenStates.Length; j++)
             {
-                _hiddenBias[j] += learningRate * (h[j] - hPrime[j]);
-            }
+                double step = learningRate * (h[j] - hPrime[j]);
+                _hiddenBias[j] += step;
+                _hiddenBias[j] += _hiddenBiasInertia[j] * momentum;
+                _hiddenBias[j] -= weightDecay * _hiddenBias[j];
+                _hiddenBiasInertia[j] = _hiddenBias[j];
+            }*/
         }
 
         public NVector GibbsSample(NVector initialVisible)
