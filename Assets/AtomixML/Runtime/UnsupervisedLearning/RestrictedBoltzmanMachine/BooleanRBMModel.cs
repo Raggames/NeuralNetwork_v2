@@ -54,7 +54,7 @@ namespace Atom.MachineLearning.Unsupervised.BoltzmanMachine
             this._visibleBiasInertia = new double[visibleUnits];
             this._hiddenBiasInertia = new double[hiddenUnits];
             this._random = new System.Random(seed);
-            
+
             this._visibleStates = new NVector(visibleUnits);
             this._hiddenStates = new NVector(hiddenUnits);
 
@@ -101,7 +101,7 @@ namespace Atom.MachineLearning.Unsupervised.BoltzmanMachine
         /// <param name="learningRate"></param>
         /// <param name="momentum"></param>
         /// <param name="weightDecay"></param>
-        public void Train(NVector activation, int k_steps, double learningRate, double momentum, double weightDecay)
+        public void Train(NVector activation, int k_steps, double learningRate, double biasRate, double momentum, double weightDecay)
         {
             var positivePhase = SampleHidden(activation);
 
@@ -113,11 +113,11 @@ namespace Atom.MachineLearning.Unsupervised.BoltzmanMachine
             {
                 recontructedVisible = GibbsSample(recontructedVisible);
             }
-            
-            UpdateWeightsAndBiases(activation, recontructedVisible, positivePhase, _hiddenStates, learningRate, momentum, weightDecay);         
+
+            UpdateWeightsAndBiases(activation, recontructedVisible, positivePhase, _hiddenStates, learningRate, biasRate, momentum, weightDecay);
         }
 
-        public void UpdateWeightsAndBiases(NVector visible, NVector vPrime, NVector h, NVector hPrime, double learningRate, double momentum, double weightDecay)
+        public void UpdateWeightsAndBiases(NVector visible, NVector vPrime, NVector h, NVector hPrime, double learningRate, double biasRate, double momentum, double weightDecay)
         {
             // Positive & negative phase gradient computing in the same loop for efficiency
             for (int j = 0; j < _hiddenStates.Length; j++)
@@ -151,17 +151,15 @@ namespace Atom.MachineLearning.Unsupervised.BoltzmanMachine
                     _weights[j, i] -= weightDecay * learningRate * _weights[j, i];
                     _weightsInertia[j, i] = _weights[j, i];
                 }
-
-                double bstep = learningRate * (h[j] - hPrime[j]);
-                _hiddenBias[j] += bstep;
-                _hiddenBias[j] += _hiddenBiasInertia[j] * momentum * learningRate;
-
                 /*
                  Weight-cost is typically not applied to the hidden and visible biases because there
                 are far fewer of these so they are less likely to cause overfitting
                  */
 
-                _hiddenBias[j] -= weightDecay * learningRate * _hiddenBias[j];
+                double bstep = biasRate * (h[j] - hPrime[j]);
+                _hiddenBias[j] += bstep;
+                _hiddenBias[j] += _hiddenBiasInertia[j] * momentum * biasRate;
+                _hiddenBias[j] -= weightDecay * biasRate * _hiddenBias[j];
                 _hiddenBiasInertia[j] = _hiddenBias[j];
             }
 
@@ -169,11 +167,10 @@ namespace Atom.MachineLearning.Unsupervised.BoltzmanMachine
             // Update biases for visible and hidden layers
             for (int i = 0; i < _visibleStates.Length; i++)
             {
-                double step = learningRate * (visible[i] - vPrime[i]);
+                double step = biasRate * (visible[i] - vPrime[i]);
                 _visibleBias[i] += step;
-                _visibleBias[i] += _visibleBiasInertia[i] * momentum * learningRate;
-
-                _visibleBias[i] -= weightDecay * learningRate * _visibleBias[i];
+                _visibleBias[i] += _visibleBiasInertia[i] * momentum * biasRate;
+                _visibleBias[i] -= weightDecay * biasRate * _visibleBias[i];
                 _visibleBiasInertia[i] = _visibleBias[i];
             }
 
@@ -287,9 +284,9 @@ namespace Atom.MachineLearning.Unsupervised.BoltzmanMachine
 
             // real value hidden pass 
             NVector xJ = new NVector(_weights.GetLength(1));
-            for(int i = 0; i < _weights.GetLength(0); ++i)
+            for (int i = 0; i < _weights.GetLength(0); ++i)
             {
-                for(int j = 0; j < _weights.GetLength(1); ++j)
+                for (int j = 0; j < _weights.GetLength(1); ++j)
                 {
                     xJ[i] += _weights[i, j] * visibleInput[j];
                 }
@@ -304,6 +301,42 @@ namespace Atom.MachineLearning.Unsupervised.BoltzmanMachine
             }
 
             return -A - B;
+        }
+
+        public double GetAverageWeights()
+        {
+            double sum = 0.0;
+            for (int i = 0; i < _weights.GetLength(0); ++i)
+            {
+                for (int j = 0; j < _weights.GetLength(1); ++j)
+                {
+                    sum += _weights[i, j];
+                }
+            }
+
+            return sum / (_weights.GetLength(0) * _weights.GetLength(1));
+        }
+
+        public double GetAverageHiddenBias()
+        {
+            double sum = 0.0;
+            for (int i = 0; i < _hiddenBias.Length; ++i)
+            {
+                    sum += _hiddenBias[i];
+            }
+
+            return sum / _hiddenBias.Length;
+        }
+
+        public double GetAverageVisibleBias()
+        {
+            double sum = 0.0;
+            for (int i = 0; i < _visibleBias.Length; ++i)
+            {
+                sum += _visibleBias[i];
+            }
+
+            return sum / _visibleBias.Length;
         }
     }
 }

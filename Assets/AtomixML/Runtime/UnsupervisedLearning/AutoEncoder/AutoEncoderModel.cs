@@ -17,6 +17,9 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
         [LearnedParameter, SerializeField] private NeuralNetworkModel _encoder;
         [LearnedParameter, SerializeField] private NeuralNetworkModel _decoder;
 
+        public NeuralNetworkModel encoder => _encoder;
+        public NeuralNetworkModel decoder => _decoder;
+
         /// <summary>
         /// Dimensions of the input-output tensor of the encoder
         /// </summary>

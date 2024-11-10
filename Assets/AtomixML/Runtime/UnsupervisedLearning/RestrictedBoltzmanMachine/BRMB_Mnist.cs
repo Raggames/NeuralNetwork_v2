@@ -3,8 +3,10 @@ using Atom.MachineLearning.Core.Maths;
 using Atom.MachineLearning.Core.Transformers;
 using Atom.MachineLearning.IO;
 using Sirenix.OdinInspector;
+using Syrus.Plugins.ChartEditor;
 using System.Collections;
 using System.Threading.Tasks;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -14,13 +16,15 @@ namespace Atom.MachineLearning.Unsupervised.BoltzmanMachine
     public class BRMB_Mnist : MonoBehaviour
     {
         [SerializeField] private BooleanRBMTrainer _booleanRBMTrainer;
+        [SerializeField] private RawImage _monitoring_averageWeigths_rimg;
+        private Texture2D _monitoring_averageWeigths;
 
         private NVector[] _normalized_mnist;
 
-        [ShowInInspector, ReadOnly] private Texture2D _inputVisualization;
         [SerializeField] private RawImage _inputRawImage;
-        [ShowInInspector, ReadOnly] private Texture2D _outputVisualization;
+        [ShowInInspector, ReadOnly] private Texture2D _inputVisualization;
         [SerializeField] private RawImage _outputRawImage;
+        [ShowInInspector, ReadOnly] private Texture2D _outputVisualization;
         [Range(.03f, 1f), SerializeField] private float _visualizationUpdateTimer;
 
         [SerializeField] private int _hiddenUnits = 64;
@@ -45,7 +49,7 @@ namespace Atom.MachineLearning.Unsupervised.BoltzmanMachine
             var rbm = new BooleanRBMModel(0, "test-brbm-6-2", 6, 2);
             var input = new NVector(6).Random(0, 1);
 
-            rbm.Train(input, 1, .5, .01, .001);
+            rbm.Train(input, 1, .5, .1, .01, .001);
         }
 
         [Button]
@@ -149,6 +153,22 @@ namespace Atom.MachineLearning.Unsupervised.BoltzmanMachine
             StopAllCoroutines();
 
             _booleanRBMTrainer.Cancel();
+        }
+
+        private void OnGUI()
+        {
+            if (_monitoring_averageWeigths == null)
+            {
+                _monitoring_averageWeigths = new Texture2D(200, 200);
+                _monitoring_averageWeigths_rimg.texture = _monitoring_averageWeigths;
+            }
+
+            GUIChartEditor.BeginChart(10, 100, 100, 100, Color.black,               
+            GUIChartEditorOptions.ChartBounds(-0.5f, 1.5f, -0.25f, 1.25f),
+            GUIChartEditorOptions.SetOrigin(ChartOrigins.BottomLeft));
+
+            GUIChartEditor.PushFunction(x => x * x * x, -0.5f, 1.5f, Color.green);
+            GUIChartEditor.EndChart();
         }
     }
 }

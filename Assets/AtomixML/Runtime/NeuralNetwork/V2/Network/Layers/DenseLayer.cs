@@ -7,6 +7,7 @@ using UnityEditor.PackageManager;
 
 namespace Atom.MachineLearning.NeuralNetwork.V2
 {
+    [Serializable]
     public class DenseLayer
     {
         public int neuronCount => _weights.Rows;
@@ -113,6 +114,31 @@ namespace Atom.MachineLearning.NeuralNetwork.V2
                 case ActivationFunctions.Gaussian:
                     break;
             }
+        }
+
+        public double GetAverageWeights()
+        {
+            double sum = 0.0;
+            for (int i = 0; i < _weights.Rows; ++i)
+            {
+                for (int j = 0; j < _weights.Columns; ++j)
+                {
+                    sum += _weights[i, j];
+                }
+            }
+
+            return sum / (_weights.Rows * _weights.Columns);
+        }
+
+        public double GetAverageBias()
+        {
+            double sum = 0.0;
+            for (int i = 0; i < _bias.Length; ++i)
+            {
+                sum += _bias[i];
+            }
+
+            return sum / _bias.Length;
         }
 
         public DenseLayer SeedWeigths(double minWeight = -0.01, double maxWeight = 0.01)

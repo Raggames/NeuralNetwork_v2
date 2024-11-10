@@ -11,7 +11,8 @@
     "precompiledReferences": [
         "Newtonsoft.Json.dll",
         "Sirenix.OdinInspector.Attributes.dll",
-        "MathNet.Numerics.dll"
+        "MathNet.Numerics.dll",
+        "Syrus.Plugins.ChartEditor.dll"
     ],
     "autoReferenced": true,
     "defineConstraints": [],

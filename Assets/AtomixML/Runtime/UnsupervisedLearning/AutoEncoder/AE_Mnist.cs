@@ -1,5 +1,6 @@
 ﻿using Atom.MachineLearning.Core;
 using Atom.MachineLearning.Core.Maths;
+using Atom.MachineLearning.Core.Transformers;
 using Atom.MachineLearning.IO;
 using Atom.MachineLearning.NeuralNetwork;
 using Atom.MachineLearning.NeuralNetwork.V2;
@@ -72,8 +73,10 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
         {
             var encoder = new NeuralNetworkModel();
             encoder.AddDenseLayer(64, 8, ActivationFunctions.ReLU);
+            encoder.SeedWeigths();
             var decoder = new NeuralNetworkModel();
             decoder.AddBridgeOutputLayer(8, 64, ActivationFunctions.Sigmoid);
+            decoder.SeedWeigths();
             _trainer.trainedModel = new AutoEncoderModel(encoder, decoder);
 
             _trainer.trainedModel.ModelName = "auto-encoder-mnist";
@@ -91,13 +94,18 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
         {
             var encoder = new NeuralNetworkModel();
             encoder.AddDenseLayer(784, 32, ActivationFunctions.Sigmoid);
+            encoder.SeedWeigths();
             var decoder = new NeuralNetworkModel();
             decoder.AddBridgeOutputLayer(32, 784, ActivationFunctions.Sigmoid);
+            decoder.SeedWeigths();
             _trainer.trainedModel = new AutoEncoderModel(encoder, decoder);
 
             _trainer.trainedModel.ModelName = "auto-encoder-mnist";
 
             _mnist = Datasets.Mnist_28x28_Vectorized_All();
+
+            var tr = new TrStandardizer();
+            _mnist = tr.Transform(_mnist); 
 
             StartCoroutine(VisualizationRoutine());
             await _trainer.Fit(_mnist);
@@ -110,16 +118,21 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
         private async void FitMnit28x28_4Layers()
         {
             var encoder = new NeuralNetworkModel();
-            encoder.AddDenseLayer(784, 64, ActivationFunctions.Sigmoid);
-            encoder.AddDenseLayer(32, ActivationFunctions.ReLU);
+            encoder.AddDenseLayer(784, 64, ActivationFunctions.ReLU);
+            encoder.AddDenseLayer(16, ActivationFunctions.Sigmoid);
+            encoder.SeedWeigths();
             var decoder = new NeuralNetworkModel();
-            decoder.AddDenseLayer(32, 64, ActivationFunctions.ReLU);
-            decoder.AddOutputLayer(784, ActivationFunctions.Sigmoid);
+            decoder.AddDenseLayer(16, 64, ActivationFunctions.Sigmoid);
+            decoder.AddOutputLayer(784, ActivationFunctions.ReLU);
+            decoder.SeedWeigths();
             _trainer.trainedModel = new AutoEncoderModel(encoder, decoder);
 
             _trainer.trainedModel.ModelName = "auto-encoder-mnist";
 
             _mnist = Datasets.Mnist_28x28_Vectorized_All();
+
+            var tr = new TrStandardizer();
+            _mnist = tr.Transform(_mnist);
 
             StartCoroutine(VisualizationRoutine());
             await _trainer.Fit(_mnist);

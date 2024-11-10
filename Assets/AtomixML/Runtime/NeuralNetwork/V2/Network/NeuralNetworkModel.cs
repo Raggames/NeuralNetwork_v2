@@ -11,8 +11,11 @@ namespace Atom.MachineLearning.NeuralNetwork.V2
     /// New version of neural network
     /// </summary>
     [Serializable]
-    public class NeuralNetworkModel
+    public class NeuralNetworkModel : IMLModel<NVector, NVector>
     {
+        public string ModelName { get; set; }
+        public string ModelVersion { get; set; }
+
         public List<DenseLayer> Layers { get; protected set; } = new List<DenseLayer>();
 
         [JsonIgnore] public DenseLayer OutputLayer => Layers[Layers.Count - 1];
@@ -59,6 +62,11 @@ namespace Atom.MachineLearning.NeuralNetwork.V2
             {
                 Layers[i].SeedWeigths(minWeight, maxWeight);
             }
+        }
+
+        public NVector Predict(NVector inputData)
+        {
+            return Forward(inputData);
         }
 
         public NVector Forward(NVector input)

@@ -76,10 +76,11 @@ namespace Atom.MachineLearning.Core.Training
             if (_shuffleTrainIndex)
             {
                 var indexes = new List<int>();
-                indexes.AddRange(Enumerable.Range(0, trainIndex));
 
                 for (int i = 0; i < epochs; i++)
                 {
+                    indexes.AddRange(Enumerable.Range(0, trainIndex));
+
                     _epochIteratable.OnBeforeEpoch(i);
 
                     while (indexes.Count > 0)

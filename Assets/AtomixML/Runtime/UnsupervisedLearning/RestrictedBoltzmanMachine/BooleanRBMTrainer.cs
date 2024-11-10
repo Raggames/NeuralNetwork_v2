@@ -33,6 +33,7 @@ namespace Atom.MachineLearning.Unsupervised.BoltzmanMachine
         [HyperParameter, SerializeField] private int _batchSize = 5;
 
         [HyperParameter, SerializeField, Range(.01f, .99f)] private double _learningRate = .5f;
+        [HyperParameter, SerializeField, Range(.01f, .99f)] private double _biasRate = .1f;
         [HyperParameter, SerializeField, Range(.001f, .99f)] private double _momentum = .01f;
         [HyperParameter, SerializeField, Range(.01f, .99f)] private double _weightDecay = .001f;
         /// <summary>
@@ -40,11 +41,16 @@ namespace Atom.MachineLearning.Unsupervised.BoltzmanMachine
         /// </summary>
         [HyperParameter, SerializeField, Range(1, 10)] private int _k_steps = 1;
         [HyperParameter, SerializeField] private int _testRunsOnEndEpoch = 10;
+        [HyperParameter, SerializeField] private int _averageWeightAndBiasesComputationInterval = 10;
         [Space]
         [ShowInInspector, ReadOnly] private int _currentEpoch;
-
+        [Space]
         [ShowInInspector, ReadOnly] private double _mse;
         [ShowInInspector, ReadOnly] private double _freeVisibleEnergy;
+
+        [ShowInInspector, ReadOnly] private double _weightAverage;
+        [ShowInInspector, ReadOnly] private double _vBiasAverage;
+        [ShowInInspector, ReadOnly] private double _hBiasAverage;
 
         private ITrainingSupervisor _trainingSupervisor;
         private NVector[] _x_datas;
@@ -82,7 +88,14 @@ namespace Atom.MachineLearning.Unsupervised.BoltzmanMachine
         public void OnTrainNext(int index)
         {
             var next = _x_datas[index];
-            trainedModel.Train(next, _k_steps, _learningRate, _momentum, _weightDecay);
+            trainedModel.Train(next, _k_steps, _learningRate, _biasRate, _momentum, _weightDecay);
+
+            if(index % _averageWeightAndBiasesComputationInterval == 0)
+            {
+                _weightAverage = trainedModel.GetAverageWeights();
+                _hBiasAverage = trainedModel.GetAverageHiddenBias();
+                _vBiasAverage = trainedModel.GetAverageVisibleBias();
+            }
         }
 
         public void OnAfterEpoch(int epochIndex)
@@ -112,6 +125,7 @@ namespace Atom.MachineLearning.Unsupervised.BoltzmanMachine
 
             _mse /= _testRunsOnEndEpoch;
             _freeVisibleEnergy /= _testRunsOnEndEpoch;
+
         }
 
         public void Cancel()

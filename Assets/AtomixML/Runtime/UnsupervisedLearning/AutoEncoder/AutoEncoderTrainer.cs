@@ -21,7 +21,8 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
     [Serializable]
     public class AutoEncoderTrainer : IMLTrainer<AutoEncoderModel, NVector, NVector>, IEpochIteratable, ITrainIteratable
     {
-        public AutoEncoderModel trainedModel { get; set; }
+        [SerializeField] private AutoEncoderModel _autoEncoder;
+        public AutoEncoderModel trainedModel { get => _autoEncoder; set => _autoEncoder = value; }
 
         [HyperParameter, SerializeField] private int _epochs = 1000;
         [HyperParameter, SerializeField] private float _learningRate = .05f;
@@ -35,6 +36,15 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
         [ShowInInspector, ReadOnly] private float _currentLearningRate;
         [ShowInInspector, ReadOnly] private float _currentLoss;
 
+        public List<LayerInfo> LayerInfos;
+
+        [Serializable]
+        public class LayerInfo
+        {
+            public double AverageWeight;
+            public double AverageBias;
+        }
+
         private NVector[] _x_datas;
         private NVector[] _t_datas;
         private List<NVector> _x_datas_buffer;
@@ -45,6 +55,13 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
 
         public async Task<ITrainingResult> Fit(NVector[] x_datas)
         {
+            LayerInfos = new List<LayerInfo>();
+
+            foreach (var layer in trainedModel.encoder.Layers)
+                LayerInfos.Add(new LayerInfo());
+            foreach (var layer in trainedModel.decoder.Layers)
+                LayerInfos.Add(new LayerInfo());
+
             DatasetReader.Split_TrainTest_NVector(x_datas, .8f, out _x_datas, out _t_datas);
 
             _x_datas_buffer = new List<NVector>();
@@ -90,6 +107,24 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
             var error = MLCostFunctions.MSE_Derivative(input, _outputBuffer);
             trainedModel.Backpropagate(error);
             trainedModel.UpdateWeights(_currentLearningRate, _momentum, _weightDecay);
+
+            if (index % 10 == 0)
+            {
+                int ind = 0;
+
+                foreach (var layer in trainedModel.encoder.Layers)
+                {
+                    LayerInfos[ind].AverageWeight = layer.GetAverageWeights();
+                    LayerInfos[ind].AverageBias = layer.GetAverageBias();
+                    ind++;
+                }
+                foreach (var layer in trainedModel.decoder.Layers)
+                {
+                    LayerInfos[ind].AverageWeight = layer.GetAverageWeights();
+                    LayerInfos[ind].AverageBias = layer.GetAverageBias();
+                    ind++;
+                }
+            }
         }
 
         public void OnAfterEpoch(int epochIndex)
