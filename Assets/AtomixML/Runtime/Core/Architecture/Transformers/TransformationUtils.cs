@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Atom.MachineLearning.Core;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -136,6 +137,16 @@ namespace Atom.MachineLearning.IO
             for(int i = 0; i < result.GetLength(0); ++i)
                 for (int j = 0; j < result.GetLength(1); ++j)
                     result[i, j] = double.Parse(datas[i, j].Replace('.', ','));
+
+            return result;
+        }
+
+        public static double[,] NStringMatrix2DToDoubleMatrix2D(NString[] datas)
+        {
+            double[,] result = new double[datas.GetLength(0), datas[0].Length];
+            for (int i = 0; i < result.GetLength(0); ++i)
+                for (int j = 0; j < result.GetLength(1); ++j)
+                    result[i, j] = double.Parse(datas[i][j].Replace('.', ','));
 
             return result;
         }

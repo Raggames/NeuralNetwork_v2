@@ -83,7 +83,7 @@ namespace Atom.MachineLearning.Unsupervised.SelfOrganizingMap
             _epochSupervisor = new StandardTrainingSupervisor();
             _epochSupervisor.SetEpochIteration(this);
 
-            await _epochSupervisor.RunAsync(_epochs);
+            await _epochSupervisor.RunOnlineAsync(_epochs);
 
             var quantized_error = QuantizationError(x_datas);
             Debug.Log("Error > " + quantized_error);

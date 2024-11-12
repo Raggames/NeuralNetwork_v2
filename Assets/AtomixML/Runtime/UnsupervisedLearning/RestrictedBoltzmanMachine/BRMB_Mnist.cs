@@ -4,6 +4,7 @@ using Atom.MachineLearning.Core.Transformers;
 using Atom.MachineLearning.IO;
 using Sirenix.OdinInspector;
 using Syrus.Plugins.ChartEditor;
+using System;
 using System.Collections;
 using System.Threading.Tasks;
 using UnityEditor;
@@ -32,7 +33,7 @@ namespace Atom.MachineLearning.Unsupervised.BoltzmanMachine
         [Button]
         private void TestSampleHidden()
         {
-            var rbm = new BooleanRBMModel(0, "test-brbm-6-2", 6, 2);
+            var rbm = new BooleanRBMModel(0, "test-brbm-6-2", 6, 2, (b) => MLActivationFunctions.Tanh(b));
             var input = new NVector(6).Random(0, 1);
 
             var resultBuffer = rbm.SampleHidden(input);
@@ -77,7 +78,7 @@ namespace Atom.MachineLearning.Unsupervised.BoltzmanMachine
             var trNormalizer = new TrMinMaxNormalizer();
             _normalized_mnist = trNormalizer.Transform(mnist);
 
-            _booleanRBMTrainer.trainedModel = new BooleanRBMModel(0, "b-rbm-mnist", 64, 8);
+            _booleanRBMTrainer.trainedModel = new BooleanRBMModel((int)(DateTime.Now.Ticks % int.MaxValue), "b-rbm-mnist", 64, 8, (b) => MLActivationFunctions.Tanh(b));;
 
             StartCoroutine(VisualizationRoutine());
 
@@ -94,7 +95,7 @@ namespace Atom.MachineLearning.Unsupervised.BoltzmanMachine
             var trNormalizer = new TrMinMaxNormalizer();
             _normalized_mnist = trNormalizer.Transform(mnist);
 
-            _booleanRBMTrainer.trainedModel = new BooleanRBMModel(0, "b-rbm-mnist", 784, _hiddenUnits);
+            _booleanRBMTrainer.trainedModel = new BooleanRBMModel((int)(DateTime.Now.Ticks % int.MaxValue), "b-rbm-mnist", 784, _hiddenUnits, (b) => MLActivationFunctions.Tanh(b));
 
             await Train();
         }

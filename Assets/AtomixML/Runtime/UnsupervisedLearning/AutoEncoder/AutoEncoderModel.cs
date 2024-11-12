@@ -81,19 +81,29 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
             return gradient;
         }
 
-        public void UpdateWeights(float learningRate = .05f, float momentum = .005f, float weigthDecay = .0005f)
+        public void AverageGradients(int batchSize)
         {
             for (int i = 0; i < _encoder.Layers.Count; ++i)
             {
-                _encoder.Layers[i].UpdateWeights(learningRate, momentum, weigthDecay);
+                _encoder.Layers[i].AverageGradients(batchSize);
             }
-
-            /* _code._enterLayer.UpdateWeights(learningRate, momentum, weigthDecay);
-             _code._exitLayer.UpdateWeights(learningRate, momentum, weigthDecay);*/
 
             for (int i = 0; i < _decoder.Layers.Count; ++i)
             {
-                _decoder.Layers[i].UpdateWeights(learningRate, momentum, weigthDecay);
+                _decoder.Layers[i].AverageGradients(batchSize);
+            }
+        }
+
+        public void UpdateWeights(float learningRate = .05f, float biasRate = 1, float momentum = .005f, float weigthDecay = .0005f)
+        {
+            for (int i = 0; i < _encoder.Layers.Count; ++i)
+            {
+                _encoder.Layers[i].UpdateWeights(learningRate, biasRate, momentum, weigthDecay);
+            }
+
+            for (int i = 0; i < _decoder.Layers.Count; ++i)
+            {
+                _decoder.Layers[i].UpdateWeights(learningRate, biasRate, momentum, weigthDecay);
             }
         }
     }

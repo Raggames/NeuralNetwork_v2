@@ -19,13 +19,15 @@ using static Atom.MachineLearning.Unsupervised.AutoEncoder.AutoEncoderModel;
 namespace Atom.MachineLearning.Unsupervised.AutoEncoder
 {
     [Serializable]
-    public class AutoEncoderTrainer : IMLTrainer<AutoEncoderModel, NVector, NVector>, IEpochIteratable, ITrainIteratable
+    public class AutoEncoderTrainer : IMLTrainer<AutoEncoderModel, NVector, NVector>, IEpochIteratable, ITrainIteratable, IBatchedTrainIteratable
     {
         [SerializeField] private AutoEncoderModel _autoEncoder;
         public AutoEncoderModel trainedModel { get => _autoEncoder; set => _autoEncoder = value; }
 
         [HyperParameter, SerializeField] private int _epochs = 1000;
+        [HyperParameter, SerializeField] private int _batchSize = 10;
         [HyperParameter, SerializeField] private float _learningRate = .05f;
+        [HyperParameter, SerializeField] private float _biasRate = 1f;
         [HyperParameter, SerializeField] private float _momentum = .01f;
         [HyperParameter, SerializeField] private float _weightDecay = .0001f;
         [HyperParameter, SerializeField] private AnimationCurve _learningRateCurve;
@@ -72,9 +74,10 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
             _epochSupervisor = new StandardTrainingSupervisor();
             _epochSupervisor.SetEpochIteration(this);
             _epochSupervisor.SetTrainIteration(this);
+            _epochSupervisor.SetTrainBatchIteration(this);
             _epochSupervisor.SetAutosave(_epochs / 100);
 
-            await _epochSupervisor.RunAsync(_epochs, _x_datas.Length, true);
+            await _epochSupervisor.RunBatchedAsync(_epochs, _x_datas.Length, _batchSize, true);
 
             // test train ? 
             // accuracy ?
@@ -83,14 +86,50 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
             return new TrainingResult();
         }
 
-
         public void OnBeforeEpoch(int epochIndex)
         {
             _currentEpoch = epochIndex;
-            _x_datas_buffer.AddRange(_x_datas);
 
             _errorSum = 0.0;
             _outputBuffer = new NVector(trainedModel.tensorDimensions);
+        }
+
+        public void OnTrainNextBatch(int[] batchIndexes)
+        {
+            foreach(var index in batchIndexes)
+            {
+                var input = _x_datas[index];
+
+                _outputBuffer = trainedModel.Predict(input);
+
+                // we try to reconstruct the input while autoencoding
+                _errorSum += MLCostFunctions.MSE(input, _outputBuffer);
+
+                var error = MLCostFunctions.MSE_Derivative(input, _outputBuffer);
+                trainedModel.Backpropagate(error);
+
+                if (index % 10 == 0)
+                {
+                    int ind = 0;
+
+                    foreach (var layer in trainedModel.encoder.Layers)
+                    {
+                        LayerInfos[ind].AverageWeight = layer.GetAverageWeights();
+                        LayerInfos[ind].AverageBias = layer.GetAverageBias();
+                        ind++;
+                    }
+                    foreach (var layer in trainedModel.decoder.Layers)
+                    {
+                        LayerInfos[ind].AverageWeight = layer.GetAverageWeights();
+                        LayerInfos[ind].AverageBias = layer.GetAverageBias();
+                        ind++;
+                    }
+                }
+            }
+
+            trainedModel.AverageGradients(batchIndexes.Length);
+            trainedModel.UpdateWeights(_currentLearningRate, _biasRate, _momentum, _weightDecay);
+
         }
 
         public void OnTrainNext(int index)
@@ -106,7 +145,7 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
 
             var error = MLCostFunctions.MSE_Derivative(input, _outputBuffer);
             trainedModel.Backpropagate(error);
-            trainedModel.UpdateWeights(_currentLearningRate, _momentum, _weightDecay);
+            trainedModel.UpdateWeights(_currentLearningRate, _biasRate, _momentum, _weightDecay);
 
             if (index % 10 == 0)
             {
@@ -148,5 +187,6 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
         {
             _epochSupervisor?.Cancel();
         }
+
     }
 }

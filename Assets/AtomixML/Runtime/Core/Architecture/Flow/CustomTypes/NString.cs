@@ -9,7 +9,7 @@ namespace Atom.MachineLearning.Core
 {
     [Serializable]
     public struct NString : IMLInOutData
-    {
+    {        
         [ShowInInspector, ReadOnly] public string[] Data { get; set; }
 
         public int Length => Data.Length;
@@ -25,5 +25,12 @@ namespace Atom.MachineLearning.Core
                 Data[index] = value;
             }
         }
+
+        public NString(string[] data)
+        {
+            Data = data;
+        }
+
+        
     }
 }

@@ -6,8 +6,13 @@ using System.Threading.Tasks;
 
 namespace Atom.MachineLearning.Core.Training
 {
-    public interface ITrainIteratable
+    public interface ITrainIteratable : IEpochIteratable
     {
         public void OnTrainNext(int index);
+    } 
+    
+    public interface IBatchedTrainIteratable : IEpochIteratable
+    {
+        public void OnTrainNextBatch(int[] indexes);
     }
 }

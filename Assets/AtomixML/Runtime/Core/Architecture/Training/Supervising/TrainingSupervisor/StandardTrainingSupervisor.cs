@@ -15,6 +15,7 @@ namespace Atom.MachineLearning.Core.Training
     {
         private IEpochIteratable _epochIteratable;
         private ITrainIteratable _trainIteratable;
+        private IBatchedTrainIteratable _batchedTrainIteratable;
 
         private CancellationTokenSource _cancellationTokenSource;
 
@@ -35,6 +36,12 @@ namespace Atom.MachineLearning.Core.Training
             _trainIteratable = target;
             return this;
         }
+        
+        public ITrainingSupervisor SetTrainBatchIteration(IBatchedTrainIteratable target)
+        {
+            _batchedTrainIteratable = target;
+            return this;
+        }
 
         public ITrainingSupervisor SetAutosave(int epoch_interval = 1)
         {
@@ -47,7 +54,7 @@ namespace Atom.MachineLearning.Core.Training
             _cancellationTokenSource?.Cancel();
         }
 
-        public async Task RunAsync(int epochs, int trainLenght = 0, bool shuffleTrainIndex = true)
+        public async Task RunOnlineAsync(int epochs, int trainLenght = 0, bool shuffleTrainIndex = true)
         {
             if (_cancellationTokenSource != null)
             {
@@ -58,20 +65,50 @@ namespace Atom.MachineLearning.Core.Training
             _cancellationTokenSource = new CancellationTokenSource();
             _shuffleTrainIndex = shuffleTrainIndex;
 
-            if (_epochIteratable != null && _trainIteratable != null && trainLenght != 0)
+            if (_trainIteratable != null && trainLenght != 0)
             {
-                await Task.Factory.StartNew(() => FullRunner(epochs, trainLenght, _cancellationTokenSource.Token));
-
-            }
-            else if (_epochIteratable != null)
-            {
-                await Task.Factory.StartNew(() => EpochRunner(epochs, _cancellationTokenSource.Token));
-
-            }
+                await Task.Factory.StartNew(() => OnlineRunner(epochs, trainLenght, _cancellationTokenSource.Token));
+            }           
             else throw new Exception($"Supervisor should be initialized with iterators");
         }
 
-        private void FullRunner(int epochs, int trainIndex, CancellationToken cancellationToken)
+        public async Task RunBatchedAsync(int epochs, int trainLength, int batchSize, bool shuffleTrainIndex = true)
+        {
+            if (_cancellationTokenSource != null)
+            {
+                _cancellationTokenSource.Cancel();
+                throw new Exception($"A process is currently executing.");
+            }
+
+            _cancellationTokenSource = new CancellationTokenSource();
+            _shuffleTrainIndex = shuffleTrainIndex;
+
+            if (_batchedTrainIteratable != null)
+            {
+                await Task.Factory.StartNew(() => BatchRunner(epochs, trainLength, batchSize, _cancellationTokenSource.Token));
+            }            
+            else throw new Exception($"Supervisor should be initialized with iterators");
+        }
+                
+        public async Task RunEpochAsync(int epochs, bool shuffleTrainIndex = true)
+        {
+            if (_cancellationTokenSource != null)
+            {
+                _cancellationTokenSource.Cancel();
+                throw new Exception($"A process is currently executing.");
+            }
+
+            _cancellationTokenSource = new CancellationTokenSource();
+            _shuffleTrainIndex = shuffleTrainIndex;
+
+            if (_epochIteratable != null)
+            {
+                await Task.Factory.StartNew(() => EpochRunner(epochs, _cancellationTokenSource.Token));
+            }            
+            else throw new Exception($"Supervisor should be initialized with iterators");
+        }
+
+        private void OnlineRunner(int epochs, int trainLenght, CancellationToken cancellationToken)
         {
             if (_shuffleTrainIndex)
             {
@@ -79,7 +116,7 @@ namespace Atom.MachineLearning.Core.Training
 
                 for (int i = 0; i < epochs; i++)
                 {
-                    indexes.AddRange(Enumerable.Range(0, trainIndex));
+                    indexes.AddRange(Enumerable.Range(0, trainLenght));
 
                     _epochIteratable.OnBeforeEpoch(i);
 
@@ -106,13 +143,73 @@ namespace Atom.MachineLearning.Core.Training
                 {
                     _epochIteratable.OnBeforeEpoch(i);
 
-                    for (int j = 0; j < trainIndex; j++)
+                    for (int j = 0; j < trainLenght; j++)
                     {
                         _trainIteratable.OnTrainNext(j);
                         cancellationToken.ThrowIfCancellationRequested();
                     }
 
                     _epochIteratable.OnAfterEpoch(i);
+                    cancellationToken.ThrowIfCancellationRequested();
+                }
+
+                _cancellationTokenSource = null;
+            }
+        }
+
+        private void BatchRunner(int epochs, int trainLenght, int batchSize, CancellationToken cancellationToken)
+        {
+            var batchIndexes = new int[batchSize];
+
+            if (_shuffleTrainIndex)
+            {
+                var indexes = new List<int>();
+
+                for (int i = 0; i < epochs; i++)
+                {
+                    indexes.AddRange(Enumerable.Range(0, trainLenght));
+
+                    _batchedTrainIteratable.OnBeforeEpoch(i);
+
+                    while (indexes.Count > 0)
+                    {
+                        for(int j = 0; j <  batchSize; j++)
+                        {
+                            int index = MLRandom.Shared.Range(0, indexes.Count);
+                            batchIndexes[j] = indexes[index];
+                            indexes.RemoveAt(index);
+                        }
+
+                        _batchedTrainIteratable.OnTrainNextBatch(batchIndexes);
+                        cancellationToken.ThrowIfCancellationRequested();
+                    }
+
+                    _batchedTrainIteratable.OnAfterEpoch(i);
+                    cancellationToken.ThrowIfCancellationRequested();
+                }
+
+                _cancellationTokenSource = null;
+            }
+            else
+            {
+
+                for (int i = 0; i < epochs; i++)
+                {
+                    _batchedTrainIteratable.OnBeforeEpoch(i);
+                                        
+                    for (int j = 0; j < trainLenght; j += batchSize)
+                    {
+                        for (int k = 0; k < batchSize; k++)
+                        {
+                            int index = j + k;
+                            batchIndexes[k] = index;
+                        }
+
+                        _batchedTrainIteratable.OnTrainNextBatch(batchIndexes);
+                        cancellationToken.ThrowIfCancellationRequested();
+                    }
+
+                    _batchedTrainIteratable.OnAfterEpoch(i);
                     cancellationToken.ThrowIfCancellationRequested();
                 }
 

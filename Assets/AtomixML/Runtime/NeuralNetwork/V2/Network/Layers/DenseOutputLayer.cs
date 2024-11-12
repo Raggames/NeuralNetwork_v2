@@ -1,11 +1,12 @@
 ﻿using Atom.MachineLearning.Core;
+using System;
 
 
 namespace Atom.MachineLearning.NeuralNetwork.V2
 {
     public class DenseOutputLayer : DenseLayer
     {
-        public DenseOutputLayer(int input, int output, ActivationFunctions activationFunction = ActivationFunctions.Sigmoid) : base(input, output, activationFunction)
+        public DenseOutputLayer(int input, int output, ActivationFunctions activationFunction = ActivationFunctions.Sigmoid, Func<double, double> clippingFunction = null) : base(input, output, activationFunction, clippingFunction)
         {
         }
 

@@ -22,8 +22,9 @@ namespace Atom.MachineLearning.NeuralNetwork.V2
 
         protected Func<NVector, NVector> _activationFunction { get; set; }
         protected Func<NVector, NVector> _derivativeFunction { get; set; }
+        protected Func<double, double> _stepClipping { get; set; }
 
-        public DenseLayer(int input, int output, ActivationFunctions activationFunction = ActivationFunctions.Sigmoid)
+        public DenseLayer(int input, int output, ActivationFunctions activationFunction = ActivationFunctions.Sigmoid, Func<double, double> clippingFunction = null)
         {
             _weights = new NMatrix(output, input); // an output = a neuron = a row / an input = a weight for each neuron = a column
 
@@ -35,6 +36,11 @@ namespace Atom.MachineLearning.NeuralNetwork.V2
 
             _output = new NVector(output);
             _input = new NVector(input);
+
+            if (clippingFunction != null)
+                _stepClipping = clippingFunction;
+            else
+                _stepClipping = (b) => MLActivationFunctions.Tanh(b);
 
             switch (activationFunction)
             {
@@ -237,6 +243,13 @@ namespace Atom.MachineLearning.NeuralNetwork.V2
             return prev_layer_gradient;
         }
 
+        public void AverageGradients(int batchSize)
+        {
+            double bFloat = (double)batchSize;
+            for (int i = 0; i < _gradient.Length; ++i)
+                _gradient[i] /= bFloat;
+        }
+
         /// <summary>
         /// This will be done by the trainer in a near future
         /// </summary>
@@ -244,13 +257,13 @@ namespace Atom.MachineLearning.NeuralNetwork.V2
         /// <param name="momentum"></param>
         /// <param name="weigthDecay"></param>
         /// <param name="momentumAcc"></param>
-        public void UpdateWeights(float lr = .05f, float momentum = .005f, float weigthDecay = .0005f)
+        public void UpdateWeights(float lr = .05f, float biasRate = 1, float momentum = .005f, float weigthDecay = .0005f)
         {
             for (int i = 0; i < _weights.Rows; ++i)
                 for (int j = 0; j < _weights.Columns; ++j)
                 {
                     //double old_weight = _weights[i, j];
-                    double step = lr * _gradient[i] * _input[j];
+                    double step = lr * _stepClipping(_gradient[i] * _input[j]);
 
                     _weights[i, j] += step;
                     _weights[i, j] += _weightsInertia[i, j] * momentum;
@@ -261,7 +274,7 @@ namespace Atom.MachineLearning.NeuralNetwork.V2
             for (int i = 0; i < _bias.Length; ++i)
             {
                 //double oldbias = _bias[i];
-                double step = _gradient[i] * lr * lr;
+                double step = _stepClipping(_gradient[i]) * lr * biasRate;
                 _bias[i] += step;
                 _bias[i] += momentum * _biasInertia[i];
                 _bias[i] -= weigthDecay * _bias[i];

@@ -13,12 +13,22 @@ namespace Atom.MachineLearning.Core.Training
             throw new NotImplementedException();
         }
 
-        public Task RunAsync(int epochs, int trainLenght = 0, bool shuffleTrainIndex = true)
+        public Task RunBatchedAsync(int epochs, int trainLenght = 0, int batchSize = 5, bool shuffleTrainIndex = true)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task RunOnlineAsync(int epochs, int trainLenght = 0, bool shuffleTrainIndex = true)
         {
             throw new NotImplementedException();
         }
 
         public ITrainingSupervisor SetEpochIteration(IEpochIteratable target)
+        {
+            throw new NotImplementedException();
+        }
+
+        public ITrainingSupervisor SetTrainBatchIteration(IBatchedTrainIteratable target)
         {
             throw new NotImplementedException();
         }

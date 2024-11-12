@@ -25,35 +25,35 @@ namespace Atom.MachineLearning.NeuralNetwork.V2
         /// Adding the first layer, we specify the input vector feature dimensions
         /// </summary>
         /// <param name="inputFeaturesCount"></param>
-        public void AddDenseLayer(int inputFeaturesCount, int neuronsCount, ActivationFunctions activationFunction)
+        public void AddDenseLayer(int inputFeaturesCount, int neuronsCount, ActivationFunctions activationFunction, Func<double, double> clippingFunction = null)
         {
             if (Layers.Count > 0)
                 throw new Exception($"Cannot use this function to add hidden layer.");
 
-            Layers.Add(new DenseLayer(inputFeaturesCount, neuronsCount, activationFunction));
+            Layers.Add(new DenseLayer(inputFeaturesCount, neuronsCount, activationFunction, clippingFunction));
         }
 
-        public void AddDenseLayer(int neuronsCount, ActivationFunctions activationFunction)
+        public void AddDenseLayer(int neuronsCount, ActivationFunctions activationFunction, Func<double, double> clippingFunction = null)
         {
             if (Layers.Count == 0)
                 throw new Exception($"Cannot use this function to add first layer.");
 
             var previous_layer = Layers[Layers.Count - 1];
-            Layers.Add(new DenseLayer(previous_layer.neuronCount, neuronsCount, activationFunction));
+            Layers.Add(new DenseLayer(previous_layer.neuronCount, neuronsCount, activationFunction, clippingFunction));
         }
 
-        public void AddOutputLayer(int neuronsCount, ActivationFunctions activationFunction)
+        public void AddOutputLayer(int neuronsCount, ActivationFunctions activationFunction, Func<double, double> clippingFunction = null)
         {
             if (Layers.Count == 0)
                 throw new Exception($"There should be at least one hidden layer before output.");
 
             var previous_layer = Layers[Layers.Count - 1];
-            Layers.Add(new DenseOutputLayer(previous_layer.neuronCount, neuronsCount, activationFunction));
+            Layers.Add(new DenseOutputLayer(previous_layer.neuronCount, neuronsCount, activationFunction, clippingFunction));
         }
 
-        public void AddBridgeOutputLayer(int inputsCount, int neuronsCount, ActivationFunctions activationFunction)
+        public void AddBridgeOutputLayer(int inputsCount, int neuronsCount, ActivationFunctions activationFunction, Func<double, double> clippingFunction = null)
         {
-            Layers.Add(new DenseOutputLayer(inputsCount, neuronsCount, activationFunction));
+            Layers.Add(new DenseOutputLayer(inputsCount, neuronsCount, activationFunction, clippingFunction));
         }
 
         public void SeedWeigths(double minWeight = -0.01, double maxWeight = 0.01)

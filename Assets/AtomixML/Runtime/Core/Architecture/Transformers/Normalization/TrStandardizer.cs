@@ -10,6 +10,8 @@ namespace Atom.MachineLearning.Core.Transformers
         [LearnedParameter, SerializeField] private NVector _stdDeviation;
         [LearnedParameter, SerializeField] private double _meanStdDeviation;
 
+        
+
         public NVector Predict(NVector inputData)
         {
             return NVector.Standardize(inputData, _mean, _stdDeviation, _meanStdDeviation);

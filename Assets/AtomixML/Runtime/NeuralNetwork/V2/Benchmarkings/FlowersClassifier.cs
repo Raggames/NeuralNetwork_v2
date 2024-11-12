@@ -39,9 +39,10 @@ namespace Atom.MachineLearning.NeuralNetwork.V2.Benchmarkings
         {
             var datas = Datasets.Flowers_All();
 
-            DatasetReader.SplitLastColumn(datas, out var features, out var labels);
+            DatasetReader.SplitLastColumn(datas, out var featureStrings, out var labelStrings);
+            DatasetReader.ShuffleRows(datas);
 
-            var vectorized_labels = TransformationUtils.Encode(labels, 3, new Dictionary<string, double[]>()
+            var labels = TransformationUtils.Encode(labelStrings, 3, new Dictionary<string, double[]>()
             {
                 { "Iris-setosa", new double[] { 0, 0, 1 } },
                 { "Iris-versicolor", new double[] { 0, 1, 0 } },
@@ -49,34 +50,33 @@ namespace Atom.MachineLearning.NeuralNetwork.V2.Benchmarkings
             }).ToNVectorRowsArray();
 
             //_x_datas = NVector.Standardize(TransformationUtils.StringMatrix2DToDoubleMatrix2D(features).ToNVectorRowsArray(), out var means, out var stdDeviations);
-            var minMaxNormalizer = new TrMinMaxNormalizer();
-            var _x_datas = NVector.Standardize(TransformationUtils.StringMatrix2DToDoubleMatrix2D(features).ToNVectorRowsArray(), out _, out _, out _);
+            var features = NVector.Standardize(TransformationUtils.StringMatrix2DToDoubleMatrix2D(featureStrings).ToNVectorRowsArray(), out _, out _, out _);
+
+            DatasetReader.Split_TrainTest_NVector(features, .8f, out var train_features, out var test_features);
+            DatasetReader.Split_TrainTest_NVector(labels, .8f, out var train_labels, out var test_labels);
 
             var network = new NeuralNetworkModel();
             network.AddDenseLayer(4, 7, ActivationFunctions.Tanh);
             network.AddOutputLayer(3, ActivationFunctions.Softmax);
             MLRandom.SeedShared(0);
             network.SeedWeigths(-.01, .01);
-            /*
-                        var networkOld = new NeuralNetwork.NeuralNetwork();
-                        networkOld.AddDenseLayer(4, 7, ActivationFunctions.Tanh);
-                        networkOld.AddOutputLayer(3, ActivationFunctions.Softmax);
-                        MLRandom.SeedShared(0);
-                        networkOld.SeedRandomWeights(-.01, .01);
-            */
-
+            
             _x_datas_buffer = new List<NVector>();
             var _currentLearningRate = .5f;
             var t_datas_buffer = new List<NVector>();
             _currentEpoch = 0;
 
-            for (int i = 0; i < 1000; ++i)
+            var correctRun = 0;
+            var wrongRun = 0;
+
+            for (int i = 0; i < _epochs; ++i)
             {
-                var correctRun = 0;
-                var wrongRun = 0;
+                correctRun = 0;
+                wrongRun = 0;
+
                 _currentEpoch = i;
-                _x_datas_buffer.AddRange(_x_datas);
-                t_datas_buffer.AddRange(vectorized_labels);
+                _x_datas_buffer.AddRange(train_features);
+                t_datas_buffer.AddRange(train_labels);
 
                 double error_sum = 0.0;
                 NVector output = new NVector(network.Layers[0].neuronCount);
@@ -119,14 +119,36 @@ namespace Atom.MachineLearning.NeuralNetwork.V2.Benchmarkings
                     }
                 }
 
-
-                _currentLoss = (float)error_sum / _x_datas.Length;
+                _currentLoss = (float)error_sum / datas.Length;
 
                 _currentLearningRate = _learningRateCurve.Evaluate(((float)i / (float)_epochs)) * _learningRate;
 
                 Debug.Log($"{correctRun} / {wrongRun + correctRun}");
             }
 
+            correctRun = 0;
+            wrongRun = 0;
+
+            for (int i = 0; i < test_features.Length; ++i)
+            {
+                var output = network.Forward(test_features[i]);
+
+                //networkOld.FeedForward(input.Data, out var outputOld);
+
+                int ind = NeuralNetworkMathHelper.MaxIndex(output.Data);
+                int tMaxIndex = NeuralNetworkMathHelper.MaxIndex(test_labels[i].Data);
+                if (ind.Equals(tMaxIndex))
+                {
+                    correctRun++;
+                }
+                else
+                {
+                    wrongRun++;
+                }
+
+            }
+
+            Debug.Log($"TEST => {correctRun} / {wrongRun + correctRun}");
         }
 
         [Button]

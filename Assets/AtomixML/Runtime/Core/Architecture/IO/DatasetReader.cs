@@ -54,6 +54,12 @@ namespace Atom.MachineLearning.IO
             return datas;
         }
 
+        public static void Split_TrainTest_StringArray(string[,] datas, float splitRatio01, out string[,] before, out string[,] after)
+        {
+            int split_index = (int)Math.Round((datas.Length * splitRatio01));
+            Split_TrainTest_StringArray(datas, split_index, out before, out after);
+        }
+
         /// <summary>
         /// Allow, for instance, subselection of a set into a training rows and test rows
         /// </summary>
@@ -63,12 +69,14 @@ namespace Atom.MachineLearning.IO
         /// <param name="left"></param>
         public static void Split_TrainTest_StringArray(string[,] datas, int splitIndex, out string[,] before, out string[,] after)
         {
+            //ShuffleRows(datas);
+
             before = new string[splitIndex, datas.GetLength(1)];
             after = new string[datas.GetLength(0) - splitIndex, datas.GetLength(1)];
 
             for (int i = 0; i < splitIndex; ++i)
             {
-                for(int j = 0; j < datas.GetLength(1); ++j)
+                for (int j = 0; j < datas.GetLength(1); ++j)
                 {
                     before[i, j] = datas[i, j];
                 }
@@ -104,7 +112,10 @@ namespace Atom.MachineLearning.IO
         {
             train = new NVector[splitIndex];
             test = new NVector[datas.GetLength(0) - splitIndex];
-            int dimensions = datas[0].Length; 
+            int dimensions = datas[0].Length;
+
+            //ShuffleRows(datas);
+
             for (int i = 0; i < splitIndex; ++i)
             {
                 train[i] = new NVector(dimensions);
@@ -224,6 +235,25 @@ namespace Atom.MachineLearning.IO
                     datas[i, k] = datas[j, k];
                     datas[j, k] = temp;
                 }
+            }
+        }
+
+
+        /// <summary>
+        /// Shuffle rows of the matrix 
+        /// </summary>
+        /// <param name="datas"></param>
+        public static void ShuffleRows(NVector[] datas)
+        {
+            int rowCount = datas.GetLength(0); // Number of rows
+
+            for (int i = 0; i < rowCount; i++)
+            {
+                // Pick a random row to swap with
+                int j = MLRandom.Shared.Next(i, rowCount);
+                var temp = datas[i];
+                datas[i] = datas[j];
+                datas[j] = temp;
             }
         }
 

@@ -72,6 +72,22 @@ namespace Atom.MachineLearning.Core.Transformers
             return result;
         }
 
+        public NVector[] Transform(string[,] input)
+        {
+            var nstring = new NString[input.GetLength(0)];
+            int width = input.GetLength(1);
+            for (int i = 0; i < input.GetLength(0); ++i)
+            {
+                var data = new string[width];
+                for(int j = 0; j < width; ++j)
+                    data[j] = input[i, j];
+
+                nstring[i] = new NString(data);
+            }
+
+            return Transform(input);
+        }
+
         /// <summary>
         /// Used for training, taking all training set or test sets
         /// 
@@ -91,6 +107,7 @@ namespace Atom.MachineLearning.Core.Transformers
                 GenerateEncodingRule(input);
 
             NVector[] result = new NVector[input.Length];
+            int width = input[0].Length - 1;
 
             for (int i = 0; i < input.Length; ++i)
             {
@@ -99,8 +116,16 @@ namespace Atom.MachineLearning.Core.Transformers
                 if (vector.Length != _oneHotDimensions)
                     throw new Exception($"All the vectorization rule output vectors should have {_oneHotDimensions} dimensions");
 
-                result[i] = new NVector(_oneHotDimensions);
-                for (int j = 0; j < _oneHotDimensions; ++j)
+                result[i] = new NVector(width + _oneHotDimensions);
+
+                // parse left colum
+                for(int j = 0; j < width; ++j)
+                {
+                    result[i][j] = double.Parse(input[i][j].Replace('.', ',')); 
+                }
+
+                // encode right columns
+                for (int j = width; j < _oneHotDimensions; ++j)
                 {
                     result[i][j] = vector[j];
                 }

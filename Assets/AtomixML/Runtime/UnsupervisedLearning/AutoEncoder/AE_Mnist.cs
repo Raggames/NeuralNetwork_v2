@@ -29,6 +29,14 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
         private NVector[] _mnist;
 
         [Button]
+        private async void Continue()
+        {
+            StartCoroutine(VisualizationRoutine());
+            await _trainer.Fit(_mnist);
+            StopAllCoroutines();
+        }
+
+        [Button]
         private void Cancel()
         {
             StopAllCoroutines();
@@ -104,8 +112,8 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
 
             _mnist = Datasets.Mnist_28x28_Vectorized_All();
 
-            var tr = new TrStandardizer();
-            _mnist = tr.Transform(_mnist); 
+            /*var tr = new TrStandardizer();
+            _mnist = tr.Transform(_mnist); */
 
             StartCoroutine(VisualizationRoutine());
             await _trainer.Fit(_mnist);

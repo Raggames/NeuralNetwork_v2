@@ -16,7 +16,7 @@ namespace Atom.MachineLearning.Unsupervised.BoltzmanMachine
     /// <summary>
     /// Contrastive divergence / sampling in action
     /// </summary>
-    public class BooleanRBMTrainer : IMLTrainer<BooleanRBMModel, NVector, NVector>, IEpochIteratable, ITrainIteratable
+    public class BooleanRBMTrainer : IMLTrainer<BooleanRBMModel, NVector, NVector>, IEpochIteratable, ITrainIteratable, IBatchedTrainIteratable
     {
         public BooleanRBMModel trainedModel { get; set; }
 
@@ -69,8 +69,12 @@ namespace Atom.MachineLearning.Unsupervised.BoltzmanMachine
             _trainingSupervisor = new StandardTrainingSupervisor();
             _trainingSupervisor.SetEpochIteration(this);
             _trainingSupervisor.SetTrainIteration(this);
+            _trainingSupervisor.SetTrainBatchIteration(this);
 
-            await _trainingSupervisor.RunAsync(_epochs, _x_datas.Length, true);
+            if (_batchSize == 1)
+                await _trainingSupervisor.RunOnlineAsync(_epochs, _x_datas.Length, true);
+            else
+                await _trainingSupervisor.RunBatchedAsync(_epochs, _x_datas.Length, _batchSize, true);
 
             return new TrainingResult();
         }
@@ -85,12 +89,48 @@ namespace Atom.MachineLearning.Unsupervised.BoltzmanMachine
             _currentEpoch = epochIndex;
         }
 
+
+        public void OnTrainNextBatch(int[] indexes)
+        {
+            NVector v, vP, h, hP;
+
+            NVector vT = new NVector(trainedModel.visibleUnits);
+            NVector vPT = new NVector(trainedModel.visibleUnits);
+            NVector hT = new NVector(trainedModel.hiddenUnits);
+            NVector hPT = new NVector(trainedModel.hiddenUnits);
+
+            foreach (var index in indexes)
+            {
+                var next = _x_datas[index];
+                trainedModel.Sample(next, _k_steps, out v, out vP, out h, out hP);
+
+                vT += v;
+                vPT += vP;
+                hT += h;
+                hPT += hP;
+
+                if (index % _averageWeightAndBiasesComputationInterval == 0)
+                {
+                    _weightAverage = trainedModel.GetAverageWeights();
+                    _hBiasAverage = trainedModel.GetAverageHiddenBias();
+                    _vBiasAverage = trainedModel.GetAverageVisibleBias();
+                }
+            }
+
+            vT /= indexes.Length;
+            vPT /= indexes.Length;
+            hT /= indexes.Length;
+            hPT /= indexes.Length;
+
+            trainedModel.UpdateWeightsAndBiases(vT, vPT, hT, hPT, _learningRate, _biasRate, _momentum, _weightDecay);
+        }
+
         public void OnTrainNext(int index)
         {
             var next = _x_datas[index];
             trainedModel.Train(next, _k_steps, _learningRate, _biasRate, _momentum, _weightDecay);
 
-            if(index % _averageWeightAndBiasesComputationInterval == 0)
+            if (index % _averageWeightAndBiasesComputationInterval == 0)
             {
                 _weightAverage = trainedModel.GetAverageWeights();
                 _hBiasAverage = trainedModel.GetAverageHiddenBias();
@@ -132,5 +172,6 @@ namespace Atom.MachineLearning.Unsupervised.BoltzmanMachine
         {
             _trainingSupervisor.Cancel();
         }
+
     }
 }
