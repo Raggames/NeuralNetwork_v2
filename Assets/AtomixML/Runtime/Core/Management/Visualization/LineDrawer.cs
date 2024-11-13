@@ -26,11 +26,14 @@ namespace Atom.MachineLearning.Visualization
             var root = doc.rootVisualElement;
 
             _lineContainer = new VisualElement();
+
             _lineContainer.style.width = 500;
             _lineContainer.style.height = 500;
+
             _lineContainer.style.backgroundColor = new StyleColor(Color.gray);
             root.Add(_lineContainer);
             _lineContainer.generateVisualContent += UpdateLine;
+
         }
 
         private void UpdateLine(MeshGenerationContext ctx)
@@ -52,6 +55,7 @@ namespace Atom.MachineLearning.Visualization
             }
 
             painter2D.Stroke();
+
         }
 
         [ContextMenu("StartDrawingLine")]
