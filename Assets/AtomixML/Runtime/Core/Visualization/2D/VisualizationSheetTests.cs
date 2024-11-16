@@ -22,8 +22,44 @@ namespace Atom.MachineLearning.Core.Visualization
         private void Test_SimpleLine()
         {
             _visualizationSheet.Awake();
+            var points = new double[100];
 
+            for(int i = 0; i < 100; ++i)
+            {
+                points[i] = Math.Pow(i, 2);
+            }
+
+            _visualizationSheet.Add_SimpleLine(points);
         }
+
+        [Button]
+        private void Test_SimpleLine2()
+        {
+            _visualizationSheet.Awake();
+            var points = new double[100];
+
+            for (int i = 1; i < 100; ++i)
+            {
+                points[i] = 1f / Math.Pow(i, 2);
+            }
+
+            _visualizationSheet.Add_SimpleLine(points);
+        }
+
+        [Button]
+        private void Test_SimpleLine3()
+        {
+            _visualizationSheet.Awake();
+            var points = new double[100];
+
+            for (int i = 1; i < 100; ++i)
+            {
+                points[i] = i;
+            }
+
+            _visualizationSheet.Add_SimpleLine(points);
+        }
+
 
         [Button]
         private void Test_Scatter(int pCount = 100, int X = 50, int Y = 500)

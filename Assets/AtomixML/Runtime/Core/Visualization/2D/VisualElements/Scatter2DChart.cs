@@ -15,9 +15,6 @@ namespace Atom.MachineLearning.Core.Visualization.VisualElements
 
         private Func<double[,]> _getPoints;
 
-        private Gradient _x_gradient;
-        private Gradient _y_gradient;
-
         /// <summary>
         /// Assuming a matrix of N-Rows and 2-Columns (X and Y value)
         /// </summary>
@@ -32,10 +29,11 @@ namespace Atom.MachineLearning.Core.Visualization.VisualElements
             style.height = height;
             style.backgroundColor = new StyleColor(Color.white);
 
-            generateVisualContent += GenerateVisualContent;
+            generateVisualContent += GenerateGradientColoredScatter;
+            generateVisualContent += DrawOrthonormalLines;
         }
 
-        protected override void GenerateVisualContent(MeshGenerationContext ctx)
+        protected void GenerateGradientColoredScatter(MeshGenerationContext ctx)
         {
             var painter2D = ctx.painter2D;
 
@@ -50,13 +48,13 @@ namespace Atom.MachineLearning.Core.Visualization.VisualElements
             if (points.GetLength(1) != 2)
                 throw new Exception($"Scatter2D requires only 2 column matrix");
 
-            MLMath.ColumnMinMax(points, 0, out var x_min, out var x_max);
-            MLMath.ColumnMinMax(points, 1, out var y_min, out var y_max);
+            MLMath.ColumnMinMax(points, 0, out x_min, out x_max);
+            MLMath.ColumnMinMax(points, 1, out y_min, out y_max);
 
             for(int i = 0; i < points.GetLength(0); ++i)
             {
                 var relative_position_x = MLMath.Lerp(points[i, 0], x_min, x_max);
-                var relative_position_y = MLMath.Lerp(points[i, 1], y_min, y_max);
+                var relative_position_y = 1 - MLMath.Lerp(points[i, 1], y_min, y_max);
 
                 painter2D.BeginPath();
                 painter2D.Arc(Plot(relative_position_x, relative_position_y), _dotRadius, 0, 360);

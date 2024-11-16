@@ -19,7 +19,7 @@ namespace Atom.MachineLearning.Core
     /// Abstraction of a learning model 
     /// Cann be an unsupervised algorithm, a trained neural network, or anything that can do prediction
     /// </summary>
-    public interface IMLModel<T, K> : IMLModelCore where T : IMLInOutData// where K : IMLOutputData
+    public interface IMLModel<T, K> : IMLModelCore //where T : IMLInOutData// where K : IMLOutputData
     {       
         public K Predict(T inputData);
 

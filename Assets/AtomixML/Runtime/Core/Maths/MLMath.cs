@@ -34,5 +34,17 @@ namespace Atom.MachineLearning.Core.Maths
                 min = Math.Min(matrix[i, columnIndex], min);
             }
         }
+
+        public static void ColumnMinMax(double[] vector, out double min, out double max)
+        {
+            max = double.MinValue;
+            min = double.MaxValue;
+
+            for (int i = 0; i < vector.Length; ++i)
+            {
+                max = Math.Max(vector[i], max);
+                min = Math.Min(vector[i], min);
+            }
+        }
     }
 }

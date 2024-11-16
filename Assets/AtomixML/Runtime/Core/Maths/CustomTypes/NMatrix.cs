@@ -75,6 +75,20 @@ namespace Atom.MachineLearning.Core
             return false;
         }
 
+        public static NMatrix FromNVectorArray(NVector[] array)
+        {
+            NMatrix result = new NMatrix(array.Length, array[0].Length);
+            for (int i = 0; i < array.Length; ++i)
+            {
+                for (int j = 0; j < array[i].Length; ++j)
+                {
+                    result.Datas[i, j] = array[i][j];
+                }
+            }
+
+            return result;
+        }
+
         public void Add(NMatrix other)
         {
             if (other.Rows != Rows || other.Columns != Columns)

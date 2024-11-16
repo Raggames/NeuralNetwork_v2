@@ -38,12 +38,22 @@ namespace Atom.MachineLearning.Core.Visualization
             _root.Clear();
         }
 
-        public SimpleLineChart Add_SimpleLineChart(double[,] matrice)
+        public SimpleLineChart Add_SimpleLine(double[,] matrice)
         {
-            var chart = new SimpleLineChart(() => matrice);
+            var chart = new SimpleLineChart(matrice);
 
             _root.Add(chart);
+            chart.Refresh();
 
+            return chart;
+        }
+
+        public SimpleLineChart Add_SimpleLine(double[] points)
+        {
+            var chart = new SimpleLineChart(points);
+
+            _root.Add(chart);
+            chart.Refresh();
 
             return chart;
         }
