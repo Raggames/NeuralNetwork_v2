@@ -47,7 +47,7 @@ namespace Atom.MachineLearning.MiniProjects.RecommenderSystem
             var parsed2 = new FeaturesSelector(new int[] { 0, 1 }).Transform(utDistribCsv);
             foreach (var feature in parsed2)
             {
-                dict.Add(int.Parse(feature.Data[0]), feature.Data[1]);
+                dictUsertypes.Add(int.Parse(feature.Data[0]), feature.Data[1]);
             }
 
             // generate the collection of items of the 'shop' based on a weighted distribution for each type

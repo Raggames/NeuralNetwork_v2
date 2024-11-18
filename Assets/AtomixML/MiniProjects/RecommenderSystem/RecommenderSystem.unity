@@ -154,8 +154,8 @@ MonoBehaviour:
     System Toy Dataset - UserTypes.csv
   _userToItemProfilesCsvPath: Assets/AtomixML/MiniProjects/RecommenderSystem/Resources/Recommender
     System Toy Dataset - Profiles.csv
-  _itemTypesDistributions: []
-  _userTypesDistributions: []
+  _outputDatasetCsvPath: Assets/AtomixML/MiniProjects/RecommenderSystem/Resources/dataset
+  _userToItemProfiles: []
 --- !u!4 &39955673
 Transform:
   m_ObjectHideFlags: 0
