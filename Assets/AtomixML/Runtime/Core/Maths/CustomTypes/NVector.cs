@@ -332,6 +332,26 @@ namespace Atom.MachineLearning.Core
             return mean /= vectors.Length;
         }
 
+        /// <summary>
+        /// Average ignoring 0 values
+        /// </summary>
+        /// <returns></returns>
+        public double SparseAverage()
+        {
+            double val = 0;
+            float c = 0;
+            for (int i = 0; i < Data.Length; ++i)
+            {
+                if (Data[i] == 0)
+                    continue;
+
+                c++;
+                val += Data[i];
+            }
+
+            return c == 0 ? val : val / c;
+        }
+
         public double FeaturesMin()
         {
             double result = 0.0;

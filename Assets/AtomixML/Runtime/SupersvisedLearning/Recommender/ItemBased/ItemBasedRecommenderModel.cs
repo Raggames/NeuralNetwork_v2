@@ -10,6 +10,8 @@ using UnityEngine;
 /*
  https://towardsdatascience.com/comprehensive-guide-on-item-based-recommendation-systems-d67e40e2b75d
  https://medium.com/geekculture/overview-of-item-item-collaborative-filtering-recommendation-system-64ee15b24bb8 
+
+ https://nagendranukala.medium.com/collaborative-filtering-similarity-calculations-a974ae4650
  */
 
 namespace Atom.MachineLearning.Supervised.Recommender.ItemBased
@@ -46,7 +48,7 @@ namespace Atom.MachineLearning.Supervised.Recommender.ItemBased
         {
             switch (_similarityFunction)
             {
-                case SimilarityFunctions.Cosine: return PredictCosine(userRatings); 
+                case SimilarityFunctions.Cosine: return PredictCosine(userRatings);
                 case SimilarityFunctions.AdjustedCosine: return PredictAdjustedCosine(userRatings);
             }
 
@@ -115,6 +117,8 @@ namespace Atom.MachineLearning.Supervised.Recommender.ItemBased
                 return _itemsAverageRatings;
             }
 
+            var sparse_mean = userRatings.SparseAverage();
+
             // predict will be done by computing a score foreach item that user hasn't rated
             // the input data is a sparse row vector so we will ignore each feature that is not 0 (0 mean no rating)
             // the predicted score will be an average of rating related to the predicted item, ponderated by the similarity
@@ -124,23 +128,20 @@ namespace Atom.MachineLearning.Supervised.Recommender.ItemBased
                 // predicting 'known' rating will be used for scoring the model
                 if (userRatings[i] == 0.0)
                 {
-                    // so we are at the ith item here.
-                    // we want to know the rating for this user, so we will compare with the rating of similar items
-
-                    double r_s_sum = 0.0;
-                    double s_sum = 0.0;
+                    double weightedSum = 0.0;
+                    double similaritySum = 0.0;
 
                     for (int j = 0; j < userRatings.Length; j++)
                     {
-                        if (i == j) 
-                            continue;
-
-                        var sim = _itemSimilarityMatrix[i, j];
-                        r_s_sum += (userRatings[j] - _itemsAverageRatings[j]) * sim;
-                        s_sum += _itemSimilarityMatrix[i, j];
+                        if (i != j && userRatings[j] > 0)
+                        {
+                            var similarity = _itemSimilarityMatrix[i, j];
+                            weightedSum += (userRatings[j] - sparse_mean) * similarity;
+                            similaritySum += Math.Abs(similarity);
+                        }
                     }
 
-                    result[i] = (r_s_sum / s_sum) + _itemsAverageRatings[i];
+                    result[i] = similaritySum != 0 ? (weightedSum / similaritySum) + sparse_mean : sparse_mean;
                 }
                 else
                 {
@@ -155,20 +156,11 @@ namespace Atom.MachineLearning.Supervised.Recommender.ItemBased
         {
             // we keep the training datas that will serve for prediction (which is in fact a simple similarity-ponderated interpolation) 
             _userItemRawMatrix = NMatrix.FromNVectorArray(x_datas);
-
             _itemsAverageRatings = new NVector(x_datas[0].Length);
+            _itemSimilarityMatrix = new NMatrix(x_datas[0].Length, x_datas[0].Length);
 
-            //foreach item
-            for (int i = 0; i < x_datas[0].Length; ++i)
-            {
-                for (int u = 0; u < x_datas.GetLength(0); u++)
-                {
-                    _itemsAverageRatings[i] += x_datas[u][i];
-                }
+            ComputeItemMeanRatings(x_datas);
 
-                _itemsAverageRatings[i] /= x_datas.GetLength(0);
-            }
-                            
             // x_datas are a collection of user ratings foreach item
             // we have to compute the similarity matrix (item-item)
             switch (_similarityFunction)
@@ -184,10 +176,28 @@ namespace Atom.MachineLearning.Supervised.Recommender.ItemBased
             return new TrainingResult() { Accuracy = 0 };
         }
 
+        private void ComputeItemMeanRatings(NVector[] x_datas)
+        {
+            for (int i = 0; i < x_datas[0].Length; ++i)
+            {
+                int count = 0;
+                for (int u = 0; u < x_datas.GetLength(0); u++)
+                {
+                    if (x_datas[u][i] == 0.0) continue;
+
+                    count++;
+                    _itemsAverageRatings[i] += x_datas[u][i];
+                }
+
+                if (count == 0)
+                    _itemsAverageRatings[i] = 0;
+                else
+                    _itemsAverageRatings[i] /= count;
+            }
+        }
+
         private void ComputeCosineSimilarityMatrix(NVector[] x_datas)
         {
-            _itemSimilarityMatrix = new NMatrix(x_datas[0].Length, x_datas[0].Length);
-
             for (int i = 0; i < _itemSimilarityMatrix.Rows; ++i)
             {
                 for (int j = 0; j < _itemSimilarityMatrix.Columns; ++j)
@@ -217,15 +227,15 @@ namespace Atom.MachineLearning.Supervised.Recommender.ItemBased
                     _itemSimilarityMatrix[i, j] = dot_product / norm_produt;
                 }
             }
-        } 
-        
+        }
+
         private void ComputeAdjustedCosineSimilarityMatrix(NVector[] x_datas)
-        {
+        {/*
             // as we use adjusted cosine method, we first compute mean rating foreach user
             double[] userMeanRatings = new double[x_datas.Length];
             for (int i = 0; i < x_datas.Length; ++i)
             {
-                userMeanRatings[i] = x_datas[i].Average();
+                userMeanRatings[i] = x_datas[i].SparseAverage(); // average rating of the rated items by the user
             }
 
             _itemSimilarityMatrix = new NMatrix(x_datas[0].Length, x_datas[0].Length);
@@ -233,13 +243,17 @@ namespace Atom.MachineLearning.Supervised.Recommender.ItemBased
             for (int i = 0; i < _itemSimilarityMatrix.Rows; ++i)
             {
                 for (int j = 0; j < _itemSimilarityMatrix.Columns; ++j)
-                {                    
+                {
                     var dot_product = 0.0;
                     NVector vec_i = new NVector(x_datas.Length);
                     NVector vec_j = new NVector(x_datas.Length);
+
                     // adjusetd cosine similarity will be dotproduct ponderated by the user mean rating for each feature of the item vector (column vector of 1 rating per user for each item)
                     for (int k = 0; k < x_datas.Length; ++k)
                     {
+                        if (x_datas[k][i] == 0.0 || x_datas[k][j] == 0.0)
+                            continue;
+
                         dot_product += (x_datas[k][i] - userMeanRatings[k]) * (x_datas[k][j] - userMeanRatings[k]);
 
                         // we create the column vector by iterating the row and selecting column index i and j to gain computationnal time
@@ -248,9 +262,57 @@ namespace Atom.MachineLearning.Supervised.Recommender.ItemBased
                     }
 
                     // product of magnitudes 
-                    var norm_produt = vec_i.magnitude * vec_j.magnitude;
+                    //var norm_product = vec_i.magnitude * vec_j.magnitude;
 
-                    _itemSimilarityMatrix[i, j] = dot_product / norm_produt;
+                    double norm_i = 0.0, norm_j = 0.0;
+                    for (int k = 0; k < x_datas.Length; ++k)
+                    {
+                        if (x_datas[k][i] != 0.0)
+                            norm_i += Math.Pow(x_datas[k][i] - userMeanRatings[k], 2);
+
+                        if (x_datas[k][j] != 0.0)
+                            norm_j += Math.Pow(x_datas[k][j] - userMeanRatings[k], 2);
+                    }
+                    var norm_product = Math.Sqrt(norm_i) * Math.Sqrt(norm_j);
+
+                    _itemSimilarityMatrix[i, j] = dot_product / norm_product;
+                }
+            }*/
+
+            int itemCount = x_datas[0].Length;
+            double[] userMeanRatings = x_datas.Select(user => user.SparseAverage()).ToArray();
+            _itemSimilarityMatrix = new NMatrix(itemCount, itemCount);
+
+            for (int i = 0; i < itemCount; i++)
+            {
+                for (int j = 0; j < itemCount; j++)
+                {
+                    if (i == j)
+                    {
+                        _itemSimilarityMatrix[i, j] = 1.0;
+                        continue;
+                    }
+
+                    double dotProduct = 0.0;
+                    double normI = 0.0, normJ = 0.0;
+
+                    for (int k = 0; k < x_datas.Length; k++)
+                    {
+                        var ratingI = x_datas[k][i];
+                        var ratingJ = x_datas[k][j];
+
+                        if (ratingI > 0 && ratingJ > 0)
+                        {
+                            var adjustedI = ratingI - userMeanRatings[k];
+                            var adjustedJ = ratingJ - userMeanRatings[k];
+                            dotProduct += adjustedI * adjustedJ;
+                            normI += Math.Pow(adjustedI, 2);
+                            normJ += Math.Pow(adjustedJ, 2);
+                        }
+                    }
+
+                    var magnitudeProduct = Math.Sqrt(normI) * Math.Sqrt(normJ);
+                    _itemSimilarityMatrix[i, j] = magnitudeProduct > 0 ? dotProduct / magnitudeProduct : 0;
                 }
             }
         }
