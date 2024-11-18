@@ -15,22 +15,22 @@ namespace Atom.MachineLearning.IO
     {
         public static string[,] Flowers_All()
         {
-            return DatasetReader.ReadCSV("Assets/AtomixML/Resources/Datasets/flowers/iris.data.txt", ',', 0);
+            return DatasetRWUtils.ReadCSV("Assets/AtomixML/Resources/Datasets/flowers/iris.data.txt", ',', 0);
         }
 
         public static string[,] Housing_Train()
         {
-            return DatasetReader.ReadCSV("Assets/AtomixML/Resources/Datasets/housing/df_train.txt", ',', 1);
+            return DatasetRWUtils.ReadCSV("Assets/AtomixML/Resources/Datasets/housing/df_train.txt", ',', 1);
         }
 
         public static string[,] Housing_Test()
         {
-            return DatasetReader.ReadCSV("Assets/AtomixML/Resources/Datasets/housing/df_test.txt", ',', 1);
+            return DatasetRWUtils.ReadCSV("Assets/AtomixML/Resources/Datasets/housing/df_test.txt", ',', 1);
         }
 
         public static NVector[] Mnist_8x8_Vectorized_All()
         {
-            var textures = DatasetReader.ReadTextures("Datasets/mnist");
+            var textures = DatasetRWUtils.ReadTextures("Datasets/mnist");
 
             var vectors_array = new NVector[textures.Count];
             for (int i = 0; i < textures.Count; ++i)
@@ -46,7 +46,7 @@ namespace Atom.MachineLearning.IO
 
         public static NVector[] Mnist_28x28_Vectorized_All()
         {
-            var textures = DatasetReader.ReadTextures("Datasets/mnist_28x28");
+            var textures = DatasetRWUtils.ReadTextures("Datasets/mnist_28x28");
 
             var vectors_array = new NVector[textures.Count];
             for (int i = 0; i < textures.Count; ++i)
@@ -60,7 +60,7 @@ namespace Atom.MachineLearning.IO
 
         public static Texture2D[] Mnist_8x8_TexturePooled_All()
         {
-            var textures = DatasetReader.ReadTextures("Datasets/mnist");
+            var textures = DatasetRWUtils.ReadTextures("Datasets/mnist");
 
             var vectors_array = new Texture2D[textures.Count];
             for (int i = 0; i < textures.Count; ++i)
@@ -76,7 +76,7 @@ namespace Atom.MachineLearning.IO
 
         public static NVector[] Rnd_bw_2x2_Vectorized_All()
         {
-            var textures = DatasetReader.ReadTextures("Datasets/rnd_bw");
+            var textures = DatasetRWUtils.ReadTextures("Datasets/rnd_bw");
 
             var vectors_array = new NVector[textures.Count];
             for (int i = 0; i < textures.Count; ++i)
@@ -90,7 +90,7 @@ namespace Atom.MachineLearning.IO
 
         public static NVector[] Rnd_bw_8x8_Vectorized_All()
         {
-            var textures = DatasetReader.ReadTextures("Datasets/rnd_bw_10x10");
+            var textures = DatasetRWUtils.ReadTextures("Datasets/rnd_bw_10x10");
 
             var vectors_array = new NVector[textures.Count];
             for (int i = 0; i < textures.Count; ++i)
@@ -104,7 +104,7 @@ namespace Atom.MachineLearning.IO
 
         public static Texture2D[] Rnd_bw_2x2_Texture_All()
         {
-            return DatasetReader.ReadTextures("Datasets/rnd_bw").ToArray();
+            return DatasetRWUtils.ReadTextures("Datasets/rnd_bw").ToArray();
         }
     }
 }

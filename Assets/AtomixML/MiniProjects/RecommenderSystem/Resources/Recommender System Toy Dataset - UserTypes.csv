@@ -1,0 +1,11 @@
+TypeID,ItemType,Weight distribution
+0,girls,8
+1,boys,9
+2,young_men,13
+3,young_women,17
+4,mother,29
+5,father,21
+6,old_men,19
+7,old_women,16
+8,single_men,31
+9,single_women,35

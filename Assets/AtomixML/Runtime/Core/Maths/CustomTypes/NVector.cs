@@ -590,5 +590,23 @@ namespace Atom.MachineLearning.Core
 
             return result;
         }
+
+        /// <summary>
+        /// Get a NVector representing the column at given index on the the NVectorArray (a matrix)
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="columnIndex"></param>
+        /// <returns></returns>
+        public static NVector Column(this NVector[] data, int columnIndex)
+        {
+            var column = new NVector(data.Length);
+
+            for (int i = 0; i < data.Length; ++i)
+            {
+                column[i] = data[i][columnIndex];
+            }
+
+            return column;
+        }
     }
 }

@@ -12,7 +12,7 @@ namespace Atom.MachineLearning.Core.Transformers
     /// Encode one column of a dataset to one hot
     /// </summary>
     [Serializable]
-    public class TrOneHotEncoder : IMLTransformer<NString, NVector>
+    public class TrOneHotEncoder : IMLTransformer<NStringVector, NVector>
     {
         [SerializeField] private Dictionary<string, double[]> _encodingRule;
         [SerializeField] private int _encodedColumn;
@@ -55,7 +55,7 @@ namespace Atom.MachineLearning.Core.Transformers
         /// <param name="inputData"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public NVector Predict(NString inputData)
+        public NVector Predict(NStringVector inputData)
         {
             var vector = _encodingRule[inputData[_encodedColumn]];
 
@@ -73,19 +73,8 @@ namespace Atom.MachineLearning.Core.Transformers
         }
 
         public NVector[] Transform(string[,] input)
-        {
-            var nstring = new NString[input.GetLength(0)];
-            int width = input.GetLength(1);
-            for (int i = 0; i < input.GetLength(0); ++i)
-            {
-                var data = new string[width];
-                for(int j = 0; j < width; ++j)
-                    data[j] = input[i, j];
-
-                nstring[i] = new NString(data);
-            }
-
-            return Transform(input);
+        {            
+            return Transform(input.ToNStringVectorArray());
         }
 
         /// <summary>
@@ -96,7 +85,7 @@ namespace Atom.MachineLearning.Core.Transformers
         /// <param name="input"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public NVector[] Transform(NString[] input)
+        public NVector[] Transform(NStringVector[] input)
         {
             if (_encodedColumnName != null && _encodedColumn == 0)
             {
@@ -139,7 +128,7 @@ namespace Atom.MachineLearning.Core.Transformers
         /// run all data and detect individual classes
         /// then generate a dictionnary with a onehot for each class
         /// </summary>
-        private void GenerateEncodingRule(NString[] input)
+        private void GenerateEncodingRule(NStringVector[] input)
         {
             var classHashset = new HashSet<string>();
 

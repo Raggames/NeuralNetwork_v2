@@ -39,8 +39,8 @@ namespace Atom.MachineLearning.NeuralNetwork.V2.Benchmarkings
         {
             var datas = Datasets.Flowers_All();
 
-            DatasetReader.SplitLastColumn(datas, out var featureStrings, out var labelStrings);
-            DatasetReader.ShuffleRows(datas);
+            DatasetRWUtils.SplitLastColumn(datas, out var featureStrings, out var labelStrings);
+            DatasetRWUtils.ShuffleRows(datas);
 
             var labels = TransformationUtils.Encode(labelStrings, 3, new Dictionary<string, double[]>()
             {
@@ -52,8 +52,8 @@ namespace Atom.MachineLearning.NeuralNetwork.V2.Benchmarkings
             //_x_datas = NVector.Standardize(TransformationUtils.StringMatrix2DToDoubleMatrix2D(features).ToNVectorRowsArray(), out var means, out var stdDeviations);
             var features = NVector.Standardize(TransformationUtils.StringMatrix2DToDoubleMatrix2D(featureStrings).ToNVectorRowsArray(), out _, out _, out _);
 
-            DatasetReader.Split_TrainTest_NVector(features, .8f, out var train_features, out var test_features);
-            DatasetReader.Split_TrainTest_NVector(labels, .8f, out var train_labels, out var test_labels);
+            DatasetRWUtils.Split_TrainTest_NVector(features, .8f, out var train_features, out var test_features);
+            DatasetRWUtils.Split_TrainTest_NVector(labels, .8f, out var train_labels, out var test_labels);
 
             var network = new NeuralNetworkModel();
             network.AddDenseLayer(4, 7, ActivationFunctions.Tanh);
@@ -156,7 +156,7 @@ namespace Atom.MachineLearning.NeuralNetwork.V2.Benchmarkings
         {
             var datas = Datasets.Flowers_All();
 
-            DatasetReader.SplitLastColumn(datas, out var features, out var labels);
+            DatasetRWUtils.SplitLastColumn(datas, out var features, out var labels);
 
             var vectorized_labels = TransformationUtils.Encode(labels, 3, new Dictionary<string, double[]>()
             {

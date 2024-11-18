@@ -1,0 +1,14 @@
+TypeID,ItemType,Weight distribution
+0,girl_toy,12
+1,boy_toy,11
+2,both_toy,8
+3,books,15
+4,movies,22
+5,music_rock,7
+6,music_pop,17
+7,music_rap,12
+8,music_classic,4
+9,hightec,31
+10,makup_beauty,16
+11,sport_stuff,25
+12,gardening,15

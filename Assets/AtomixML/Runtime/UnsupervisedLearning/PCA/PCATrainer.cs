@@ -40,7 +40,7 @@ namespace Atom.MachineLearning.Unsupervised.PCA
         {
             trainedModel = new PCAModel();
             trainedModel.ModelName = "pca_mnist";
-            var textures = DatasetReader.ReadTextures(texturesPath);
+            var textures = DatasetRWUtils.ReadTextures(texturesPath);
 
             var vectorized = new NVector[textures.Count];
             for (int i = 0; i < textures.Count; ++i)
@@ -98,7 +98,7 @@ namespace Atom.MachineLearning.Unsupervised.PCA
             var datas = Datasets.Flowers_All();
 
             // splitting labels from x datas
-            DatasetReader.SplitLastColumn(datas, out var features, out var labels);
+            DatasetRWUtils.SplitLastColumn(datas, out var features, out var labels);
 
             // transform label column as a vector matrix of nx3 
             // we could also generate a nx1 with class label -1, 0, 1 or anything else, 

@@ -64,7 +64,7 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
             foreach (var layer in trainedModel.decoder.Layers)
                 LayerInfos.Add(new LayerInfo());
 
-            DatasetReader.Split_TrainTest_NVector(x_datas, .8f, out _x_datas, out _t_datas);
+            DatasetRWUtils.Split_TrainTest_NVector(x_datas, .8f, out _x_datas, out _t_datas);
 
             _x_datas_buffer = new List<NVector>();
             _currentLearningRate = _learningRate;

@@ -55,7 +55,7 @@ namespace Atom.MachineLearning.Unsupervised.KMeanClustering
         {
             var datas = Datasets.Flowers_All();
 
-            DatasetReader.SplitLastColumn(datas, out var features, out var labels);
+            DatasetRWUtils.SplitLastColumn(datas, out var features, out var labels);
 
             var vectorized_labels = TransformationUtils.Encode(labels, 3, new Dictionary<string, double[]>()
             {
@@ -86,7 +86,7 @@ namespace Atom.MachineLearning.Unsupervised.KMeanClustering
         {
             var datas = Datasets.Flowers_All();
 
-            DatasetReader.SplitLastColumn(datas, out var features, out var labels);
+            DatasetRWUtils.SplitLastColumn(datas, out var features, out var labels);
 
             var vectorized_labels = TransformationUtils.Encode(labels, 3, new Dictionary<string, double[]>()
             {

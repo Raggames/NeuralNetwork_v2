@@ -183,8 +183,8 @@ namespace Atom.MachineLearning.Unsupervised.SelfOrganizingMap
         {
             var datas = Datasets.Flowers_All();
 
-            DatasetReader.SplitLastColumn(datas, out var features, out var labels);
-            DatasetReader.ShuffleRows(datas);
+            DatasetRWUtils.SplitLastColumn(datas, out var features, out var labels);
+            DatasetRWUtils.ShuffleRows(datas);
 
             // to do split train/test
             //DatasetReader.SplitRows(datas, 100, out _x_datas, out _t_datas);
@@ -228,7 +228,7 @@ namespace Atom.MachineLearning.Unsupervised.SelfOrganizingMap
 
             var datas = Datasets.Flowers_All();
 
-            DatasetReader.SplitLastColumn(datas, out var features, out var labels);
+            DatasetRWUtils.SplitLastColumn(datas, out var features, out var labels);
 
             var vectorized_labels = TransformationUtils.Encode(labels, 3, new Dictionary<string, double[]>()
             {

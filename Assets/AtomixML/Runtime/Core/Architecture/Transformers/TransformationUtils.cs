@@ -141,7 +141,7 @@ namespace Atom.MachineLearning.IO
             return result;
         }
 
-        public static double[,] NStringMatrix2DToDoubleMatrix2D(NString[] datas)
+        public static double[,] NStringMatrix2DToDoubleMatrix2D(NStringVector[] datas)
         {
             double[,] result = new double[datas.GetLength(0), datas[0].Length];
             for (int i = 0; i < result.GetLength(0); ++i)

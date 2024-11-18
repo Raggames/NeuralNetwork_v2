@@ -64,7 +64,7 @@ namespace Atom.MachineLearning.Unsupervised.BoltzmanMachine
         public async Task<ITrainingResult> Fit(NVector[] x_datas)
         {
             int split_index = (int)Math.Round((x_datas.Length * .8f));
-            DatasetReader.Split_TrainTest_NVector(x_datas, split_index, out _x_datas, out _t_datas);
+            DatasetRWUtils.Split_TrainTest_NVector(x_datas, split_index, out _x_datas, out _t_datas);
 
             _trainingSupervisor = new StandardTrainingSupervisor();
             _trainingSupervisor.SetEpochIteration(this);

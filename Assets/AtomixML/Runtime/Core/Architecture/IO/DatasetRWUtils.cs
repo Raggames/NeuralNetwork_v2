@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using UnityEngine;
 
 namespace Atom.MachineLearning.IO
@@ -11,7 +12,7 @@ namespace Atom.MachineLearning.IO
     /// <summary>
     /// Base class for reading datas from a dataset and feed training algorithm
     /// </summary>
-    public static class DatasetReader
+    public static class DatasetRWUtils
     {
         /// <summary>
         /// Returns textures from Unity's resource folder
@@ -40,18 +41,63 @@ namespace Atom.MachineLearning.IO
 
             string[] text = lines.ToArray();
 
-            var columns = text.First().Split(separator, StringSplitOptions.RemoveEmptyEntries);
-            string[,] datas = new string[text.Length, columns.Length];
+            var columns = text.First().Split(separator);
+            string[,] datas = new string[text.Length - startIndex, columns.Length];
 
             for (int i = startIndex; i < text.Length; ++i)
             {
-                var row = text[i].Split(separator, StringSplitOptions.RemoveEmptyEntries);
+                var row = text[i].Split(separator);
 
                 for (int j = 0; j < row.Length; ++j)
-                    datas[i, j] = row[j];
+                    datas[i - startIndex, j] = row[j];
             }
 
             return datas;
+        }
+
+        /// <summary>
+        /// Writes a CSV file to the specified filepath.
+        /// </summary>
+        /// <param name="filepath">Path to the CSV file to write.</param>
+        /// <param name="separator">Character used to separate columns (e.g., comma, semicolon).</param>
+        /// <param name="headers">Array of column headers.</param>
+        /// <param name="datas">2D array of string data (rows and columns).</param>
+        public static void WriteCSV(string filepath, char separator, string[] headers, string[,] datas)
+        {
+            if (headers == null || headers.Length == 0)
+                throw new ArgumentException("Headers cannot be null or empty.", nameof(headers));
+
+            if (datas == null || datas.GetLength(1) != headers.Length)
+                throw new ArgumentException("Data columns must match the header count.", nameof(datas));
+
+            // Use StringBuilder to construct the CSV content
+            StringBuilder csvContent = new StringBuilder();
+
+            // Write headers
+            csvContent.AppendLine(string.Join(separator, headers));
+
+            // Write data rows
+            for (int row = 0; row < datas.GetLength(0); row++)
+            {
+                string[] rowData = new string[datas.GetLength(1)];
+                for (int col = 0; col < datas.GetLength(1); col++)
+                {
+                    // Escape separator characters if necessary
+                    string cell = datas[row, col]?.Replace(separator.ToString(), "\\" + separator) ?? "";
+                    rowData[col] = cell;
+                }
+                csvContent.AppendLine(string.Join(separator, rowData));
+            }
+
+            // Write to file
+            try
+            {
+                File.WriteAllText(filepath, csvContent.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw new IOException($"Error writing to file {filepath}: {ex.Message}", ex);
+            }
         }
 
         public static void Split_TrainTest_StringArray(string[,] datas, float splitRatio01, out string[,] before, out string[,] after)
