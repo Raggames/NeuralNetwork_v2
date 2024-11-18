@@ -18,7 +18,7 @@ namespace Atom.MachineLearning.Core.Transformers
 
         public NStringVector Predict(NStringVector inputData)
         {
-            var row = new NStringVector(inputData.Length);
+            var row = new NStringVector(_selectedColumns.Length);
 
             for (int j = 0; j < _selectedColumns.Length; j++)
             {
