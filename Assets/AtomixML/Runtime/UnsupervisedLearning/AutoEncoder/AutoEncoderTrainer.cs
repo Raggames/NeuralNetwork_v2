@@ -32,8 +32,6 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
         [HyperParameter, SerializeField] private float _weightDecay = .0001f;
         [HyperParameter, SerializeField] private AnimationCurve _learningRateCurve;
 
-        [SerializeField] private bool _normalizeDataSet;
-
         [ShowInInspector, ReadOnly] private int _currentEpoch;
         [ShowInInspector, ReadOnly] private float _currentLearningRate;
         [ShowInInspector, ReadOnly] private float _currentLoss;
@@ -54,9 +52,30 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
 
         private double _errorSum = 0.0;
         private NVector _outputBuffer;
+        private Func<NVector, NVector> _lossFunction;
+
+        public void SetLossFunction(LossFunctions lossFunctions)
+        {
+            switch (lossFunctions)
+            {
+                case LossFunctions.MeanSquarredError:
+                    _lossFunction = MSELoss;
+                    return;
+                case LossFunctions.MaskedMeanSquarredError:
+                    _lossFunction = MaskedMSELoss;
+                    return;
+            }
+
+            throw new NotImplementedException();
+        }
 
         public async Task<ITrainingResult> Fit(NVector[] x_datas)
         {
+            if(_lossFunction == null)
+            {
+                _lossFunction = MSELoss;
+            }
+
             LayerInfos = new List<LayerInfo>();
 
             foreach (var layer in trainedModel.encoder.Layers)
@@ -103,9 +122,7 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
                 _outputBuffer = trainedModel.Predict(input);
 
                 // we try to reconstruct the input while autoencoding
-                _errorSum += MLCostFunctions.MSE(input, _outputBuffer);
-
-                var error = MLCostFunctions.MSE_Derivative(input, _outputBuffer);
+                var error = _lossFunction(input);
                 trainedModel.Backpropagate(error);
 
                 if (index % 10 == 0)
@@ -141,9 +158,8 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
             _outputBuffer = trainedModel.Predict(input);
 
             // we try to reconstruct the input while autoencoding
-            _errorSum += MLCostFunctions.MSE(input, _outputBuffer);
+            NVector error = _lossFunction(input);
 
-            var error = MLCostFunctions.MSE_Derivative(input, _outputBuffer);
             trainedModel.Backpropagate(error);
             trainedModel.UpdateWeights(_currentLearningRate, _biasRate, _momentum, _weightDecay);
 
@@ -164,6 +180,20 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
                     ind++;
                 }
             }
+        }
+
+        private NVector MaskedMSELoss(NVector input)
+        {
+            _errorSum += MLCostFunctions.MaskedMSE(input, _outputBuffer);
+            var error = MLCostFunctions.MaskedMSE_Derivative(input, _outputBuffer);
+            return error;
+        }
+
+        private NVector MSELoss(NVector input)
+        {
+            _errorSum += MLCostFunctions.MSE(input, _outputBuffer);
+            var error = MLCostFunctions.MSE_Derivative(input, _outputBuffer);
+            return error;
         }
 
         public void OnAfterEpoch(int epochIndex)

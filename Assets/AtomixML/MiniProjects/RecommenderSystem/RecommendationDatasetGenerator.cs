@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using static Atom.MachineLearning.Supervised.Recommender.ItemBased.ItemBasedRecommenderModel;
 
 namespace Atom.MachineLearning.MiniProjects.RecommenderSystem
 {
@@ -24,26 +25,30 @@ namespace Atom.MachineLearning.MiniProjects.RecommenderSystem
         [SerializeField] private NVector[] _userToItemProfiles;
 
         [Button]
-        private async void GenerateDataset(int ratingsCount = 500, int itemCount = 25, double sparsity = .05f, double outlier_ratio = .1f)
+        private async void GenerateDataset(int ratingsCount = 50, int itemCount = 10, double sparsity = .3f, double outlier_ratio = .1f, double epsilon = .75f, SimilarityFunctions similarityFunction = SimilarityFunctions.AdjustedCosine)
         {
+            // sparsity = inverse of density of ratings per user
+            // outlier = density of 'out profile range' ratings over dataset
+            // espilon = minimum value to consider rating as an 'error' (too far from profile)
+
             var itDistribCsv = DatasetRWUtils.ReadCSV(_itemTypesDistributionCsvPath, ',', 1);
-            _itemTypesDistributions= new FeaturesParser().Transform(new FeaturesSelector(new int[] { 2 }).Transform(itDistribCsv)).Column(0);
-          
+            _itemTypesDistributions = new FeaturesParser().Transform(new FeaturesSelector(new int[] { 2 }).Transform(itDistribCsv)).Column(0);
+
             var utDistribCsv = DatasetRWUtils.ReadCSV(__userTypesDistributionsCsvPath, ',', 1);
             _userTypesDistributions = new FeaturesParser().Transform(new FeaturesSelector(new int[] { 2 }).Transform(utDistribCsv)).Column(0);
 
             var uiProfilesCsv = DatasetRWUtils.ReadCSV(_userToItemProfilesCsvPath, ',', 1);
-            _userToItemProfiles = new FeaturesParser().Transform(new FeaturesSelector(Enumerable.Range(1, 26).ToArray()).Transform(uiProfilesCsv));
+            _userToItemProfiles = new FeaturesParser().Transform(new FeaturesSelector(Enumerable.Range(1, 26).ToArray()).Remap("0", "0,5").Transform(uiProfilesCsv));
 
 
             var dict = new Dictionary<int, string>();
             var parsed = new FeaturesSelector(new int[] { 0, 1 }).Transform(itDistribCsv);
-            foreach(var feature in parsed)
+            foreach (var feature in parsed)
             {
                 dict.Add(int.Parse(feature.Data[0]), feature.Data[1]);
             }
 
-            var dictUsertypes = new Dictionary<int, string>();  
+            var dictUsertypes = new Dictionary<int, string>();
             var parsed2 = new FeaturesSelector(new int[] { 0, 1 }).Transform(utDistribCsv);
             foreach (var feature in parsed2)
             {
@@ -51,14 +56,14 @@ namespace Atom.MachineLearning.MiniProjects.RecommenderSystem
             }
 
             // generate the collection of items of the 'shop' based on a weighted distribution for each type
-            var itemType = new int[itemCount];
+            var item_types = new int[itemCount];
             var itemTypeString = new string[itemCount];
-            var itemNames =new string[itemCount];
+            var itemNames = new string[itemCount];
             for (int i = 0; i < itemCount; i++)
             {
-                itemType[i] = MLRandom.Shared.WeightedIndex(_itemTypesDistributions.Data);
-                itemTypeString[i] = itemType[i].ToString();
-                itemNames[i] = dict[itemType[i]];
+                item_types[i] = MLRandom.Shared.WeightedIndex(_itemTypesDistributions.Data);
+                itemTypeString[i] = item_types[i].ToString();
+                itemNames[i] = dict[item_types[i]];
             }
 
             Debug.Log("Item Types : " + string.Join(", ", itemNames));
@@ -80,14 +85,12 @@ namespace Atom.MachineLearning.MiniProjects.RecommenderSystem
                 // we use the min-max range for each item type for the given profile to generate a rating
                 user_types[u] = user_type;
 
-                ratings[u] = new NVector(itemType.Length);
+                ratings[u] = new NVector(item_types.Length);
 
-                for (int i = 0; i < itemType.Length; ++i)
+                for (int i = 0; i < item_types.Length; ++i)
                 {
-
-                    var item_type_min = _userToItemProfiles[user_type][itemType[i] * 2];
-                    var item_type_max = _userToItemProfiles[user_type][itemType[i] * 2 + 1];
-
+                    var item_type_min = _userToItemProfiles[user_type][item_types[i] * 2];
+                    var item_type_max = _userToItemProfiles[user_type][item_types[i] * 2 + 1];
 
                     if (MLRandom.Shared.NextDouble() < generate_threshold)
                     {
@@ -112,54 +115,78 @@ namespace Atom.MachineLearning.MiniProjects.RecommenderSystem
 
             DatasetRWUtils.WriteCSV($"{_outputDatasetCsvPath}_{ratingsCount}_{itemCount}.csv", ';', itemNames, ratings.ToStringMatrix());
 
-            var model = new ItemBasedRecommenderModel("test", ItemBasedRecommenderModel.SimilarityFunctions.AdjustedCosine);
+            var usertypes_matrix = new string[ratings.Length, 1];
+            for(int i = 0; i < usertypes_matrix.GetLength(0);  i++)
+                usertypes_matrix[i, 0] = user_types[i].ToString();
+
+            DatasetRWUtils.WriteCSV($"{_outputDatasetCsvPath}_{ratingsCount}_{itemCount}_check.csv", ';', new string[] {"user_types"}, usertypes_matrix);
+
+            var model = new ItemBasedRecommenderModel("test", similarityFunction);
             var result = await model.Fit(ratings);
 
-            Debug.Log("Prediction completed ratings");
+            ComputePredictionsTest(epsilon, dictUsertypes, item_types, itemNames, user_types, ratings, model);
+        }
+
+        private void ComputePredictionsTest(double epsilon, Dictionary<int, string> dictUsertypes, int[] item_types, string[] itemNames, int[] user_types, NVector[] ratings, ItemBasedRecommenderModel model)
+        {
+            Debug.Log("Prediction-completed ratings");
 
             // now compute missing scores
             var prediction_completed_ratings = new NVector[ratings.Length];
-            int goodPrediction = 0;
-            int allPrediction = 0;
+            int good_prediction_count = 0;
+            int all_predictions_count = 0;
             var mean_error = 0.0;
-            for (int i = 0; i < ratings.Length; i++)
+            for (int u = 0; u < ratings.Length; u++)
             {
-                prediction_completed_ratings[i] = model.Predict(ratings[i]);
+                prediction_completed_ratings[u] = model.Predict(ratings[u]);
 
-                Debug.Log($"User {i} > " + prediction_completed_ratings[i].ToString());
+                Debug.Log($"User {u} > " + prediction_completed_ratings[u].ToString());
 
-                int user_type = user_types[i];
+                int user_type = user_types[u];
 
-                for (int k = 0; k < prediction_completed_ratings[i].Length; k++)
+                for (int i = 0; i < item_types.Length; ++i)
                 {
+                    int item_type = item_types[i];
+
                     // if it is a prediction
-                    if (ratings[i][k] == 0)
+                    if (ratings[u][i] == 0)
                     {
-                        var min = _userToItemProfiles[user_type][itemType[k] * 2];
-                        var max = _userToItemProfiles[user_type][itemType[k] * 2 + 1];
+                        // since we generate the ratings from user profiles, we know exactly where the predicted value should be 
+                        var min_rating = _userToItemProfiles[user_type][item_type * 2];
+                        var max_rating = _userToItemProfiles[user_type][item_type * 2 + 1];
 
-                        var mid = (max + min) / 2;
+                        // we compute a threshold for good/bad prediction
+                        var delta = (max_rating - min_rating) / 2 + epsilon;
 
-                        if (prediction_completed_ratings[i][k] >= min && prediction_completed_ratings[i][k] <= max)
+                        var mean = (max_rating + min_rating) / 2;
+                        var crt_absolute_error = Math.Abs(prediction_completed_ratings[u][i] - mean);
+                        if (crt_absolute_error <= delta)
                         {
-                            goodPrediction++;
+                            good_prediction_count++;
                         }
                         else
                         {
-                            Debug.Log($"Prediction {prediction_completed_ratings[i][k]} > min-max {min}-{max}. Item type {itemNames[itemType[k]]}. User Type {dictUsertypes[user_type]}"); 
-
+                            Debug.Log($"Prediction " +
+                                $"{prediction_completed_ratings[u][i]} > min-max {min_rating}-{max_rating}. " +
+                                $"Item type {itemNames[i]}. " +
+                                $"User Type {dictUsertypes[user_type]}");
                         }
-                        mean_error += Math.Abs(prediction_completed_ratings[i][k] - mid);
-                        allPrediction++;
+
+                        // summing the absolute value of predicted - mean profile rating
+                        // we multiply by rating delta to increase error for higher range, and minimise error for short range
+                        mean_error += crt_absolute_error ;
+                        all_predictions_count++;
                     }
                 }
             }
 
-            mean_error /= allPrediction;
+            mean_error /= all_predictions_count;
 
             // We count prediction as 'good' if it is between the min-max value of the user profile 
-            Debug.Log($"The algorithm generated {goodPrediction} good predictions over {allPrediction} predictions. Mean error is {mean_error}");
+            Debug.Log($"The algorithm generated {good_prediction_count} good predictions over {all_predictions_count} predictions. Mean error is {mean_error}");
         }
+
+
     }
 
 }

@@ -230,55 +230,7 @@ namespace Atom.MachineLearning.Supervised.Recommender.ItemBased
         }
 
         private void ComputeAdjustedCosineSimilarityMatrix(NVector[] x_datas)
-        {/*
-            // as we use adjusted cosine method, we first compute mean rating foreach user
-            double[] userMeanRatings = new double[x_datas.Length];
-            for (int i = 0; i < x_datas.Length; ++i)
-            {
-                userMeanRatings[i] = x_datas[i].SparseAverage(); // average rating of the rated items by the user
-            }
-
-            _itemSimilarityMatrix = new NMatrix(x_datas[0].Length, x_datas[0].Length);
-
-            for (int i = 0; i < _itemSimilarityMatrix.Rows; ++i)
-            {
-                for (int j = 0; j < _itemSimilarityMatrix.Columns; ++j)
-                {
-                    var dot_product = 0.0;
-                    NVector vec_i = new NVector(x_datas.Length);
-                    NVector vec_j = new NVector(x_datas.Length);
-
-                    // adjusetd cosine similarity will be dotproduct ponderated by the user mean rating for each feature of the item vector (column vector of 1 rating per user for each item)
-                    for (int k = 0; k < x_datas.Length; ++k)
-                    {
-                        if (x_datas[k][i] == 0.0 || x_datas[k][j] == 0.0)
-                            continue;
-
-                        dot_product += (x_datas[k][i] - userMeanRatings[k]) * (x_datas[k][j] - userMeanRatings[k]);
-
-                        // we create the column vector by iterating the row and selecting column index i and j to gain computationnal time
-                        vec_i[k] = x_datas[k][i];
-                        vec_j[k] = x_datas[k][j];
-                    }
-
-                    // product of magnitudes 
-                    //var norm_product = vec_i.magnitude * vec_j.magnitude;
-
-                    double norm_i = 0.0, norm_j = 0.0;
-                    for (int k = 0; k < x_datas.Length; ++k)
-                    {
-                        if (x_datas[k][i] != 0.0)
-                            norm_i += Math.Pow(x_datas[k][i] - userMeanRatings[k], 2);
-
-                        if (x_datas[k][j] != 0.0)
-                            norm_j += Math.Pow(x_datas[k][j] - userMeanRatings[k], 2);
-                    }
-                    var norm_product = Math.Sqrt(norm_i) * Math.Sqrt(norm_j);
-
-                    _itemSimilarityMatrix[i, j] = dot_product / norm_product;
-                }
-            }*/
-
+        {
             int itemCount = x_datas[0].Length;
             double[] userMeanRatings = x_datas.Select(user => user.SparseAverage()).ToArray();
             _itemSimilarityMatrix = new NMatrix(itemCount, itemCount);
