@@ -298,12 +298,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _trainer:
-    _epochs: 2000
+    _epochs: 25
     _batchSize: 10
-    _learningRate: 0.17
-    _biasRate: 1.39
-    _momentum: 0.4
-    _weightDecay: 0
+    _learningRate: 1
+    _biasRate: 0.005
+    _momentum: 0.05
+    _weightDecay: 0.00001
     _learningRateCurve:
       serializedVersion: 2
       m_Curve:
@@ -319,20 +319,20 @@ MonoBehaviour:
       - serializedVersion: 3
         time: 1
         value: 0.2919916
-        inSlope: -0.7080084
-        outSlope: -0.7080084
-        tangentMode: 34
+        inSlope: -1.9137715
+        outSlope: -1.9137715
+        tangentMode: 0
         weightedMode: 0
-        inWeight: 0.33333334
+        inWeight: 0.027259767
         outWeight: 0
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
     LayerInfos:
-    - AverageWeight: -0.09536098462817813
-      AverageBias: 0.03808104448871448
-    - AverageWeight: -0.12205741097737859
-      AverageBias: 0.15538642110940132
+    - AverageWeight: -0.1302108049893111
+      AverageBias: -0.0016454769599158643
+    - AverageWeight: -0.10175758803672308
+      AverageBias: -0.0017022620034211977
   _visualizationUpdateTimer: 0.05
   _datasetsFolderPath: Assets/AtomixML/MiniProjects/RecommenderSystem/Resources
   _userToItemProfilesCsvPath: Assets/AtomixML/MiniProjects/RecommenderSystem/Resources/Recommender
@@ -347,6 +347,93 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1317582472}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1348593911
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1348593913}
+  - component: {fileID: 1348593912}
+  m_Layer: 0
+  m_Name: AE_Recommender _75%
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!114 &1348593912
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1348593911}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 97d76d6a1b4112b409de0112698db752, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _trainer:
+    _epochs: 25
+    _batchSize: 10
+    _learningRate: 1
+    _biasRate: 0.005
+    _momentum: 0.05
+    _weightDecay: 0.00001
+    _learningRateCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: -0.7080084
+        outSlope: -0.7080084
+        tangentMode: 34
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 1
+        value: 0.2919916
+        inSlope: -1.9137715
+        outSlope: -1.9137715
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.027259767
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    LayerInfos:
+    - AverageWeight: -0.1302108049893111
+      AverageBias: -0.0016454769599158643
+    - AverageWeight: -0.10175758803672308
+      AverageBias: -0.0017022620034211977
+  _visualizationUpdateTimer: 0.05
+  _datasetsFolderPath: Assets/AtomixML/MiniProjects/RecommenderSystem/Resources
+  _userToItemProfilesCsvPath: Assets/AtomixML/MiniProjects/RecommenderSystem/Resources/Recommender
+    System Toy Dataset - Profiles.csv
+  _itemTypesDistributionCsvPath: Assets/AtomixML/MiniProjects/RecommenderSystem/Resources/Recommender
+    System Toy Dataset - ItemTypes.csv
+  _datasetPath: Assets/AtomixML/MiniProjects/RecommenderSystem/Resources\dataset_10000_30.csv
+--- !u!4 &1348593913
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1348593911}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -455,3 +542,4 @@ SceneRoots:
   - {fileID: 1172852312}
   - {fileID: 39955673}
   - {fileID: 1317582474}
+  - {fileID: 1348593913}

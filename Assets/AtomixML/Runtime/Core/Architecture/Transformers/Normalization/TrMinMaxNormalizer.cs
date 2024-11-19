@@ -11,19 +11,22 @@ namespace Atom.MachineLearning.Core.Transformers
 
         public NVector Predict(NVector input)
         {
+            var result = new NVector(input.Length);
             for (int j = 0; j < _dimensions; ++j)
             {
                 if (_maximums[j] == _minimums[j])
-                    input[j] = 0;
+                    result[j] = 0;
                 else
-                    input[j] = (input[j] - _minimums[j]) / (_maximums[j] - _minimums[j]);
+                    result[j] = (input[j] - _minimums[j]) / (_maximums[j] - _minimums[j]);
             }
 
-            return input;
+            return result;
         }
 
         public NVector[] Transform(NVector[] input)
         {
+            NVector[] result = new NVector[input.Length];
+
             if (input.Length == 0)
                 throw new System.Exception("Input should be at least of length = 1");
 
@@ -48,16 +51,18 @@ namespace Atom.MachineLearning.Core.Transformers
 
             for (int i = 0; i < input.Length; ++i)
             {
+                result[i] = new NVector(_dimensions);
                 for (int j = 0; j < _dimensions; ++j)
                 {
+
                     if (_maximums[j] == _minimums[j])
-                        input[i][j] = 0;
+                        result[i][j] = 0;
                     else
-                        input[i][j] = (input[i][j] - _minimums[j]) / (_maximums[j] - _minimums[j]);
+                        result[i][j] = (input[i][j] - _minimums[j]) / (_maximums[j] - _minimums[j]);
                 }
             }
 
-            return input;
+            return result;
         }
     }
 

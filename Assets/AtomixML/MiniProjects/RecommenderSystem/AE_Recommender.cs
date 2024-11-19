@@ -54,8 +54,6 @@ namespace Atom.MachineLearning.MiniProjects.RecommenderSystem
         [Button]
         private void Check(int runs = 50, float epsilon = .33f)
         {
-            Cancel();
-
             var check_data_name = _datasetPath.Replace(".csv", "");
             check_data_name += "_check.csv";
             var user_type_datas = DatasetRWUtils.ReadCSV(check_data_name, ';', 1);
@@ -117,11 +115,79 @@ namespace Atom.MachineLearning.MiniProjects.RecommenderSystem
             }
 
             Debug.Log($"Predictions : {good_predictions} /  {total_predictions}. Accuracy {(float)good_predictions / (float)total_predictions * 100f}");
-            Continue();
+            //Continue();
         }
 
         [Button]
-        private async void Fit(int split_index = 9000)
+        private void CheckTrain(int runs = 50, float epsilon = .33f)
+        {
+            var check_data_name = _datasetPath.Replace(".csv", "");
+            check_data_name += "_check.csv";
+            var user_type_datas = DatasetRWUtils.ReadCSV(check_data_name, ';', 1);
+            var uiProfilesCsv = DatasetRWUtils.ReadCSV(_userToItemProfilesCsvPath, ',', 1);
+            var profiles = new FeaturesParser().Transform(new FeaturesSelector(Enumerable.Range(1, 26).ToArray()).Remap("0", "0,5").Transform(uiProfilesCsv));
+            var itDistribCsv = DatasetRWUtils.ReadCSV(_itemTypesDistributionCsvPath, ',', 1);
+            var itemTypes = new FeaturesSelector(new int[] { 0, 1 }).Transform(itDistribCsv);
+            var it_dict = new Dictionary<string, int>();
+            int good_predictions = 0;
+            int total_predictions = 0;
+
+            for (int i = 0; i < itemTypes.Length; ++i)
+            {
+                it_dict.Add(itemTypes[i][1], int.Parse(itemTypes[i][0]));
+            }
+
+            var datas = DatasetRWUtils.ReadCSV(_datasetPath, ';', 0);
+            int[] features_classes = new int[datas.GetLength(1)];
+            for (int i = 0; i < datas.GetLength(1); ++i)
+            {
+                features_classes[i] = it_dict[datas[0, i]];
+            }
+
+            for (int i = 0; i < runs; i++)
+            {
+                var normalized_input = _normalizer.Predict(_ratingsDataset_train[i]);
+                var predicted_ratings = _trainer.trainedModel.Predict(normalized_input);
+
+                for (int j = 0; j < _ratingsDataset_test[i].Length; j++)
+                {
+                    int user_type = int.Parse(user_type_datas[9000 + i, 0]); // we split at 9000 the train / test so we start a 9000
+                    if (_ratingsDataset_test[i][j] == 0)
+                    {
+                        // prediction 
+                        var denormalized = predicted_ratings[j] * 5f; // < ratings are normalized from 0/5 range)
+
+                        var min_rating = profiles[user_type][features_classes[j] * 2];
+                        var max_rating = profiles[user_type][features_classes[j] * 2 + 1];
+
+                        var delta = (max_rating - min_rating) / 2 + epsilon;
+
+                        var mean = (max_rating + min_rating) / 2;
+                        var crt_absolute_error = Math.Abs(denormalized - mean);
+                        if (crt_absolute_error <= delta)
+                        {
+                            good_predictions++;
+                        }
+                        else
+                        {
+                            Debug.Log($"Prediction " +
+                                $"{denormalized} > min-max {min_rating}-{max_rating}. " +
+                                $"Item type {features_classes[j]}. " +
+                                $"User Type {user_type}");
+                        }
+
+                        total_predictions++;
+                    }
+                }
+            }
+
+            Debug.Log($"Predictions : {good_predictions} /  {total_predictions}. Accuracy {(float)good_predictions / (float)total_predictions * 100f}");
+            //Continue();
+        }
+
+
+        [Button]
+        private async void Fit(int hidden = 10, int split_index = 9000)
         {
             var datas = DatasetRWUtils.ReadCSV(_datasetPath, ';', 1);
                        
@@ -132,10 +198,10 @@ namespace Atom.MachineLearning.MiniProjects.RecommenderSystem
             int features = _ratingsDataset_train[0].Length;
 
             var encoder = new NeuralNetworkModel();
-            encoder.AddDenseLayer(features, 10, ActivationFunctions.Sigmoid, (x) => x);
+            encoder.AddDenseLayer(features, hidden, ActivationFunctions.Sigmoid, (x) => x);
             encoder.SeedWeigths();
             var decoder = new NeuralNetworkModel();
-            decoder.AddBridgeOutputLayer(10, features, ActivationFunctions.Sigmoid, (x) => x);
+            decoder.AddBridgeOutputLayer(hidden, features, ActivationFunctions.Sigmoid, (x) => x);
             decoder.SeedWeigths();
             _trainer.trainedModel = new AutoEncoderModel(encoder, decoder);
 
