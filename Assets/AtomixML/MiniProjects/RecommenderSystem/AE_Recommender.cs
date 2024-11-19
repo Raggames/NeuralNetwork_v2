@@ -19,9 +19,13 @@ namespace Atom.MachineLearning.MiniProjects.RecommenderSystem
     public class AE_Recommender : MonoBehaviour
     {
         [SerializeField] private AutoEncoderTrainer _trainer;
+        private TrMinMaxNormalizer _normalizer;
+
+
         [SerializeField] private float _visualizationUpdateTimer = .05f;
         [SerializeField] private string _datasetsFolderPath = "Assets/AtomixML/MiniProjects/RecommenderSystem/Resources";
-        [SerializeField] private string _userToItemProfilesCsvPath = "Assets/AtomixML/MiniProjects/RecommenderSystem/Resources/uiProf.csv";
+        [SerializeField] private string _userToItemProfilesCsvPath = "Assets/AtomixML/MiniProjects/RecommenderSystem/Resources/Recommender System Toy Dataset - Profiles.csv";
+        [SerializeField] private string _itemTypesDistributionCsvPath = "Assets/AtomixML/MiniProjects/RecommenderSystem/Resources/Recommender System Toy Dataset - Profiles.csv";
 
         [SerializeField, ValueDropdown(nameof(getAvalaibleDatasets))] private string _datasetPath;
 
@@ -31,12 +35,13 @@ namespace Atom.MachineLearning.MiniProjects.RecommenderSystem
             return files;
         }
 
-        private NVector[] _ratingsDataset;
+        private NVector[] _ratingsDataset_train;
+        private NVector[] _ratingsDataset_test;
 
         [Button]
         private async void Continue()
         {
-            await _trainer.Fit(_ratingsDataset);
+            await _trainer.Fit(_ratingsDataset_train);
         }
 
         [Button]
@@ -47,36 +52,97 @@ namespace Atom.MachineLearning.MiniProjects.RecommenderSystem
         }
 
         [Button]
-        private async void Fit()
+        private void Check(int runs = 50, float epsilon = .33f)
         {
-            var datas = DatasetRWUtils.ReadCSV(_datasetPath, ';', 1);
+            Cancel();
 
             var check_data_name = _datasetPath.Replace(".csv", "");
             check_data_name += "_check.csv";
             var user_type_datas = DatasetRWUtils.ReadCSV(check_data_name, ';', 1);
             var uiProfilesCsv = DatasetRWUtils.ReadCSV(_userToItemProfilesCsvPath, ',', 1);
             var profiles = new FeaturesParser().Transform(new FeaturesSelector(Enumerable.Range(1, 26).ToArray()).Remap("0", "0,5").Transform(uiProfilesCsv));
+            var itDistribCsv = DatasetRWUtils.ReadCSV(_itemTypesDistributionCsvPath, ',', 1);
+            var itemTypes = new FeaturesSelector(new int[] { 0, 1 }).Transform(itDistribCsv);
+            var it_dict = new Dictionary<string, int>();
+            int good_predictions = 0;
+            int total_predictions = 0;
 
-            _ratingsDataset = new FeaturesParser().Transform(datas.ToNStringVectorArray());
-            var normalizer = new TrMinMaxNormalizer();
-            _ratingsDataset = normalizer.Transform(_ratingsDataset);
+            for(int i = 0; i < itemTypes.Length; ++i)
+            {
+                it_dict.Add(itemTypes[i][1], int.Parse(itemTypes[i][0]));   
+            }
 
-            int features = _ratingsDataset[0].Length;
+            var datas = DatasetRWUtils.ReadCSV(_datasetPath, ';', 0);
+            int[] features_classes = new int[datas.GetLength(1)];
+            for(int i = 0; i < datas.GetLength(1); ++i)
+            {
+                features_classes[i] = it_dict[datas[0, i]];
+            }
+
+            for (int i = 0; i < runs; i++)
+            {
+                var normalized_input = _normalizer.Predict(_ratingsDataset_test[i]);
+                var predicted_ratings = _trainer.trainedModel.Predict(normalized_input);
+                
+                for(int j = 0; j < _ratingsDataset_test[i].Length; j++)
+                {
+                    int user_type = int.Parse(user_type_datas[9000 + i, 0]); // we split at 9000 the train / test so we start a 9000
+                    if (_ratingsDataset_test[i][j] == 0)
+                    {
+                        // prediction 
+                        var denormalized = predicted_ratings[j] * 5f; // < ratings are normalized from 0/5 range)
+
+                        var min_rating = profiles[user_type][features_classes[j] * 2];
+                        var max_rating = profiles[user_type][features_classes[j] * 2 + 1];
+
+                        var delta = (max_rating - min_rating) / 2 + epsilon;
+
+                        var mean = (max_rating + min_rating) / 2;
+                        var crt_absolute_error = Math.Abs(denormalized - mean);
+                        if (crt_absolute_error <= delta)
+                        {
+                            good_predictions++;
+                        }
+                        else
+                        {
+                            Debug.Log($"Prediction " +
+                                $"{denormalized} > min-max {min_rating}-{max_rating}. " +
+                                $"Item type {features_classes[j]}. " +
+                                $"User Type {user_type}");
+                        }
+
+                        total_predictions++;
+                    }
+                }
+            }
+
+            Debug.Log($"Predictions : {good_predictions} /  {total_predictions}. Accuracy {(float)good_predictions / (float)total_predictions * 100f}");
+            Continue();
+        }
+
+        [Button]
+        private async void Fit(int split_index = 9000)
+        {
+            var datas = DatasetRWUtils.ReadCSV(_datasetPath, ';', 1);
+                       
+            var x_datas = new FeaturesParser().Transform(datas.ToNStringVectorArray());
+            _normalizer = new TrMinMaxNormalizer();
+            x_datas = _normalizer.Transform(x_datas);
+            DatasetRWUtils.Split_TrainTest_NVector(x_datas, split_index, out _ratingsDataset_train, out _ratingsDataset_test);
+            int features = _ratingsDataset_train[0].Length;
 
             var encoder = new NeuralNetworkModel();
-            encoder.AddDenseLayer(features, 25, ActivationFunctions.Tanh, (x) => x);
-            encoder.AddDenseLayer(6, ActivationFunctions.Sigmoid, (x) => x);
+            encoder.AddDenseLayer(features, 10, ActivationFunctions.Sigmoid, (x) => x);
             encoder.SeedWeigths();
             var decoder = new NeuralNetworkModel();
-            decoder.AddDenseLayer(6, 25, ActivationFunctions.Sigmoid, (x) => x);
-            decoder.AddOutputLayer(features, ActivationFunctions.Tanh, (x) => x);
+            decoder.AddBridgeOutputLayer(10, features, ActivationFunctions.Sigmoid, (x) => x);
             decoder.SeedWeigths();
             _trainer.trainedModel = new AutoEncoderModel(encoder, decoder);
 
             _trainer.trainedModel.ModelName = "auto-encoder-basic-ae-recommender";
             _trainer.SetLossFunction(LossFunctions.MaskedMeanSquarredError);
 
-            await _trainer.Fit(_ratingsDataset);
+            await _trainer.Fit(_ratingsDataset_train);
 
             Debug.Log("End fit");
 

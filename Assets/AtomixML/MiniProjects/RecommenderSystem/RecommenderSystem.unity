@@ -298,48 +298,48 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _trainer:
-    _epochs: 1000
-    _batchSize: 1
-    _learningRate: 0.01
-    _biasRate: 1.5
-    _momentum: 0.22
-    _weightDecay: 0.0001
+    _epochs: 2000
+    _batchSize: 10
+    _learningRate: 0.17
+    _biasRate: 1.39
+    _momentum: 0.4
+    _weightDecay: 0
     _learningRateCurve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
         time: 0
         value: 1
-        inSlope: 0
-        outSlope: 0
+        inSlope: -0.7080084
+        outSlope: -0.7080084
         tangentMode: 34
         weightedMode: 0
         inWeight: 0
-        outWeight: 0
+        outWeight: 0.33333334
       - serializedVersion: 3
         time: 1
-        value: 1
-        inSlope: 0
-        outSlope: 0
+        value: 0.2919916
+        inSlope: -0.7080084
+        outSlope: -0.7080084
         tangentMode: 34
         weightedMode: 0
-        inWeight: 0
+        inWeight: 0.33333334
         outWeight: 0
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
     LayerInfos:
-    - AverageWeight: 0.0014007268046568216
-      AverageBias: -0.00476510009145533
-    - AverageWeight: -0.004867861892555465
-      AverageBias: 0.1451354982469715
-    - AverageWeight: -0.09083740664749858
-      AverageBias: -0.24799915073070597
-    - AverageWeight: 0.03928176588434095
-      AverageBias: 0.16192043914597762
+    - AverageWeight: -0.09536098462817813
+      AverageBias: 0.03808104448871448
+    - AverageWeight: -0.12205741097737859
+      AverageBias: 0.15538642110940132
   _visualizationUpdateTimer: 0.05
-  _outputDatasetCsvPath: Assets/AtomixML/MiniProjects/RecommenderSystem/Resources
-  _datasetPath: Assets/AtomixML/MiniProjects/RecommenderSystem/Resources\dataset_1000_40.csv
+  _datasetsFolderPath: Assets/AtomixML/MiniProjects/RecommenderSystem/Resources
+  _userToItemProfilesCsvPath: Assets/AtomixML/MiniProjects/RecommenderSystem/Resources/Recommender
+    System Toy Dataset - Profiles.csv
+  _itemTypesDistributionCsvPath: Assets/AtomixML/MiniProjects/RecommenderSystem/Resources/Recommender
+    System Toy Dataset - ItemTypes.csv
+  _datasetPath: Assets/AtomixML/MiniProjects/RecommenderSystem/Resources\dataset_10000_30.csv
 --- !u!4 &1317582474
 Transform:
   m_ObjectHideFlags: 0
