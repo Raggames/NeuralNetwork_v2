@@ -8,14 +8,37 @@ namespace Atom.MachineLearning.Core.Maths
 {
     public static class MLCostFunctions
     {
+
+        public static double CrossEntropy(NVector t_values, NVector o_values)
+        {
+            double sum = 0.0;
+            for(int i  = 0; i < t_values.Length; ++i)
+            {
+                sum += t_values[i] * Math.Log(o_values[i]);
+            }
+
+            return -sum;
+        }
+
+        public static NVector CrossEntropy_Derivative(NVector t_values, NVector o_values)
+        {
+            NVector error = new NVector(t_values.Length);
+            for (int i = 0; i < t_values.Length; ++i)
+            {
+                error[i] = -1.0 * t_values[i] * Math.Log(o_values[i]);
+            }
+
+            return error;
+        }
+
         /// <summary>
         /// Mean squarred error loss 
         /// </summary>
         /// <param name="error"></param>
         /// <returns></returns>
-        public static double MSE(NVector t_values, NVector output_values)
+        public static double MSE(NVector t_values, NVector o_values)
         {
-            var error = t_values - output_values;
+            var error = t_values - o_values;
             var result = 0.0;
             for (int i = 0; i < error.Length; ++i)
             {

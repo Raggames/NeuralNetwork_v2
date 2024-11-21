@@ -14,7 +14,7 @@ namespace Atom.MachineLearning.Core.Maths
         {
             get
             {
-                if(_shared == null)
+                if (_shared == null)
                 {
                     _shared = new System.Random(Guid.NewGuid().GetHashCode());
                 }
@@ -32,7 +32,12 @@ namespace Atom.MachineLearning.Core.Maths
         {
             return random.NextDouble() * (maxValue - minValue) + minValue;
         }
-        
+
+        public static float Range(this Random random, float minValue, float maxValue)
+        {
+            return (float)Range(random, minValue, maxValue);
+        }
+
         public static int Range(this Random random, int minValue, int maxValue)
         {
             if (minValue > maxValue)

@@ -139,10 +139,10 @@ namespace Atom.MachineLearning.Unsupervised.SelfOrganizingMap
             //throw new NotImplementedException();
         }
 
-        public async Task<double> Score(NVector[] x_datas)
+        public async Task<double> Score()
         {
             await Task.Delay(1);
-            return QuantizationError(x_datas);
+            return QuantizationError(_x_datas);
         }
 
         /*

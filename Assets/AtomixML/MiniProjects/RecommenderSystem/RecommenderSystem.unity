@@ -298,11 +298,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _trainer:
-    _epochs: 25
+    _epochs: 35
     _batchSize: 10
-    _learningRate: 1
-    _biasRate: 0.005
-    _momentum: 0.05
+    _learningRate: 0.28
+    _biasRate: 0.23
+    _momentum: 0.26
     _weightDecay: 0.00001
     _learningRateCurve:
       serializedVersion: 2
@@ -329,10 +329,14 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
     LayerInfos:
-    - AverageWeight: -0.1302108049893111
-      AverageBias: -0.0016454769599158643
-    - AverageWeight: -0.10175758803672308
-      AverageBias: -0.0017022620034211977
+    - AverageWeight: 0.0323900541097836
+      AverageBias: -1.247836824856186
+    - AverageWeight: -0.17810224345616377
+      AverageBias: 0.9973757808658069
+    - AverageWeight: -2.4951917479283567
+      AverageBias: -0.754897523412192
+    - AverageWeight: 0.04824448227974419
+      AverageBias: -0.1856410489934454
   _visualizationUpdateTimer: 0.05
   _datasetsFolderPath: Assets/AtomixML/MiniProjects/RecommenderSystem/Resources
   _userToItemProfilesCsvPath: Assets/AtomixML/MiniProjects/RecommenderSystem/Resources/Recommender
@@ -340,6 +344,21 @@ MonoBehaviour:
   _itemTypesDistributionCsvPath: Assets/AtomixML/MiniProjects/RecommenderSystem/Resources/Recommender
     System Toy Dataset - ItemTypes.csv
   _datasetPath: Assets/AtomixML/MiniProjects/RecommenderSystem/Resources\dataset_10000_30.csv
+  _tuningProfile:
+    _lowerBound:
+      _epochs: 5
+      _batchSize: 1
+      _learningRate: 0.05
+      _biasRate: 0.001
+      _momentum: 0.001
+      _weightDecay: 0.0001
+    _upperBound:
+      _epochs: 100
+      _batchSize: 10
+      _learningRate: 4
+      _biasRate: 2
+      _momentum: 0.8
+      _weightDecay: 0.01
 --- !u!4 &1317582474
 Transform:
   m_ObjectHideFlags: 0
@@ -427,6 +446,21 @@ MonoBehaviour:
   _itemTypesDistributionCsvPath: Assets/AtomixML/MiniProjects/RecommenderSystem/Resources/Recommender
     System Toy Dataset - ItemTypes.csv
   _datasetPath: Assets/AtomixML/MiniProjects/RecommenderSystem/Resources\dataset_10000_30.csv
+  _tuningProfile:
+    _lowerBound:
+      _epochs: 1000
+      _batchSize: 10
+      _learningRate: 0.05
+      _biasRate: 1
+      _momentum: 0.01
+      _weightDecay: 0.0001
+    _upperBound:
+      _epochs: 1000
+      _batchSize: 10
+      _learningRate: 0.05
+      _biasRate: 1
+      _momentum: 0.01
+      _weightDecay: 0.0001
 --- !u!4 &1348593913
 Transform:
   m_ObjectHideFlags: 0

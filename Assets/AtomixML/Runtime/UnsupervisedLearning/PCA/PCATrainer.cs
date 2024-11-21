@@ -211,7 +211,7 @@ namespace Atom.MachineLearning.Unsupervised.PCA
             };
         }
 
-        public Task<double> Score(NVector[] x_datas)
+        public Task<double> Score()
         {
             throw new NotImplementedException();
         }

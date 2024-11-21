@@ -19,10 +19,17 @@ using static Atom.MachineLearning.Unsupervised.AutoEncoder.AutoEncoderModel;
 namespace Atom.MachineLearning.Unsupervised.AutoEncoder
 {
     [Serializable]
-    public class AutoEncoderTrainer : IMLTrainer<AutoEncoderModel, NVector, NVector>, IEpochIteratable, ITrainIteratable, IBatchedTrainIteratable
+    public class AutoEncoderTrainer : IMLTrainer<AutoEncoderModel, NVector, NVector>, IEpochIteratable, ITrainIteratable, IBatchedTrainIteratable, IStochasticGradientDescentParameters
     {
         [SerializeField] private AutoEncoderModel _autoEncoder;
         public AutoEncoderModel trainedModel { get => _autoEncoder; set => _autoEncoder = value; }
+
+        public int Epochs { get => _epochs; set => _epochs = value; }
+        public int BatchSize { get => _batchSize; set => _batchSize = value; }
+        public float LearningRate { get => _learningRate; set => _learningRate = value; }
+        public float BiasRate { get => _biasRate; set => _biasRate = value; }
+        public float Momentum { get => _momentum; set => _momentum = value; }
+        public float WeightDecay { get => _weightDecay; set => _weightDecay = value; }
 
         [HyperParameter, SerializeField] private int _epochs = 1000;
         [HyperParameter, SerializeField] private int _batchSize = 10;
@@ -30,6 +37,7 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
         [HyperParameter, SerializeField] private float _biasRate = 1f;
         [HyperParameter, SerializeField] private float _momentum = .01f;
         [HyperParameter, SerializeField] private float _weightDecay = .0001f;
+
         [HyperParameter, SerializeField] private AnimationCurve _learningRateCurve;
 
         [ShowInInspector, ReadOnly] private int _currentEpoch;
@@ -202,9 +210,17 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
             _currentLearningRate = _learningRateCurve.Evaluate(((float)_currentEpoch / (float)_epochs)) * _learningRate;
         }
 
-        public Task<double> Score(NVector[] x_datas)
+        public async Task<double> Score()
         {
-            throw new NotImplementedException();
+            await Task.Delay(1);
+
+            var outputs = new NVector[_t_datas.Length];
+            for(int i = 0; i <  _t_datas.Length; i++)
+            {
+                outputs[i] = trainedModel.Predict(_t_datas[i]);
+            }
+
+            return MLMetricFunctions.PearsonCoefficient(_t_datas, outputs);
         }
 
         [Button]

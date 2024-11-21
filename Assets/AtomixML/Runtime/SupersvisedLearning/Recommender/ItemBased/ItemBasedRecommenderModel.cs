@@ -275,7 +275,7 @@ namespace Atom.MachineLearning.Supervised.Recommender.ItemBased
         /// <param name="x_datas"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public Task<double> Score(NVector[] x_datas)
+        public Task<double> Score()
         {
             throw new NotImplementedException();
         }

@@ -11,8 +11,6 @@ namespace Atom.MachineLearning.Core.Training
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public interface IMLTrainer<TModel, TModelInputData, TModelOutputData>
-        where TModelInputData : IMLInOutData
-        where TModelOutputData : IMLInOutData
         where TModel : IMLModel<TModelInputData, TModelOutputData>
     {
         public TModel trainedModel { get; set; }
@@ -31,7 +29,7 @@ namespace Atom.MachineLearning.Core.Training
         /// <param name="model"></param>
         /// <param name="x_datas"></param>
         /// <returns></returns>
-        public Task<double> Score(TModelInputData[] x_datas);
+        public Task<double> Score();
 
     }
 

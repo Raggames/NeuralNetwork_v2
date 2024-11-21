@@ -79,7 +79,7 @@ namespace Atom.MachineLearning.Unsupervised.BoltzmanMachine
             return new TrainingResult();
         }
 
-        public Task<double> Score(NVector[] x_datas)
+        public Task<double> Score()
         {
             throw new NotImplementedException();
         }
