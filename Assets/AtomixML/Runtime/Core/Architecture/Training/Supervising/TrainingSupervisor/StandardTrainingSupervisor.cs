@@ -157,7 +157,7 @@ namespace Atom.MachineLearning.Core.Training
             }
         }
 
-        private void BatchRunner(int epochs, int trainLenght, int batchSize, CancellationToken cancellationToken)
+        public void BatchRunner(int epochs, int trainLenght, int batchSize, CancellationToken cancellationToken)
         {
             var batchIndexes = new int[batchSize];
 

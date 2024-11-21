@@ -21,7 +21,16 @@ namespace Atom.MachineLearning.Unsupervised.GeneticLearning.NeuralNetworks
             throw new NotImplementedException();
         }
 
+        public ITrainingResult FitSynchronously(NVector[] x_datas)
+        {
+            throw new NotImplementedException();
+        }
+
         public Task<double> Score()
+        {
+            throw new NotImplementedException();
+        }
+        public double ScoreSynchronously()
         {
             throw new NotImplementedException();
         }

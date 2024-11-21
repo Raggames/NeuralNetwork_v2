@@ -38,7 +38,7 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
         [HyperParameter, SerializeField] private float _momentum = .01f;
         [HyperParameter, SerializeField] private float _weightDecay = .0001f;
 
-        [HyperParameter, SerializeField] private AnimationCurve _learningRateCurve;
+        [HyperParameter, SerializeField] private AnimationCurve _learningRateCurve = new AnimationCurve(new Keyframe(0,1), new Keyframe(1, 0));
 
         [ShowInInspector, ReadOnly] private int _currentEpoch;
         [ShowInInspector, ReadOnly] private float _currentLearningRate;
@@ -77,9 +77,10 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
             throw new NotImplementedException();
         }
 
-        public async Task<ITrainingResult> Fit(NVector[] x_datas)
+
+        private void InitFit(NVector[] x_datas)
         {
-            if(_lossFunction == null)
+            if (_lossFunction == null)
             {
                 _lossFunction = MSELoss;
             }
@@ -103,6 +104,21 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
             _epochSupervisor.SetTrainIteration(this);
             _epochSupervisor.SetTrainBatchIteration(this);
             _epochSupervisor.SetAutosave(_epochs / 100);
+        }
+
+        public ITrainingResult FitSynchronously(NVector[] x_datas)
+        {
+            InitFit(x_datas);
+
+            var source = new CancellationTokenSource();
+            _epochSupervisor.BatchRunner(_epochs, _x_datas.Length, _batchSize, source.Token);
+
+            return new TrainingResult();
+        }
+
+        public async Task<ITrainingResult> Fit(NVector[] x_datas)
+        {
+            InitFit(x_datas);
 
             await _epochSupervisor.RunBatchedAsync(_epochs, _x_datas.Length, _batchSize, true);
 
@@ -207,15 +223,22 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
         public void OnAfterEpoch(int epochIndex)
         {
             _currentLoss = (float)_errorSum / _x_datas.Length;
-            _currentLearningRate = _learningRateCurve.Evaluate(((float)_currentEpoch / (float)_epochs)) * _learningRate;
+
+            //_currentLearningRate = _learningRateCurve.Evaluate(((float)_currentEpoch / (float)_epochs)) * _learningRate;
+            _currentLearningRate = (1f - ((float)_currentEpoch / (float)_epochs)) * _learningRate;
         }
 
         public async Task<double> Score()
         {
             await Task.Delay(1);
 
+            return ScoreSynchronously();
+        }
+
+        public double ScoreSynchronously()
+        {
             var outputs = new NVector[_t_datas.Length];
-            for(int i = 0; i <  _t_datas.Length; i++)
+            for (int i = 0; i < _t_datas.Length; i++)
             {
                 outputs[i] = trainedModel.Predict(_t_datas[i]);
             }

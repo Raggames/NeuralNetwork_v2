@@ -132,7 +132,12 @@ namespace Atom.MachineLearning.Unsupervised.PCA
 
         public async Task<ITrainingResult> Fit(NVector[] trainingDatas)
         {
-            var standardizedDatas = NVector.Standardize(trainingDatas, out _meanVector, out _stdDeviationVector, out _);
+            return FitSynchronously(trainingDatas);
+        }
+
+        public ITrainingResult FitSynchronously(NVector[] x_datas)
+        {
+            var standardizedDatas = NVector.Standardize(x_datas, out _meanVector, out _stdDeviationVector, out _);
             var covariance_matrix = NVector.CovarianceMatrix(standardizedDatas);
 
             var matrix = Matrix<double>.Build.DenseOfArray(covariance_matrix);
@@ -216,6 +221,14 @@ namespace Atom.MachineLearning.Unsupervised.PCA
             throw new NotImplementedException();
         }
 
+        public double ScoreSynchronously()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// TODO VISUALISATION / EXTERNAL SCRIPT
+        /// </summary>
         void OnDrawGizmos()
         {
             if (_test_results == null)
@@ -228,6 +241,5 @@ namespace Atom.MachineLearning.Unsupervised.PCA
 
             }
         }
-
     }
 }

@@ -1,10 +1,12 @@
 ﻿using Atom.MachineLearning.Core.Maths;
 using Atom.MachineLearning.Core.Training;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace Atom.MachineLearning.Core
 {
@@ -46,8 +48,16 @@ namespace Atom.MachineLearning.Core
             double[] scores = new double[trainers.Length];
             var bestHyperparameterDatas = new List<HyperparameterData>();
 
+           /* var inputs = new TModelInput[t_inputs.Length];
+            for(int i = 0; i < t_inputs.Length; ++i)
+            {
+                inputs[i] = JsonConvert.DeserializeObject<TModelInput>(JsonConvert.SerializeObject(t_inputs[i]));
+            }*/
+
             while (it_index < iterations)
             {
+                Debug.Log($"Tuner enter iteration {it_index}");
+
                 // init random values in the search space given by the profile
                 foreach (var trainer in trainers)
                 {
@@ -61,19 +71,46 @@ namespace Atom.MachineLearning.Core
                     trainerParam.WeightDecay = MLRandom.Shared.Range(kModelTuningProfile.LowerBound.WeightDecay, kModelTuningProfile.UpperBound.WeightDecay);
                 }
 
-                Parallel.For(0, trainers.Length, async (index) =>
+                /* Parallel.For(0, trainers.Length, (index) =>
+                 {
+                     *//* var fit = trainers[index].Fit(t_inputs);
+                      fit.RunSynchronously();
+                      var tr_result = fit.Result;
+
+                      var score = trainers[index].Score();
+                      score.RunSynchronously();
+                      var tr_score = score.Result;
+                     *//*
+
+                     var tr_result = trainers[index].FitSynchronously(t_inputs);
+                     var tr_score = trainers[index].ScoreSynchronously();
+
+                     lock (_lock)
+                         scores[index] = tr_score;
+                 });*/
+
+                var fitTasks = trainers.Select(async (trainer, index) =>
                 {
-                    var fit = trainers[index].Fit(t_inputs);
-                    fit.RunSynchronously();
-                    var tr_result = fit.Result;
+                    await Task.Delay(1);
 
-                    var score = trainers[index].Score();
-                    score.RunSynchronously();
-                    var tr_score = score.Result;
+                    // Fit the trainer asynchronously
+                    var tr_result = trainer.FitSynchronously(t_inputs);
 
+                    // Score the trainer asynchronously
+                    var tr_score = trainer.ScoreSynchronously();
+
+                    // Safely update the scores array
                     lock (_lock)
+                    {
                         scores[index] = tr_score;
-                });
+                    }
+                }).ToArray();
+
+                // Wait for all tasks to complete
+                await Task.WhenAll(fitTasks);
+
+                Debug.Log($"Tuner end fit iteration {it_index}");
+
 
                 var best_score = double.MinValue;
                 int best_score_index = -1;
@@ -88,6 +125,9 @@ namespace Atom.MachineLearning.Core
                 }
 
                 bestHyperparameterDatas.Add(new HyperparameterData(best_score, trainers[best_score_index] as IStochasticGradientDescentParameters));
+
+                it_index++;
+                await Task.Delay(1);
             }
 
             var best_overall_score = double.MinValue;
@@ -95,7 +135,7 @@ namespace Atom.MachineLearning.Core
 
             for (int i = 0; i < bestHyperparameterDatas.Count; ++i)
             {
-                if (scores[i] > best_overall_score)
+                if (bestHyperparameterDatas[i].Score > best_overall_score)
                 {
                     best_overall_score = scores[i];
                     best_overall_score_index = i;

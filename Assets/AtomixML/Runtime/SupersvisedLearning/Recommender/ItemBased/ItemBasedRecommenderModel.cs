@@ -154,6 +154,11 @@ namespace Atom.MachineLearning.Supervised.Recommender.ItemBased
 
         public async Task<ITrainingResult> Fit(NVector[] x_datas)
         {
+            return FitSynchronously(x_datas);
+        }
+
+        public ITrainingResult FitSynchronously(NVector[] x_datas)
+        {
             // we keep the training datas that will serve for prediction (which is in fact a simple similarity-ponderated interpolation) 
             _userItemRawMatrix = NMatrix.FromNVectorArray(x_datas);
             _itemsAverageRatings = new NVector(x_datas[0].Length);
@@ -276,6 +281,10 @@ namespace Atom.MachineLearning.Supervised.Recommender.ItemBased
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
         public Task<double> Score()
+        {
+            throw new NotImplementedException();
+        }
+        public double ScoreSynchronously()
         {
             throw new NotImplementedException();
         }

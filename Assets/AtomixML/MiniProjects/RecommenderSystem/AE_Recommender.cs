@@ -246,7 +246,7 @@ namespace Atom.MachineLearning.MiniProjects.RecommenderSystem
         [SerializeField] private SGDTuningProfile _tuningProfile;
 
         [Button]
-        private async void Fit_2Layers_WithTuningSystem(int tuningIterations = 20, int hidden = 10, int split_index = 9000, LossFunctions lossFunction = LossFunctions.MaskedMeanSquarredError)
+        private async void Fit_2Layers_WithTuningSystem(int numParralel = 4, int tuningIterations = 20, int hidden = 10, int split_index = 9000, LossFunctions lossFunction = LossFunctions.MaskedMeanSquarredError)
         {
             var datas = DatasetRWUtils.ReadCSV(_datasetPath, ';', 1);
 
@@ -255,7 +255,7 @@ namespace Atom.MachineLearning.MiniProjects.RecommenderSystem
             x_datas = _normalizer.Transform(x_datas);
             DatasetRWUtils.Split_TrainTest_NVector(x_datas, split_index, out _ratingsDataset_train, out _ratingsDataset_test);
 
-            var trainers = new AutoEncoderTrainer[8];
+            var trainers = new AutoEncoderTrainer[numParralel];
 
             for (int i = 0; i < trainers.Length; i++)
             {

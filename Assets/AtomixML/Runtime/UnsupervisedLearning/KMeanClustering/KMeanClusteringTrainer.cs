@@ -25,7 +25,7 @@ namespace Atom.MachineLearning.Unsupervised.KMeanClustering
         /// </summary>
         private List<List<(NVector, double)>> _epoch_results = new List<List<(NVector, double)>>();
         private List<double[]> _clusters_barycenter = new List<double[]>();
-        private NVector[] _trainingDatas;
+        private NVector[] _x_datas;
 
         #region test / to be moved in implementation scripts
         [Button]
@@ -108,27 +108,32 @@ namespace Atom.MachineLearning.Unsupervised.KMeanClustering
 
         public async Task<ITrainingResult> Fit(NVector[] trainingDatas)
         {
-            _trainingDatas = trainingDatas;
+            return FitSynchronously(trainingDatas);  
+        }
+
+        public ITrainingResult FitSynchronously(NVector[] x_datas)
+        {
+            _x_datas = x_datas;
             _epoch_results.Clear();
             _clusters_barycenter.Clear();
 
             for (int i = 0; i < trainedModel.clustersCount; ++i)
             {
                 _epoch_results.Add(new List<(NVector, double)>());
-                _clusters_barycenter.Add(new double[_trainingDatas[0].Data.Length]);
+                _clusters_barycenter.Add(new double[_x_datas[0].Data.Length]);
             }
 
             // run epochs
             for (_currentEpoch = 0; _currentEpoch < _epochs; _currentEpoch++)
             {
                 // run the batch 
-                for (int j = 0; j < _trainingDatas.Length; ++j)
+                for (int j = 0; j < _x_datas.Length; ++j)
                 {
                     // predict
-                    var result = trainedModel.Predict(_trainingDatas[j]);
+                    var result = trainedModel.Predict(_x_datas[j]);
 
                     // save the result of each prediction in a cluster list
-                    _epoch_results[result.ClassLabel].Add(new(_trainingDatas[j], result.Euclidian));
+                    _epoch_results[result.ClassLabel].Add(new(_x_datas[j], result.Euclidian));
                 }
 
                 // compute average
@@ -148,13 +153,13 @@ namespace Atom.MachineLearning.Unsupervised.KMeanClustering
             }
 
             // test run
-            for (int j = 0; j < _trainingDatas.Length; ++j)
+            for (int j = 0; j < _x_datas.Length; ++j)
             {
                 // predict
-                var result = trainedModel.Predict(_trainingDatas[j]);
+                var result = trainedModel.Predict(_x_datas[j]);
 
                 // save the result of each prediction in a cluster list
-                _epoch_results[result.ClassLabel].Add(new(_trainingDatas[j], result.Euclidian));
+                _epoch_results[result.ClassLabel].Add(new(_x_datas[j], result.Euclidian));
             }
 
             // variance compute
@@ -178,6 +183,11 @@ namespace Atom.MachineLearning.Unsupervised.KMeanClustering
         }
 
         public Task<double> Score()
+        {
+            throw new NotImplementedException();
+        }
+
+        public double ScoreSynchronously()
         {
             throw new NotImplementedException();
         }
@@ -217,13 +227,13 @@ namespace Atom.MachineLearning.Unsupervised.KMeanClustering
 
         void OnDrawGizmos()
         {
-            if (_trainingDatas == null)
+            if (_x_datas == null)
                 return;
 
             if (trainedModel == null)
                 return;
 
-            foreach (var item in _trainingDatas)
+            foreach (var item in _x_datas)
                 Gizmos.DrawSphere(new Vector3((float)item.Data[0], (float)item.Data[1], 0), .3f);
 
             if (_epoch_results == null)

@@ -35,7 +35,7 @@ namespace Atom.MachineLearning.Core.Maths
 
         public static float Range(this Random random, float minValue, float maxValue)
         {
-            return (float)Range(random, minValue, maxValue);
+            return (float)(random.NextDouble() * (maxValue - minValue) + minValue);
         }
 
         public static int Range(this Random random, int minValue, int maxValue)
@@ -63,7 +63,7 @@ namespace Atom.MachineLearning.Core.Maths
             }
 
             // Generate a random number between 0 and 1
-            double randomValue = Shared.NextDouble();
+            double randomValue = random.NextDouble();
 
             // Determine the index based on the random value
             for (int i = 0; i < cumulative.Length; i++)

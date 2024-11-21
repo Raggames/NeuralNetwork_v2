@@ -68,6 +68,11 @@ namespace Atom.MachineLearning.Unsupervised.SelfOrganizingMap
         {
            return  _neighboorHoodRadius * Math.Exp(-currentEpoch / _timeConstant);
         }
+                
+        public ITrainingResult FitSynchronously(NVector[] x_datas)
+        {
+            throw new NotImplementedException();
+        }
 
         public async Task<ITrainingResult> Fit(NVector[] x_datas)
         {
@@ -142,6 +147,11 @@ namespace Atom.MachineLearning.Unsupervised.SelfOrganizingMap
         public async Task<double> Score()
         {
             await Task.Delay(1);
+            return QuantizationError(_x_datas);
+        }
+
+        public double ScoreSynchronously()
+        {
             return QuantizationError(_x_datas);
         }
 

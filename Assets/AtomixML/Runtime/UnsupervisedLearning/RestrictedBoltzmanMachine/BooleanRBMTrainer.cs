@@ -79,7 +79,17 @@ namespace Atom.MachineLearning.Unsupervised.BoltzmanMachine
             return new TrainingResult();
         }
 
+        public ITrainingResult FitSynchronously(NVector[] x_datas)
+        {
+            throw new NotImplementedException();
+        }
+
         public Task<double> Score()
+        {
+            throw new NotImplementedException();
+        }
+
+        public double ScoreSynchronously()
         {
             throw new NotImplementedException();
         }
@@ -88,7 +98,6 @@ namespace Atom.MachineLearning.Unsupervised.BoltzmanMachine
         {
             _currentEpoch = epochIndex;
         }
-
 
         public void OnTrainNextBatch(int[] indexes)
         {

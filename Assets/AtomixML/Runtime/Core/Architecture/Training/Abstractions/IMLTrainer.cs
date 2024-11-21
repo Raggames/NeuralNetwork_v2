@@ -23,6 +23,8 @@ namespace Atom.MachineLearning.Core.Training
         /// <returns></returns>
         public Task<ITrainingResult> Fit(TModelInputData[] x_datas);
 
+        public ITrainingResult FitSynchronously(TModelInputData[] x_datas);
+
         /// <summary>
         /// Return the accuracy of the model after running a test train
         /// </summary>
@@ -31,6 +33,7 @@ namespace Atom.MachineLearning.Core.Training
         /// <returns></returns>
         public Task<double> Score();
 
+        public double ScoreSynchronously();
     }
 
     /// <summary>
