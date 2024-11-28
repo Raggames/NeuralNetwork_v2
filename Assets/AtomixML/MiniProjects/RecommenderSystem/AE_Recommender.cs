@@ -210,8 +210,9 @@ namespace Atom.MachineLearning.MiniProjects.RecommenderSystem
             _trainer.SetLossFunction(lossFunction);
 
             await _trainer.Fit(_ratingsDataset_train);
+            var score = await _trainer.Score();
 
-            Debug.Log("End fit");
+            Debug.Log("End fit, score > "+ score);
         }
 
         [Button]
