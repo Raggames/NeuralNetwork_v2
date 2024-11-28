@@ -6,16 +6,22 @@ using System.Linq;
 namespace Atom.MachineLearning.Core
 {
     [Serializable]
-    public struct NVector : IMLInOutData
+    public struct NVector : IMLInOutData, ICloneable
     {
         [ShowInInspector, ReadOnly] public double[] Data { get; set; }
 
-        public int Length => Data.Length;
+        public int length => Data.Length;
 
         public double x => Data[0];
         public double y => Data[1];
         public double z => Data[2];
         public double w => Data[3];
+
+
+        public object Clone()
+        {
+            return new NVector(this.Data);
+        }
 
         public double this[int index]
         {
@@ -31,10 +37,10 @@ namespace Atom.MachineLearning.Core
 
         public static NVector operator +(NVector a, NVector b)
         {
-            if (a.Length != b.Length) throw new ArgumentException($"Vector dimensions aren't equals. A is {a.Length} and B is {b.Length}");
+            if (a.length != b.length) throw new ArgumentException($"Vector dimensions aren't equals. A is {a.length} and B is {b.length}");
 
-            double[] temp = new double[a.Length];
-            for (int i = 0; i < a.Length; i++)
+            double[] temp = new double[a.length];
+            for (int i = 0; i < a.length; i++)
             {
                 temp[i] = a[i] + b[i];
             }
@@ -44,10 +50,10 @@ namespace Atom.MachineLearning.Core
 
         public static NVector operator -(NVector a, NVector b)
         {
-            if (a.Length != b.Length) throw new ArgumentException($"Vector dimensions aren't equals. A is {a.Length} and B is {b.Length}");
+            if (a.length != b.length) throw new ArgumentException($"Vector dimensions aren't equals. A is {a.length} and B is {b.length}");
 
-            double[] temp = new double[a.Length];
-            for (int i = 0; i < a.Length; i++)
+            double[] temp = new double[a.length];
+            for (int i = 0; i < a.length; i++)
             {
                 temp[i] = a[i] - b[i];
             }
@@ -57,9 +63,9 @@ namespace Atom.MachineLearning.Core
 
         public static bool operator ==(NVector a, NVector b)
         {
-            if (a.Length != b.Length) return false;
+            if (a.length != b.length) return false;
 
-            for (int i = 0; i < a.Length; i++)
+            for (int i = 0; i < a.length; i++)
             {
                 if (a[i] != b[i]) return false;
             }
@@ -69,9 +75,9 @@ namespace Atom.MachineLearning.Core
 
         public static bool operator !=(NVector a, NVector b)
         {
-            if (a.Length != b.Length) return true;
+            if (a.length != b.length) return true;
 
-            for (int i = 0; i < a.Length; i++)
+            for (int i = 0; i < a.length; i++)
             {
                 if (a[i] != b[i]) return true;
             }
@@ -81,8 +87,8 @@ namespace Atom.MachineLearning.Core
 
         public static NVector operator *(NVector a, double b)
         {
-            double[] temp = new double[a.Length];
-            for (int i = 0; i < a.Length; i++)
+            double[] temp = new double[a.length];
+            for (int i = 0; i < a.length; i++)
             {
                 temp[i] = a[i] * b;
             }
@@ -92,8 +98,8 @@ namespace Atom.MachineLearning.Core
 
         public static NVector operator /(NVector a, double b)
         {
-            double[] temp = new double[a.Length];
-            for (int i = 0; i < a.Length; i++)
+            double[] temp = new double[a.length];
+            for (int i = 0; i < a.length; i++)
             {
                 temp[i] = a[i] / b;
             }
@@ -106,7 +112,7 @@ namespace Atom.MachineLearning.Core
             Data = new double[dimensions];
         }
 
-        public NVector(double[] arr)
+        public NVector(params double[] arr)
         {
             Data = new double[arr.Length];
 
@@ -151,7 +157,7 @@ namespace Atom.MachineLearning.Core
             get
             {
                 double magn = 0.0;
-                for(int i = 0; i < Data.Length; ++i)
+                for (int i = 0; i < Data.Length; ++i)
                 {
                     magn += Math.Pow(Data[i], 2);
                 }
@@ -175,7 +181,7 @@ namespace Atom.MachineLearning.Core
 
         public NVector Random(double min = 0, double max = 1)
         {
-            for(int i = 0; i < Data.Length; ++i)
+            for (int i = 0; i < Data.Length; ++i)
             {
                 Data[i] = MLRandom.Shared.Range(min, max);
             }
@@ -206,10 +212,10 @@ namespace Atom.MachineLearning.Core
         /// <exception cref="ArgumentException"></exception>
         public static double Dot(NVector a, NVector b)
         {
-            if (a.Length != b.Length) throw new ArgumentException($"Vector dimensions aren't equals. A is {a.Length} and B is {b.Length}");
+            if (a.length != b.length) throw new ArgumentException($"Vector dimensions aren't equals. A is {a.length} and B is {b.length}");
 
             double dot = 0.0;
-            for (int i = 0; i < a.Length; ++i)
+            for (int i = 0; i < a.length; ++i)
                 dot += a[i] * b[i];
 
             return dot;
@@ -223,10 +229,10 @@ namespace Atom.MachineLearning.Core
         /// <returns></returns>
         public static double Manhattan(NVector a, NVector b)
         {
-            if (a.Length != b.Length) throw new ArgumentException($"Vector dimensions aren't equals. A is {a.Length} and B is {b.Length}");
+            if (a.length != b.length) throw new ArgumentException($"Vector dimensions aren't equals. A is {a.length} and B is {b.length}");
 
             double result = 0;
-            for (int i = 0; i < a.Length; ++i)
+            for (int i = 0; i < a.length; ++i)
             {
                 result += Math.Abs(a[i] - b[i]);
             }
@@ -242,10 +248,10 @@ namespace Atom.MachineLearning.Core
         /// <returns></returns>
         public static double Euclidian(NVector a, NVector b)
         {
-            if (a.Length != b.Length) throw new ArgumentException($"Vector dimensions aren't equals. A is {a.Length} and B is {b.Length}");
+            if (a.length != b.length) throw new ArgumentException($"Vector dimensions aren't equals. A is {a.length} and B is {b.length}");
 
             double result = 0;
-            for (int i = 0; i < a.Length; ++i)
+            for (int i = 0; i < a.length; ++i)
             {
                 result += Math.Pow(a[i] - b[i], 2);
             }
@@ -261,10 +267,10 @@ namespace Atom.MachineLearning.Core
         /// <returns></returns>
         public static double SquaredEuclidian(NVector a, NVector b)
         {
-            if (a.Length != b.Length) throw new ArgumentException($"Vector dimensions aren't equals. A is {a.Length} and B is {b.Length}");
+            if (a.length != b.length) throw new ArgumentException($"Vector dimensions aren't equals. A is {a.length} and B is {b.length}");
 
             double result = 0;
-            for (int i = 0; i < a.Length; ++i)
+            for (int i = 0; i < a.length; ++i)
             {
                 result += Math.Pow(a[i] - b[i], 2);
             }
@@ -274,10 +280,10 @@ namespace Atom.MachineLearning.Core
 
         public static double Mnkowski(NVector a, NVector b, double power)
         {
-            if (a.Length != b.Length) throw new ArgumentException($"Vector dimensions aren't equals. A is {a.Length} and B is {b.Length}");
+            if (a.length != b.length) throw new ArgumentException($"Vector dimensions aren't equals. A is {a.length} and B is {b.length}");
 
             double result = 0;
-            for (int i = 0; i < a.Length; ++i)
+            for (int i = 0; i < a.length; ++i)
             {
                 result += Math.Pow(Math.Abs(a[i] - b[i]), power);
             }
@@ -296,10 +302,10 @@ namespace Atom.MachineLearning.Core
         /// <exception cref="ArgumentException"></exception>
         public static NVector Cross(NVector a, NVector b)
         {
-            if (a.Length != b.Length) throw new ArgumentException($"Vector dimensions aren't equals. A is {a.Length} and B is {b.Length}");
-            if (a.Length < 3) throw new ArgumentException($"Vector should have at least 3 dimensions");
+            if (a.length != b.length) throw new ArgumentException($"Vector dimensions aren't equals. A is {a.length} and B is {b.length}");
+            if (a.length < 3) throw new ArgumentException($"Vector should have at least 3 dimensions");
 
-            int columns = a.Length;
+            int columns = a.length;
             for (int i = 0; i < columns; ++i)
             {
                 for (int j = 0; j < columns; ++j)
@@ -321,7 +327,7 @@ namespace Atom.MachineLearning.Core
 
         public static NVector Average(NVector[] vectors)
         {
-            int dimensions = vectors[0].Length;
+            int dimensions = vectors[0].length;
 
             var mean = new NVector(dimensions);
             for (int i = 0; i < vectors.Length; ++i)
@@ -429,8 +435,8 @@ namespace Atom.MachineLearning.Core
         /// <returns></returns>
         public static double[,] CovarianceMatrix(NVector[] datas)
         {
-            int dimensions = datas[0].Length;
-            var matrix = new double[datas[0].Length, datas[0].Length];
+            int dimensions = datas[0].length;
+            var matrix = new double[datas[0].length, datas[0].length];
 
             // Iterate over each vector arrays column
             for (int i = 0; i < dimensions; ++i)
@@ -459,7 +465,7 @@ namespace Atom.MachineLearning.Core
 
         public static NVector[] Standardize(NVector[] vectors, out NVector meanVector, out NVector stdDeviationsVector, out double mean_std_dev)
         {
-            int dimensions = vectors[0].Length;
+            int dimensions = vectors[0].length;
 
             meanVector = new NVector(dimensions);
             stdDeviationsVector = new NVector(dimensions);
@@ -491,9 +497,9 @@ namespace Atom.MachineLearning.Core
 
         public static NVector Standardize(NVector vector, NVector meanVector, NVector stdDeviations, double mean_std_dev)
         {
-            var result = new NVector(vector.Length);
+            var result = new NVector(vector.length);
 
-            for (int j = 0; j < vector.Length; ++j)
+            for (int j = 0; j < vector.length; ++j)
             {
                 result.Data[j] = (vector[j] - meanVector[j]) / (stdDeviations[j] != 0f ? stdDeviations[j] : mean_std_dev);
             }
@@ -503,7 +509,7 @@ namespace Atom.MachineLearning.Core
 
         public static NVector[] Normalize(NVector[] datas)
         {
-            int dimension = datas[0].Length;
+            int dimension = datas[0].length;
             NVector[] normalizedData = new NVector[datas.Length];
             double minValue = int.MaxValue;
             double maxValue = 0;
@@ -524,7 +530,7 @@ namespace Atom.MachineLearning.Core
                 NVector normalized = new NVector(dimension);
                 for (int j = 0; j < dimension; ++j)
                 {
-                    normalized[j] = (datas[i][j] - minValue) / delta;                       
+                    normalized[j] = (datas[i][j] - minValue) / delta;
                 }
 
                 normalizedData[i] = normalized;
@@ -532,6 +538,7 @@ namespace Atom.MachineLearning.Core
 
             return normalizedData;
         }
+
     }
 
     public static class NVectorExtensions
@@ -561,12 +568,12 @@ namespace Atom.MachineLearning.Core
         public static double Average(this NVector vector)
         {
             double val = 0;
-            for (int i = 0; i < vector.Length; ++i)
+            for (int i = 0; i < vector.length; ++i)
             {
                 val += vector[i];
             }
 
-            return val / vector.Length;
+            return val / vector.length;
         }
 
         /// <summary>
@@ -612,7 +619,7 @@ namespace Atom.MachineLearning.Core
         public static string[,] ToStringMatrix(this NVector[] matrix)
         {
             int rows = matrix.Length;
-            int cols = matrix[0].Length;
+            int cols = matrix[0].length;
             var result = new string[rows, cols];
             for (int i = 0; i < rows; ++i)
             {
@@ -621,6 +628,15 @@ namespace Atom.MachineLearning.Core
                     result[i, j] = matrix[i][j].ToString();
                 }
             }
+
+            return result;
+        }
+
+        public static NVector[] Clone(this NVector[] origin)
+        {
+            var result = new NVector[origin.Length];
+            for (int i = 0; i < origin.Length; ++i)
+                result[i] = (NVector)origin[i].Clone();
 
             return result;
         }

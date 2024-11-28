@@ -18,9 +18,9 @@ namespace Atom.MachineLearning.Core.Maths
         /// <exception cref="Exception"></exception>
         public static double PearsonCoefficient(NVector[] t_datas, NVector[] o_datas)
         {
-            if (t_datas.Length != o_datas.Length || t_datas[0].Length != o_datas[0].Length) throw new Exception($"Matrix sizes must match");
+            if (t_datas.Length != o_datas.Length || t_datas[0].length != o_datas[0].length) throw new Exception($"Matrix sizes must match");
 
-            int dimension = o_datas[0].Length;
+            int dimension = o_datas[0].length;
 
             double sum_covariance = 0.0;
             double t_std = 0.0;
@@ -58,9 +58,9 @@ namespace Atom.MachineLearning.Core.Maths
         /// <returns></returns>
         public static double RR(NVector[] t_datas, NVector[] o_datas)
         {
-            if (t_datas.Length != o_datas.Length || t_datas[0].Length != o_datas[0].Length) throw new Exception($"Matrix sizes must match");
+            if (t_datas.Length != o_datas.Length || t_datas[0].length != o_datas[0].length) throw new Exception($"Matrix sizes must match");
 
-            int dimension = o_datas[0].Length;
+            int dimension = o_datas[0].length;
 
             /*
              R² = 1 − ∑(yi − ŷi)² / ∑(yi − ȳ)²

@@ -83,7 +83,7 @@ namespace Atom.MachineLearning.MiniProjects.RecommenderSystem
                 var normalized_input = _normalizer.Predict(_ratingsDataset_test[i]);
                 var predicted_ratings = _trainer.trainedModel.Predict(normalized_input);
 
-                for (int j = 0; j < _ratingsDataset_test[i].Length; j++)
+                for (int j = 0; j < _ratingsDataset_test[i].length; j++)
                 {
                     int user_type = int.Parse(user_type_datas[9000 + i, 0]); // we split at 9000 the train / test so we start a 9000
                     if (_ratingsDataset_test[i][j] == 0)
@@ -150,7 +150,7 @@ namespace Atom.MachineLearning.MiniProjects.RecommenderSystem
                 var normalized_input = _normalizer.Predict(_ratingsDataset_train[i]);
                 var predicted_ratings = _trainer.trainedModel.Predict(normalized_input);
 
-                for (int j = 0; j < _ratingsDataset_test[i].Length; j++)
+                for (int j = 0; j < _ratingsDataset_test[i].length; j++)
                 {
                     int user_type = int.Parse(user_type_datas[9000 + i, 0]); // we split at 9000 the train / test so we start a 9000
                     if (_ratingsDataset_test[i][j] == 0)
@@ -196,7 +196,7 @@ namespace Atom.MachineLearning.MiniProjects.RecommenderSystem
             _normalizer = new TrMinMaxNormalizer();
             x_datas = _normalizer.Transform(x_datas);
             DatasetRWUtils.Split_TrainTest_NVector(x_datas, split_index, out _ratingsDataset_train, out _ratingsDataset_test);
-            int features = _ratingsDataset_train[0].Length;
+            int features = _ratingsDataset_train[0].length;
 
             var encoder = new NeuralNetworkModel();
             encoder.AddDenseLayer(features, hidden, ActivationFunctions.Sigmoid, (x) => x);
@@ -223,7 +223,7 @@ namespace Atom.MachineLearning.MiniProjects.RecommenderSystem
             _normalizer = new TrMinMaxNormalizer();
             x_datas = _normalizer.Transform(x_datas);
             DatasetRWUtils.Split_TrainTest_NVector(x_datas, split_index, out _ratingsDataset_train, out _ratingsDataset_test);
-            int features = _ratingsDataset_train[0].Length;
+            int features = _ratingsDataset_train[0].length;
 
             var encoder = new NeuralNetworkModel();
             encoder.AddDenseLayer(features, hidden1, ActivationFunctions.ReLU, (x) => x);
@@ -246,7 +246,7 @@ namespace Atom.MachineLearning.MiniProjects.RecommenderSystem
         [SerializeField] private SGDTuningProfile _tuningProfile;
 
         [Button]
-        private async void Fit_2Layers_WithTuningSystem(int numParralel = 4, int tuningIterations = 20, int hidden = 10, int split_index = 9000, LossFunctions lossFunction = LossFunctions.MaskedMeanSquarredError)
+        private async void Fit_2Layers_WithTuningSystem(int numParralel = 4, int tuningIterations = 4, int hidden = 10, int split_index = 9000, LossFunctions lossFunction = LossFunctions.MaskedMeanSquarredError)
         {
             var datas = DatasetRWUtils.ReadCSV(_datasetPath, ';', 1);
 
@@ -261,7 +261,7 @@ namespace Atom.MachineLearning.MiniProjects.RecommenderSystem
             {
                 trainers[i] = new AutoEncoderTrainer();
 
-                int features = _ratingsDataset_train[0].Length;
+                int features = _ratingsDataset_train[0].length;
                 var encoder = new NeuralNetworkModel();
                 encoder.AddDenseLayer(features, hidden, ActivationFunctions.Sigmoid, (x) => x);
                 encoder.SeedWeigths();
@@ -275,15 +275,10 @@ namespace Atom.MachineLearning.MiniProjects.RecommenderSystem
             }
 
             var tuner = new SGDUnsupervisedModelTuningSystem<SGDTuningProfile, AutoEncoderTrainer, AutoEncoderModel, NVector, NVector>();
-            var best_hyperparameters = await tuner.Search(tuningIterations, _tuningProfile, x_datas, trainers);
+            //var best_hyperparameters = await tuner.Search(tuningIterations, _tuningProfile, x_datas, trainers);
+            tuner.Search(tuningIterations, _tuningProfile, x_datas, trainers);
 
-            Debug.Log($"End fit. Best params : " +
-                $"Epochs = {best_hyperparameters.Epochs}, " +
-                $"Batchsize = {best_hyperparameters.BatchSize}, " +
-                $"LearningRate = {best_hyperparameters.LearningRate}, " +
-                $"BiasRate = {best_hyperparameters.BiasRate}, " +
-                $"Momentum = {best_hyperparameters.Momentum}, " +
-                $"WeightDecay = {best_hyperparameters.WeightDecay}, ");
+          
 
 
         }

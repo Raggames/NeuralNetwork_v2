@@ -19,7 +19,7 @@ namespace Atom.MachineLearning.NeuralNetwork.V2
         public List<DenseLayer> Layers { get; protected set; } = new List<DenseLayer>();
 
         [JsonIgnore] public DenseLayer OutputLayer => Layers[Layers.Count - 1];
-        [JsonIgnore] public int inputDimensions => Layers[0]._input.Length;
+        [JsonIgnore] public int inputDimensions => Layers[0]._input.length;
 
         /// <summary>
         /// Adding the first layer, we specify the input vector feature dimensions

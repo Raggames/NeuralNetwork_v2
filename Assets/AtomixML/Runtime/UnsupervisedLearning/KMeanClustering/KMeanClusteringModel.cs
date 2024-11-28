@@ -45,7 +45,7 @@ namespace Atom.MachineLearning.Unsupervised.KMeanClustering
         public void UpdateCentroids(List<double[]> newCentroids)
         {
             for (int i = 0; i < _centroids.Count; ++i)
-                for (int k = 0; k < _centroids[i].Length; ++k)
+                for (int k = 0; k < _centroids[i].length; ++k)
                     _centroids[i].Data[k] = newCentroids[i][k];
         }
 

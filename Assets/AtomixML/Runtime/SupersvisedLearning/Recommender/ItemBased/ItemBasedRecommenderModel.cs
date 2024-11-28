@@ -57,7 +57,7 @@ namespace Atom.MachineLearning.Supervised.Recommender.ItemBased
 
         private NVector PredictCosine(NVector userRatings)
         {
-            NVector result = new NVector(userRatings.Length);
+            NVector result = new NVector(userRatings.length);
 
             // predict will be done by computing a score foreach item that user hasn't rated
             // the input data is a sparse row vector so we will ignore each feature that is not 0 (0 mean no rating)
@@ -72,7 +72,7 @@ namespace Atom.MachineLearning.Supervised.Recommender.ItemBased
                 return _itemsAverageRatings;
             }
 
-            for (int i = 0; i < userRatings.Length; i++)
+            for (int i = 0; i < userRatings.length; i++)
             {
                 // we have to predict only missing cases
                 // predicting 'known' rating will be used for scoring the model
@@ -84,7 +84,7 @@ namespace Atom.MachineLearning.Supervised.Recommender.ItemBased
                     double r_s_sum = 0.0;
                     double s_sum = 0.0;
 
-                    for (int j = 0; j < userRatings.Length; j++)
+                    for (int j = 0; j < userRatings.length; j++)
                     {
                         if (i == j) // || userRatings[i] == 0 || userRatings[j] == 0 ? do we take in account other missing rate ? 
                             continue;
@@ -106,7 +106,7 @@ namespace Atom.MachineLearning.Supervised.Recommender.ItemBased
 
         private NVector PredictAdjustedCosine(NVector userRatings)
         {
-            NVector result = new NVector(userRatings.Length);
+            NVector result = new NVector(userRatings.length);
             var mean = userRatings.Average();
 
             // mmean = 0 means user has no rating at all,
@@ -122,7 +122,7 @@ namespace Atom.MachineLearning.Supervised.Recommender.ItemBased
             // predict will be done by computing a score foreach item that user hasn't rated
             // the input data is a sparse row vector so we will ignore each feature that is not 0 (0 mean no rating)
             // the predicted score will be an average of rating related to the predicted item, ponderated by the similarity
-            for (int i = 0; i < userRatings.Length; i++)
+            for (int i = 0; i < userRatings.length; i++)
             {
                 // we have to predict only missing cases
                 // predicting 'known' rating will be used for scoring the model
@@ -131,7 +131,7 @@ namespace Atom.MachineLearning.Supervised.Recommender.ItemBased
                     double weightedSum = 0.0;
                     double similaritySum = 0.0;
 
-                    for (int j = 0; j < userRatings.Length; j++)
+                    for (int j = 0; j < userRatings.length; j++)
                     {
                         if (i != j && userRatings[j] > 0)
                         {
@@ -161,8 +161,8 @@ namespace Atom.MachineLearning.Supervised.Recommender.ItemBased
         {
             // we keep the training datas that will serve for prediction (which is in fact a simple similarity-ponderated interpolation) 
             _userItemRawMatrix = NMatrix.FromNVectorArray(x_datas);
-            _itemsAverageRatings = new NVector(x_datas[0].Length);
-            _itemSimilarityMatrix = new NMatrix(x_datas[0].Length, x_datas[0].Length);
+            _itemsAverageRatings = new NVector(x_datas[0].length);
+            _itemSimilarityMatrix = new NMatrix(x_datas[0].length, x_datas[0].length);
 
             ComputeItemMeanRatings(x_datas);
 
@@ -183,7 +183,7 @@ namespace Atom.MachineLearning.Supervised.Recommender.ItemBased
 
         private void ComputeItemMeanRatings(NVector[] x_datas)
         {
-            for (int i = 0; i < x_datas[0].Length; ++i)
+            for (int i = 0; i < x_datas[0].length; ++i)
             {
                 int count = 0;
                 for (int u = 0; u < x_datas.GetLength(0); u++)
@@ -236,7 +236,7 @@ namespace Atom.MachineLearning.Supervised.Recommender.ItemBased
 
         private void ComputeAdjustedCosineSimilarityMatrix(NVector[] x_datas)
         {
-            int itemCount = x_datas[0].Length;
+            int itemCount = x_datas[0].length;
             double[] userMeanRatings = x_datas.Select(user => user.SparseAverage()).ToArray();
             _itemSimilarityMatrix = new NMatrix(itemCount, itemCount);
 

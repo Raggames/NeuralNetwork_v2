@@ -36,7 +36,7 @@ namespace Atom.MachineLearning.Core.Training
             _trainIteratable = target;
             return this;
         }
-        
+
         public ITrainingSupervisor SetTrainBatchIteration(IBatchedTrainIteratable target)
         {
             _batchedTrainIteratable = target;
@@ -68,7 +68,7 @@ namespace Atom.MachineLearning.Core.Training
             if (_trainIteratable != null && trainLenght != 0)
             {
                 await Task.Factory.StartNew(() => OnlineRunner(epochs, trainLenght, _cancellationTokenSource.Token));
-            }           
+            }
             else throw new Exception($"Supervisor should be initialized with iterators");
         }
 
@@ -86,10 +86,10 @@ namespace Atom.MachineLearning.Core.Training
             if (_batchedTrainIteratable != null)
             {
                 await Task.Factory.StartNew(() => BatchRunner(epochs, trainLength, batchSize, _cancellationTokenSource.Token));
-            }            
+            }
             else throw new Exception($"Supervisor should be initialized with iterators");
         }
-                
+
         public async Task RunEpochAsync(int epochs, bool shuffleTrainIndex = true)
         {
             if (_cancellationTokenSource != null)
@@ -104,7 +104,7 @@ namespace Atom.MachineLearning.Core.Training
             if (_epochIteratable != null)
             {
                 await Task.Factory.StartNew(() => EpochRunner(epochs, _cancellationTokenSource.Token));
-            }            
+            }
             else throw new Exception($"Supervisor should be initialized with iterators");
         }
 
@@ -129,7 +129,7 @@ namespace Atom.MachineLearning.Core.Training
 
                         indexes.RemoveAt(index);
                     }
-                    
+
                     _epochIteratable.OnAfterEpoch(i);
                     cancellationToken.ThrowIfCancellationRequested();
                 }
@@ -161,60 +161,69 @@ namespace Atom.MachineLearning.Core.Training
         {
             var batchIndexes = new int[batchSize];
 
-            if (_shuffleTrainIndex)
+            try
             {
-                var indexes = new List<int>();
-
-                for (int i = 0; i < epochs; i++)
+                if (_shuffleTrainIndex)
                 {
-                    indexes.AddRange(Enumerable.Range(0, trainLenght));
+                    var indexes = new List<int>();
 
-                    _batchedTrainIteratable.OnBeforeEpoch(i);
-
-                    while (indexes.Count > 0)
+                    for (int i = 0; i < epochs; i++)
                     {
-                        for(int j = 0; j <  batchSize; j++)
+                        indexes.AddRange(Enumerable.Range(0, trainLenght));
+
+                        _batchedTrainIteratable.OnBeforeEpoch(i);
+
+                        while (indexes.Count > 0)
                         {
-                            int index = MLRandom.Shared.Range(0, indexes.Count);
-                            batchIndexes[j] = indexes[index];
-                            indexes.RemoveAt(index);
+                            for (int j = 0; j < batchSize; j++)
+                            {
+                                int index = MLRandom.Shared.Range(0, indexes.Count);
+                                batchIndexes[j] = indexes[index];
+                                indexes.RemoveAt(index);
+                            }
+
+                            _batchedTrainIteratable.OnTrainNextBatch(batchIndexes);
+                            cancellationToken.ThrowIfCancellationRequested();
                         }
 
-                        _batchedTrainIteratable.OnTrainNextBatch(batchIndexes);
+                        _batchedTrainIteratable.OnAfterEpoch(i);
                         cancellationToken.ThrowIfCancellationRequested();
                     }
 
-                    _batchedTrainIteratable.OnAfterEpoch(i);
-                    cancellationToken.ThrowIfCancellationRequested();
+                    _cancellationTokenSource = null;
                 }
-
-                _cancellationTokenSource = null;
-            }
-            else
-            {
-
-                for (int i = 0; i < epochs; i++)
+                else
                 {
-                    _batchedTrainIteratable.OnBeforeEpoch(i);
-                                        
-                    for (int j = 0; j < trainLenght; j += batchSize)
+
+                    for (int i = 0; i < epochs; i++)
                     {
-                        for (int k = 0; k < batchSize; k++)
+                        _batchedTrainIteratable.OnBeforeEpoch(i);
+
+                        for (int j = 0; j < trainLenght - batchSize; j += batchSize)
                         {
-                            int index = j + k;
-                            batchIndexes[k] = index;
+                            for (int k = 0; k < batchSize; k++)
+                            {
+                                int index = j + k;
+                                batchIndexes[k] = index;
+                            }
+
+                            _batchedTrainIteratable.OnTrainNextBatch(batchIndexes);
+                            cancellationToken.ThrowIfCancellationRequested();
                         }
 
-                        _batchedTrainIteratable.OnTrainNextBatch(batchIndexes);
+                        _batchedTrainIteratable.OnAfterEpoch(i);
                         cancellationToken.ThrowIfCancellationRequested();
                     }
 
-                    _batchedTrainIteratable.OnAfterEpoch(i);
-                    cancellationToken.ThrowIfCancellationRequested();
+                    _cancellationTokenSource = null;
                 }
 
-                _cancellationTokenSource = null;
             }
+            catch
+            {
+
+            }
+
         }
 
         private void EpochRunner(int epochs, CancellationToken cancellationToken)

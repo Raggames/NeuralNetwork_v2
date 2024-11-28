@@ -38,7 +38,7 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
         [HyperParameter, SerializeField] private float _momentum = .01f;
         [HyperParameter, SerializeField] private float _weightDecay = .0001f;
 
-        [HyperParameter, SerializeField] private AnimationCurve _learningRateCurve = new AnimationCurve(new Keyframe(0,1), new Keyframe(1, 0));
+        [HyperParameter, SerializeField] private AnimationCurve _learningRateCurve = new AnimationCurve(new Keyframe(0, 1), new Keyframe(1, 0));
 
         [ShowInInspector, ReadOnly] private int _currentEpoch;
         [ShowInInspector, ReadOnly] private float _currentLearningRate;
@@ -139,37 +139,46 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
 
         public void OnTrainNextBatch(int[] batchIndexes)
         {
-            foreach(var index in batchIndexes)
+            try
             {
-                var input = _x_datas[index];
-
-                _outputBuffer = trainedModel.Predict(input);
-
-                // we try to reconstruct the input while autoencoding
-                var error = _lossFunction(input);
-                trainedModel.Backpropagate(error);
-
-                if (index % 10 == 0)
+                foreach (var index in batchIndexes)
                 {
-                    int ind = 0;
+                    var input = _x_datas[index];
 
-                    foreach (var layer in trainedModel.encoder.Layers)
+                    _outputBuffer = trainedModel.Predict(input);
+
+                    // we try to reconstruct the input while autoencoding
+                    var error = _lossFunction(input);
+                    trainedModel.Backpropagate(error);
+
+                    if (index % 10 == 0)
                     {
-                        LayerInfos[ind].AverageWeight = layer.GetAverageWeights();
-                        LayerInfos[ind].AverageBias = layer.GetAverageBias();
-                        ind++;
-                    }
-                    foreach (var layer in trainedModel.decoder.Layers)
-                    {
-                        LayerInfos[ind].AverageWeight = layer.GetAverageWeights();
-                        LayerInfos[ind].AverageBias = layer.GetAverageBias();
-                        ind++;
+                        int ind = 0;
+
+                        foreach (var layer in trainedModel.encoder.Layers)
+                        {
+                            LayerInfos[ind].AverageWeight = layer.GetAverageWeights();
+                            LayerInfos[ind].AverageBias = layer.GetAverageBias();
+                            ind++;
+                        }
+                        foreach (var layer in trainedModel.decoder.Layers)
+                        {
+                            LayerInfos[ind].AverageWeight = layer.GetAverageWeights();
+                            LayerInfos[ind].AverageBias = layer.GetAverageBias();
+                            ind++;
+                        }
                     }
                 }
+
+                trainedModel.AverageGradients(batchIndexes.Length);
+                trainedModel.UpdateWeights(_currentLearningRate, _biasRate, _momentum, _weightDecay);
+            }
+            catch (Exception ex)
+            {
+                var input = _x_datas[0];
+
             }
 
-            trainedModel.AverageGradients(batchIndexes.Length);
-            trainedModel.UpdateWeights(_currentLearningRate, _biasRate, _momentum, _weightDecay);
 
         }
 
@@ -243,7 +252,7 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
                 outputs[i] = trainedModel.Predict(_t_datas[i]);
             }
 
-            return MLMetricFunctions.PearsonCoefficient(_t_datas, outputs);
+            return MLMetricFunctions.RR(_t_datas, outputs);
         }
 
         [Button]

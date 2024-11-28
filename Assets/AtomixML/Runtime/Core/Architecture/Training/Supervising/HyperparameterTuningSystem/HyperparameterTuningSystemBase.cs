@@ -12,6 +12,7 @@ namespace Atom.MachineLearning.Core
             where KModelTuningProfile : ITuningProfile<KHyperParameterSet>
             where TModel : IMLModel<TModelInput, TModelOutput>
             where TTrainer : IMLTrainer<TModel, TModelInput, TModelOutput>
+            where TModelInput : ICloneable
     {
         /// <summary>
         /// Start search using trainers in parallel, executing a search by accessing tuning profile of each trainer.
@@ -25,7 +26,8 @@ namespace Atom.MachineLearning.Core
         /// <param name="trainers"> the batch of trainers that will be used in parallel to search the hyperparameter dimensions </param>
         /// <param name=""></param>
         /// <returns> the best found set of hyperparameter data </returns>
-        public abstract Task<KHyperParameterSet> Search(int iterations, KModelTuningProfile kModelTuningProfile, TModelInput[] t_inputs, TTrainer[] trainers);
+        //public abstract Task<KHyperParameterSet> Search(int iterations, KModelTuningProfile kModelTuningProfile, TModelInput[] t_inputs, TTrainer[] trainers);
+        public abstract void Search(int iterations, KModelTuningProfile kModelTuningProfile, TModelInput[] t_inputs, TTrainer[] trainers);
 
     }
 }

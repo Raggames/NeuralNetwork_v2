@@ -77,10 +77,10 @@ namespace Atom.MachineLearning.Core
 
         public static NMatrix FromNVectorArray(NVector[] array)
         {
-            NMatrix result = new NMatrix(array.Length, array[0].Length);
+            NMatrix result = new NMatrix(array.Length, array[0].length);
             for (int i = 0; i < array.Length; ++i)
             {
-                for (int j = 0; j < array[i].Length; ++j)
+                for (int j = 0; j < array[i].length; ++j)
                 {
                     result.Datas[i, j] = array[i][j];
                 }
@@ -145,9 +145,9 @@ namespace Atom.MachineLearning.Core
 
         public static NMatrix OuterProduct(NVector a, NVector b)
         {
-            var matrix = new NMatrix(a.Length, b.Length);
-            for (int i = 0; i < a.Length; ++i)
-                for (int j = 0; j < b.Length; ++j)
+            var matrix = new NMatrix(a.length, b.length);
+            for (int i = 0; i < a.length; ++i)
+                for (int j = 0; j < b.length; ++j)
                     matrix.Datas[i, j] = a.Data[i] * b.Data[j];
 
             return matrix;

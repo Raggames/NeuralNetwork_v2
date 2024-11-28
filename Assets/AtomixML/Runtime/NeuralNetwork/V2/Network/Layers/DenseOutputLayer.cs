@@ -14,7 +14,7 @@ namespace Atom.MachineLearning.NeuralNetwork.V2
         {
             var derivated_error = _derivativeFunction(_output);
 
-            for (int i = 0; i < _gradient.Length; ++i)
+            for (int i = 0; i < _gradient.length; ++i)
             {
                 //UnityEngine.Debug.Log($"NEW output derivative {i} > " + derivated_error[i]);
 
@@ -29,17 +29,17 @@ namespace Atom.MachineLearning.NeuralNetwork.V2
         {
             var derivated_error = _derivativeFunction(_output);
 
-            for (int i = 0; i < _gradient.Length; ++i)
+            for (int i = 0; i < _gradient.length; ++i)
             {
 
                 _gradient[i] = derivated_error[i] * preComputedGradient[i];
             }
 
             var prev_layer_gradient = new NVector(_weights.Columns);
-            for (int i = 0; i < prev_layer_gradient.Length; ++i)
+            for (int i = 0; i < prev_layer_gradient.length; ++i)
             {
                 double sum = 0.0;
-                for (int j = 0; j < _gradient.Length; ++j)
+                for (int j = 0; j < _gradient.length; ++j)
                 {
                     sum += _gradient[j] * _weights[j, i];
                 }

@@ -32,7 +32,7 @@ namespace Atom.MachineLearning.Supervised.SVM.NonLinear
         public double Compute(NVector v1, NVector v2)
         {
             double sum = 0.0;
-            for(int i = 0; i < v1.Length; ++i)
+            for(int i = 0; i < v1.length; ++i)
                 sum += v1[i] * v2[i];
 
             double z = _gamma * sum + _c;
@@ -53,7 +53,7 @@ namespace Atom.MachineLearning.Supervised.SVM.NonLinear
         public double Compute(NVector v1, NVector v2)
         {
             double sum = 0.0;
-            for (int i = 0; i < v1.Length; ++i)
+            for (int i = 0; i < v1.length; ++i)
                 sum += (v1[i] - v2[i]) * (v1[i] - v2[i]);
 
             return Math.Exp(-this._gamma * sum);

@@ -14,11 +14,12 @@ namespace Atom.MachineLearning.Core
             where KModelTuningProfile : ITuningProfile<IStochasticGradientDescentParameters>
             where TModel : IMLModel<TModelInput, TModelOutput>
             where TTrainer : IMLTrainer<TModel, TModelInput, TModelOutput>
+            where TModelInput : ICloneable
     {
         private object _lock = new object();
 
         public struct HyperparameterData : IStochasticGradientDescentParameters
-        {            
+        {
             public double Score { get; set; }
 
             public int Epochs { get; set; }
@@ -40,109 +41,203 @@ namespace Atom.MachineLearning.Core
             }
         }
 
-        public override async Task<IStochasticGradientDescentParameters> Search(int iterations, KModelTuningProfile kModelTuningProfile, TModelInput[] t_inputs, TTrainer[] trainers)
+        //public override async Task<IStochasticGradientDescentParameters> Search(int iterations, KModelTuningProfile kModelTuningProfile, TModelInput[] t_inputs, TTrainer[] trainers)
+        public override async void Search(int iterations, KModelTuningProfile kModelTuningProfile, TModelInput[] t_inputs, TTrainer[] trainers)
         {
-            await Task.Delay(1);
+            //await Task.Delay(1);
+            var learning_rate =4;
+
+            double[][] scores = new double[iterations][];
+            HyperparameterData[][] hyperparametersHistory = new HyperparameterData[iterations][];
+            var besthyperparameterDatas = new List<HyperparameterData>();
+
+            /// cloning datas to avoid race condition while parallel processing on the same dataset
+            TModelInput[][] datas = new TModelInput[trainers.Length][];
+            for (int i = 0; i < trainers.Length; ++i)
+            {
+                datas[i] = (TModelInput[])t_inputs.Clone();
+            }
+
+            // random init of the hyperparameter 'vector'
+            foreach (var trainer in trainers)
+            {
+                var trainerParam = (trainer as IStochasticGradientDescentParameters);
+
+                trainerParam.Epochs = MLRandom.Shared.Range(kModelTuningProfile.LowerBound.Epochs, kModelTuningProfile.UpperBound.Epochs);
+                trainerParam.BatchSize = MLRandom.Shared.Range(kModelTuningProfile.LowerBound.BatchSize, kModelTuningProfile.UpperBound.BatchSize);
+                trainerParam.LearningRate = MLRandom.Shared.Range(kModelTuningProfile.LowerBound.LearningRate, kModelTuningProfile.UpperBound.LearningRate);
+                trainerParam.BiasRate = MLRandom.Shared.Range(kModelTuningProfile.LowerBound.BiasRate, kModelTuningProfile.UpperBound.BiasRate);
+                trainerParam.Momentum = MLRandom.Shared.Range(kModelTuningProfile.LowerBound.Momentum, kModelTuningProfile.UpperBound.Momentum);
+                trainerParam.WeightDecay = MLRandom.Shared.Range(kModelTuningProfile.LowerBound.WeightDecay, kModelTuningProfile.UpperBound.WeightDecay);
+            }
 
             int it_index = 0;
-            double[] scores = new double[trainers.Length];
-            var bestHyperparameterDatas = new List<HyperparameterData>();
-
-           /* var inputs = new TModelInput[t_inputs.Length];
-            for(int i = 0; i < t_inputs.Length; ++i)
-            {
-                inputs[i] = JsonConvert.DeserializeObject<TModelInput>(JsonConvert.SerializeObject(t_inputs[i]));
-            }*/
-
             while (it_index < iterations)
             {
+                scores[it_index] = new double[trainers.Length];
+                hyperparametersHistory[it_index] = new HyperparameterData[trainers.Length];
+
                 Debug.Log($"Tuner enter iteration {it_index}");
-
-                // init random values in the search space given by the profile
-                foreach (var trainer in trainers)
-                {
-                    var trainerParam = (trainer as IStochasticGradientDescentParameters);
-
-                    trainerParam.Epochs = MLRandom.Shared.Range(kModelTuningProfile.LowerBound.Epochs, kModelTuningProfile.UpperBound.Epochs);
-                    trainerParam.BatchSize = MLRandom.Shared.Range(kModelTuningProfile.LowerBound.BatchSize, kModelTuningProfile.UpperBound.BatchSize);
-                    trainerParam.LearningRate = MLRandom.Shared.Range(kModelTuningProfile.LowerBound.LearningRate, kModelTuningProfile.UpperBound.LearningRate);
-                    trainerParam.BiasRate = MLRandom.Shared.Range(kModelTuningProfile.LowerBound.BiasRate, kModelTuningProfile.UpperBound.BiasRate);
-                    trainerParam.Momentum = MLRandom.Shared.Range(kModelTuningProfile.LowerBound.Momentum, kModelTuningProfile.UpperBound.Momentum);
-                    trainerParam.WeightDecay = MLRandom.Shared.Range(kModelTuningProfile.LowerBound.WeightDecay, kModelTuningProfile.UpperBound.WeightDecay);
-                }
-
-                /* Parallel.For(0, trainers.Length, (index) =>
-                 {
-                     *//* var fit = trainers[index].Fit(t_inputs);
-                      fit.RunSynchronously();
-                      var tr_result = fit.Result;
-
-                      var score = trainers[index].Score();
-                      score.RunSynchronously();
-                      var tr_score = score.Result;
-                     *//*
-
-                     var tr_result = trainers[index].FitSynchronously(t_inputs);
-                     var tr_score = trainers[index].ScoreSynchronously();
-
-                     lock (_lock)
-                         scores[index] = tr_score;
-                 });*/
 
                 var fitTasks = trainers.Select(async (trainer, index) =>
                 {
                     await Task.Delay(1);
 
-                    // Fit the trainer asynchronously
+                    /*// Fit the trainer asynchronously
                     var tr_result = trainer.FitSynchronously(t_inputs);
 
                     // Score the trainer asynchronously
-                    var tr_score = trainer.ScoreSynchronously();
+                    var tr_score = trainer.ScoreSynchronously();*/
+
+                    // Fit the trainer asynchronously
+                    var tr_result = await trainer.Fit(datas[index]);
+
+                    // Score the trainer asynchronously
+                    var tr_score = await trainer.Score();
 
                     // Safely update the scores array
                     lock (_lock)
                     {
-                        scores[index] = tr_score;
+                        hyperparametersHistory[it_index][index] = new HyperparameterData(tr_score, trainer as IStochasticGradientDescentParameters);
+                        scores[it_index][index] = tr_score;
                     }
                 }).ToArray();
 
                 // Wait for all tasks to complete
                 await Task.WhenAll(fitTasks);
 
-                Debug.Log($"Tuner end fit iteration {it_index}");
+                //Debug.Log($"Tuner end fit iteration {it_index}");
 
+                var iteration_best_score = double.MinValue;
+                int iteration_best_score_index = -1;
+                var iteration_lowest_score = double.MaxValue;
+                int iteration_lowest_score_index = -1;
 
-                var best_score = double.MinValue;
-                int best_score_index = -1;
-
-                for (int i = 0; i < scores.Length; ++i)
+                for (int i = 0; i < scores[it_index].Length; ++i)
                 {
-                    if (scores[i] > best_score)
+                    Debug.Log($"Tuner {i} scored {scores[it_index][i]}");
+
+                    if (scores[it_index][i] > iteration_best_score)
                     {
-                        best_score = scores[i];
-                        best_score_index = i;
+                        iteration_best_score = scores[it_index][i];
+                        iteration_best_score_index = i;
+                    }
+                    else if (scores[it_index][i] < iteration_lowest_score)
+                    {
+                        iteration_lowest_score = scores[it_index][i];
+                        iteration_lowest_score_index = i;
                     }
                 }
 
-                bestHyperparameterDatas.Add(new HyperparameterData(best_score, trainers[best_score_index] as IStochasticGradientDescentParameters));
+                besthyperparameterDatas.Add(new HyperparameterData(iteration_best_score, trainers[iteration_best_score_index] as IStochasticGradientDescentParameters));
 
                 it_index++;
-                await Task.Delay(1);
+                //await Task.Delay(1);
+                               
+                int trainer_index = 0;
+                // init random values in the search space given by the profile
+                foreach (var trainer in trainers)
+                {
+                    var trainerParam = (trainer as IStochasticGradientDescentParameters);
+
+
+                    if(it_index < 2)
+                    {
+                        var best_iteration_vector = (trainers[iteration_best_score_index] as IStochasticGradientDescentParameters).GetHyperparameterVector();
+                        var low_iteration_vector = (trainers[iteration_lowest_score_index] as IStochasticGradientDescentParameters).GetHyperparameterVector();
+                        var gradient_vector = (best_iteration_vector - low_iteration_vector);
+
+                        Debug.Log($"Hyperparameter diff at {it_index}th iteration > {gradient_vector}");
+
+                        trainerParam.Epochs = MLRandom.Shared.Range(kModelTuningProfile.LowerBound.Epochs, kModelTuningProfile.UpperBound.Epochs);
+                        trainerParam.BatchSize = MLRandom.Shared.Range(kModelTuningProfile.LowerBound.BatchSize, kModelTuningProfile.UpperBound.BatchSize);
+                        trainerParam.LearningRate = MLRandom.Shared.Range(kModelTuningProfile.LowerBound.LearningRate, kModelTuningProfile.UpperBound.LearningRate);
+                        trainerParam.BiasRate = MLRandom.Shared.Range(kModelTuningProfile.LowerBound.BiasRate, kModelTuningProfile.UpperBound.BiasRate);
+                        trainerParam.Momentum = MLRandom.Shared.Range(kModelTuningProfile.LowerBound.Momentum, kModelTuningProfile.UpperBound.Momentum);
+                        trainerParam.WeightDecay = MLRandom.Shared.Range(kModelTuningProfile.LowerBound.WeightDecay, kModelTuningProfile.UpperBound.WeightDecay);
+                    }
+                    else
+                    {
+                        // bring some pure randomness 
+                        if (MLRandom.Shared.Range(0.0, 1.0) > .5)
+                        {
+                            trainerParam.Epochs = MLRandom.Shared.Range(kModelTuningProfile.LowerBound.Epochs, kModelTuningProfile.UpperBound.Epochs);
+                            trainerParam.BatchSize = MLRandom.Shared.Range(kModelTuningProfile.LowerBound.BatchSize, kModelTuningProfile.UpperBound.BatchSize);
+                            trainerParam.LearningRate = MLRandom.Shared.Range(kModelTuningProfile.LowerBound.LearningRate, kModelTuningProfile.UpperBound.LearningRate);
+                            trainerParam.BiasRate = MLRandom.Shared.Range(kModelTuningProfile.LowerBound.BiasRate, kModelTuningProfile.UpperBound.BiasRate);
+                            trainerParam.Momentum = MLRandom.Shared.Range(kModelTuningProfile.LowerBound.Momentum, kModelTuningProfile.UpperBound.Momentum);
+                            trainerParam.WeightDecay = MLRandom.Shared.Range(kModelTuningProfile.LowerBound.WeightDecay, kModelTuningProfile.UpperBound.WeightDecay);
+                        }
+                        else
+                        {
+                            var sorted_hp = besthyperparameterDatas.OrderByDescending(t => t.Score).ToArray();
+
+                            var best_tparam = (sorted_hp[0] as IStochasticGradientDescentParameters);
+                            var local_hp_vector = trainerParam.GetHyperparameterVector();
+                            NVector gradient_vector = new NVector();
+                            var best_overall_hp_vector = best_tparam.GetHyperparameterVector();
+
+                            if (best_overall_hp_vector == trainerParam.GetHyperparameterVector())
+                            {
+                                var lowest_hp = (sorted_hp[0] as IStochasticGradientDescentParameters).GetHyperparameterVector();
+                                gradient_vector = (local_hp_vector - lowest_hp);
+
+                                Debug.Log($"Hyperparameter gradient for highest at {it_index}th iteration > {gradient_vector}");
+
+                            }
+                            else
+                            {
+
+                                gradient_vector = (best_overall_hp_vector - local_hp_vector);
+                                Debug.Log($"Hyperparameter gradient at {it_index}th iteration > {gradient_vector}");
+                            }
+
+                            if (gradient_vector.magnitude < .001)
+                            {
+                                for (int i = 0; i < gradient_vector.length; i++)
+                                {
+                                    gradient_vector[i] = MLRandom.Shared.Range(-1.0, 1.0) * learning_rate;
+                                }
+                            }
+
+                            trainerParam.Epochs += (int)Math.Round(MLRandom.Shared.Range(-.25, 1.0) * (kModelTuningProfile.UpperBound.Epochs - kModelTuningProfile.UpperBound.Epochs) * learning_rate * gradient_vector[0]);
+                            trainerParam.BatchSize += (int)Math.Round(MLRandom.Shared.Range(-.25, 1.0) * (kModelTuningProfile.UpperBound.BatchSize - kModelTuningProfile.UpperBound.BatchSize) * learning_rate * gradient_vector[1]);
+
+                            trainerParam.LearningRate += (float)(MLRandom.Shared.Range(-.25, 1.0) * (kModelTuningProfile.UpperBound.LearningRate - kModelTuningProfile.UpperBound.LearningRate) * learning_rate * gradient_vector[2]);
+                            trainerParam.BiasRate += (float)(MLRandom.Shared.Range(-.25, 1.0) * (kModelTuningProfile.UpperBound.BiasRate - kModelTuningProfile.UpperBound.BiasRate) * learning_rate * gradient_vector[3]);
+                            trainerParam.Momentum += (float)(MLRandom.Shared.Range(-.25, 1.0) * (kModelTuningProfile.UpperBound.Momentum - kModelTuningProfile.UpperBound.Momentum) * learning_rate * gradient_vector[4]);
+                            trainerParam.WeightDecay += (float)(MLRandom.Shared.Range(-.25, 1.0) * (kModelTuningProfile.UpperBound.WeightDecay - kModelTuningProfile.UpperBound.WeightDecay) * learning_rate * gradient_vector[5]);
+                        }                        
+                    }
+
+                }
             }
 
             var best_overall_score = double.MinValue;
             int best_overall_score_index = -1;
 
-            for (int i = 0; i < bestHyperparameterDatas.Count; ++i)
+            for (int i = 0; i < besthyperparameterDatas.Count; ++i)
             {
-                if (bestHyperparameterDatas[i].Score > best_overall_score)
+                Debug.Log($"Tuner {i} hp score > {besthyperparameterDatas[i].Score}");
+
+                if (besthyperparameterDatas[i].Score > best_overall_score)
                 {
-                    best_overall_score = scores[i];
+                    best_overall_score = besthyperparameterDatas[i].Score;
                     best_overall_score_index = i;
                 }
             }
 
-            return bestHyperparameterDatas[best_overall_score_index];
+            Debug.Log($"Best overall hp score > {besthyperparameterDatas[best_overall_score_index].Score}");
+
+            //return bestHyperparameterDatas[best_overall_score_index];
+
+            Debug.Log($"End fit. Best params : " +
+              $"Epochs = {besthyperparameterDatas[best_overall_score_index].Epochs}, " +
+              $"Batchsize = {besthyperparameterDatas[best_overall_score_index].BatchSize}, " +
+              $"LearningRate = {besthyperparameterDatas[best_overall_score_index].LearningRate}, " +
+              $"BiasRate = {besthyperparameterDatas[best_overall_score_index].BiasRate}, " +
+              $"Momentum = {besthyperparameterDatas[best_overall_score_index].Momentum}, " +
+              $"WeightDecay = {besthyperparameterDatas[best_overall_score_index].WeightDecay}, ");
         }
     }
 

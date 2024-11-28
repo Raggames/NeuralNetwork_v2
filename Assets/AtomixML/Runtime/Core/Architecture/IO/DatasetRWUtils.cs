@@ -158,7 +158,7 @@ namespace Atom.MachineLearning.IO
         {
             train = new NVector[splitIndex];
             test = new NVector[datas.GetLength(0) - splitIndex];
-            int dimensions = datas[0].Length;
+            int dimensions = datas[0].length;
 
             //ShuffleRows(datas);
 

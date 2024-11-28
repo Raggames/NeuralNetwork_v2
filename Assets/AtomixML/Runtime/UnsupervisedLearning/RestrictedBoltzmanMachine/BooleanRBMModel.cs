@@ -63,8 +63,8 @@ namespace Atom.MachineLearning.Unsupervised.BoltzmanMachine
             this._visibleStates = new NVector(visibleUnits);
             this._hiddenStates = new NVector(hiddenUnits);
 
-            _negativeGradient = new double[_hiddenStates.Length, _visibleStates.Length];
-            _positiveGradient = new double[_hiddenStates.Length, _visibleStates.Length];
+            _negativeGradient = new double[_hiddenStates.length, _visibleStates.length];
+            _positiveGradient = new double[_hiddenStates.length, _visibleStates.length];
 
             if (clippingFunction == null)
                 _clippingFunction = (b) => b;
@@ -144,9 +144,9 @@ namespace Atom.MachineLearning.Unsupervised.BoltzmanMachine
         public void UpdateWeightsAndBiases(NVector v, NVector vPrime, NVector h, NVector hPrime, double learningRate, double biasRate, double momentum, double weightDecay)
         {
             // Positive & negative phase gradient computing in the same loop for efficiency
-            for (int j = 0; j < _hiddenStates.Length; j++)
+            for (int j = 0; j < _hiddenStates.length; j++)
             {
-                for (int i = 0; i < _visibleStates.Length; i++)
+                for (int i = 0; i < _visibleStates.length; i++)
                 {
                     _positiveGradient[j, i] = h[j] * v[i]; // Outer product
 
@@ -156,9 +156,9 @@ namespace Atom.MachineLearning.Unsupervised.BoltzmanMachine
             }
 
             // Update weights
-            for (int j = 0; j < _hiddenStates.Length; j++)
+            for (int j = 0; j < _hiddenStates.length; j++)
             {
-                for (int i = 0; i < _visibleStates.Length; i++)
+                for (int i = 0; i < _visibleStates.length; i++)
                 {
                     double step = learningRate * _clippingFunction(_positiveGradient[j, i] - _negativeGradient[j, i]);
                     _weights[j, i] += step;
@@ -181,7 +181,7 @@ namespace Atom.MachineLearning.Unsupervised.BoltzmanMachine
 
 
             // Update biases for visible and hidden layers
-            for (int i = 0; i < _visibleStates.Length; i++)
+            for (int i = 0; i < _visibleStates.length; i++)
             {
                 double step = biasRate * _clippingFunction(v[i] - vPrime[i]);
                 _visibleBias[i] += step;
@@ -284,7 +284,7 @@ namespace Atom.MachineLearning.Unsupervised.BoltzmanMachine
         public double FreeVisibleEnergy(NVector visibleInput)
         {
             var A = 0.0;
-            for (int i = 0; i < visibleInput.Length; ++i)
+            for (int i = 0; i < visibleInput.length; ++i)
             {
                 A += visibleInput[i] * _visibleBias[i];
             }

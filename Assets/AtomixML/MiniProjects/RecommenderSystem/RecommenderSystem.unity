@@ -329,10 +329,14 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
     LayerInfos:
-    - AverageWeight: 0.0009837756534639653
-      AverageBias: 0.0020933463840214117
-    - AverageWeight: -0.0015918116937820987
-      AverageBias: -0.0024184698779184245
+    - AverageWeight: 4.751164201999491e-109
+      AverageBias: 4.6444597979745463e-107
+    - AverageWeight: -2.9345018870227974e-107
+      AverageBias: 1.296323053239124e-96
+    - AverageWeight: 6.775756619838347e-63
+      AverageBias: 1.0299149932917014e-62
+    - AverageWeight: -7.375037019383099e-64
+      AverageBias: -0.0004913367108668006
   _visualizationUpdateTimer: 0.05
   _datasetsFolderPath: Assets/AtomixML/MiniProjects/RecommenderSystem/Resources
   _userToItemProfilesCsvPath: Assets/AtomixML/MiniProjects/RecommenderSystem/Resources/Recommender
@@ -343,13 +347,13 @@ MonoBehaviour:
   _tuningProfile:
     _lowerBound:
       _epochs: 5
-      _batchSize: 1
+      _batchSize: 2
       _learningRate: 0.05
       _biasRate: 0.001
       _momentum: 0.001
       _weightDecay: 0.0001
     _upperBound:
-      _epochs: 100
+      _epochs: 12
       _batchSize: 10
       _learningRate: 4
       _biasRate: 2

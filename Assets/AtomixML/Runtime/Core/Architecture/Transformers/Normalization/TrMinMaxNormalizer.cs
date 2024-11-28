@@ -11,7 +11,7 @@ namespace Atom.MachineLearning.Core.Transformers
 
         public NVector Predict(NVector input)
         {
-            var result = new NVector(input.Length);
+            var result = new NVector(input.length);
             for (int j = 0; j < _dimensions; ++j)
             {
                 if (_maximums[j] == _minimums[j])
@@ -30,14 +30,14 @@ namespace Atom.MachineLearning.Core.Transformers
             if (input.Length == 0)
                 throw new System.Exception("Input should be at least of length = 1");
 
-            _dimensions = input[0].Length;
+            _dimensions = input[0].length;
             _maximums = new NVector(_dimensions);
             _minimums = new NVector(_dimensions);
 
-            for (int i = 0; i < _minimums.Length; ++i)
+            for (int i = 0; i < _minimums.length; ++i)
                 _minimums[i] = float.MaxValue;
 
-            for (int i = 0; i < _maximums.Length; ++i)
+            for (int i = 0; i < _maximums.length; ++i)
                 _maximums[i] = float.MinValue;
 
             for (int i = 0; i < input.Length; ++i)

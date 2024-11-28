@@ -57,7 +57,7 @@ namespace Atom.MachineLearning.Unsupervised.PCA
         /// <returns></returns>
         public NVector Decompress(NVector predictedData)
         {
-            if (predictedData.Length != projectionMatrix.Columns) throw new System.Exception($"The input vector should be an output of the prediction. " +
+            if (predictedData.length != projectionMatrix.Columns) throw new System.Exception($"The input vector should be an output of the prediction. " +
                 $"It should have a number of features equals to the number of components (aka the reduced dimensions from input data");
 
             var transposed = projectionMatrix.Transpose();

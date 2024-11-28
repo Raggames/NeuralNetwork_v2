@@ -51,13 +51,13 @@ namespace Atom.MachineLearning.NeuralNetwork.V2
                 case ActivationFunctions.ReLU:
                     _activationFunction = (r) =>
                     {
-                        for (int i = 0; i < r.Length; ++i)
+                        for (int i = 0; i < r.length; ++i)
                             r[i] = MLActivationFunctions.ReLU(r[i]);
                         return r;
                     };
                     _derivativeFunction = (r) =>
                     {
-                        for (int i = 0; i < r.Length; ++i)
+                        for (int i = 0; i < r.length; ++i)
                             r[i] = MLActivationFunctions.DReLU(r[i]);
                         return r;
                     };
@@ -69,14 +69,14 @@ namespace Atom.MachineLearning.NeuralNetwork.V2
                 case ActivationFunctions.Sigmoid:
                     _activationFunction = (r) =>
                     {
-                        for (int i = 0; i < r.Length; ++i)
+                        for (int i = 0; i < r.length; ++i)
                             r[i] = MLActivationFunctions.Sigmoid(r[i]);
 
                         return r;
                     };
                     _derivativeFunction = (r) =>
                     {
-                        for (int i = 0; i < r.Length; ++i)
+                        for (int i = 0; i < r.length; ++i)
                             r[i] = MLActivationFunctions.DSigmoid(r[i]);
 
                         return r;
@@ -92,7 +92,7 @@ namespace Atom.MachineLearning.NeuralNetwork.V2
                     };
                     _derivativeFunction = (r) =>
                     {
-                        for (int i = 0; i < r.Length; ++i)
+                        for (int i = 0; i < r.length; ++i)
                             r[i] = MLActivationFunctions.DSigmoid(r[i]);
 
                         return r;
@@ -101,14 +101,14 @@ namespace Atom.MachineLearning.NeuralNetwork.V2
                 case ActivationFunctions.Tanh:
                     _activationFunction = (r) =>
                     {
-                        for (int i = 0; i < r.Length; ++i)
+                        for (int i = 0; i < r.length; ++i)
                             r[i] = MLActivationFunctions.Tanh(r[i]);
 
                         return r;
                     };
                     _derivativeFunction = (r) =>
                     {
-                        for (int i = 0; i < r.Length; ++i)
+                        for (int i = 0; i < r.length; ++i)
                             r[i] = MLActivationFunctions.DTanh(r[i]);
 
 
@@ -139,12 +139,12 @@ namespace Atom.MachineLearning.NeuralNetwork.V2
         public double GetAverageBias()
         {
             double sum = 0.0;
-            for (int i = 0; i < _bias.Length; ++i)
+            for (int i = 0; i < _bias.length; ++i)
             {
                 sum += _bias[i];
             }
 
-            return sum / _bias.Length;
+            return sum / _bias.length;
         }
 
         public DenseLayer SeedWeigths(double minWeight = -0.01, double maxWeight = 0.01)
@@ -153,7 +153,7 @@ namespace Atom.MachineLearning.NeuralNetwork.V2
                 for (int j = 0; j < _weights.Columns; ++j)
                     _weights.Datas[i, j] = MLRandom.Shared.Range(minWeight, maxWeight);
 
-            for (int i = 0; i < _bias.Length; ++i)
+            for (int i = 0; i < _bias.length; ++i)
                 _bias.Data[i] = MLRandom.Shared.Range(minWeight, maxWeight);
 
             return this;
@@ -161,10 +161,10 @@ namespace Atom.MachineLearning.NeuralNetwork.V2
 
         public NVector Forward(NVector activationVector)
         {
-            for (int i = 0; i < _input.Length; ++i)
+            for (int i = 0; i < _input.length; ++i)
                 _input[i] = activationVector[i];
 
-            for (int i = 0; i < _output.Length; ++i)
+            for (int i = 0; i < _output.length; ++i)
                 _output[i] = 0;
 
             int neuron = _weights.Datas.GetLength(0);
@@ -193,10 +193,10 @@ namespace Atom.MachineLearning.NeuralNetwork.V2
         {
             var output_derivative = _derivativeFunction(_output);
 
-            for (int i = 0; i < _gradient.Length; ++i)
+            for (int i = 0; i < _gradient.length; ++i)
             {
                 double sum = 0.0;
-                for (int j = 0; j < nextlayerGradient.Length; ++j)
+                for (int j = 0; j < nextlayerGradient.length; ++j)
                 {
                     sum += nextlayerGradient[j] * nextLayerWeight[j, i];
                 }
@@ -219,7 +219,7 @@ namespace Atom.MachineLearning.NeuralNetwork.V2
         {
             var output_derivative = _derivativeFunction(_output);
 
-            for (int i = 0; i < _gradient.Length; ++i)
+            for (int i = 0; i < _gradient.length; ++i)
             {
                 _gradient[i] = output_derivative[i] * preComputedGradient[i];
             }
@@ -229,10 +229,10 @@ namespace Atom.MachineLearning.NeuralNetwork.V2
                 return _gradient;
 
             var prev_layer_gradient = new NVector(_weights.Columns);
-            for (int i = 0; i < prev_layer_gradient.Length; ++i)
+            for (int i = 0; i < prev_layer_gradient.length; ++i)
             {
                 double sum = 0.0;
-                for (int j = 0; j < _gradient.Length; ++j)
+                for (int j = 0; j < _gradient.length; ++j)
                 {
                     sum += _gradient[j] * _weights[j, i];
                 }
@@ -246,7 +246,7 @@ namespace Atom.MachineLearning.NeuralNetwork.V2
         public void AverageGradients(int batchSize)
         {
             double bFloat = (double)batchSize;
-            for (int i = 0; i < _gradient.Length; ++i)
+            for (int i = 0; i < _gradient.length; ++i)
                 _gradient[i] /= bFloat;
         }
 
@@ -271,7 +271,7 @@ namespace Atom.MachineLearning.NeuralNetwork.V2
                     _weightsInertia[i, j] = step;
                 }
 
-            for (int i = 0; i < _bias.Length; ++i)
+            for (int i = 0; i < _bias.length; ++i)
             {
                 //double oldbias = _bias[i];
                 double step = _stepClipping(_gradient[i]) * lr * biasRate;
@@ -282,7 +282,7 @@ namespace Atom.MachineLearning.NeuralNetwork.V2
 
             }
 
-            for (int i = 0; i < _gradient.Length; ++i)
+            for (int i = 0; i < _gradient.length; ++i)
                 _gradient[i] = 0;
         }
     }

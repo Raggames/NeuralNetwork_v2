@@ -8,11 +8,32 @@ namespace Atom.MachineLearning.Core.Maths
 {
     public static class MLCostFunctions
     {
+        public static double BinaryCrossEntropy(NVector t_values, NVector o_values)
+        {
+            double sum = 0.0;
+            for (int i = 0; i < t_values.length; ++i)
+            {
+                sum += -1.0 * (t_values[i] * Math.Log(o_values[i])) + ((1.0 - t_values[i]) * Math.Log(1.0 - o_values[i]));
+            }
+
+            return sum;
+        }
+
+        public static NVector BinaryCrossEntropy_Derivative(NVector t_values, NVector o_values)
+        {
+            NVector error = new NVector(t_values.length);
+            for (int i = 0; i < t_values.length; ++i)
+            {
+                error[i] = o_values[i] - t_values[i];
+            }
+
+            return error;
+        }
 
         public static double CrossEntropy(NVector t_values, NVector o_values)
         {
             double sum = 0.0;
-            for(int i  = 0; i < t_values.Length; ++i)
+            for(int i  = 0; i < t_values.length; ++i)
             {
                 sum += t_values[i] * Math.Log(o_values[i]);
             }
@@ -22,8 +43,8 @@ namespace Atom.MachineLearning.Core.Maths
 
         public static NVector CrossEntropy_Derivative(NVector t_values, NVector o_values)
         {
-            NVector error = new NVector(t_values.Length);
-            for (int i = 0; i < t_values.Length; ++i)
+            NVector error = new NVector(t_values.length);
+            for (int i = 0; i < t_values.length; ++i)
             {
                 error[i] = -1.0 * t_values[i] * Math.Log(o_values[i]);
             }
@@ -40,12 +61,12 @@ namespace Atom.MachineLearning.Core.Maths
         {
             var error = t_values - o_values;
             var result = 0.0;
-            for (int i = 0; i < error.Length; ++i)
+            for (int i = 0; i < error.length; ++i)
             {
                 result += Math.Pow(error[i], 2);
             }
 
-            result /= error.Length;
+            result /= error.length;
 
             return result;
         }
@@ -71,7 +92,7 @@ namespace Atom.MachineLearning.Core.Maths
             var error = t_values - output_values;
             var result = 0.0;
             int total = 0;
-            for (int i = 0; i < error.Length; ++i)
+            for (int i = 0; i < error.length; ++i)
             {
                 if (t_values[i] == maskedValue)
                     continue;
@@ -95,8 +116,8 @@ namespace Atom.MachineLearning.Core.Maths
         /// <returns></returns>
         public static NVector MaskedMSE_Derivative(NVector t_values, NVector output_values, double maskedValue = 0.0)
         {
-            double[] temp = new double[t_values.Length];
-            for (int i = 0; i < t_values.Length; i++)
+            double[] temp = new double[t_values.length];
+            for (int i = 0; i < t_values.length; i++)
             {
                 if (t_values[i] == maskedValue)
                     temp[i] = 0;

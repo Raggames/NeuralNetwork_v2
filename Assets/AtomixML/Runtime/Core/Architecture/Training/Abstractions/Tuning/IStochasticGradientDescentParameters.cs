@@ -16,6 +16,10 @@ namespace Atom.MachineLearning.Core.Training
         public float Momentum { get; set; }
         public float WeightDecay { get; set; }
 
+        public NVector GetHyperparameterVector()
+        {
+           return new NVector((double)Epochs, (double)BatchSize, (double)LearningRate, (double)BiasRate, (double)Momentum, (double)WeightDecay);
+        }
     }
 
     [Serializable]
