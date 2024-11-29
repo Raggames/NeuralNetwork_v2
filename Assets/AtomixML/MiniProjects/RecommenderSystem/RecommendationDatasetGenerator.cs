@@ -78,6 +78,12 @@ namespace Atom.MachineLearning.MiniProjects.RecommenderSystem
             var user_types = new int[ratingsCount];
 
             var ratings = new NVector[ratingsCount];
+            
+            // generating a second matrix that represent the mean value for each user-item if no rating for user (depending on the user profile), and the user actual rating otherwise
+            // this set can be later used to check how the encoder is close from the average user (for ranking)
+            // this set will be a bunch of duplicated datas, but that's for the sake of simplicity
+            var ratings_profile_means = new NVector[ratingsCount];
+
             for (int u = 0; u < ratingsCount; u++)
             {
                 int user_type = MLRandom.Shared.WeightedIndex(_userTypesDistributions.Data);
@@ -86,6 +92,7 @@ namespace Atom.MachineLearning.MiniProjects.RecommenderSystem
                 user_types[u] = user_type;
 
                 ratings[u] = new NVector(item_types.Length);
+                ratings_profile_means[u] = new NVector(item_types.Length);
 
                 for (int i = 0; i < item_types.Length; ++i)
                 {
@@ -95,11 +102,18 @@ namespace Atom.MachineLearning.MiniProjects.RecommenderSystem
                     if (MLRandom.Shared.NextDouble() < generate_threshold)
                     {
                         ratings[u][i] = 0;
+
+                        // profile mean if no value for user
+                        ratings_profile_means[u][i] = item_type_min + (item_type_max - item_type_min) / 2f;
+
                         continue;
                     }
 
                     var base_rating = MLRandom.Shared.Range(item_type_min, item_type_max);
                     ratings[u][i] = base_rating;
+
+                    // actual value if there is one
+                    ratings_profile_means[u][i] = ratings[u][i];
 
                     if (MLRandom.Shared.NextDouble() < outlier_threshold)
                         continue;
@@ -108,12 +122,15 @@ namespace Atom.MachineLearning.MiniProjects.RecommenderSystem
                     var noise = MLRandom.Shared.Range(-2, 2);
                     ratings[u][i] += noise;
                     ratings[u][i] = Mathf.Clamp((float)ratings[u][i], 0, 5);
+
+                    ratings_profile_means[u][i] = ratings[u][i];
                 }
 
                 Debug.Log($"Generated rating for user type {user_type} : {ratings[u]} ");
             }
 
             DatasetRWUtils.WriteCSV($"{_outputDatasetCsvPath}_{ratingsCount}_{itemCount}.csv", ';', itemNames, ratings.ToStringMatrix());
+            DatasetRWUtils.WriteCSV($"{_outputDatasetCsvPath}_{ratingsCount}_{itemCount}_profile_means.csv", ';', itemNames, ratings_profile_means.ToStringMatrix());
 
             var usertypes_matrix = new string[ratings.Length, 1];
             for(int i = 0; i < usertypes_matrix.GetLength(0);  i++)

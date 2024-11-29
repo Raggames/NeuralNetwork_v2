@@ -171,6 +171,110 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &133147241
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 133147243}
+  - component: {fileID: 133147242}
+  m_Layer: 0
+  m_Name: AE_Recommender_100x50r_.80spars_76%
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!114 &133147242
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 133147241}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 97d76d6a1b4112b409de0112698db752, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _trainer:
+    _epochs: 14.77982
+    _batchSize: 8.818423
+    _learningRate: 3.7784755
+    _biasRate: 0.72483397
+    _momentum: 0.37497744
+    _weightDecay: 0.05880148
+    _learningRateCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: -0.7080084
+        outSlope: -0.7080084
+        tangentMode: 34
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 1
+        value: 0.2919916
+        inSlope: -1.9137715
+        outSlope: -1.9137715
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.027259767
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    LayerInfos:
+    - AverageWeight: -0.00018991623468684018
+      AverageBias: -0.0017339525326782966
+    - AverageWeight: 0.003984451677254908
+      AverageBias: 0.005813684372355779
+  _visualizationUpdateTimer: 0.05
+  _datasetsFolderPath: Assets/AtomixML/MiniProjects/RecommenderSystem/Resources
+  _userToItemProfilesCsvPath: Assets/AtomixML/MiniProjects/RecommenderSystem/Resources/Recommender
+    System Toy Dataset - Profiles.csv
+  _userTypes: Assets/AtomixML/MiniProjects/RecommenderSystem/Resources/Recommender
+    System Toy Dataset - User Types.csv
+  _itemTypesDistributionCsvPath: Assets/AtomixML/MiniProjects/RecommenderSystem/Resources/Recommender
+    System Toy Dataset - ItemTypes.csv
+  _datasetPath: Assets/AtomixML/MiniProjects/RecommenderSystem/Resources\dataset_1000_50.csv
+  _tuningProfile:
+    _lowerBound:
+      _epochs: 1
+      _batchSize: 2
+      _learningRate: 0.05
+      _biasRate: 0.0001
+      _momentum: 0.0001
+      _weightDecay: 0.00001
+    _upperBound:
+      _epochs: 30
+      _batchSize: 20
+      _learningRate: 4
+      _biasRate: 1.5
+      _momentum: 1
+      _weightDecay: 0.1
+--- !u!4 &133147243
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 133147241}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1172852310
 GameObject:
   m_ObjectHideFlags: 0
@@ -298,12 +402,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _trainer:
-    _epochs: 52
-    _batchSize: 9
-    _learningRate: 0.09654787
-    _biasRate: 0.76
-    _momentum: 0.3790965
-    _weightDecay: 0.00573466
+    _epochs: 280
+    _batchSize: 8.068901
+    _learningRate: 0.23
+    _biasRate: 1.0886399
+    _momentum: 0.05
+    _weightDecay: 0.00001439707
     _learningRateCurve:
       serializedVersion: 2
       m_Curve:
@@ -329,36 +433,38 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
     LayerInfos:
-    - AverageWeight: 4.751164201999491e-109
-      AverageBias: 4.6444597979745463e-107
-    - AverageWeight: -2.9345018870227974e-107
-      AverageBias: 1.296323053239124e-96
-    - AverageWeight: 6.775756619838347e-63
-      AverageBias: 1.0299149932917014e-62
-    - AverageWeight: -7.375037019383099e-64
-      AverageBias: -0.0004913367108668006
+    - AverageWeight: 0.00018495268806042835
+      AverageBias: 0.001716130203214268
+    - AverageWeight: -0.00007081986201796947
+      AverageBias: 0.009415319890273652
+    - AverageWeight: 0.0215181823106776
+      AverageBias: 0.045982555659378824
+    - AverageWeight: 0.001983294795260945
+      AverageBias: 0.048454581990294815
   _visualizationUpdateTimer: 0.05
   _datasetsFolderPath: Assets/AtomixML/MiniProjects/RecommenderSystem/Resources
   _userToItemProfilesCsvPath: Assets/AtomixML/MiniProjects/RecommenderSystem/Resources/Recommender
     System Toy Dataset - Profiles.csv
+  _userTypes: Assets/AtomixML/MiniProjects/RecommenderSystem/Resources/Recommender
+    System Toy Dataset - UserTypes.csv
   _itemTypesDistributionCsvPath: Assets/AtomixML/MiniProjects/RecommenderSystem/Resources/Recommender
     System Toy Dataset - ItemTypes.csv
-  _datasetPath: Assets/AtomixML/MiniProjects/RecommenderSystem/Resources\dataset_10000_30.csv
+  _datasetPath: Assets/AtomixML/MiniProjects/RecommenderSystem/Resources\dataset_1000_50.csv
   _tuningProfile:
     _lowerBound:
-      _epochs: 5
+      _epochs: 1
       _batchSize: 2
       _learningRate: 0.05
-      _biasRate: 0.001
-      _momentum: 0.001
-      _weightDecay: 0.0001
+      _biasRate: 0.0001
+      _momentum: 0.0001
+      _weightDecay: 0.00000001
     _upperBound:
-      _epochs: 12
-      _batchSize: 10
-      _learningRate: 4
-      _biasRate: 2
-      _momentum: 0.8
-      _weightDecay: 0.01
+      _epochs: 800
+      _batchSize: 20
+      _learningRate: 0.25
+      _biasRate: 1.5
+      _momentum: 0.1
+      _weightDecay: 0.001
 --- !u!4 &1317582474
 Transform:
   m_ObjectHideFlags: 0
@@ -404,7 +510,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _trainer:
-    _epochs: 25
+    _epochs: 4
     _batchSize: 10
     _learningRate: 1
     _biasRate: 0.005
@@ -435,14 +541,16 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
     LayerInfos:
-    - AverageWeight: -0.1302108049893111
-      AverageBias: -0.0016454769599158643
-    - AverageWeight: -0.10175758803672308
-      AverageBias: -0.0017022620034211977
+    - AverageWeight: -0.09869467114855361
+      AverageBias: -0.00025836409791159194
+    - AverageWeight: -0.015967127496105262
+      AverageBias: -0.000972767383080822
   _visualizationUpdateTimer: 0.05
   _datasetsFolderPath: Assets/AtomixML/MiniProjects/RecommenderSystem/Resources
   _userToItemProfilesCsvPath: Assets/AtomixML/MiniProjects/RecommenderSystem/Resources/Recommender
     System Toy Dataset - Profiles.csv
+  _userTypes: Assets/AtomixML/MiniProjects/RecommenderSystem/Resources/Recommender
+    System Toy Dataset - User Types.csv
   _itemTypesDistributionCsvPath: Assets/AtomixML/MiniProjects/RecommenderSystem/Resources/Recommender
     System Toy Dataset - ItemTypes.csv
   _datasetPath: Assets/AtomixML/MiniProjects/RecommenderSystem/Resources\dataset_10000_30.csv
@@ -576,4 +684,5 @@ SceneRoots:
   - {fileID: 1172852312}
   - {fileID: 39955673}
   - {fileID: 1317582474}
+  - {fileID: 133147243}
   - {fileID: 1348593913}

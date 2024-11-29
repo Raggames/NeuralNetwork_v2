@@ -27,7 +27,7 @@ namespace Atom.MachineLearning.Core
         /// <param name=""></param>
         /// <returns> the best found set of hyperparameter data </returns>
         //public abstract Task<KHyperParameterSet> Search(int iterations, KModelTuningProfile kModelTuningProfile, TModelInput[] t_inputs, TTrainer[] trainers);
-        public abstract void Search(int iterations, KModelTuningProfile kModelTuningProfile, TModelInput[] t_inputs, TTrainer[] trainers);
+        public abstract Task<KHyperParameterSet> Search(int iterations, KModelTuningProfile kModelTuningProfile, TModelInput[] t_inputs, TTrainer[] trainers);
 
     }
 }

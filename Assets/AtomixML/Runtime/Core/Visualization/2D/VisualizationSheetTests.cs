@@ -32,6 +32,7 @@ namespace Atom.MachineLearning.Core.Visualization
             _visualizationSheet.Add_SimpleLine(points);
         }
 
+
         [Button]
         private void Test_SimpleLine2()
         {

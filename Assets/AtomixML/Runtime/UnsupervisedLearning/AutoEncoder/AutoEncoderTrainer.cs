@@ -24,15 +24,19 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
         [SerializeField] private AutoEncoderModel _autoEncoder;
         public AutoEncoderModel trainedModel { get => _autoEncoder; set => _autoEncoder = value; }
 
-        public int Epochs { get => _epochs; set => _epochs = value; }
-        public int BatchSize { get => _batchSize; set => _batchSize = value; }
+        public float Epochs { get => _epochs; set => _epochs = value; }
+        public float BatchSize { get => _batchSize; set => _batchSize = value; }
+
+        public int epochs => (int)Math.Round(_epochs);
+        public int batchSize => (int)Math.Round(_batchSize);
+
         public float LearningRate { get => _learningRate; set => _learningRate = value; }
         public float BiasRate { get => _biasRate; set => _biasRate = value; }
         public float Momentum { get => _momentum; set => _momentum = value; }
         public float WeightDecay { get => _weightDecay; set => _weightDecay = value; }
 
-        [HyperParameter, SerializeField] private int _epochs = 1000;
-        [HyperParameter, SerializeField] private int _batchSize = 10;
+        [HyperParameter, SerializeField] private float _epochs = 1000;
+        [HyperParameter, SerializeField] private float _batchSize = 10;
         [HyperParameter, SerializeField] private float _learningRate = .05f;
         [HyperParameter, SerializeField] private float _biasRate = 1f;
         [HyperParameter, SerializeField] private float _momentum = .01f;
@@ -61,6 +65,12 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
         private double _errorSum = 0.0;
         private NVector _outputBuffer;
         private Func<NVector, NVector> _lossFunction;
+        private Func<double> _scoreSynchronouslyDelegate;
+
+        public AutoEncoderTrainer()
+        {
+            _scoreSynchronouslyDelegate = Score_RR;
+        }
 
         public void SetLossFunction(LossFunctions lossFunctions)
         {
@@ -76,7 +86,6 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
 
             throw new NotImplementedException();
         }
-
 
         private void InitFit(NVector[] x_datas)
         {
@@ -103,7 +112,7 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
             _epochSupervisor.SetEpochIteration(this);
             _epochSupervisor.SetTrainIteration(this);
             _epochSupervisor.SetTrainBatchIteration(this);
-            _epochSupervisor.SetAutosave(_epochs / 100);
+            _epochSupervisor.SetAutosave(epochs / 100);
         }
 
         public ITrainingResult FitSynchronously(NVector[] x_datas)
@@ -111,7 +120,7 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
             InitFit(x_datas);
 
             var source = new CancellationTokenSource();
-            _epochSupervisor.BatchRunner(_epochs, _x_datas.Length, _batchSize, source.Token);
+            _epochSupervisor.BatchRunner(epochs, _x_datas.Length, batchSize, source.Token);
 
             return new TrainingResult();
         }
@@ -120,7 +129,7 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
         {
             InitFit(x_datas);
 
-            await _epochSupervisor.RunBatchedAsync(_epochs, _x_datas.Length, _batchSize, true);
+            await _epochSupervisor.RunBatchedAsync(epochs, _x_datas.Length, batchSize, true);
 
             // test train ? 
             // accuracy ?
@@ -246,6 +255,11 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
 
         public double ScoreSynchronously()
         {
+            return _scoreSynchronouslyDelegate();
+        }
+
+        private double Score_RR()
+        {
             var outputs = new NVector[_t_datas.Length];
             for (int i = 0; i < _t_datas.Length; i++)
             {
@@ -253,6 +267,11 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
             }
 
             return MLMetricFunctions.RR(_t_datas, outputs);
+        }
+
+        public void RegisterCustomScoring(Func<double> scoreSynchronouslyDelegate)
+        {
+            _scoreSynchronouslyDelegate = scoreSynchronouslyDelegate;
         }
 
         [Button]
@@ -265,6 +284,5 @@ namespace Atom.MachineLearning.Unsupervised.AutoEncoder
         {
             _epochSupervisor?.Cancel();
         }
-
     }
 }

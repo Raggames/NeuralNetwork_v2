@@ -17,8 +17,9 @@ namespace Atom.MachineLearning.Supervised.SVM.NonLinear
         private double _tolerance = 0.001;
         private int _maximumIterations = 1000;
 
-        
-        public async Task<ITrainingResult> Fit(NonLinearSVMModel model, NVector[] x_datas, NVector t_datas)
+        public NonLinearSVMModel trainedModel { get; set; }
+
+        public async Task<ITrainingResult> Fit(NVector[] x_datas, NVector[] t_datas)
         {
             var x_datas_list = x_datas.ToList();
 
@@ -28,8 +29,8 @@ namespace Atom.MachineLearning.Supervised.SVM.NonLinear
                 var next_input = x_datas_list[index];
                 x_datas_list.RemoveAt(index);
 
-                var y = model.Predict(next_input).x; // output is a scalar 
-                var t = t_datas[index];
+                var y = trainedModel.Predict(next_input).x; // output is a scalar 
+                var t = t_datas[index][0];
 
                 // classified correctly
                 if ((y > 0 && t > 0) || (y < 0 && t < 0))
@@ -71,5 +72,19 @@ namespace Atom.MachineLearning.Supervised.SVM.NonLinear
             return (1.0 * numCorrect) / (numCorrect + numWrong);
         }
 
+        public ITrainingResult FitSynchronously(NVector[] x_datas, NVector[] t_datas)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<double> Score()
+        {
+            throw new NotImplementedException();
+        }
+
+        public double ScoreSynchronously()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

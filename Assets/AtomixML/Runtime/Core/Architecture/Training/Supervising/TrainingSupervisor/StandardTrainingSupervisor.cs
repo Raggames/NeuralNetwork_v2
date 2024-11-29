@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace Atom.MachineLearning.Core.Training
 {
@@ -159,10 +160,10 @@ namespace Atom.MachineLearning.Core.Training
 
         public void BatchRunner(int epochs, int trainLenght, int batchSize, CancellationToken cancellationToken)
         {
-            var batchIndexes = new int[batchSize];
-
             try
             {
+                var batchIndexes = new int[batchSize];
+
                 if (_shuffleTrainIndex)
                 {
                     var indexes = new List<int>();
@@ -175,11 +176,26 @@ namespace Atom.MachineLearning.Core.Training
 
                         while (indexes.Count > 0)
                         {
-                            for (int j = 0; j < batchSize; j++)
+                            int index = 0;
+
+                            try
                             {
-                                int index = MLRandom.Shared.Range(0, indexes.Count);
-                                batchIndexes[j] = indexes[index];
-                                indexes.RemoveAt(index);
+
+                                for (int j = 0; j < batchSize; j++)
+                                {
+                                    index = MLRandom.Shared.Range(0, indexes.Count);
+
+                                    if (index < 0 || index >= indexes.Count)
+                                        continue;
+
+                                    batchIndexes[j] = indexes[index];
+                                    indexes.RemoveAt(index);
+                                }
+
+                            }
+                            catch (Exception e)
+                            {
+
                             }
 
                             _batchedTrainIteratable.OnTrainNextBatch(batchIndexes);
@@ -219,9 +235,9 @@ namespace Atom.MachineLearning.Core.Training
                 }
 
             }
-            catch
+            catch (Exception ex)
             {
-
+                Debug.Log(ex);
             }
 
         }
