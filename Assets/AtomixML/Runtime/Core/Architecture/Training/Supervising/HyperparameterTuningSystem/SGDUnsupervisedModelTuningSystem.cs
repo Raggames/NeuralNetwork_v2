@@ -10,6 +10,12 @@ using UnityEngine;
 
 namespace Atom.MachineLearning.Core
 {
+    public enum TuningSystemOptimizationAlgorithms
+    {
+        Gradient,
+        Genetic,
+    }
+
     public class SGDUnsupervisedModelTuningSystem<KModelTuningProfile, TTrainer, TModel, TModelInput, TModelOutput> : HyperparameterTuningSystemBase<KModelTuningProfile, IStochasticGradientDescentParameters, TTrainer, TModel, TModelInput, TModelOutput>
             where KModelTuningProfile : ITuningProfile<IStochasticGradientDescentParameters>
             where TModel : IMLModel<TModelInput, TModelOutput>
@@ -18,6 +24,8 @@ namespace Atom.MachineLearning.Core
     {
         private object _lock = new object();
 
+        public TuningSystemOptimizationAlgorithms optimizationAlgorithm { get; set; } = TuningSystemOptimizationAlgorithms.Gradient;
+      
         public struct HyperparameterData : IStochasticGradientDescentParameters
         {
             public double Score { get; set; }
@@ -131,8 +139,15 @@ namespace Atom.MachineLearning.Core
 
                 besthyperparameterDatas.Add(new HyperparameterData(iteration_best_score, trainers[iteration_best_score_index] as IStochasticGradientDescentParameters));
 
-                //UpdateWithGradients(kModelTuningProfile, trainers, learning_rate, hyperparametersHistory, besthyperparameterDatas, it_index, iteration_best_score_index, iteration_lowest_score_index);
-                UpdateGenetic(kModelTuningProfile, trainers, learning_rate, hyperparametersHistory, besthyperparameterDatas, it_index, iteration_best_score_index, iteration_lowest_score_index);
+                switch (optimizationAlgorithm)
+                {
+                    case TuningSystemOptimizationAlgorithms.Gradient:
+                        UpdateWithGradients(kModelTuningProfile, trainers, learning_rate, hyperparametersHistory, besthyperparameterDatas, it_index, iteration_best_score_index, iteration_lowest_score_index);
+                        break;
+                    case TuningSystemOptimizationAlgorithms.Genetic:
+                        UpdateGenetic(kModelTuningProfile, trainers, learning_rate, hyperparametersHistory, besthyperparameterDatas, it_index, iteration_best_score_index, iteration_lowest_score_index);
+                        break;
+                }
 
                 it_index++;
             }
@@ -200,36 +215,6 @@ namespace Atom.MachineLearning.Core
                     var local_hp_vector = trainerParam.GetHyperparameterVector();
                     NVector gradient_vector = new NVector(6);
 
-                    // half of trainers will do gradient descent
-                    /*if (trainer_index % 2 == 1)
-                    {
-                        var previous_hp = hyperparametersHistory[it_index - 1][trainer_index];
-                        var previous_score = scores[it_index - 1][trainer_index];
-
-                        gradient_vector = (local_hp_vector - (hyperparametersHistory[it_index - 2][trainer_index] as IStochasticGradientDescentParameters).GetHyperparameterVector());
-                        if (previous_score > scores[it_index][trainer_index])
-                        {
-                            gradient_vector *= -1f;
-                        }
-
-                        Debug.Log($"Hyperparameter gradient for highest at {it_index}th iteration > {gradient_vector}");
-
-                        if (gradient_vector.magnitude < .001)
-                        {
-                            for (int i = 0; i < gradient_vector.length; i++)
-                            {
-                                gradient_vector[i] = MLRandom.Shared.Range(-1.0, 1.0) * learning_rate;
-                            }
-                        }
-
-                        trainerParam.Epochs += (int)Math.Round((kModelTuningProfile.UpperBound.Epochs - kModelTuningProfile.UpperBound.Epochs) * learning_rate * gradient_vector[0]);
-                        trainerParam.BatchSize += (int)Math.Round((kModelTuningProfile.UpperBound.BatchSize - kModelTuningProfile.UpperBound.BatchSize) * learning_rate * gradient_vector[1]);
-
-                        trainerParam.LearningRate += (float)((kModelTuningProfile.UpperBound.LearningRate - kModelTuningProfile.UpperBound.LearningRate) * learning_rate * gradient_vector[2]);
-                        trainerParam.BiasRate += (float)((kModelTuningProfile.UpperBound.BiasRate - kModelTuningProfile.UpperBound.BiasRate) * learning_rate * gradient_vector[3]);
-                        trainerParam.Momentum += (float)((kModelTuningProfile.UpperBound.Momentum - kModelTuningProfile.UpperBound.Momentum) * learning_rate * gradient_vector[4]);
-                        trainerParam.WeightDecay += (float)((kModelTuningProfile.UpperBound.WeightDecay - kModelTuningProfile.UpperBound.WeightDecay) * learning_rate * gradient_vector[5]);
-                    }*/
                     if (trainer_index % 2 == 1)
                     {
                         var previous_hp = hyperparametersHistory[it_index - 1][trainer_index];
@@ -318,7 +303,7 @@ namespace Atom.MachineLearning.Core
         {
             // mutation rate is a chance of having 
             float mutation_rate = .25f;
-            learning_rate = .05f;
+            learning_rate = .25f;
 
             int trainer_index = 0;
 

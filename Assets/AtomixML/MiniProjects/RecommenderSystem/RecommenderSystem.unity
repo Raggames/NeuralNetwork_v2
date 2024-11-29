@@ -275,6 +275,110 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &751814275
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 751814277}
+  - component: {fileID: 751814276}
+  m_Layer: 0
+  m_Name: AE_Recommender_2layer 88% save (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &751814276
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 751814275}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 97d76d6a1b4112b409de0112698db752, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _trainer:
+    _epochs: 150
+    _batchSize: 1
+    _learningRate: 0.9
+    _biasRate: 1
+    _momentum: 0.8
+    _weightDecay: 0.00000001
+    _learningRateCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: -0.7080084
+        outSlope: -0.7080084
+        tangentMode: 34
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 1
+        value: 0.2919916
+        inSlope: -1.9137715
+        outSlope: -1.9137715
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.027259767
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    LayerInfos:
+    - AverageWeight: -0.5350828711160209
+      AverageBias: -1.3265990711339912
+    - AverageWeight: -0.7571839310319802
+      AverageBias: 0.28799024968265124
+  _visualizationUpdateTimer: 0.05
+  _datasetsFolderPath: Assets/AtomixML/MiniProjects/RecommenderSystem/Resources
+  _userToItemProfilesCsvPath: Assets/AtomixML/MiniProjects/RecommenderSystem/Resources/Recommender
+    System Toy Dataset - Profiles.csv
+  _userTypes: Assets/AtomixML/MiniProjects/RecommenderSystem/Resources/Recommender
+    System Toy Dataset - UserTypes.csv
+  _itemTypesDistributionCsvPath: Assets/AtomixML/MiniProjects/RecommenderSystem/Resources/Recommender
+    System Toy Dataset - ItemTypes.csv
+  _datasetPath: Assets/AtomixML/MiniProjects/RecommenderSystem/Resources\dataset_1000_50.csv
+  _tuningProfile:
+    _lowerBound:
+      _epochs: 1
+      _batchSize: 2
+      _learningRate: 0.05
+      _biasRate: 0.0001
+      _momentum: 0.0001
+      _weightDecay: 0.00000001
+    _upperBound:
+      _epochs: 250
+      _batchSize: 20
+      _learningRate: 0.25
+      _biasRate: 1.5
+      _momentum: 0.1
+      _weightDecay: 0.001
+--- !u!4 &751814277
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 751814275}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1172852310
 GameObject:
   m_ObjectHideFlags: 0
@@ -402,12 +506,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _trainer:
-    _epochs: 280
-    _batchSize: 8.068901
-    _learningRate: 0.23
-    _biasRate: 1.0886399
-    _momentum: 0.05
-    _weightDecay: 0.00001439707
+    _epochs: 25
+    _batchSize: 1
+    _learningRate: 5.8738575
+    _biasRate: 0.28645176
+    _momentum: 0.6925402
+    _weightDecay: 0.00089048175
     _learningRateCurve:
       serializedVersion: 2
       m_Curve:
@@ -433,14 +537,14 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
     LayerInfos:
-    - AverageWeight: 0.00018495268806042835
-      AverageBias: 0.001716130203214268
-    - AverageWeight: -0.00007081986201796947
-      AverageBias: 0.009415319890273652
-    - AverageWeight: 0.0215181823106776
-      AverageBias: 0.045982555659378824
-    - AverageWeight: 0.001983294795260945
-      AverageBias: 0.048454581990294815
+    - AverageWeight: -0.05888717478987801
+      AverageBias: -0.062490958833826576
+    - AverageWeight: -0.1391118726982035
+      AverageBias: 0.011937761182232864
+    - AverageWeight: 0.09597981723195965
+      AverageBias: -0.353912727404138
+    - AverageWeight: 0.002467367351113338
+      AverageBias: 0.04982872805617235
   _visualizationUpdateTimer: 0.05
   _datasetsFolderPath: Assets/AtomixML/MiniProjects/RecommenderSystem/Resources
   _userToItemProfilesCsvPath: Assets/AtomixML/MiniProjects/RecommenderSystem/Resources/Recommender
@@ -452,18 +556,18 @@ MonoBehaviour:
   _datasetPath: Assets/AtomixML/MiniProjects/RecommenderSystem/Resources\dataset_1000_50.csv
   _tuningProfile:
     _lowerBound:
-      _epochs: 1
+      _epochs: 5
       _batchSize: 2
       _learningRate: 0.05
       _biasRate: 0.0001
       _momentum: 0.0001
       _weightDecay: 0.00000001
     _upperBound:
-      _epochs: 800
+      _epochs: 50
       _batchSize: 20
-      _learningRate: 0.25
+      _learningRate: 0.75
       _biasRate: 1.5
-      _momentum: 0.1
+      _momentum: 0.8
       _weightDecay: 0.001
 --- !u!4 &1317582474
 Transform:
@@ -676,6 +780,114 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2031823159
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2031823161}
+  - component: {fileID: 2031823160}
+  m_Layer: 0
+  m_Name: AE_Recommender (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2031823160
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2031823159}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 97d76d6a1b4112b409de0112698db752, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _trainer:
+    _epochs: 280
+    _batchSize: 8.068901
+    _learningRate: 0.23
+    _biasRate: 1.0886399
+    _momentum: 0.05
+    _weightDecay: 0.00001439707
+    _learningRateCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: -0.7080084
+        outSlope: -0.7080084
+        tangentMode: 34
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 1
+        value: 0.2919916
+        inSlope: -1.9137715
+        outSlope: -1.9137715
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.027259767
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    LayerInfos:
+    - AverageWeight: 0.00018495268806042835
+      AverageBias: 0.001716130203214268
+    - AverageWeight: -0.00007081986201796947
+      AverageBias: 0.009415319890273652
+    - AverageWeight: 0.0215181823106776
+      AverageBias: 0.045982555659378824
+    - AverageWeight: 0.001983294795260945
+      AverageBias: 0.048454581990294815
+  _visualizationUpdateTimer: 0.05
+  _datasetsFolderPath: Assets/AtomixML/MiniProjects/RecommenderSystem/Resources
+  _userToItemProfilesCsvPath: Assets/AtomixML/MiniProjects/RecommenderSystem/Resources/Recommender
+    System Toy Dataset - Profiles.csv
+  _userTypes: Assets/AtomixML/MiniProjects/RecommenderSystem/Resources/Recommender
+    System Toy Dataset - UserTypes.csv
+  _itemTypesDistributionCsvPath: Assets/AtomixML/MiniProjects/RecommenderSystem/Resources/Recommender
+    System Toy Dataset - ItemTypes.csv
+  _datasetPath: Assets/AtomixML/MiniProjects/RecommenderSystem/Resources\dataset_1000_50.csv
+  _tuningProfile:
+    _lowerBound:
+      _epochs: 1
+      _batchSize: 2
+      _learningRate: 0.05
+      _biasRate: 0.0001
+      _momentum: 0.0001
+      _weightDecay: 0.00000001
+    _upperBound:
+      _epochs: 800
+      _batchSize: 20
+      _learningRate: 0.25
+      _biasRate: 1.5
+      _momentum: 0.1
+      _weightDecay: 0.001
+--- !u!4 &2031823161
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2031823159}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -684,5 +896,7 @@ SceneRoots:
   - {fileID: 1172852312}
   - {fileID: 39955673}
   - {fileID: 1317582474}
+  - {fileID: 751814277}
+  - {fileID: 2031823161}
   - {fileID: 133147243}
   - {fileID: 1348593913}

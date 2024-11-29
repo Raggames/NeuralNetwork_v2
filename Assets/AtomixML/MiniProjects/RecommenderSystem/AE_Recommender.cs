@@ -281,7 +281,7 @@ namespace Atom.MachineLearning.MiniProjects.RecommenderSystem
         [SerializeField] private SGDTuningProfile _tuningProfile;
 
         [Button]
-        private async void Fit_2Layers_WithTuningSystem(int numParralel = 4, int tuningIterations = 4, int hidden = 10, float split_ratio = .75f, LossFunctions lossFunction = LossFunctions.MaskedMeanSquarredError)
+        private async void Fit_2Layers_WithTuningSystem(int numParralel = 4, int tuningIterations = 4, int hidden = 10, float split_ratio = .75f, TuningSystemOptimizationAlgorithms optimizationAlgorithm = TuningSystemOptimizationAlgorithms.Gradient, LossFunctions lossFunction = LossFunctions.MaskedMeanSquarredError)
         {
             var datas = DatasetRWUtils.ReadCSV(_datasetPath, ';', 1);
             var datas_profile_means = DatasetRWUtils.ReadCSV(_datasetPath.Replace(".csv", "_profile_means.csv"), ';', 1);
@@ -339,6 +339,7 @@ namespace Atom.MachineLearning.MiniProjects.RecommenderSystem
             }
 
             var tuner = new SGDUnsupervisedModelTuningSystem<SGDTuningProfile, AutoEncoderTrainer, AutoEncoderModel, NVector, NVector>();
+            tuner.optimizationAlgorithm = optimizationAlgorithm;
             //var best_hyperparameters = await tuner.Search(tuningIterations, _tuningProfile, x_datas, trainers);
             var best_hyperparamter_found = await tuner.Search(tuningIterations, _tuningProfile, x_datas, trainers);
 
@@ -351,7 +352,7 @@ namespace Atom.MachineLearning.MiniProjects.RecommenderSystem
         }
 
         [Button]
-        private async void Fit_4layers(int hidden1 = 15, int hidden2 = 8, float split_ratio = .75f, LossFunctions lossFunction = LossFunctions.MaskedMeanSquarredError)
+        private async void Fit_4layers(int hidden1 = 15, int hidden2 = 8, float split_ratio = .75f,  LossFunctions lossFunction = LossFunctions.MaskedMeanSquarredError)
         {
             var datas = DatasetRWUtils.ReadCSV(_datasetPath, ';', 1);
 
@@ -387,7 +388,7 @@ namespace Atom.MachineLearning.MiniProjects.RecommenderSystem
         }
 
         [Button]
-        private async void Fit_4Layers_WithTuningSystem(int numParralel = 4, int tuningIterations = 4, int hidden1 = 15, int hidden2 = 8, float split_ratio = .75f, LossFunctions lossFunction = LossFunctions.MaskedMeanSquarredError)
+        private async void Fit_4Layers_WithTuningSystem(int numParralel = 4, int tuningIterations = 4, int hidden1 = 15, int hidden2 = 8, float split_ratio = .75f, TuningSystemOptimizationAlgorithms optimizationAlgorithm = TuningSystemOptimizationAlgorithms.Gradient, LossFunctions lossFunction = LossFunctions.MaskedMeanSquarredError)
         {
             var datas = DatasetRWUtils.ReadCSV(_datasetPath, ';', 1);
             var datas_profile_means = DatasetRWUtils.ReadCSV(_datasetPath.Replace(".csv", "_profile_means.csv"), ';', 1);
@@ -439,6 +440,8 @@ namespace Atom.MachineLearning.MiniProjects.RecommenderSystem
             }
 
             var tuner = new SGDUnsupervisedModelTuningSystem<SGDTuningProfile, AutoEncoderTrainer, AutoEncoderModel, NVector, NVector>();
+            tuner.optimizationAlgorithm = optimizationAlgorithm;
+
             //var best_hyperparameters = await tuner.Search(tuningIterations, _tuningProfile, x_datas, trainers);
             var best_hyperparamter_found = await tuner.Search(tuningIterations, _tuningProfile, x_datas, trainers);
 
