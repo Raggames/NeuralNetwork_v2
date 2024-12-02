@@ -429,7 +429,7 @@ namespace Atom.MachineLearning.MiniProjects.RecommenderSystem
                     for (int j = 0; j < pm_datas_test_duplicate.Length; ++j)
                     {
                         var predict = crt_trainer.trainedModel.Predict(pm_datas_test_duplicate[j]);
-                        error += MLCostFunctions.MaskedMSE(pm_datas_test_duplicate[j], predict); // mean squarred error between predicted values and mean value for the user depending onits profile
+                        error += MLCostFunctions.MSE(pm_datas_test_duplicate[j], predict); // mean squarred error between predicted values and mean value for the user depending onits profile
                     }
 
                     error /= pm_datas_test_duplicate.Length;

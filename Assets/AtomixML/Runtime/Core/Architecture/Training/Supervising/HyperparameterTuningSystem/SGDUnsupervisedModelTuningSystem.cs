@@ -23,9 +23,11 @@ namespace Atom.MachineLearning.Core
             where TModelInput : ICloneable
     {
         private object _lock = new object();
+        private int _iterations = 0;
+        private float _learning_rate = 1f;
 
         public TuningSystemOptimizationAlgorithms optimizationAlgorithm { get; set; } = TuningSystemOptimizationAlgorithms.Gradient;
-      
+
         public struct HyperparameterData : IStochasticGradientDescentParameters
         {
             public double Score { get; set; }
@@ -51,8 +53,10 @@ namespace Atom.MachineLearning.Core
 
         public override async Task<IStochasticGradientDescentParameters> Search(int iterations, KModelTuningProfile kModelTuningProfile, TModelInput[] t_inputs, TTrainer[] trainers)
         {
+            _iterations = iterations;
+
             //await Task.Delay(1);
-            var learning_rate = 1;
+            var learning_rate = .25f;
 
             double[][] scores = new double[iterations][];
             HyperparameterData[][] hyperparametersHistory = new HyperparameterData[iterations][];
@@ -65,6 +69,7 @@ namespace Atom.MachineLearning.Core
                 datas[i] = (TModelInput[])t_inputs.Clone();
             }
 
+            MLRandom.SeedShared((int)DateTime.Now.Ticks);
             // random init of the hyperparameter 'vector'
             foreach (var trainer in trainers)
             {
@@ -142,7 +147,7 @@ namespace Atom.MachineLearning.Core
                 switch (optimizationAlgorithm)
                 {
                     case TuningSystemOptimizationAlgorithms.Gradient:
-                        UpdateWithGradients(kModelTuningProfile, trainers, learning_rate, hyperparametersHistory, besthyperparameterDatas, it_index, iteration_best_score_index, iteration_lowest_score_index);
+                        UpdateWithGradients(kModelTuningProfile, trainers, hyperparametersHistory, besthyperparameterDatas, it_index, iteration_best_score_index, iteration_lowest_score_index);
                         break;
                     case TuningSystemOptimizationAlgorithms.Genetic:
                         UpdateGenetic(kModelTuningProfile, trainers, learning_rate, hyperparametersHistory, besthyperparameterDatas, it_index, iteration_best_score_index, iteration_lowest_score_index);
@@ -182,16 +187,22 @@ namespace Atom.MachineLearning.Core
             return besthyperparameterDatas[best_overall_score_index];
         }
 
-        private void UpdateWithGradients(KModelTuningProfile kModelTuningProfile, TTrainer[] trainers, float learning_rate, HyperparameterData[][] hyperparametersHistory, List<HyperparameterData> besthyperparameterDatas, int it_index, int iteration_best_score_index, int iteration_lowest_score_index)
+        NVector _total_gradient_vector_values = new NVector(6);
+        NVector _total_gradient_vector_sum = new NVector(6);
+
+        private void UpdateWithGradients(KModelTuningProfile kModelTuningProfile, TTrainer[] trainers, HyperparameterData[][] hyperparametersHistory, List<HyperparameterData> besthyperparameterDatas, int it_index, int iteration_best_score_index, int iteration_lowest_score_index)
         {
+            var current_learning_rate = (1f - ((float)it_index / (float)_iterations)) * _learning_rate;
+
             int trainer_index = 0;
+            float gradient_rate = 1;
 
             // init random values in the search space given by the profile
             foreach (var trainer in trainers)
             {
                 var trainerParam = (trainer as IStochasticGradientDescentParameters);
 
-                if (it_index < 2)
+                if (it_index < 1)
                 {
                     var best_iteration_vector = (trainers[iteration_best_score_index] as IStochasticGradientDescentParameters).GetHyperparameterVector();
                     var low_iteration_vector = (trainers[iteration_lowest_score_index] as IStochasticGradientDescentParameters).GetHyperparameterVector();
@@ -208,90 +219,48 @@ namespace Atom.MachineLearning.Core
                 }
                 else
                 {
-                    var sorted_hp = besthyperparameterDatas.OrderByDescending(t => t.Score).ToArray();
-                    var best_tparam = (sorted_hp[0] as IStochasticGradientDescentParameters);
-                    var best_overall_hp_vector = best_tparam.GetHyperparameterVector();
+                    var previous_hp = (hyperparametersHistory[it_index - 1][trainer_index] as IStochasticGradientDescentParameters).GetHyperparameterVector();
+                    var current_hp = (hyperparametersHistory[it_index][trainer_index] as IStochasticGradientDescentParameters).GetHyperparameterVector();
 
-                    var local_hp_vector = trainerParam.GetHyperparameterVector();
-                    NVector gradient_vector = new NVector(6);
+                    var vect_diff = current_hp - previous_hp;
+                    var score_diff = hyperparametersHistory[it_index][trainer_index].Score - hyperparametersHistory[it_index - 1][trainer_index].Score;
 
-                    if (trainer_index % 2 == 1)
-                    {
-                        var previous_hp = hyperparametersHistory[it_index - 1][trainer_index];
-
-                        int v = 1;
-                        while (gradient_vector.magnitude < .0001 && v < sorted_hp.Length)
-                        {
-                            var vector_under = (sorted_hp[v] as IStochasticGradientDescentParameters).GetHyperparameterVector();
-                            gradient_vector = (local_hp_vector - vector_under);
-
-                            v++;
-                        }
-
-
-                        Debug.Log($"GD for {it_index}th iteration > {gradient_vector}");
-
-                        if (gradient_vector.magnitude < .001)
-                        {
-                            trainerParam.Epochs = MLRandom.Shared.Range(kModelTuningProfile.LowerBound.Epochs, kModelTuningProfile.UpperBound.Epochs);
-                            trainerParam.BatchSize = MLRandom.Shared.Range(kModelTuningProfile.LowerBound.BatchSize, kModelTuningProfile.UpperBound.BatchSize);
-                            trainerParam.LearningRate = MLRandom.Shared.Range(kModelTuningProfile.LowerBound.LearningRate, kModelTuningProfile.UpperBound.LearningRate);
-                            trainerParam.BiasRate = MLRandom.Shared.Range(kModelTuningProfile.LowerBound.BiasRate, kModelTuningProfile.UpperBound.BiasRate);
-                            trainerParam.Momentum = MLRandom.Shared.Range(kModelTuningProfile.LowerBound.Momentum, kModelTuningProfile.UpperBound.Momentum);
-                            trainerParam.WeightDecay = MLRandom.Shared.Range(kModelTuningProfile.LowerBound.WeightDecay, kModelTuningProfile.UpperBound.WeightDecay);
-                        }
-                        else
-                        {
-                            trainerParam.Epochs += (int)Math.Round((kModelTuningProfile.UpperBound.Epochs - kModelTuningProfile.LowerBound.Epochs) * learning_rate * gradient_vector[0]);
-                            trainerParam.BatchSize += (int)Math.Round((kModelTuningProfile.UpperBound.BatchSize - kModelTuningProfile.LowerBound.BatchSize) * learning_rate * gradient_vector[1]);
-
-                            trainerParam.LearningRate += (float)((kModelTuningProfile.UpperBound.LearningRate - kModelTuningProfile.LowerBound.LearningRate) * learning_rate * gradient_vector[2]);
-                            trainerParam.BiasRate += (float)((kModelTuningProfile.UpperBound.BiasRate - kModelTuningProfile.LowerBound.BiasRate) * learning_rate * gradient_vector[3]);
-                            trainerParam.Momentum += (float)((kModelTuningProfile.UpperBound.Momentum - kModelTuningProfile.LowerBound.Momentum) * learning_rate * gradient_vector[4]);
-                            trainerParam.WeightDecay += (float)((kModelTuningProfile.UpperBound.WeightDecay - kModelTuningProfile.LowerBound.WeightDecay) * learning_rate * gradient_vector[5]);
-
-                        }
-                    }
-                    // other half will explore with more randomness
-                    // as all gradient are shared, they can use gradient descending hp parameter if they are good to align
-                    else
-                    {
-                        if (trainer_index % 2 == 0 && MLRandom.Shared.Range(0.0, 1.0) > .8)
-                        {
-                            trainerParam.Epochs = MLRandom.Shared.Range(kModelTuningProfile.LowerBound.Epochs, kModelTuningProfile.UpperBound.Epochs);
-                            trainerParam.BatchSize = MLRandom.Shared.Range(kModelTuningProfile.LowerBound.BatchSize, kModelTuningProfile.UpperBound.BatchSize);
-                            trainerParam.LearningRate = MLRandom.Shared.Range(kModelTuningProfile.LowerBound.LearningRate, kModelTuningProfile.UpperBound.LearningRate);
-                            trainerParam.BiasRate = MLRandom.Shared.Range(kModelTuningProfile.LowerBound.BiasRate, kModelTuningProfile.UpperBound.BiasRate);
-                            trainerParam.Momentum = MLRandom.Shared.Range(kModelTuningProfile.LowerBound.Momentum, kModelTuningProfile.UpperBound.Momentum);
-                            trainerParam.WeightDecay = MLRandom.Shared.Range(kModelTuningProfile.LowerBound.WeightDecay, kModelTuningProfile.UpperBound.WeightDecay);
-                        }
-                        else
-                        {
-                            gradient_vector = (best_overall_hp_vector - local_hp_vector);
-                            Debug.Log($"RD at {it_index}th iteration > {gradient_vector}");
-
-                            if (gradient_vector.magnitude < .001)
-                            {
-                                trainerParam.Epochs = MLRandom.Shared.Range(kModelTuningProfile.LowerBound.Epochs, kModelTuningProfile.UpperBound.Epochs);
-                                trainerParam.BatchSize = MLRandom.Shared.Range(kModelTuningProfile.LowerBound.BatchSize, kModelTuningProfile.UpperBound.BatchSize);
-                                trainerParam.LearningRate = MLRandom.Shared.Range(kModelTuningProfile.LowerBound.LearningRate, kModelTuningProfile.UpperBound.LearningRate);
-                                trainerParam.BiasRate = MLRandom.Shared.Range(kModelTuningProfile.LowerBound.BiasRate, kModelTuningProfile.UpperBound.BiasRate);
-                                trainerParam.Momentum = MLRandom.Shared.Range(kModelTuningProfile.LowerBound.Momentum, kModelTuningProfile.UpperBound.Momentum);
-                                trainerParam.WeightDecay = MLRandom.Shared.Range(kModelTuningProfile.LowerBound.WeightDecay, kModelTuningProfile.UpperBound.WeightDecay);
-                            }
-                            else
-                            {
-                                trainerParam.Epochs += (int)Math.Round((kModelTuningProfile.UpperBound.Epochs - kModelTuningProfile.LowerBound.Epochs) * learning_rate * gradient_vector[0]);
-                                trainerParam.BatchSize += (int)Math.Round((kModelTuningProfile.UpperBound.BatchSize - kModelTuningProfile.LowerBound.BatchSize) * learning_rate * gradient_vector[1]);
-
-                                trainerParam.LearningRate += (float)((kModelTuningProfile.UpperBound.LearningRate - kModelTuningProfile.LowerBound.LearningRate) * learning_rate * gradient_vector[2]);
-                                trainerParam.BiasRate += (float)((kModelTuningProfile.UpperBound.BiasRate - kModelTuningProfile.LowerBound.BiasRate) * learning_rate * gradient_vector[3]);
-                                trainerParam.Momentum += (float)((kModelTuningProfile.UpperBound.Momentum - kModelTuningProfile.LowerBound.Momentum) * learning_rate * gradient_vector[4]);
-                                trainerParam.WeightDecay += (float)((kModelTuningProfile.UpperBound.WeightDecay - kModelTuningProfile.LowerBound.WeightDecay) * learning_rate * gradient_vector[5]);
-                            }
-                        }
-                    }
+                    _total_gradient_vector_values += vect_diff * score_diff;
+                    _total_gradient_vector_sum += vect_diff.Absolute();
                 }
+
+                trainer_index++;
+            }
+
+            if (it_index < 1)
+                return;
+
+            // gradient is the average of the previous runs - runs -1 hp vector difference ponderated by the score change
+            // if the score between current and previous iteration is better, we add the difference, else we add the negative difference
+            var current_gradient = new NVector(6);
+            for(int i = 0; i < current_gradient.length; i++)
+            {
+                current_gradient[i] = _total_gradient_vector_values[i] / _total_gradient_vector_sum[i];
+            }
+
+            foreach (var trainer in trainers)
+            {
+                var trainerParam = (trainer as IStochasticGradientDescentParameters);
+
+                // each feature will be a random part (-1, 1) * learningRate * (max-min) + gradient * gradient_rate
+                trainerParam.Epochs += (float)MLRandom.Shared.Range(-1.0, 1.0) * (kModelTuningProfile.UpperBound.Epochs - kModelTuningProfile.LowerBound.Epochs) * current_learning_rate + (float)current_gradient[0] * gradient_rate;
+                trainerParam.BatchSize += (float)MLRandom.Shared.Range(-1.0, 1.0)  * (kModelTuningProfile.UpperBound.BatchSize - kModelTuningProfile.LowerBound.BatchSize) * current_learning_rate + (float)current_gradient[1] * gradient_rate;
+                trainerParam.LearningRate += (float)MLRandom.Shared.Range(-1.0, 1.0) * (kModelTuningProfile.UpperBound.LearningRate - kModelTuningProfile.LowerBound.LearningRate) * current_learning_rate + (float)current_gradient[2] * gradient_rate;
+                trainerParam.BiasRate += (float)MLRandom.Shared.Range(-1.0, 1.0) * (kModelTuningProfile.UpperBound.BiasRate - kModelTuningProfile.LowerBound.BiasRate) * current_learning_rate + (float)current_gradient[3] * gradient_rate;
+                trainerParam.Momentum += (float)MLRandom.Shared.Range(-1.0, 1.0)  * (kModelTuningProfile.UpperBound.Momentum - kModelTuningProfile.LowerBound.Momentum) * current_learning_rate + (float)current_gradient[4] * gradient_rate;
+                trainerParam.WeightDecay += (float)MLRandom.Shared.Range(-1.0, 1.0) * (kModelTuningProfile.UpperBound.WeightDecay - kModelTuningProfile.LowerBound.WeightDecay) * current_learning_rate + (float)current_gradient[5] * gradient_rate;
+
+                trainerParam.Epochs = Math.Clamp(trainerParam.Epochs, kModelTuningProfile.LowerBound.Epochs, kModelTuningProfile.UpperBound.Epochs);
+                trainerParam.BatchSize = Math.Clamp(trainerParam.BatchSize, kModelTuningProfile.LowerBound.BatchSize, kModelTuningProfile.UpperBound.BatchSize);
+                trainerParam.LearningRate = Math.Clamp(trainerParam.LearningRate, kModelTuningProfile.LowerBound.LearningRate, kModelTuningProfile.UpperBound.LearningRate);
+                trainerParam.BiasRate = Math.Clamp(trainerParam.BiasRate, kModelTuningProfile.LowerBound.BiasRate, kModelTuningProfile.UpperBound.BiasRate);
+                trainerParam.Momentum = Math.Clamp(trainerParam.Momentum, kModelTuningProfile.LowerBound.Momentum, kModelTuningProfile.UpperBound.Momentum);
+                trainerParam.WeightDecay = Math.Clamp(trainerParam.WeightDecay, kModelTuningProfile.LowerBound.WeightDecay, kModelTuningProfile.UpperBound.WeightDecay);
 
                 trainer_index++;
             }
@@ -303,7 +272,7 @@ namespace Atom.MachineLearning.Core
         {
             // mutation rate is a chance of having 
             float mutation_rate = .25f;
-            learning_rate = .25f;
+            learning_rate = 1f;
 
             int trainer_index = 0;
 
@@ -314,6 +283,7 @@ namespace Atom.MachineLearning.Core
                 var sorted_hp = besthyperparameterDatas.OrderByDescending(t => t.Score).ToArray();
                 var current_best_hpvec = (sorted_hp[0] as IStochasticGradientDescentParameters).GetHyperparameterVector();
 
+                // first 2 runs as initial values
                 if (it_index < 2)
                 {
                     trainerParam.Epochs = MLRandom.Shared.Range(kModelTuningProfile.LowerBound.Epochs, kModelTuningProfile.UpperBound.Epochs);
@@ -337,9 +307,12 @@ namespace Atom.MachineLearning.Core
                     trainerParam.BiasRate = (float)current_best_hpvec[3];
                     trainerParam.Momentum = (float)current_best_hpvec[4];
                     trainerParam.WeightDecay = (float)current_best_hpvec[5];
+
+                    // decreasing lr if no better hp vec found on iteration (we probly overshoot the new best)
+                    learning_rate *= .9f;
                 }
                 // else we continue mutating from the same
-               
+
                 // mutate
                 trainerParam.Epochs += MLRandom.Shared.Range(0.0, 1.0) > 1.0 - mutation_rate ? (int)Math.Round((kModelTuningProfile.UpperBound.Epochs - kModelTuningProfile.LowerBound.Epochs) * learning_rate) : 0;
                 trainerParam.BatchSize += MLRandom.Shared.Range(0.0, 1.0) > 1.0 - mutation_rate ? (int)Math.Round((kModelTuningProfile.UpperBound.BatchSize - kModelTuningProfile.LowerBound.BatchSize) * learning_rate) : 0;

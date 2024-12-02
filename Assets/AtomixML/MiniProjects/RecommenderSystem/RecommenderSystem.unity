@@ -506,12 +506,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _trainer:
-    _epochs: 25
-    _batchSize: 1
-    _learningRate: 5.8738575
-    _biasRate: 0.28645176
-    _momentum: 0.6925402
-    _weightDecay: 0.00089048175
+    _epochs: 24.51208
+    _batchSize: 2.258367
+    _learningRate: 1.6859179
+    _biasRate: 1.2720928
+    _momentum: 0.79352254
+    _weightDecay: 0.000032634875
     _learningRateCurve:
       serializedVersion: 2
       m_Curve:
@@ -537,14 +537,10 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
     LayerInfos:
-    - AverageWeight: -0.05888717478987801
-      AverageBias: -0.062490958833826576
-    - AverageWeight: -0.1391118726982035
-      AverageBias: 0.011937761182232864
-    - AverageWeight: 0.09597981723195965
-      AverageBias: -0.353912727404138
-    - AverageWeight: 0.002467367351113338
-      AverageBias: 0.04982872805617235
+    - AverageWeight: -0.23567699912995924
+      AverageBias: -0.2694483842744232
+    - AverageWeight: -0.23786107991058478
+      AverageBias: 0.4543658865690461
   _visualizationUpdateTimer: 0.05
   _datasetsFolderPath: Assets/AtomixML/MiniProjects/RecommenderSystem/Resources
   _userToItemProfilesCsvPath: Assets/AtomixML/MiniProjects/RecommenderSystem/Resources/Recommender
@@ -556,15 +552,15 @@ MonoBehaviour:
   _datasetPath: Assets/AtomixML/MiniProjects/RecommenderSystem/Resources\dataset_1000_50.csv
   _tuningProfile:
     _lowerBound:
-      _epochs: 5
-      _batchSize: 2
-      _learningRate: 0.05
+      _epochs: 3
+      _batchSize: 1
+      _learningRate: 0.4
       _biasRate: 0.0001
       _momentum: 0.0001
       _weightDecay: 0.00000001
     _upperBound:
-      _epochs: 50
-      _batchSize: 20
+      _epochs: 20
+      _batchSize: 5
       _learningRate: 0.75
       _biasRate: 1.5
       _momentum: 0.8

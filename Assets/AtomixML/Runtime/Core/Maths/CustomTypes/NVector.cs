@@ -203,6 +203,14 @@ namespace Atom.MachineLearning.Core
             return this;
         }
 
+        public NVector Absolute()
+        {
+            for (int i = 0; i < Data.Length; ++i)
+                Data[i] = Math.Abs(Data[i]);
+
+            return this;
+        }
+
         /// <summary>
         /// Dot product of the two n-dimensional vectors
         /// </summary>
