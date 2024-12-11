@@ -6,7 +6,10 @@ using System.Threading.Tasks;
 
 namespace Atom.MachineLearning.Core.Maths
 {
-    public class BSTree
+    /// <summary>
+    /// Todo impl binary indexed / fenwick tree
+    /// </summary>
+    public class FenwickTree
     {
     }
 }

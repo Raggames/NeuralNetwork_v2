@@ -1,18 +1,16 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.AI;
 
 namespace Atom.MachineLearning.MiniProjects.ReinforcementUtilityBasedAgents
 {
-    internal class MoveRandomAction : ActionBehaviourBase
+    public class WaitAction : ActionBehaviourBase
     {
-        [SerializeField] private float _speed = 4;
-        
+        [SerializeField] private int _waitingTime = 100; // millisecondes
+
         public override List<IUtility> Utilities => new List<IUtility>()
         {
             new FearUtility(),
@@ -20,9 +18,10 @@ namespace Atom.MachineLearning.MiniProjects.ReinforcementUtilityBasedAgents
             new LifeUtility(),
         };
 
-        public override void Execute(AIAgent agent)
+        public override async Task Execute(AIAgent agent)
         {
-           
+            // do nothing
+            await Task.Delay(_waitingTime);
         }
     }
 }

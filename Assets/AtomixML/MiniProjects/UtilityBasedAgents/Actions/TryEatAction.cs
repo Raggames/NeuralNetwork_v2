@@ -19,7 +19,7 @@ namespace Atom.MachineLearning.MiniProjects.ReinforcementUtilityBasedAgents
             new LifeUtility(),
         };
 
-        public override void Execute(AIAgent agent)
+        public override async Task Execute(AIAgent agent)
         {
             var closest = agent.AgentsInRange.OrderByDescending(t => (t.transform.position - agent.transform.position).magnitude).FirstOrDefault();
             if(closest == null)

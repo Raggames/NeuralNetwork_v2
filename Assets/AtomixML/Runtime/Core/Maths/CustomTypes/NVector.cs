@@ -167,6 +167,23 @@ namespace Atom.MachineLearning.Core
         }
 
         /// <summary>
+        /// Returns the squarred magnitude of the vector
+        /// </summary>
+        public double sqrdMagnitude
+        {
+            get
+            {
+                double magn = 0.0;
+                for (int i = 0; i < Data.Length; ++i)
+                {
+                    magn += Math.Pow(Data[i], 2);
+                }
+
+                return magn;
+            }
+        }
+
+        /// <summary>
         /// Returns a normalized duplicate of the vector
         /// </summary>
         public NVector normalized
@@ -545,6 +562,49 @@ namespace Atom.MachineLearning.Core
             }
 
             return normalizedData;
+        }
+
+
+        /// <summary>
+        /// Return the cosine angle with other vector
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        public double CosineAngle(NVector other)
+        {
+            if (other.length != this.length)
+                throw new Exception("Cosine angle can be computed with compatible vectors only");
+
+            double dot = 0.0;
+
+            for (int i = 0; i < this.length; ++i)
+                for (int j = 0; j < this.length; ++j)
+                    dot += Data[i] * other[j];
+
+            dot /= magnitude * other.magnitude;
+
+            return dot;
+        }
+
+        /// <summary>
+        /// Return the cosine angle with other vector
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        public double SqrdCosineAngle(NVector other)
+        {
+            if (other.length != this.length)
+                throw new Exception("Cosine angle can be computed with compatible vectors only");
+
+            double dot = 0.0;
+
+            for (int i = 0; i < this.length; ++i)
+                for (int j = 0; j < this.length; ++j)
+                    dot += Data[i] * other[j];
+
+            dot /= sqrdMagnitude * other.sqrdMagnitude;
+
+            return dot;
         }
 
     }

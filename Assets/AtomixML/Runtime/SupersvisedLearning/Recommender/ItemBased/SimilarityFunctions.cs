@@ -5,13 +5,10 @@
 
 namespace Atom.MachineLearning.Supervised.Recommender.ItemBased
 {
-    public partial class ItemBasedRecommenderModel
+    public enum SimilarityFunctions
     {
-        public enum SimilarityFunctions
-        {
-            Cosine,
-            AdjustedCosine,
-            // more to come ?
-        }
-    }
+        Cosine,
+        AdjustedCosine,
+        // more to come ?
+    }   
 }

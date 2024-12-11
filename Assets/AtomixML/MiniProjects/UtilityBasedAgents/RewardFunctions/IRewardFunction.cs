@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using UnityEngine;
 
 namespace Atom.MachineLearning.MiniProjects.ReinforcementUtilityBasedAgents
 {
-    public class ReinforcementTrainer : MonoBehaviour
+    /// <summary>
+    /// An abstraction for the reward functions that will be used in the trainers
+    /// </summary>
+    public interface IRewardFunction
     {
-        [SerializeField] private AIAgent _pf_agent;
     }
 }

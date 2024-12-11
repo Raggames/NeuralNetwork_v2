@@ -15,6 +15,6 @@ namespace Atom.MachineLearning.MiniProjects.ReinforcementUtilityBasedAgents
         public List<IUtility> Utilities { get; }
 
         public double Rank(AIAgent agent);
-        public void Execute(AIAgent agent);
+        public Task Execute(AIAgent agent);
     }
 }
