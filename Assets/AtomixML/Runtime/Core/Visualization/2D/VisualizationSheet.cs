@@ -48,9 +48,9 @@ namespace Atom.MachineLearning.Core.Visualization
             return chart;
         }
 
-        public SimpleLineChart Add_SimpleLine(double[] points)
+        public SimpleLineChart Add_SimpleLine(double[] points, int lineWidth = 2, int x = 512, int y = 512)
         {
-            var chart = new SimpleLineChart(points);
+            var chart = new SimpleLineChart(points, lineWidth, x, y);
 
             _root.Add(chart);
             chart.Refresh();

@@ -70,6 +70,8 @@ namespace Atom.MachineLearning.Unsupervised.AngleBasedOutlierDetection
                     Debug.Log(variance);
                 }
             }
+
+            return new NVector();
         }
 
         public ITrainingResult FitSynchronously(NVector[] x_datas)
