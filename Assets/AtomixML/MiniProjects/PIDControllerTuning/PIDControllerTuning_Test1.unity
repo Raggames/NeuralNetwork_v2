@@ -218,13 +218,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _visualizationSheet: {fileID: 0}
   _pidFunction:
-    _p: 0.6
+    _p: 0.006
     _i: 0.45
     _d: 0.125
     _deltaTime: 0
     _maxRecordedTime: 0.33
   _consigne: 10
   _current: 0
+  _graphDimensions: {x: 600, y: 400}
+  _graphLineWidth: 2.5
+  _maxDisplayedPoints: 500
   _samples: []
   _consignes: []
 --- !u!4 &202229474
@@ -490,7 +493,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Texture: {fileID: 0}
+  m_Texture: {fileID: 8400000, guid: 3d617a2da28e0804492199b707de6d94, type: 2}
   m_UVRect:
     serializedVersion: 2
     x: 0

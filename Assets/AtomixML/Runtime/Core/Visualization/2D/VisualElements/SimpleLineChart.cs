@@ -28,6 +28,7 @@ namespace Atom.MachineLearning.Core.Visualization.VisualElements
         private Color _backgroundColor = Color.white;
         public Color backgroundColor { get { return _backgroundColor; } set { _backgroundColor = value; style.backgroundColor = new StyleColor(_backgroundColor); } }
 
+        public Vector2 yRange { get; set; } = Vector2.zero;
 
         /// <summary>
         /// Unidimensional mode, the points will be placed by the maximum avalaible interval on X axis
@@ -154,9 +155,13 @@ namespace Atom.MachineLearning.Core.Visualization.VisualElements
 
             var points = _getYValuesDelegates();
 
-            float deltaY = (int)(real_width / points.Count);
-
-            MLMath.ColumnMinMax(points, out y_min, out y_max);
+            if (yRange == Vector2.zero)
+                MLMath.ColumnMinMax(points, out y_min, out y_max);
+            else
+            {
+                y_min = yRange.x;
+                y_max = yRange.y;   
+            }    
 
             x_min = 0;
             x_max = points.Count;
