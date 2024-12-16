@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Assets.AtomixML.MiniProjects.ReinforcementUtilityBasedAgents.Trainer
+namespace Assets.AtomixML.MiniProjects.UtilityBasedAgents.Trainer
 {
     /// <summary>
     /// Wrapper for

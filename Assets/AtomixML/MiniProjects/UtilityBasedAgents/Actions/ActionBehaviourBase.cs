@@ -1,4 +1,4 @@
-﻿using Atom.MachineLearning.MiniProjects.ReinforcementUtilityBasedAgents;
+﻿using Atom.MachineLearning.MiniProjects.UtilityBasedAgents;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace Atom.MachineLearning.MiniProjects.ReinforcementUtilityBasedAgents
+namespace Atom.MachineLearning.MiniProjects.UtilityBasedAgents
 {
     public abstract class ActionBehaviourBase : MonoBehaviour, IAction
     {

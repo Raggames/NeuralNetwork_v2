@@ -14,7 +14,7 @@ namespace Atom.MachineLearning.Unsupervised.AngleBasedOutlierDetection
     /*
      https://www.dbs.ifi.lmu.de/~zimek/publications/KDD2008/KDD08-ABOD.pdf
      */
-    public class ABODModel : IMLModel<NVector, NVector>, IMLTrainer<ABODModel, NVector, NVector>
+    public class ABODModel : IMLModel<NVector, double>, IMLTrainer<ABODModel, NVector, double>
     {
         /// <summary>
         /// The threshold to determine whereas the tested data is an outlier, or not
@@ -41,7 +41,7 @@ namespace Atom.MachineLearning.Unsupervised.AngleBasedOutlierDetection
             return await Task.Run(() => ScoreSynchronously());
         }
 
-        public NVector Predict(NVector inputData)
+        public double Predict(NVector inputData)
         {
             // to clarify the algorithm
             // we take a point and note it as origin
@@ -70,6 +70,9 @@ namespace Atom.MachineLearning.Unsupervised.AngleBasedOutlierDetection
                     Debug.Log(variance);
                 }
             }
+
+            // should return somehow, the purcentage of chances that the item is an outlier
+            return 0;
         }
 
         public ITrainingResult FitSynchronously(NVector[] x_datas)

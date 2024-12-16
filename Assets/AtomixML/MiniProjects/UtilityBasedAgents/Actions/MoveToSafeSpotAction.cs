@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AI;
 
-namespace Atom.MachineLearning.MiniProjects.ReinforcementUtilityBasedAgents
+namespace Atom.MachineLearning.MiniProjects.UtilityBasedAgents
 {
     /// <summary>
     /// An action where the agent select a safe spot, computed as a position as far from any agent as possible (using random sampling)

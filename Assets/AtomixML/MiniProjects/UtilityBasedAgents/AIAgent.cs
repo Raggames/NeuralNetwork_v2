@@ -3,7 +3,7 @@ using Sirenix.OdinInspector;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Atom.MachineLearning.MiniProjects.ReinforcementUtilityBasedAgents
+namespace Atom.MachineLearning.MiniProjects.UtilityBasedAgents
 {
     /// <summary>
     /// To do create an abstraction for Statisitcs (Life, Hunger, Energy)

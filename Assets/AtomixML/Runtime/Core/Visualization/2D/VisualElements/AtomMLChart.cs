@@ -14,6 +14,8 @@ namespace Atom.MachineLearning.Core.Visualization.VisualElements
 
         protected double width => style.width.value.value;
         protected double height => style.height.value.value;
+        protected double real_width => width - 2 * margin;
+        protected double real_heigth => height - 2 * margin;
 
         protected double x_min = 0;
         protected double x_max = 0;
@@ -22,11 +24,8 @@ namespace Atom.MachineLearning.Core.Visualization.VisualElements
 
         public Vector2 Plot(double x_normalized, double y_normalized)
         {
-            var real_width = width - 2 * margin;
-            var real_heigth = height - 2 * margin;
             var x = (float)(margin + x_normalized * real_width);
             var y = (float)(margin + y_normalized * real_heigth);
-
 
             return new Vector2(x, y);
         }
