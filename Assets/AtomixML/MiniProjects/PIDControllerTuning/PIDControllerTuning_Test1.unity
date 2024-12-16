@@ -618,27 +618,27 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _target: {fileID: 2022867912}
   _xAxisPID:
-    _p: 0.6
-    _i: 0.45
-    _d: 0.125
-    _deltaTime: 0
+    _p: 2.08
+    _i: 1.01
+    _d: 0.71
+    _deltaTime: 0.019999992102384567
     _maxRecordedTime: 1
     _derivativeRange: 25
   _yAxisPID:
-    _p: 0.6
-    _i: 0.45
-    _d: 0.125
-    _deltaTime: 0
+    _p: 2.08
+    _i: 1.01
+    _d: 0.71
+    _deltaTime: 0.019999992102384567
     _maxRecordedTime: 1
     _derivativeRange: 25
   _zAxisPID:
-    _p: 0.6
-    _i: 0.45
-    _d: 0.125
-    _deltaTime: 0
+    _p: 2.08
+    _i: 1.01
+    _d: 0.71
+    _deltaTime: 0.019999992102384567
     _maxRecordedTime: 1
     _derivativeRange: 25
-  _forceMultiplier: 1
+  _forceMultiplier: 50
 --- !u!23 &1573100997
 MeshRenderer:
   m_ObjectHideFlags: 0
