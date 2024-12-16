@@ -69,12 +69,16 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
             double sum = 0.0;
             for(int i = 0; i < _samples.Count; i++)
             {
-                sum += _deltaTime * (_targets[i] - _samples[i]);
+                sum += _deltaTime * Error(i);
             }
 
             return sum;
         }
 
+        private double Error(int index)
+        {
+            return (_targets[index] - _samples[index]);
+        }
         private double Derivative(double error)
         {
             if (_samples.Count <= 1)
@@ -82,21 +86,23 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
 
             if(_samples.Count > _derivativeRange)
             {
-                var y_offset = _samples[_samples.Count - 1] - _samples[_samples.Count - _derivativeRange];
-                var x_offset = (_samples.Count - 1) * _deltaTime - (_samples.Count - _derivativeRange) * _deltaTime;
+                var y_offset = Error(_samples.Count - 1) - Error(_samples.Count - _derivativeRange);
+                var x_offset = _deltaTime * _derivativeRange;
 
                 var gradient  = y_offset / x_offset;
 
-                return gradient * error;
+                return gradient;
             }
             else
             {
-                var y_offset = _samples[_samples.Count - 1] - _samples[0];
-                var x_offset = (_samples.Count - 1) * _deltaTime;
+                /* var y_offset = _samples[_samples.Count - 1] - _samples[0];
+                 var x_offset = (_samples.Count - 1) * _deltaTime;
 
-                var gradient = y_offset / x_offset;
+                 var gradient = y_offset / x_offset;
 
-                return gradient * error;
+                 return gradient * error;*/
+
+                return 0;
             }
         }
     }
