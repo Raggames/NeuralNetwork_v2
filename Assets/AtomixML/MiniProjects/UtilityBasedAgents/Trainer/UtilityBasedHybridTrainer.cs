@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace Atom.MachineLearning.MiniProjects.ReinforcementUtilityBasedAgents
+namespace Atom.MachineLearning.MiniProjects.UtilityBasedAgents
 {
     /// <summary>
     /// An hybrid trainer using genetic and reinforced learning techniques to learn best utility functions (linear and exponentials) to 

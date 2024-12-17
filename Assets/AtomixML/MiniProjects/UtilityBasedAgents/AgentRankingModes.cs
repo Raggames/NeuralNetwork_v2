@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Assets.AtomixML.MiniProjects.ReinforcementUtilityBasedAgents
+namespace Atom.MachineLearning.MiniProjects.UtilityBasedAgents
 {
     public enum AgentRankingModes
     {

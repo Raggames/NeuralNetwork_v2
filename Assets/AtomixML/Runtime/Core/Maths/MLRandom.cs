@@ -46,6 +46,11 @@ namespace Atom.MachineLearning.Core.Maths
             return random.Next(minValue, maxValue);
         }
 
+        public static bool Chances(this Random random, double chances, double maxValue)
+        {
+            return Range(random, 0, maxValue) >= maxValue - chances;
+        }
+
         public static int WeightedIndex(this Random random, double[] weights)
         {
             // Normalize weights to sum to 1 (in case they're not already percentages)

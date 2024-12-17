@@ -29,7 +29,7 @@ namespace Atom.MachineLearning.Core.Visualization
                 points[i] = Math.Pow(i, 2);
             }
 
-            _visualizationSheet.Add_SimpleLine(points);
+            _visualizationSheet.Add_SimpleLine(points, 2, new Vector2Int(300, 300));
         }
 
 
@@ -44,7 +44,7 @@ namespace Atom.MachineLearning.Core.Visualization
                 points[i] = 1f / Math.Pow(i, 2);
             }
 
-            _visualizationSheet.Add_SimpleLine(points);
+            _visualizationSheet.Add_SimpleLine(points, 2, new Vector2Int(300, 300));
         }
 
         [Button]
@@ -58,7 +58,7 @@ namespace Atom.MachineLearning.Core.Visualization
                 points[i] = i;
             }
 
-            _visualizationSheet.Add_SimpleLine(points);
+            _visualizationSheet.Add_SimpleLine(points, 2, new Vector2Int(300, 300));
         }
 
 
