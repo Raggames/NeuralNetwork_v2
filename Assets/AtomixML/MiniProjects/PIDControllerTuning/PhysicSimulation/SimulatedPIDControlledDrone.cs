@@ -64,11 +64,17 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
             var offset = transform.position - _target.position;
 
             // the dot product ensure the drone orientation is aligned with the destination vector
-            var dot = Vector3.Dot(transform.up, -offset.normalized);            
+            var dot = Vector3.Dot(transform.up, -offset.normalized);
 
+            FollowTarget(offset);
+
+            Stabilize();
+        }
+
+        private void FollowTarget(Vector3 offset)
+        {
             // x force is handled by a difference of rotation with top and bottom engines
             var x_force = (float)_translationAxisPIDFunctions[0].Compute(offset.x, 0);
-            Debug.DrawRay(transform.position, Vector3.right * x_force, Color.green);
 
             // y force is handled by a difference of rotation between opposite engines (not simulated now)
             var y_force = (float)_translationAxisPIDFunctions[1].Compute(offset.y, 0);
@@ -76,12 +82,24 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
             // z force is handled by a difference of rotation with left and right engines
             var z_force = (float)_translationAxisPIDFunctions[2].Compute(offset.z, 0);
 
-            _rigidbody.AddForceAtPosition(new Vector3(x_force, y_force, z_force) * _forceMultiplier, transform.position - Vector3.down);
+            var pidForce = new Vector3(x_force, y_force, z_force);
+            Debug.DrawRay(transform.position, pidForce, Color.red);
+
+            _rigidbody.AddForceAtPosition(pidForce * _forceMultiplier, transform.position - Vector3.down);
+
+            var projection = Vector3.ProjectOnPlane(pidForce, transform.up);
+            Debug.DrawRay(transform.position, projection, Color.blue);
+
+        }
+
+        /// <summary>
+        /// Simple version of stabilization, doesn't take in account the motors or so
+        /// </summary>
+        private void Stabilize()
+        {
 
             // transform offset to an orientation quaternion
             // the drone always want to aim at its target
-            //var dirOrientation = Quaternion.LookRotation(offset, Vector3.up);
-            
             var offsetR = transform.rotation.eulerAngles - _target.transform.eulerAngles;
 
             var xr_force = (float)_rotationAxisPIDFunctions[0].Compute(WrapAngle(offsetR.x), 0);
@@ -90,8 +108,14 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
 
             //_rigidbody.AddForceAtPosition(Vector3.right, new Vector3(0, zr_force, 0) * _torqueMultiplier);
             _rigidbody.AddTorque(new Vector3(xr_force, yr_force, zr_force) * _torqueMultiplier);
+
         }
 
+        /*
+         la prochaine étape est de fixer ma pousser à l'axe des moteurs et d'utiliser l'erreur d'orientation entre le vecteur de poussée que je veux 
+        (le vecteur drone-cible rouge passé dans la fonction PID sur ces 3 axes) et l'orientation de la machine, 
+        pour balancer les bonnes commandes aux "moteurs" pour orienter le drone dans l'axe de son vecteur de poussée
+         */
 
         private float WrapAngle(float angle)
         {
