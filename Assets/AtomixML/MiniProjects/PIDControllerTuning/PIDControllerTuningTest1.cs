@@ -20,12 +20,13 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
         [SerializeField] private float _graphLineWidth = 2.5f;
         [SerializeField] private int _maxDisplayedPoints = 500;
 
-
         [SerializeField, ReadOnly] private List<double> _samples = new List<double>();
         [SerializeField, ReadOnly] private List<double> _consignes = new List<double>();
 
         private SimpleLineChart _samplesLine;
         private SimpleLineChart _consigneLine;
+
+
 
         private void Start()
         {
@@ -44,7 +45,7 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
             _samplesLine.yRange = new Vector2(0, 30);
             _consigneLine.yRange = new Vector2(0, 30);
 
-            _pidFunction.Initialize(Time.fixedDeltaTime);
+            _pidFunction.SetTime(Time.fixedDeltaTime);
         }
 
         private void FixedUpdate()

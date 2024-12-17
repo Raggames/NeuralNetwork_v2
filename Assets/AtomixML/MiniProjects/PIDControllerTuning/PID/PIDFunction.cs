@@ -14,7 +14,7 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
         // tableau valeurs precedentes
         // delta t
 
-        [SerializeField] private double _p  = .6;
+        [SerializeField] private double _p = .6;
         [SerializeField] private double _i = .45;
         [SerializeField] private double _d = .125;
 
@@ -38,10 +38,22 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
         public List<double> targets => _targets;
 
         [Button]
-        public void Initialize(float dtime)
+        public void SetTime(float dtime, float maxTime = -1)
         {
             _deltaTime = dtime;
+
+            if (maxTime != -1)
+                _maxRecordedTime = maxTime;
+
             _recordedValues = (int)(_maxRecordedTime / _deltaTime);
+        }
+
+        public void SetParameters(float p, float i, float d, int derivativeRange)
+        {
+            _d = d;
+            _p = p;
+            _i = i;
+            _derivativeRange = derivativeRange;
         }
 
         public double Compute(double currentValue, double targetValue)
@@ -67,7 +79,7 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
         private double Integral()
         {
             double sum = 0.0;
-            for(int i = 0; i < _samples.Count; i++)
+            for (int i = 0; i < _samples.Count; i++)
             {
                 sum += _deltaTime * Error(i);
             }
@@ -84,12 +96,12 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
             if (_samples.Count <= 1)
                 return 0;
 
-            if(_samples.Count > _derivativeRange)
+            if (_samples.Count > _derivativeRange)
             {
                 var y_offset = Error(_samples.Count - 1) - Error(_samples.Count - _derivativeRange);
                 var x_offset = _deltaTime * _derivativeRange;
 
-                var gradient  = y_offset / x_offset;
+                var gradient = y_offset / x_offset;
 
                 return gradient;
             }
