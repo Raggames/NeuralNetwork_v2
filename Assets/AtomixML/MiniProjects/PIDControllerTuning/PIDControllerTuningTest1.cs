@@ -27,13 +27,19 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
         private SimpleLineChart _samplesLine;
         private SimpleLineChart _consigneLine;
 
-        private void Awake()
+        private void Start()
         {
             _visualizationSheet = GetComponentInChildren<VisualizationSheet>();
-            _samplesLine = _visualizationSheet.Add_SimpleLine(() => _samples, _graphLineWidth, _graphDimensions);
-           // _samplesLine.backgroundColor = new Color(0, 0, 0, 0);
-            _consigneLine = _visualizationSheet.Add_SimpleLine(() => _consignes, _graphLineWidth, _graphDimensions);
+
+            var parent = _visualizationSheet.AddContainer("c1", Color.white, _graphDimensions);
+            var axis = _visualizationSheet.AddAxis("a1", new Color(0, 0, 0, 0), _graphDimensions, parent);
+
+            _samplesLine = _visualizationSheet.Add_SimpleLine(() => _samples, _graphLineWidth, _graphDimensions, parent);
+            _samplesLine.backgroundColor = new Color(0, 0, 0, 0);
+
+            _consigneLine = _visualizationSheet.Add_SimpleLine(() => _consignes, _graphLineWidth, _graphDimensions, parent);
             _consigneLine.strokeColor = Color.green;
+            _consigneLine.backgroundColor = new Color(0, 0, 0, 0);
 
             _samplesLine.yRange = new Vector2(0, 30);
             _consigneLine.yRange = new Vector2(0, 30);

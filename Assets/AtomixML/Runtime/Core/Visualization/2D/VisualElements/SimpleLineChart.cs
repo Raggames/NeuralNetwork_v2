@@ -22,12 +22,7 @@ namespace Atom.MachineLearning.Core.Visualization.VisualElements
 
         private float _lineWidth;
 
-        private Color _strokeColor = Color.black;
-        public Color strokeColor { get { return _strokeColor; } set { _strokeColor = value; } }
-
-        private Color _backgroundColor = Color.white;
-        public Color backgroundColor { get { return _backgroundColor; } set { _backgroundColor = value; style.backgroundColor = new StyleColor(_backgroundColor); } }
-
+      
         public Vector2 yRange { get; set; } = Vector2.zero;
 
         /// <summary>
@@ -47,7 +42,6 @@ namespace Atom.MachineLearning.Core.Visualization.VisualElements
             backgroundColor = _backgroundColor;
 
             generateVisualContent += GenerateLineY;
-            generateVisualContent += DrawOrthonormalLines;
         }
 
         public SimpleLineChart(double[,] pointXY, float lineWidth = 2f, int width = 300, int height = 300)
@@ -60,7 +54,6 @@ namespace Atom.MachineLearning.Core.Visualization.VisualElements
             backgroundColor = _backgroundColor;
 
             generateVisualContent += GenerateLineXY;
-            generateVisualContent += DrawOrthonormalLines;
         }
 
         public SimpleLineChart(Func<List<double>> getValuesDelegate, float lineWidth = 2f, int width = 300, int height = 300)
@@ -73,7 +66,6 @@ namespace Atom.MachineLearning.Core.Visualization.VisualElements
             backgroundColor = _backgroundColor;
 
             generateVisualContent += GenerateLineYDynamic;
-            generateVisualContent += DrawOrthonormalLines;
         }
 
         public SimpleLineChart(Func<List<Vector2>> getValuesDelegate, float lineWidth = 2f, int width = 300, int height = 300)
@@ -86,7 +78,6 @@ namespace Atom.MachineLearning.Core.Visualization.VisualElements
             backgroundColor = _backgroundColor;
 
             generateVisualContent += GenerateLineXYDynamic;
-            generateVisualContent += DrawOrthonormalLines;
         }
 
 
