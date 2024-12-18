@@ -146,15 +146,15 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
             //Debug.DrawRay(transform.position, z_projection, Color.blue);
 
             var z_dot = Vector3.Dot(z_projection.normalized, transform.right);
-            HandleLeftRightEngines(baseThrottle, z_dot * z_projection.magnitude, ref _engineThrust);
+            //HandleLeftRightEngines(baseThrottle, z_dot * z_projection.magnitude, ref _engineThrust);
 
             // tangage / front to back
             var x_projection = Vector3.ProjectOnPlane(pidVector, transform.right);
             x_projection = Vector3.ProjectOnPlane(x_projection, transform.up);
-            //Debug.DrawRay(transform.position, x_projection, Color.yellow);
+            Debug.DrawRay(transform.position, x_projection, Color.yellow);
 
             var x_dot = Vector3.Dot(x_projection.normalized, transform.forward);
-            HandleFrontBackEngines(baseThrottle, x_dot * x_projection.magnitude, ref _engineThrust);
+            //HandleFrontBackEngines(baseThrottle, x_dot * x_projection.magnitude, ref _engineThrust);
 
             // lacet / left right on Y
             var y_projection = Vector3.ProjectOnPlane(pidVector, transform.up);
@@ -167,6 +167,13 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
 
             if (!_enableSimpleForceMode)
             {
+
+                Debug.DrawRay(_top_left_motor.position + transform.forward * .33f, transform.up * _engineThrust.w * _debugDrawrayScaling, Color.black);
+                Debug.DrawRay(_top_right_motor.position + transform.forward * .33f, transform.up * _engineThrust.x * _debugDrawrayScaling, Color.black);
+
+                Debug.DrawRay(_bottom_left_motor.position + transform.forward * -.33f, transform.up * _engineThrust.y * _debugDrawrayScaling, Color.black);
+                Debug.DrawRay(_bottom_right_motor.position + transform.forward * -.33f, transform.up * _engineThrust.z * _debugDrawrayScaling, Color.black);
+
                 _rigidbody.AddForceAtPosition(_top_left_motor.position, transform.up * _engineThrust.w);
                 _rigidbody.AddForceAtPosition(_top_right_motor.position, transform.up * _engineThrust.x);
 
@@ -180,11 +187,11 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
         {
             ComputeThrottleForce(1.0, baseThrottle, orientation, out var positive, out var negative);
 
-             Debug.DrawRay(_top_left_motor.position, transform.up * (float)orientation* _debugDrawrayScaling , Color.yellow);
-             Debug.DrawRay(_top_right_motor.position, transform.up * (float)orientation* _debugDrawrayScaling, Color.yellow);
+             Debug.DrawRay(_top_left_motor.position, transform.up * (float)orientation * _rotationSensivity * _debugDrawrayScaling , Color.yellow);
+             Debug.DrawRay(_top_right_motor.position, transform.up * (float)orientation * _rotationSensivity * _debugDrawrayScaling, Color.yellow);
 
-             Debug.DrawRay(_bottom_left_motor.position, transform.up * -(float)orientation* _debugDrawrayScaling, Color.yellow);
-             Debug.DrawRay(_bottom_right_motor.position, transform.up * -(float)orientation* _debugDrawrayScaling, Color.yellow);
+             Debug.DrawRay(_bottom_left_motor.position, transform.up * -(float)orientation * _rotationSensivity * _debugDrawrayScaling, Color.yellow);
+             Debug.DrawRay(_bottom_right_motor.position, transform.up * -(float)orientation * _rotationSensivity * _debugDrawrayScaling, Color.yellow);
 
 
             /*Debug.DrawRay(_top_left_motor.position, transform.up * (float)positive * _debugDrawrayScaling / 4, Color.yellow);
@@ -195,21 +202,21 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
 
 
             engineThrust = new Vector4(
-                engineThrust.w + (float)-orientation / 4,
-                engineThrust.x + (float)-orientation / 4,
-                engineThrust.y + (float)orientation / 4,
-                engineThrust.z + (float)orientation / 4);
+                engineThrust.w + (float)-orientation * _rotationSensivity / 4,
+                engineThrust.x + (float)-orientation * _rotationSensivity / 4,
+                engineThrust.y + (float)orientation * _rotationSensivity / 4,
+                engineThrust.z + (float)orientation * _rotationSensivity / 4);
 
 
         }
 
         private void HandleLeftRightEngines(double baseThrottle, double orientation, ref Vector4 engineThrust)
         {
-            Debug.DrawRay(_top_left_motor.position, transform.up * (float)orientation * _debugDrawrayScaling, Color.blue);
-            Debug.DrawRay(_bottom_left_motor.position, transform.up * (float)orientation * _debugDrawrayScaling, Color.blue);
+            Debug.DrawRay(_top_left_motor.position, transform.up * (float)orientation * _rotationSensivity * _debugDrawrayScaling, Color.blue);
+            Debug.DrawRay(_bottom_left_motor.position, transform.up * (float)orientation * _rotationSensivity * _debugDrawrayScaling, Color.blue);
 
-            Debug.DrawRay(_top_right_motor.position, transform.up * -(float)orientation * _debugDrawrayScaling, Color.blue);
-            Debug.DrawRay(_bottom_right_motor.position, transform.up * -(float)orientation * _debugDrawrayScaling, Color.blue);
+            Debug.DrawRay(_top_right_motor.position, transform.up * -(float)orientation * _rotationSensivity * _debugDrawrayScaling, Color.blue);
+            Debug.DrawRay(_bottom_right_motor.position, transform.up * -(float)orientation * _rotationSensivity * _debugDrawrayScaling, Color.blue);
 
             /*Debug.DrawRay(_top_left_motor.position, transform.up * (float)positive / 4 * _debugDrawrayScaling, Color.blue);
             Debug.DrawRay(_bottom_left_motor.position, transform.up * (float)positive / 4 * _debugDrawrayScaling, Color.blue);
@@ -218,10 +225,10 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
             Debug.DrawRay(_bottom_right_motor.position, transform.up * (float)negative / 4 * _debugDrawrayScaling, Color.blue);*/
 
             engineThrust = new Vector4(
-                engineThrust.w + (float)orientation * _rotationSensivity / 4,
-                engineThrust.x + (float)-orientation * _rotationSensivity / 4,
-                engineThrust.y + (float)orientation * _rotationSensivity / 4,
-                engineThrust.z + (float)-orientation * _rotationSensivity / 4);
+                engineThrust.w + (float)-orientation * _rotationSensivity / 4,
+                engineThrust.x + (float)orientation * _rotationSensivity / 4,
+                engineThrust.y + (float)-orientation * _rotationSensivity / 4,
+                engineThrust.z + (float)orientation * _rotationSensivity / 4);
         }
 
         /// <summary>
