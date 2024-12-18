@@ -431,6 +431,42 @@ namespace Atom.MachineLearning.Core
             return Math.Sqrt((sum / vectors.Length));
         }
 
+        /// <summary>
+        /// Variance of a distribution represented by a column vector
+        /// </summary>
+        /// <param name="a"></param>
+        /// <returns></returns>
+        public static double Variance(NVector a)
+        {
+            double sum = 0.0;
+            for (int i = 0; i < a.length; ++i)
+            {
+                sum += a[i];
+            }
+
+            var mean = sum / a.length;
+
+            var variance_sum = 0.0;
+            for (int i = 0; i < a.length; ++i)
+            {
+                variance_sum += Math.Pow(a[i] - mean, 2);
+            }
+
+            var variance = variance_sum / a.length;
+
+            return variance;
+        }
+
+        /// <summary>
+        /// StdDeviation of a distribution represented by a column vector
+        /// </summary>
+        /// <param name="a"></param>
+        /// <returns></returns>
+        public static double StdDeviation(NVector a)
+        {
+            return Math.Sqrt(Variance(a));  
+        }
+
         public static double Covariance(NVector a, NVector b)
         {
             return Covariance(a.Data, b.Data);
