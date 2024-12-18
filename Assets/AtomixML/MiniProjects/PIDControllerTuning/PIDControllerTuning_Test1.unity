@@ -1438,6 +1438,7 @@ MonoBehaviour:
   _rot_DRange: 5
   _rot_maxRecordTime: 0.33
   _maxEngineForce: 100
+  _rotationSensivity: 0.33
   _translationAxisPIDFunctions:
   - _p: 2.08
     _i: 1.01
@@ -1480,7 +1481,7 @@ MonoBehaviour:
   _top_left_motor: {fileID: 2068667444}
   _bottom_right_motor: {fileID: 1916404510}
   _bottom_left_motor: {fileID: 765723001}
-  _debugDrawrayScaling: 0.05
+  _debugDrawrayScaling: 0.5
   _enableSimpleForceMode: 1
 --- !u!54 &1573100997
 Rigidbody:
