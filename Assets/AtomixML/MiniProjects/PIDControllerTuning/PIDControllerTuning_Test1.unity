@@ -1437,6 +1437,7 @@ MonoBehaviour:
   _rot_D: 0.24
   _rot_DRange: 5
   _rot_maxRecordTime: 0.33
+  _maxEngineForce: 100
   _translationAxisPIDFunctions:
   - _p: 2.08
     _i: 1.01
@@ -1475,10 +1476,12 @@ MonoBehaviour:
     _deltaTime: 0.019999992102384567
     _maxRecordedTime: 1
     _derivativeRange: 25
-  _top_right_motor: {fileID: 0}
-  _top_left_motor: {fileID: 0}
-  _bottom_right_motor: {fileID: 0}
-  _bottom_left_motor: {fileID: 0}
+  _top_right_motor: {fileID: 120599462}
+  _top_left_motor: {fileID: 2068667444}
+  _bottom_right_motor: {fileID: 1916404510}
+  _bottom_left_motor: {fileID: 765723001}
+  _debugDrawrayScaling: 0.05
+  _enableSimpleForceMode: 1
 --- !u!54 &1573100997
 Rigidbody:
   m_ObjectHideFlags: 0
