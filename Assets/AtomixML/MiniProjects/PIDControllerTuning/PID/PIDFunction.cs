@@ -67,7 +67,9 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
             _samples.Add(currentValue);
             _targets.Add(targetValue);
 
+
             var current_error = targetValue - currentValue;
+
             var result = _p * current_error;
 
             result += _i * Integral();
@@ -91,6 +93,7 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
         {
             return (_targets[index] - _samples[index]);
         }
+
         private double Derivative(double error)
         {
             if (_samples.Count <= 1)
@@ -106,14 +109,7 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
                 return gradient;
             }
             else
-            {
-                /* var y_offset = _samples[_samples.Count - 1] - _samples[0];
-                 var x_offset = (_samples.Count - 1) * _deltaTime;
-
-                 var gradient = y_offset / x_offset;
-
-                 return gradient * error;*/
-
+            {                
                 return 0;
             }
         }
