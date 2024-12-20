@@ -27,6 +27,7 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
         [SerializeField] private float _rot_maxRecordTime;
         [Header("Engine")]
         [SerializeField] private float _maxEngineForce = 100;
+        [SerializeField] private float _translationSensivity = .1f;
         [SerializeField] private float _rotationSensivity = .33f;
         [ShowInInspector, ReadOnly] private float _currentPidVectorMagnitude;
         [ShowInInspector, ReadOnly] private Vector4 _engineThrust;
@@ -98,8 +99,7 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
 
             if (_enableMode1)
             {
-                var pidVector = ComputeOffsetPIDVectorMode1(offset);
-
+                FollowTargetMode1(offset);
                 StabilizeMode1();
             }
             else
@@ -107,8 +107,18 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
                 // on clamp l'erreur pid pour éviter trop de range sur l'erreur
                 var positionError = offset.normalized * Math.Min(offset.magnitude, _maxEngineForce);
 
-                var pidVector = ComputeOffsetPIDVectorMode2(positionError);
-                StabilizeMode2(positionError, pidVector);
+                var rot_pidVector = ComputeOrientationStabilizationPIDVectorMode2(positionError);
+                StabilizeMode2(positionError, rot_pidVector);
+
+                var trs_pidVector = ComputeTranslationCompensationPIDVectorMode2(positionError);
+                FollowTargetMode2(positionError, trs_pidVector);
+
+                // apply forces to engines
+                _rigidbody.AddForceAtPosition(transform.up * _engineThrust.w, _top_left_motor.position);
+                _rigidbody.AddForceAtPosition(transform.up * _engineThrust.x, _top_right_motor.position);
+
+                _rigidbody.AddForceAtPosition(transform.up * _engineThrust.y, _bottom_left_motor.position);
+                _rigidbody.AddForceAtPosition(transform.up * _engineThrust.z, _bottom_right_motor.position);
             }
 
             if (_animateTargetMove)
@@ -125,6 +135,7 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
             ComputeAgentReward(offset);
         }
 
+        #region Training Heuristic
         private void ComputeAgentReward(Vector3 offset)
         {
             // angle with target
@@ -144,13 +155,15 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
             // penalize with thrust axis changing signs (to count the frequency of overshoot//undershoot) ? 
         }
 
+        #endregion
+
         /// <summary>
         /// Calculate the PID vector from the error of position
         /// This PID vector will serve to other functions to orient the drone/throttle the engines 
         /// </summary>
         /// <param name="offset"></param>
         /// <returns></returns>
-        private Vector3 ComputeOffsetPIDVectorMode1(Vector3 offset)
+        private Vector3 FollowTargetMode1(Vector3 offset)
         {
             // x force is handled by a difference of rotation with top and bottom engines
             var x_force = (float)_translationAxisPIDFunctions[0].Compute(offset.x, 0);
@@ -170,7 +183,26 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
             return new Vector3(x_force, y_force, z_force);
         }
 
-        private Vector3 ComputeOffsetPIDVectorMode2(Vector3 offset)
+        private Vector3 ComputeOrientationStabilizationPIDVectorMode2(Vector3 offset)
+        {
+            // x force is handled by a difference of rotation with top and bottom engines
+            var x_force = (float)_rotationAxisPIDFunctions[0].Compute(offset.x, 0);
+
+            // y force is handled by a difference of rotation between opposite engines (not simulated now)
+            var y_force = (float)_rotationAxisPIDFunctions[1].Compute(offset.y, 0);
+
+            // z force is handled by a difference of rotation with left and right engines
+            var z_force = (float)_rotationAxisPIDFunctions[2].Compute(offset.z, 0);
+
+            //var pidForce = new Vector3(Math.Clamp(x_force, -_maxEngineForce, _maxEngineForce), Math.Clamp(y_force, -_maxEngineForce, _maxEngineForce), Math.Clamp(z_force, -_maxEngineForce, _maxEngineForce));
+            var pidForce = new Vector3(x_force, y_force, z_force);
+            Debug.DrawRay(transform.position, pidForce, Color.black);
+
+            _currentPidVectorMagnitude = pidForce.magnitude;
+            return new Vector3(x_force, y_force, z_force);
+        }
+
+        private Vector3 ComputeTranslationCompensationPIDVectorMode2(Vector3 offset)
         {
             // x force is handled by a difference of rotation with top and bottom engines
             var x_force = (float)_translationAxisPIDFunctions[0].Compute(offset.x, 0);
@@ -230,6 +262,7 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
             var z_dot = Math.Sign(Vector3.Dot(z_projection.normalized, transform.right));
             HandleLeftRightEngines(z_dot * z_projection.magnitude, ref _engineThrust);
 
+
             // tangage / front to back
             var x_projection = Vector3.ProjectOnPlane(pidVector, transform.right);
             x_projection = Vector3.ProjectOnPlane(x_projection, transform.up);
@@ -257,11 +290,16 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
                             Debug.DrawRay(_bottom_right_motor.position + transform.forward * -.33f, transform.up * _engineThrust.z * _debugDrawrayScaling, Color.black);
 
             */
-            _rigidbody.AddForceAtPosition(transform.up * _engineThrust.w, _top_left_motor.position);
-            _rigidbody.AddForceAtPosition(transform.up * _engineThrust.x, _top_right_motor.position);
+        }
 
-            _rigidbody.AddForceAtPosition(transform.up * _engineThrust.y, _bottom_left_motor.position);
-            _rigidbody.AddForceAtPosition(transform.up * _engineThrust.z, _bottom_right_motor.position);
+        private void FollowTargetMode2(Vector3 positionError, Vector3 pidVector)
+        {
+            var baseThrottle = Vector4.zero;
+            var dot = Vector3.Dot(transform.up, -positionError.normalized);
+            if (dot > 0)
+                baseThrottle = Vector4.one * pidVector.magnitude * _translationSensivity;
+
+            _engineThrust += baseThrottle;
         }
 
 
