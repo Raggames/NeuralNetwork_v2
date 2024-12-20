@@ -10,7 +10,10 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
         private Rigidbody _rigidbody;
 
         [SerializeField] private Transform _target;
-        [SerializeField] private float _torqueMultiplier = 1;
+
+        [Space]
+        [SerializeField] private float _debugDrawrayScaling = .05f;
+        [SerializeField] private bool _enableMode1 = true;
 
         [Header("Translation")]
         [SerializeField] private float _trs_P;
@@ -27,19 +30,25 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
         [SerializeField] private float _rot_maxRecordTime;
         [Header("Engine")]
         [SerializeField] private float _maxEngineForce = 100;
+
         [SerializeField] private float _translationSensivity = .1f;
         [SerializeField] private float _rotationSensivity = .33f;
+
         [ShowInInspector, ReadOnly] private float _currentPidVectorMagnitude;
         [ShowInInspector, ReadOnly] private Vector4 _engineThrust;
 
         [Header("Fit function")]
-        /// l'erreur d'angle limite pour accorder du reward à l'agent
-        /// plus l'agent passe de temps en dessous de l'angle limite (entre son transform.up et le vecteur cible), plus il gagne de point
+        /// Angle error threshold (computed by dotproduct) between orientation of drone and target 
+        /// the more the agent is under threshold, the more points it gains
         [SerializeField] private float _rewardAngleThreshold = 5;
         /// <summary>
-        /// Nombre de points par seconde gagnés en dessous du threshold
+        /// Rewarding angle from target orientation under threshold over time
         /// </summary>
         [SerializeField] private float _rewardAngleValuePerSecond = 1;
+        /// <summary>
+        /// Penalizing distance from target over time
+        /// </summary>
+        [SerializeField] private float _penaltyPerDistanceFromTargetPerSecond = .1f;
 
         /// <summary>
         /// L'utilisation des moteurs donne un penalty à l'agent.
@@ -50,19 +59,15 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
         [ShowInInspector, ReadOnly] private float _orientationErrorDotProduct = 0.0f;
         [ShowInInspector, ReadOnly] private float _currentReward;
 
-        [Space]
+        [Header("PID Functions")]
         [SerializeField] private PIDFunction[] _translationAxisPIDFunctions;
         [SerializeField] private PIDFunction[] _rotationAxisPIDFunctions;
 
-        [Space]
+        [Header("Architecture")]
         [SerializeField] private Transform _top_right_motor;
         [SerializeField] private Transform _top_left_motor;
         [SerializeField] private Transform _bottom_right_motor;
         [SerializeField] private Transform _bottom_left_motor;
-
-        [Space]
-        [SerializeField] private float _debugDrawrayScaling = .05f;
-        [SerializeField] private bool _enableMode1 = true;
 
 
         private void Awake()
@@ -145,6 +150,9 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
             if (angle < _rewardAngleThreshold)
                 _currentReward += _rewardAngleValuePerSecond * Time.fixedDeltaTime;
 
+            var distance_error = offset.magnitude * _penaltyPerDistanceFromTargetPerSecond * Time.fixedDeltaTime;
+            _currentReward -= distance_error;
+
             // penalty of power usage
             // as we search for a stable function, the use of engines (represented by the engine thrust) is used to penalize the agent
             // the goal is to find a way to achieve minimal error with minimal energy (high energy can achieve that first objective  but with a LOT of 'vibrations', if Integral and Derivative have high values)
@@ -174,12 +182,12 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
             // z force is handled by a difference of rotation with left and right engines
             var z_force = (float)_translationAxisPIDFunctions[2].Compute(offset.z, 0);
 
-            var pidForce = new Vector3(x_force, y_force, z_force);
+            var pidForce = new Vector3(x_force, y_force, z_force) * _maxEngineForce;
             Debug.DrawRay(transform.position, pidForce, Color.red);
 
-            _rigidbody.AddForceAtPosition(pidForce * _maxEngineForce, transform.position - Vector3.down);
+            _rigidbody.AddForceAtPosition(pidForce , transform.position - Vector3.down);
 
-            _currentPidVectorMagnitude = (pidForce * _maxEngineForce).magnitude;
+            _currentPidVectorMagnitude = pidForce.magnitude;
             return new Vector3(x_force, y_force, z_force);
         }
 
@@ -235,7 +243,18 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
             var zr_force = (float)_rotationAxisPIDFunctions[2].Compute(WrapAngle(offsetR.z), 0);
 
             if (_enableMode1)
-                _rigidbody.AddTorque(new Vector3(xr_force, yr_force, zr_force) * _torqueMultiplier);
+                _rigidbody.AddTorque(new Vector3(xr_force, yr_force, zr_force) * _rotationSensivity);
+        }
+
+        private void FollowTargetMode2(Vector3 positionError, Vector3 pidVector)
+        {
+            var baseThrottle = Vector4.zero;
+            var dot = Vector3.Dot(transform.up, -positionError.normalized);
+            if (dot > 0)
+                baseThrottle = Vector4.one * pidVector.magnitude * _translationSensivity;
+           // baseThrottle = Mathf.Sign(dot) * Vector4.one * pidVector.magnitude * _translationSensivity;
+
+            _engineThrust += baseThrottle;
         }
 
         private void StabilizeMode2(Vector3 positionError, Vector3 pidVector)
@@ -254,13 +273,15 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
             // y, z
             _engineThrust = new Vector4(0, 0, 0, 0);
 
+            var force_inverter = 1; // Math.Sign(Vector3.Dot(transform.up, -positionError.normalized)) > 0 ? 1 : 0;
+
             // roulis / left to right on Z
             var z_projection = Vector3.ProjectOnPlane(pidVector, transform.forward);
             z_projection = Vector3.ProjectOnPlane(z_projection, transform.up);
             Debug.DrawRay(transform.position, z_projection, Color.blue);
 
             var z_dot = Math.Sign(Vector3.Dot(z_projection.normalized, transform.right));
-            HandleLeftRightEngines(z_dot * z_projection.magnitude, ref _engineThrust);
+            HandleLeftRightEngines(z_dot * z_projection.magnitude * force_inverter, ref _engineThrust);
 
 
             // tangage / front to back
@@ -269,7 +290,7 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
             Debug.DrawRay(transform.position, x_projection, Color.yellow);
 
             var x_dot = Math.Sign(Vector3.Dot(x_projection.normalized, transform.forward));
-            HandleFrontBackEngines(x_dot * x_projection.magnitude, ref _engineThrust);
+            HandleFrontBackEngines(x_dot * x_projection.magnitude * force_inverter, ref _engineThrust);
 
             // lacet / left right on Y
             //var y_projection = Vector3.ProjectOnPlane(pidVector, transform.up);
@@ -290,16 +311,6 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
                             Debug.DrawRay(_bottom_right_motor.position + transform.forward * -.33f, transform.up * _engineThrust.z * _debugDrawrayScaling, Color.black);
 
             */
-        }
-
-        private void FollowTargetMode2(Vector3 positionError, Vector3 pidVector)
-        {
-            var baseThrottle = Vector4.zero;
-            var dot = Vector3.Dot(transform.up, -positionError.normalized);
-            if (dot > 0)
-                baseThrottle = Vector4.one * pidVector.magnitude * _translationSensivity;
-
-            _engineThrust += baseThrottle;
         }
 
 
@@ -391,37 +402,6 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
             }
 
 
-        }
-
-        /// <summary>
-        /// Throttle output must handle a base component (the need for poser to translate) and an orientation component 
-        /// (the need to variate the throttle to orient the drone)
-        /// We have to compute both so we use a function such as
-        /// if throttle base is 80% and orient is 20%, one engine will output 100 and the opposite 60%
-        /// if throttle base is 90% and orient is 20%, one engine will output 100 and the opposite 50% (the overshoot from a side is inverted and sent to the other)
-        /// </summary>
-        /// <param name="throttleBaseComponent"></param>
-        /// <param name="throttleOrientationComponent"></param>
-        /// <param name="result"></param>
-        /// <param name="overshoot"></param>
-        private void ComputeThrottleForce(double repartitionRatio, double throttleBaseComponent, double throttleOrientationComponent, out double positive, out double negative)
-        {
-            var throttleRatio = throttleBaseComponent * 100 / _maxEngineForce;
-            var orientationRatio = throttleOrientationComponent * 100 / _maxEngineForce;
-            Debug.Log(throttleRatio + " " + orientationRatio);
-
-            var sum = throttleRatio + orientationRatio;
-            var diff = 100.0 - repartitionRatio * sum;
-            if (diff < 0)
-            {
-                negative = 100 - diff;
-                positive = 100;
-            }
-            else
-            {
-                negative = 100 - sum;
-                positive = 100 + sum;
-            }
         }
 
         /*
