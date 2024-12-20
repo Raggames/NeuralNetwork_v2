@@ -33,6 +33,7 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
 
         [SerializeField] private float _translationSensivity = .1f;
         [SerializeField] private float _rotationSensivity = .33f;
+        [SerializeField] private float _velocityCompensationRatio = 1f;
 
         [ShowInInspector, ReadOnly] private float _currentPidVectorMagnitude;
         [ShowInInspector, ReadOnly] private Vector4 _engineThrust;
@@ -64,10 +65,10 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
         [SerializeField] private PIDFunction[] _rotationAxisPIDFunctions;
 
         [Header("Architecture")]
-        [SerializeField] private Transform _top_right_motor;
-        [SerializeField] private Transform _top_left_motor;
-        [SerializeField] private Transform _bottom_right_motor;
-        [SerializeField] private Transform _bottom_left_motor;
+        [SerializeField] private Rigidbody _top_right_motor;
+        [SerializeField] private Rigidbody _top_left_motor;
+        [SerializeField] private Rigidbody _bottom_right_motor;
+        [SerializeField] private Rigidbody _bottom_left_motor;
 
 
         private void Awake()
@@ -109,21 +110,37 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
             }
             else
             {
-                // on clamp l'erreur pid pour éviter trop de range sur l'erreur
-                var positionError = offset.normalized * Math.Min(offset.magnitude, _maxEngineForce);
+                // engine thrust to position repartition
+                // w, x
+                // y, z
+                _engineThrust = new Vector4(0, 0, 0, 0);
 
-                var rot_pidVector = ComputeOrientationStabilizationPIDVectorMode2(positionError);
-                StabilizeMode2(positionError, rot_pidVector);
+                // on clamp l'erreur pid pour éviter trop de range sur l'erreur
+                //var positionError = offset.normalized * Math.Min(offset.magnitude, _maxEngineForce);
+                var positionError = offset;
 
                 var trs_pidVector = ComputeTranslationCompensationPIDVectorMode2(positionError);
+                trs_pidVector = trs_pidVector.normalized * Math.Min(trs_pidVector.magnitude, _maxEngineForce);
                 FollowTargetMode2(positionError, trs_pidVector);
 
-                // apply forces to engines
-                _rigidbody.AddForceAtPosition(transform.up * _engineThrust.w, _top_left_motor.position);
-                _rigidbody.AddForceAtPosition(transform.up * _engineThrust.x, _top_right_motor.position);
+                var rot_pidVector = ComputeOrientationStabilizationPIDVectorMode2(positionError);
+                rot_pidVector = rot_pidVector.normalized * Math.Min(rot_pidVector.magnitude, _maxEngineForce);
+                StabilizeMode2(positionError, rot_pidVector);
 
-                _rigidbody.AddForceAtPosition(transform.up * _engineThrust.y, _bottom_left_motor.position);
-                _rigidbody.AddForceAtPosition(transform.up * _engineThrust.z, _bottom_right_motor.position);
+                // todo clamping negative values on engines ? blade can turn in the opposite direction as well
+
+                // apply forces to engines
+                /* _rigidbody.AddForceAtPosition(transform.up * _engineThrust.w, _top_left_motor.position);
+                 _rigidbody.AddForceAtPosition(transform.up * _engineThrust.x, _top_right_motor.position);
+
+                 _rigidbody.AddForceAtPosition(transform.up * _engineThrust.y, _bottom_left_motor.position);
+                 _rigidbody.AddForceAtPosition(transform.up * _engineThrust.z, _bottom_right_motor.position);*/
+
+                _top_left_motor.AddForce(transform.up * _engineThrust.w);
+                _top_right_motor.AddForce(transform.up * _engineThrust.x);
+
+                _bottom_left_motor.AddForce(transform.up * _engineThrust.y);
+                _bottom_right_motor.AddForce(transform.up * _engineThrust.z);
             }
 
             if (_animateTargetMove)
@@ -165,6 +182,7 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
 
         #endregion
 
+        #region Mode 1
         /// <summary>
         /// Calculate the PID vector from the error of position
         /// This PID vector will serve to other functions to orient the drone/throttle the engines 
@@ -191,6 +209,28 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
             return new Vector3(x_force, y_force, z_force);
         }
 
+
+        /// <summary>
+        /// Simple version of stabilization, doesn't take in account the motors or so
+        /// </summary>
+        private void StabilizeMode1()
+        {
+            // transform offset to an orientation quaternion
+            // the drone always want to aim at its target
+            var offsetR = transform.rotation.eulerAngles - _target.transform.eulerAngles;
+
+            var xr_force = (float)_rotationAxisPIDFunctions[0].Compute(WrapAngle(offsetR.x), 0);
+            var yr_force = (float)_rotationAxisPIDFunctions[1].Compute(WrapAngle(offsetR.y), 0);
+            var zr_force = (float)_rotationAxisPIDFunctions[2].Compute(WrapAngle(offsetR.z), 0);
+
+            if (_enableMode1)
+                _rigidbody.AddTorque(new Vector3(xr_force, yr_force, zr_force) * _rotationSensivity);
+        }
+
+        #endregion
+
+        #region Mode 2
+
         private Vector3 ComputeOrientationStabilizationPIDVectorMode2(Vector3 offset)
         {
             // x force is handled by a difference of rotation with top and bottom engines
@@ -204,6 +244,9 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
 
             //var pidForce = new Vector3(Math.Clamp(x_force, -_maxEngineForce, _maxEngineForce), Math.Clamp(y_force, -_maxEngineForce, _maxEngineForce), Math.Clamp(z_force, -_maxEngineForce, _maxEngineForce));
             var pidForce = new Vector3(x_force, y_force, z_force);
+
+            pidForce -= _rigidbody.linearVelocity * _velocityCompensationRatio;
+
             Debug.DrawRay(transform.position, pidForce, Color.black);
 
             _currentPidVectorMagnitude = pidForce.magnitude;
@@ -229,25 +272,10 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
             return new Vector3(x_force, y_force, z_force);
         }
 
-        /// <summary>
-        /// Simple version of stabilization, doesn't take in account the motors or so
-        /// </summary>
-        private void StabilizeMode1()
-        {
-            // transform offset to an orientation quaternion
-            // the drone always want to aim at its target
-            var offsetR = transform.rotation.eulerAngles - _target.transform.eulerAngles;
-
-            var xr_force = (float)_rotationAxisPIDFunctions[0].Compute(WrapAngle(offsetR.x), 0);
-            var yr_force = (float)_rotationAxisPIDFunctions[1].Compute(WrapAngle(offsetR.y), 0);
-            var zr_force = (float)_rotationAxisPIDFunctions[2].Compute(WrapAngle(offsetR.z), 0);
-
-            if (_enableMode1)
-                _rigidbody.AddTorque(new Vector3(xr_force, yr_force, zr_force) * _rotationSensivity);
-        }
-
         private void FollowTargetMode2(Vector3 positionError, Vector3 pidVector)
         {
+            //pidVector = pidVector.normalized * Math.Min(pidVector.magnitude, _maxEngineForce);
+
             var baseThrottle = Vector4.zero;
             var dot = Vector3.Dot(transform.up, -positionError.normalized);
             if (dot > 0)
@@ -259,46 +287,34 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
 
         private void StabilizeMode2(Vector3 positionError, Vector3 pidVector)
         {
-            /*// the dot product ensure the drone orientation is aligned with the destination vector
-            var dot = Vector3.Dot(transform.up, -positionError.normalized);
-
-            // if the drone is flipped comparated to the orientation of the pid vector, 
-            // all the power will go into the orientation
-            // else the two components are taken in account
-            if (dot < 0)
-                baseThrottle = 0;*/
-
-            // engine thrust to position repartition
-            // w, x
-            // y, z
-            _engineThrust = new Vector4(0, 0, 0, 0);
+            //pidVector = pidVector.normalized * Math.Min(pidVector.magnitude, _maxEngineForce);
 
             var force_inverter = 1; // Math.Sign(Vector3.Dot(transform.up, -positionError.normalized)) > 0 ? 1 : 0;
 
             // roulis / left to right on Z
             var z_projection = Vector3.ProjectOnPlane(pidVector, transform.forward);
             z_projection = Vector3.ProjectOnPlane(z_projection, transform.up);
-            Debug.DrawRay(transform.position, z_projection, Color.blue);
-
             var z_dot = Math.Sign(Vector3.Dot(z_projection.normalized, transform.right));
+            // correcting the projections magnitude with maxEngineForce
+            // z_projection.magnitude/_maxEngineForce becomes a ratio 0 > 1 of the throttle applied to each engine
             HandleLeftRightEngines(z_dot * z_projection.magnitude * force_inverter, ref _engineThrust);
+            Debug.DrawRay(transform.position, z_projection, Color.blue);
 
 
             // tangage / front to back
             var x_projection = Vector3.ProjectOnPlane(pidVector, transform.right);
             x_projection = Vector3.ProjectOnPlane(x_projection, transform.up);
-            Debug.DrawRay(transform.position, x_projection, Color.yellow);
-
             var x_dot = Math.Sign(Vector3.Dot(x_projection.normalized, transform.forward));
             HandleFrontBackEngines(x_dot * x_projection.magnitude * force_inverter, ref _engineThrust);
+            Debug.DrawRay(transform.position, x_projection, Color.yellow);
 
             // lacet / left right on Y
             //var y_projection = Vector3.ProjectOnPlane(pidVector, transform.up);
             var y_projection = Vector3.ProjectOnPlane(_target.forward, transform.up);
             y_projection = Vector3.ProjectOnPlane(y_projection, transform.forward);
+            var y_dot = Math.Sign(Vector3.Dot(y_projection.normalized, transform.right));
             Debug.DrawRay(transform.position, y_projection, Color.green);
 
-            var y_dot = Math.Sign(Vector3.Dot(y_projection.normalized, transform.right));
             //HandleDiagonalEngines(Math.Sign(y_dot), y_projection.magnitude * x_projection.magnitude, ref _engineThrust); // we turn only if going forward or backward
             HandleDiagonalEngines(y_dot, y_projection.magnitude, ref _engineThrust);
 
@@ -312,7 +328,6 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
 
             */
         }
-
 
         private void HandleFrontBackEngines(double orientation, ref Vector4 engineThrust)
         {
@@ -403,6 +418,8 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
 
 
         }
+
+        #endregion
 
         /*
          la prochaine étape est de fixer ma pousser à l'axe des moteurs et d'utiliser l'erreur d'orientation entre le vecteur de poussée que je veux 
