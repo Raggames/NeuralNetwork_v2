@@ -1,11 +1,13 @@
+using Atom.MachineLearning.Core;
 using Atom.MachineLearning.Core.Maths;
+using Atom.MachineLearning.Core.Optimizers;
 using Sirenix.OdinInspector;
 using System;
 using UnityEngine;
 
 namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
 {
-    public class SimulatedPIDControlledDrone : MonoBehaviour
+    public class SimulatedPIDControlledDrone : MonoBehaviour, IGeneticEntity
     {
         private Rigidbody _rigidbody;
 
@@ -28,8 +30,9 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
         [SerializeField] private float _rot_D = .125f;
         [SerializeField] private int _rot_DRange;
         [SerializeField] private float _rot_maxRecordTime;
-        [Header("Engine")]
 
+        [Header("Engine")]
+        [SerializeField] private bool allowNegativeEngineForces = true;
         [SerializeField] private float _thrustSmoothness = .05f;
         [SerializeField] private float _maxEngineForce = 100;
         [SerializeField] private float _offsetCorrectionRatio = 100;
@@ -59,8 +62,11 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
         /// </summary>
         [SerializeField] private float _powerPenaltyMultiplier = 5;
 
+        [SerializeField] private float _engineThrustSignChangePenalty = .1f;
+
         [ShowInInspector, ReadOnly] private float _orientationErrorDotProduct = 0.0f;
         [ShowInInspector, ReadOnly] private float _currentReward;
+        public float currentReward => _currentReward;
 
         [Header("PID Functions")]
         [SerializeField] private PIDFunction[] _translationAxisPIDFunctions;
@@ -72,9 +78,32 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
         [SerializeField] private Rigidbody _bottom_right_motor;
         [SerializeField] private Rigidbody _bottom_left_motor;
 
+       
+        private Vector4 _thrustTemp;
+        private Vector4 _thrustVel;
+
+        public float MaxEngineForce { get => _maxEngineForce; set => _maxEngineForce = value; }
+        public int Generation { get; set; }
+
+        [SerializeField] private NVector _genes;
+        public NVector Genes
+        {
+            get => _genes; set
+            {
+                _genes = value;
+
+                _trs_P = (float)_genes[0];
+                _trs_I = (float)_genes[1];
+                _trs_D = (float)_genes[2];
+                _translationSensivity = (float)_genes[3];
+                _rotationSensivity = (float)_genes[4];
+                _trs_DRange = (int)_genes[5];
+            }
+        }
 
         private void Awake()
         {
+
             _rigidbody = GetComponent<Rigidbody>();
 
             for (int i = 0; i < _translationAxisPIDFunctions.Length; i++)
@@ -84,17 +113,14 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
                 _rotationAxisPIDFunctions[i].SetTime(Time.fixedDeltaTime, _rot_maxRecordTime);
         }
 
-        [SerializeField] private bool _animateTargetMove = false;
-        [SerializeField] private float _targetMoveRange;
-        [SerializeField] private float _targetSpeed;
-        [SerializeField] private Vector3 _targetBasePosition = new Vector3(0, 3, 0);
-        private Vector3 _targetCurrentPosition = Vector3.zero;
-        private Vector3 _targetVelocity = Vector3.zero;
-
-        private Vector4 _thrustTemp;
-        private Vector4 _thrustVel;
-
-        public float MaxEngineForce { get => _maxEngineForce; set => _maxEngineForce = value; }
+        private void OnCollisionEnter(Collision collision)
+        {            
+            // bounds layer
+            if (collision.gameObject.layer == 10)
+            {
+                this.enabled = false;
+            }
+        }
 
         private void FixedUpdate()
         {
@@ -130,20 +156,24 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
 
                 var trs_pidVector = ComputeTranslationCompensationPIDVectorMode2(positionError);
                 trs_pidVector = trs_pidVector.normalized * Math.Min(trs_pidVector.magnitude, MaxEngineForce);
+
                 FollowTargetMode2(positionError, trs_pidVector);
 
                 /*var rot_pidVector = ComputeOrientationStabilizationPIDVectorMode2(positionError);
                 rot_pidVector = rot_pidVector.normalized * Math.Min(rot_pidVector.magnitude, _maxEngineForce);
                 StabilizeMode2(positionError, rot_pidVector);*/
 
+                /*var rot_pidVector = ComputeOrientationStabilizationPIDVectorMode2(positionError);
+                rot_pidVector = rot_pidVector.normalized * Math.Min(rot_pidVector.magnitude, MaxEngineForce);
+*/
                 StabilizeMode3(trs_pidVector);
 
-                // todo clamping negative values on engines ? blade can turn in the opposite direction as well
 
-                _thrustTemp.x = Mathf.SmoothDamp(_thrustTemp.x, _engineThrust.x, ref _thrustTemp.x, _thrustSmoothness);
-                _thrustTemp.y = Mathf.SmoothDamp(_thrustTemp.y, _engineThrust.y, ref _thrustTemp.y, _thrustSmoothness);
-                _thrustTemp.z = Mathf.SmoothDamp(_thrustTemp.z, _engineThrust.z, ref _thrustTemp.z, _thrustSmoothness);
-                _thrustTemp.w = Mathf.SmoothDamp(_thrustTemp.w, _engineThrust.w, ref _thrustTemp.w, _thrustSmoothness);
+                // todo clamping negative values on engines ? blade can turn in the opposite direction as well
+                _thrustTemp.x = Mathf.SmoothDamp(_thrustTemp.x, _engineThrust.x, ref _thrustVel.x, _thrustSmoothness);
+                _thrustTemp.y = Mathf.SmoothDamp(_thrustTemp.y, _engineThrust.y, ref _thrustVel.y, _thrustSmoothness);
+                _thrustTemp.z = Mathf.SmoothDamp(_thrustTemp.z, _engineThrust.z, ref _thrustVel.z, _thrustSmoothness);
+                _thrustTemp.w = Mathf.SmoothDamp(_thrustTemp.w, _engineThrust.w, ref _thrustVel.w, _thrustSmoothness);
 
                 // apply forces to engines
                 _rigidbody.AddForceAtPosition(transform.up * _thrustTemp.w, _top_left_motor.position);
@@ -159,21 +189,11 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
                 _bottom_right_motor.AddForce(transform.up * _engineThrust.z);*/
             }
 
-            if (_animateTargetMove)
-            {
-                var crt = (_target.position - _targetCurrentPosition).magnitude;
-                if (crt < .01)
-                {
-                    _targetCurrentPosition = UnityEngine.Random.insideUnitSphere * _targetMoveRange + _targetBasePosition;
-                }
-
-                _target.position = Vector3.SmoothDamp(_target.position, _targetCurrentPosition, ref _targetVelocity, _targetSpeed);
-            }
-
             ComputeAgentReward(offset);
         }
 
-        #region Training Heuristic
+        #region Training Heuristic & Management
+
         private void ComputeAgentReward(Vector3 offset)
         {
             // angle with target
@@ -194,6 +214,38 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
             // penalizing with values of PID  ? is it a good idea ?
 
             // penalize with thrust axis changing signs (to count the frequency of overshoot//undershoot) ? 
+            InspectThrustVector();
+        }
+
+        private Vector4 _previousThrustVector;
+
+        private void InspectThrustVector()
+        {
+            if (Math.Sign(_previousThrustVector.x) != Math.Sign(_engineThrust.x))
+                _currentReward -= _engineThrustSignChangePenalty;
+
+            if (Math.Sign(_previousThrustVector.y) != Math.Sign(_engineThrust.y))
+                _currentReward -= _engineThrustSignChangePenalty;
+
+            if (Math.Sign(_previousThrustVector.z) != Math.Sign(_engineThrust.z))
+                _currentReward -= _engineThrustSignChangePenalty;
+
+            if (Math.Sign(_previousThrustVector.w) != Math.Sign(_engineThrust.w))
+                _currentReward -= _engineThrustSignChangePenalty;
+
+            _previousThrustVector = _engineThrust;
+        }
+
+        public double MutateGene(int geneIndex)
+        {
+            if (geneIndex == 5)
+            {
+                return MLRandom.Shared.Range(2, 50);
+            }
+            else
+            {
+                return _genes[geneIndex] + MLRandom.Shared.Range(-.025f, .025f);
+            }            
         }
 
         #endregion
@@ -354,9 +406,9 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
             Debug.DrawRay(transform.position, x_projection, Color.yellow);
 
             // lacet / left right on Y
-            //var y_projection = Vector3.ProjectOnPlane(pidVector, transform.up);
             var y_projection = Vector3.ProjectOnPlane(_target.forward, transform.up);
             var y_angle_error = Vector3.SignedAngle(y_projection, transform.forward, transform.up);
+
             Debug.DrawRay(transform.position, y_projection, Color.green);
 
             /*var command = ComputeOrientationStabilizationPIDVectorMode2(new Vector3(
@@ -370,6 +422,7 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
 
             HandleLeftRightEngines(z_angle_error, ref _engineThrust);
             HandleFrontBackEngines(x_angle_error, ref _engineThrust);
+
             HandleDiagonalEngines(Math.Sign(y_angle_error), Math.Abs(y_angle_error), ref _engineThrust);
 
             Debug.Log($"{x_angle_error}, {y_angle_error}, {z_angle_error}");
@@ -477,6 +530,7 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
         {
             return angle > 180 ? angle - 360 : angle;
         }
+
     }
 
 }

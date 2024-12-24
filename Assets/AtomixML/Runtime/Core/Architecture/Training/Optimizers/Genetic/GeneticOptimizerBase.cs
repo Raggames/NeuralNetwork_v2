@@ -55,7 +55,7 @@ namespace Atom.MachineLearning.Core.Optimizers
                 T entity = CreateEntity();
 
                 for (int g = 0; g < entity.Genes.length; ++g)
-                    entity.Genes.Data[g] = entity.MutateGene();
+                    entity.Genes.Data[g] = entity.MutateGene(g);
 
                 _currentGenerationEntities.Add(entity);
             }
@@ -108,7 +108,7 @@ namespace Atom.MachineLearning.Core.Optimizers
                 for (int g = 0; g < _currentGenerationEntities[i].Genes.length; ++g)
                 {
                     if (MLRandom.Shared.Chances(_elitMutationChances, 100))
-                        entity.Genes.Data[g] = entity.MutateGene();
+                        entity.Genes.Data[g] = entity.MutateGene(g);
                     else
                         entity.Genes.Data[g] = _currentGenerationEntities[i].Genes[g];
                 }
@@ -128,8 +128,13 @@ namespace Atom.MachineLearning.Core.Optimizers
                 _selectionBuffer.Add(child);
             }
 
+            ClearPreviousGeneration(_currentGenerationEntities);
+
             return _selectionBuffer;
         }
+
+        protected abstract void ClearPreviousGeneration(List<T> previousGenerationEntities);
+        
 
         public T SelectEntity(float limitPurcentage)
         {
@@ -154,7 +159,7 @@ namespace Atom.MachineLearning.Core.Optimizers
             {
                 var rnd = MLRandom.Shared.Range(0.0, 100.0);
                 if (rnd > mut_limit)
-                    entity.Genes.Data[i] = entity.MutateGene();
+                    entity.Genes.Data[i] = entity.MutateGene(i);
                 else if (rnd > half_limit)
                     entity.Genes.Data[i] = entityA.Genes[i];
                 else

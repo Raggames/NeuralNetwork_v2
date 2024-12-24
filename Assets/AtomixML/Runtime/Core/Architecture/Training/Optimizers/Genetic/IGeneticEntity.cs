@@ -15,7 +15,7 @@ namespace Atom.MachineLearning.Core.Optimizers
         public int Generation { get; set; }
         public NVector Genes { get; set; }
 
-        public double MutateGene();
+        public double MutateGene(int geneIndex);
 /*
         /// <summary>
         /// Used by the optimizer to compute fitness score of the entity

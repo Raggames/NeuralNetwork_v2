@@ -57,5 +57,10 @@ namespace Atom.MachineLearning.Core.Optimizers
 
             Debug.Log($"Achieved objective in {CurrentIteration} iterations > Reconstructed string is : {reconstructed}");
         }
+
+        protected override void ClearPreviousGeneration(List<GeneticOptimizerBenchmarkEntity> previousGenerationEntities)
+        {
+            
+        }
     }
 }

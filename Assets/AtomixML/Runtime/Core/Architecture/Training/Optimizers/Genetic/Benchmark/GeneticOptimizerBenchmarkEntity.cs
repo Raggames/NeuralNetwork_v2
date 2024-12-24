@@ -27,7 +27,7 @@ namespace Atom.MachineLearning.Core.Optimizers
             _genomeChars = _genome.ToCharArray();
         }
 
-        public double MutateGene()
+        public double MutateGene(int geneIndex)
         {
             return (int)_genome[MLRandom.Shared.Range(0, _genome.Length)];
         }
