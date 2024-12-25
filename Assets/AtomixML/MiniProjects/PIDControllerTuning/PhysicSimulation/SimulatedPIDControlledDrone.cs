@@ -82,10 +82,10 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
         [SerializeField] private PIDFunction[] _rotationAxisPIDFunctions;
 
         [Header("Architecture")]
-        [SerializeField] private Rigidbody _top_right_motor;
-        [SerializeField] private Rigidbody _top_left_motor;
-        [SerializeField] private Rigidbody _bottom_right_motor;
-        [SerializeField] private Rigidbody _bottom_left_motor;
+        [SerializeField] private Transform _top_right_motor;
+        [SerializeField] private Transform _top_left_motor;
+        [SerializeField] private Transform _bottom_right_motor;
+        [SerializeField] private Transform _bottom_left_motor;
 
 
         private Vector4 _thrustTemp;
@@ -125,7 +125,7 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
         private void OnCollisionEnter(Collision collision)
         {
             // bounds layer
-            if (_disableOnCollide &&  collision.gameObject.layer == 10)
+            if (_disableOnCollide && collision.gameObject.layer == 10)
             {
                 this.enabled = false;
             }
@@ -522,29 +522,58 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
             _engineThrust = Vector4.zero;
 
             // right to left
-            var z_angle_error = Vector3.SignedAngle(_target.right, transform.right, transform.forward);
+            /*var z_angle_error = Vector3.SignedAngle(_target.right, transform.right, transform.forward);
             // tangage / front to back
             var x_angle_error = Vector3.SignedAngle(_target.forward, -transform.forward, transform.right);
             // lacet / left right on Y
-            var y_angle_error = Vector3.SignedAngle(_target.right, transform.right, transform.up);
+            var y_angle_error = Vector3.SignedAngle(_target.right, transform.right, transform.up);*/
+
+            var rot = Quaternion.FromToRotation(transform.forward, _target.forward);
+            var y = WrapAngle(rot.eulerAngles.y);
+            var y_2 = WrapAngle(transform.eulerAngles.y) - WrapAngle(_target.eulerAngles.y);
+            var x = WrapAngle(rot.eulerAngles.x);
+            var x_2 = WrapAngle(transform.eulerAngles.x) - WrapAngle(_target.eulerAngles.x);
+            var z = WrapAngle(rot.eulerAngles.z);
+
+
+            // *********************************
+
+            // roulis / left to right on Z
+            var z_projection = Vector3.ProjectOnPlane(_target.right, transform.forward);
+            var z_angle_error = -Vector3.SignedAngle(z_projection, transform.right, transform.forward);
+            // correcting the projections magnitude with maxEngineForce
+            // z_projection.magnitude/_maxEngineForce becomes a ratio 0 > 1 of the throttle applied to each engine
+            Debug.DrawRay(transform.position, z_projection, Color.blue);
+
+            // tangage / front to back
+            var x_projection = Vector3.ProjectOnPlane(_target.forward, transform.right);
+            var x_angle_error = Vector3.SignedAngle(x_projection, transform.forward, transform.right);
+            Debug.DrawRay(transform.position, x_projection, Color.yellow);
+
+
+            // yaw
+            var y_projection = Vector3.ProjectOnPlane(_target.forward, transform.up);
+            var y_angle_error = -Vector3.SignedAngle(y_projection, transform.forward, transform.up);
+            Debug.DrawRay(transform.position, y_projection, Color.yellow);
+            // ****************************
 
             // x force is handled by a difference of rotation with top and bottom engines
-            var x_force = (float)_rotationAxisPIDFunctions[0].Compute(-x_angle_error, 0);
+            var x_force = (float)_rotationAxisPIDFunctions[0].Compute(x_angle_error, 0);
 
             // y force is handled by a difference of rotation between opposite engines (not simulated now)
-            var y_force = (float)_rotationAxisPIDFunctions[1].Compute(-y_angle_error, 0);
+            var y_force = (float)_translationAxisPIDFunctions[1].Compute(y_angle_error, 0);
 
             // z force is handled by a difference of rotation with left and right engines
-            var z_force = (float)_rotationAxisPIDFunctions[2].Compute(-z_angle_error, 0);
+            var z_force = (float)_rotationAxisPIDFunctions[2].Compute(z_angle_error, 0);
 
             var pidForce = new Vector3(x_force, y_force, z_force);
             pidForce = pidForce.normalized * Math.Min(pidForce.magnitude, MaxEngineForce);
 
             Debug.DrawRay(transform.position, pidForce, Color.red);
 
-            //HandleDiagonalEngines(Math.Sign(pidForce.y), Math.Abs(pidForce.y), ref _engineThrust);
+            HandleDiagonalEngines(Math.Sign(pidForce.y), Math.Abs(pidForce.y), ref _engineThrust);
             HandleFrontBackEngines(x_force, ref _engineThrust);
-            //HandleLeftRightEngines(z_force, ref _engineThrust);
+            HandleLeftRightEngines(z_force, ref _engineThrust);
 
             _thrustTemp.x = Mathf.SmoothDamp(_thrustTemp.x, _engineThrust.x, ref _thrustVel.x, _thrustSmoothness);
             _thrustTemp.y = Mathf.SmoothDamp(_thrustTemp.y, _engineThrust.y, ref _thrustVel.y, _thrustSmoothness);
@@ -556,7 +585,7 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
             _rigidbody.AddForceAtPosition(transform.up * _thrustTemp.x, _top_right_motor.position);
 
             _rigidbody.AddForceAtPosition(transform.up * _thrustTemp.y, _bottom_left_motor.position);
-            _rigidbody.AddForceAtPosition(transform.up * _thrustTemp.z , _bottom_right_motor.position);
+            _rigidbody.AddForceAtPosition(transform.up * _thrustTemp.z, _bottom_right_motor.position);
 
         }
 
