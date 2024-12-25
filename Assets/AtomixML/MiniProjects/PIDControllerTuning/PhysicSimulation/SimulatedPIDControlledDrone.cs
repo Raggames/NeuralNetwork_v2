@@ -7,6 +7,14 @@ using UnityEngine;
 
 namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
 {
+    public enum StabilizationModes
+    {
+        Proto,
+        FollowAndOrient,
+        Angle,
+        AngularSpeed,
+    }
+
     public class SimulatedPIDControlledDrone : MonoBehaviour, IGeneticEntity
     {
         private Rigidbody _rigidbody;
@@ -14,8 +22,9 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
         [SerializeField] private Transform _target;
 
         [Space]
+        [SerializeField] private bool _disableOnCollide = false;
         [SerializeField] private float _debugDrawrayScaling = .05f;
-        [SerializeField] private bool _enableMode1 = true;
+        [SerializeField] private StabilizationModes _stabilizationMode = StabilizationModes.Proto;
 
         [Header("Translation")]
         [SerializeField] private float _trs_P = 1.25f;
@@ -78,7 +87,7 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
         [SerializeField] private Rigidbody _bottom_right_motor;
         [SerializeField] private Rigidbody _bottom_left_motor;
 
-       
+
         private Vector4 _thrustTemp;
         private Vector4 _thrustVel;
 
@@ -114,15 +123,41 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
         }
 
         private void OnCollisionEnter(Collision collision)
-        {            
+        {
             // bounds layer
-            if (collision.gameObject.layer == 10)
+            if (_disableOnCollide &&  collision.gameObject.layer == 10)
             {
                 this.enabled = false;
             }
         }
 
         private void FixedUpdate()
+        {
+            UpdatePIDParameters();
+
+            var offset = (transform.position - _target.position);
+
+            switch (_stabilizationMode)
+            {
+                case StabilizationModes.Proto:
+                    FollowTargetMode1(offset);
+                    StabilizeMode1();
+                    break;
+                case StabilizationModes.FollowAndOrient:
+                    UpdateFollowAndOrient(offset);
+                    break;
+                case StabilizationModes.Angle:
+                    UpdateAngleMode();
+                    break;
+                case StabilizationModes.AngularSpeed:
+                    break;
+            }
+
+            ComputeAgentReward(offset);
+        }
+
+
+        private void UpdatePIDParameters()
         {
             for (int i = 0; i < _translationAxisPIDFunctions.Length; i++)
             {
@@ -135,122 +170,10 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
                 _rotationAxisPIDFunctions[i].SetParameters(_rot_P, _rot_I, _rot_D, _rot_DRange);
                 _rotationAxisPIDFunctions[i].SetTime(Time.fixedDeltaTime, _trs_maxRecordTime);
             }
-
-            var offset = (transform.position - _target.position);
-
-            if (_enableMode1)
-            {
-                FollowTargetMode1(offset);
-                StabilizeMode1();
-            }
-            else
-            {
-                // engine thrust to position repartition
-                // w, x
-                // y, z
-                _engineThrust = new Vector4(0, 0, 0, 0);
-
-                // on clamp l'erreur pid pour éviter trop de range sur l'erreur
-                //var positionError = offset.normalized * Math.Min(offset.magnitude, _maxEngineForce);
-                var positionError = offset * _offsetCorrectionRatio;
-
-                var trs_pidVector = ComputeTranslationCompensationPIDVectorMode2(positionError);
-                trs_pidVector = trs_pidVector.normalized * Math.Min(trs_pidVector.magnitude, MaxEngineForce);
-
-                FollowTargetMode2(positionError, trs_pidVector);
-
-                /*var rot_pidVector = ComputeOrientationStabilizationPIDVectorMode2(positionError);
-                rot_pidVector = rot_pidVector.normalized * Math.Min(rot_pidVector.magnitude, _maxEngineForce);
-                StabilizeMode2(positionError, rot_pidVector);*/
-
-                /*var rot_pidVector = ComputeOrientationStabilizationPIDVectorMode2(positionError);
-                rot_pidVector = rot_pidVector.normalized * Math.Min(rot_pidVector.magnitude, MaxEngineForce);
-*/
-                StabilizeMode3(trs_pidVector);
-
-
-                // todo clamping negative values on engines ? blade can turn in the opposite direction as well
-                _thrustTemp.x = Mathf.SmoothDamp(_thrustTemp.x, _engineThrust.x, ref _thrustVel.x, _thrustSmoothness);
-                _thrustTemp.y = Mathf.SmoothDamp(_thrustTemp.y, _engineThrust.y, ref _thrustVel.y, _thrustSmoothness);
-                _thrustTemp.z = Mathf.SmoothDamp(_thrustTemp.z, _engineThrust.z, ref _thrustVel.z, _thrustSmoothness);
-                _thrustTemp.w = Mathf.SmoothDamp(_thrustTemp.w, _engineThrust.w, ref _thrustVel.w, _thrustSmoothness);
-
-                // apply forces to engines
-                _rigidbody.AddForceAtPosition(transform.up * _thrustTemp.w, _top_left_motor.position);
-                _rigidbody.AddForceAtPosition(transform.up * _thrustTemp.x, _top_right_motor.position);
-
-                _rigidbody.AddForceAtPosition(transform.up * _thrustTemp.y, _bottom_left_motor.position);
-                _rigidbody.AddForceAtPosition(transform.up * _thrustTemp.z, _bottom_right_motor.position);
-
-                /*_top_left_motor.AddForce(transform.up * _engineThrust.w);
-                _top_right_motor.AddForce(transform.up * _engineThrust.x);
-
-                _bottom_left_motor.AddForce(transform.up * _engineThrust.y);
-                _bottom_right_motor.AddForce(transform.up * _engineThrust.z);*/
-            }
-
-            ComputeAgentReward(offset);
         }
-
-        #region Training Heuristic & Management
-
-        private void ComputeAgentReward(Vector3 offset)
-        {
-            // angle with target
-            // we give reward when the agent orientation is close to the aiming target
-            _orientationErrorDotProduct = Vector3.Dot(transform.up, -offset.normalized);
-            var angle = 1f - _orientationErrorDotProduct;
-            if (angle < _rewardAngleThreshold)
-                _currentReward += _rewardAngleValuePerSecond * Time.fixedDeltaTime;
-
-            var distance_error = offset.magnitude * _penaltyPerDistanceFromTargetPerSecond * Time.fixedDeltaTime;
-            _currentReward -= distance_error;
-
-            // penalty of power usage
-            // as we search for a stable function, the use of engines (represented by the engine thrust) is used to penalize the agent
-            // the goal is to find a way to achieve minimal error with minimal energy (high energy can achieve that first objective  but with a LOT of 'vibrations', if Integral and Derivative have high values)
-            _currentReward -= _engineThrust.magnitude * _powerPenaltyMultiplier * Time.fixedDeltaTime;
-
-            // penalizing with values of PID  ? is it a good idea ?
-
-            // penalize with thrust axis changing signs (to count the frequency of overshoot//undershoot) ? 
-            InspectThrustVector();
-        }
-
-        private Vector4 _previousThrustVector;
-
-        private void InspectThrustVector()
-        {
-            if (Math.Sign(_previousThrustVector.x) != Math.Sign(_engineThrust.x))
-                _currentReward -= _engineThrustSignChangePenalty;
-
-            if (Math.Sign(_previousThrustVector.y) != Math.Sign(_engineThrust.y))
-                _currentReward -= _engineThrustSignChangePenalty;
-
-            if (Math.Sign(_previousThrustVector.z) != Math.Sign(_engineThrust.z))
-                _currentReward -= _engineThrustSignChangePenalty;
-
-            if (Math.Sign(_previousThrustVector.w) != Math.Sign(_engineThrust.w))
-                _currentReward -= _engineThrustSignChangePenalty;
-
-            _previousThrustVector = _engineThrust;
-        }
-
-        public double MutateGene(int geneIndex)
-        {
-            if (geneIndex == 5)
-            {
-                return MLRandom.Shared.Range(2, 50);
-            }
-            else
-            {
-                return _genes[geneIndex] + MLRandom.Shared.Range(-.025f, .025f);
-            }            
-        }
-
-        #endregion
 
         #region Mode 1
+
         /// <summary>
         /// Calculate the PID vector from the error of position
         /// This PID vector will serve to other functions to orient the drone/throttle the engines 
@@ -291,13 +214,57 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
             var yr_force = (float)_rotationAxisPIDFunctions[1].Compute(WrapAngle(offsetR.y), 0);
             var zr_force = (float)_rotationAxisPIDFunctions[2].Compute(WrapAngle(offsetR.z), 0);
 
-            if (_enableMode1)
-                _rigidbody.AddTorque(new Vector3(xr_force, yr_force, zr_force) * _rotationSensivity);
+            _rigidbody.AddTorque(new Vector3(xr_force, yr_force, zr_force) * _rotationSensivity);
         }
 
         #endregion
 
         #region Mode 2
+
+        private void UpdateFollowAndOrient(Vector3 offset)
+        {
+            // engine thrust to position repartition
+            // w, x
+            // y, z
+            _engineThrust = new Vector4(0, 0, 0, 0);
+
+            // on clamp l'erreur pid pour éviter trop de range sur l'erreur
+            //var positionError = offset.normalized * Math.Min(offset.magnitude, _maxEngineForce);
+            var positionError = offset * _offsetCorrectionRatio;
+
+            var trs_pidVector = ComputeTranslationCompensationPIDVectorMode2(positionError);
+            trs_pidVector = trs_pidVector.normalized * Math.Min(trs_pidVector.magnitude, MaxEngineForce);
+
+            FollowTargetMode2(positionError, trs_pidVector);
+
+            /*var rot_pidVector = ComputeOrientationStabilizationPIDVectorMode2(positionError);
+            rot_pidVector = rot_pidVector.normalized * Math.Min(rot_pidVector.magnitude, _maxEngineForce);
+            StabilizeMode2(positionError, rot_pidVector);*/
+
+            /*var rot_pidVector = ComputeOrientationStabilizationPIDVectorMode2(positionError);
+            rot_pidVector = rot_pidVector.normalized * Math.Min(rot_pidVector.magnitude, MaxEngineForce);
+*/
+            StabilizeMode3(trs_pidVector);
+
+            // todo clamping negative values on engines ? blade can turn in the opposite direction as well
+            _thrustTemp.x = Mathf.SmoothDamp(_thrustTemp.x, _engineThrust.x, ref _thrustVel.x, _thrustSmoothness);
+            _thrustTemp.y = Mathf.SmoothDamp(_thrustTemp.y, _engineThrust.y, ref _thrustVel.y, _thrustSmoothness);
+            _thrustTemp.z = Mathf.SmoothDamp(_thrustTemp.z, _engineThrust.z, ref _thrustVel.z, _thrustSmoothness);
+            _thrustTemp.w = Mathf.SmoothDamp(_thrustTemp.w, _engineThrust.w, ref _thrustVel.w, _thrustSmoothness);
+
+            // apply forces to engines
+            _rigidbody.AddForceAtPosition(transform.up * _thrustTemp.w, _top_left_motor.position);
+            _rigidbody.AddForceAtPosition(transform.up * _thrustTemp.x, _top_right_motor.position);
+
+            _rigidbody.AddForceAtPosition(transform.up * _thrustTemp.y, _bottom_left_motor.position);
+            _rigidbody.AddForceAtPosition(transform.up * _thrustTemp.z, _bottom_right_motor.position);
+
+            /*_top_left_motor.AddForce(transform.up * _engineThrust.w);
+            _top_right_motor.AddForce(transform.up * _engineThrust.x);
+
+            _bottom_left_motor.AddForce(transform.up * _engineThrust.y);
+            _bottom_right_motor.AddForce(transform.up * _engineThrust.z);*/
+        }
 
         private Vector3 ComputeOrientationStabilizationPIDVectorMode2(Vector3 offset)
         {
@@ -442,6 +409,22 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
             Debug.DrawRay(_bottom_left_motor.position, transform.up * (float)negative * _debugDrawrayScaling / 4, Color.yellow);
             Debug.DrawRay(_bottom_right_motor.position, transform.up * (float)negative * _debugDrawrayScaling / 4, Color.yellow);*/
 
+            /* if(orientation > 0)
+             {
+                 engineThrust = new Vector4(
+                engineThrust.x + (float)orientation * _rotationSensivity / 4,
+                0,
+                0,
+                engineThrust.w + (float)orientation * _rotationSensivity / 4);
+             }
+             else
+             {
+                 engineThrust = new Vector4(
+                0,
+                engineThrust.y + (float)orientation * _rotationSensivity / 4,
+                engineThrust.z + (float)orientation * _rotationSensivity / 4,
+                0);
+             }*/
 
             engineThrust = new Vector4(
                 engineThrust.x + (float)-orientation * _rotationSensivity / 4,
@@ -520,11 +503,124 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
 
         #endregion
 
-        /*
-         la prochaine étape est de fixer ma pousser à l'axe des moteurs et d'utiliser l'erreur d'orientation entre le vecteur de poussée que je veux 
-        (le vecteur drone-cible rouge passé dans la fonction PID sur ces 3 axes) et l'orientation de la machine, 
-        pour balancer les bonnes commandes aux "moteurs" pour orienter le drone dans l'axe de son vecteur de poussée
-         */
+        #region Mode Angle
+
+        [ShowInInspector, ReadOnly] private Vector3 _targetEulerAngles;
+
+        /// <summary>
+        /// Apply a target angle on axis
+        /// </summary>
+        /// <param name="eulerAngles"></param>
+        public void SetAnglesTarget(Vector3 eulerAngles)
+        {
+
+        }
+
+        private void UpdateAngleMode()
+        {
+            //Debug.DrawRay(transform.position, _targetEulerAngles, Color.blue);
+            _engineThrust = Vector4.zero;
+
+            // right to left
+            var z_angle_error = Vector3.SignedAngle(_target.right, transform.right, transform.forward);
+            // tangage / front to back
+            var x_angle_error = Vector3.SignedAngle(_target.forward, -transform.forward, transform.right);
+            // lacet / left right on Y
+            var y_angle_error = Vector3.SignedAngle(_target.right, transform.right, transform.up);
+
+            // x force is handled by a difference of rotation with top and bottom engines
+            var x_force = (float)_rotationAxisPIDFunctions[0].Compute(-x_angle_error, 0);
+
+            // y force is handled by a difference of rotation between opposite engines (not simulated now)
+            var y_force = (float)_rotationAxisPIDFunctions[1].Compute(-y_angle_error, 0);
+
+            // z force is handled by a difference of rotation with left and right engines
+            var z_force = (float)_rotationAxisPIDFunctions[2].Compute(-z_angle_error, 0);
+
+            var pidForce = new Vector3(x_force, y_force, z_force);
+            pidForce = pidForce.normalized * Math.Min(pidForce.magnitude, MaxEngineForce);
+
+            Debug.DrawRay(transform.position, pidForce, Color.red);
+
+            //HandleDiagonalEngines(Math.Sign(pidForce.y), Math.Abs(pidForce.y), ref _engineThrust);
+            HandleFrontBackEngines(x_force, ref _engineThrust);
+            //HandleLeftRightEngines(z_force, ref _engineThrust);
+
+            _thrustTemp.x = Mathf.SmoothDamp(_thrustTemp.x, _engineThrust.x, ref _thrustVel.x, _thrustSmoothness);
+            _thrustTemp.y = Mathf.SmoothDamp(_thrustTemp.y, _engineThrust.y, ref _thrustVel.y, _thrustSmoothness);
+            _thrustTemp.z = Mathf.SmoothDamp(_thrustTemp.z, _engineThrust.z, ref _thrustVel.z, _thrustSmoothness);
+            _thrustTemp.w = Mathf.SmoothDamp(_thrustTemp.w, _engineThrust.w, ref _thrustVel.w, _thrustSmoothness);
+
+            // apply forces to engines
+            _rigidbody.AddForceAtPosition(transform.up * _thrustTemp.w, _top_left_motor.position);
+            _rigidbody.AddForceAtPosition(transform.up * _thrustTemp.x, _top_right_motor.position);
+
+            _rigidbody.AddForceAtPosition(transform.up * _thrustTemp.y, _bottom_left_motor.position);
+            _rigidbody.AddForceAtPosition(transform.up * _thrustTemp.z , _bottom_right_motor.position);
+
+        }
+
+
+        #endregion
+
+
+        #region Training Heuristic & Management
+
+        private void ComputeAgentReward(Vector3 offset)
+        {
+            // angle with target
+            // we give reward when the agent orientation is close to the aiming target
+            _orientationErrorDotProduct = Vector3.Dot(transform.up, -offset.normalized);
+            var angle = 1f - _orientationErrorDotProduct;
+            if (angle < _rewardAngleThreshold)
+                _currentReward += _rewardAngleValuePerSecond * Time.fixedDeltaTime;
+
+            var distance_error = offset.magnitude * _penaltyPerDistanceFromTargetPerSecond * Time.fixedDeltaTime;
+            _currentReward -= distance_error;
+
+            // penalty of power usage
+            // as we search for a stable function, the use of engines (represented by the engine thrust) is used to penalize the agent
+            // the goal is to find a way to achieve minimal error with minimal energy (high energy can achieve that first objective  but with a LOT of 'vibrations', if Integral and Derivative have high values)
+            _currentReward -= _engineThrust.magnitude * _powerPenaltyMultiplier * Time.fixedDeltaTime;
+
+            // penalizing with values of PID  ? is it a good idea ?
+
+            // penalize with thrust axis changing signs (to count the frequency of overshoot//undershoot) ? 
+            InspectThrustVector();
+        }
+
+        private Vector4 _previousThrustVector;
+
+        private void InspectThrustVector()
+        {
+            if (Math.Sign(_previousThrustVector.x) != Math.Sign(_engineThrust.x))
+                _currentReward -= _engineThrustSignChangePenalty;
+
+            if (Math.Sign(_previousThrustVector.y) != Math.Sign(_engineThrust.y))
+                _currentReward -= _engineThrustSignChangePenalty;
+
+            if (Math.Sign(_previousThrustVector.z) != Math.Sign(_engineThrust.z))
+                _currentReward -= _engineThrustSignChangePenalty;
+
+            if (Math.Sign(_previousThrustVector.w) != Math.Sign(_engineThrust.w))
+                _currentReward -= _engineThrustSignChangePenalty;
+
+            _previousThrustVector = _engineThrust;
+        }
+
+        public double MutateGene(int geneIndex)
+        {
+            if (geneIndex == 5)
+            {
+                return MLRandom.Shared.Range(2, 50);
+            }
+            else
+            {
+                return _genes[geneIndex] + MLRandom.Shared.Range(-.025f, .025f);
+            }
+        }
+
+        #endregion
 
         private float WrapAngle(float angle)
         {
