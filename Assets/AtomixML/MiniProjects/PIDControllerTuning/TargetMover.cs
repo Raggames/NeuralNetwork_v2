@@ -14,10 +14,13 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
 
         [SerializeField] private bool _move = true;
         [SerializeField] private bool _rotate = false;
+        [SerializeField] private bool _rotate_discrete = false;
 
         [SerializeField] private float _targetMoveRange;
         [SerializeField] private float _targetSpeed;
         [SerializeField] private float _targetRotationTime;
+        [SerializeField] private Vector3[] _rotationAxes = { Vector3.right, Vector3.up, Vector3.forward, -Vector3.right, -Vector3.up, -Vector3.forward };
+        [SerializeField] private Vector2Int _minMaxAngle = new Vector2Int(45, 45);
         private Vector3 _targetCurrentPosition = Vector3.zero;
         private Quaternion _targetCurrentOrientationTarget;
         private Quaternion _targetBaseOrientation;
@@ -61,6 +64,23 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
                 _target.rotation = Quaternion.Slerp(_targetBaseOrientation, _targetCurrentOrientationTarget, _rotationTimer / _targetRotationTime);
             }
 
+            if (_rotate_discrete)
+            {
+                if (_rotationTimer >= _targetRotationTime)
+                {
+                    _rotationTimer = 0;
+
+                    
+
+                    // Choose a random axis
+                    Vector3 randomAxis = _rotationAxes[MLRandom.Shared.Range(0, _rotationAxes.Length)];
+
+                    // Rotate the transform 90 degrees around the chosen axis
+                    transform.Rotate(randomAxis, MLRandom.Shared.Range(_minMaxAngle.x, _minMaxAngle.y), Space.Self);
+                }
+                _rotationTimer += Time.deltaTime;
+
+            }
 
         }
     }
