@@ -530,13 +530,13 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
                 _angleError = new Vector3(x_angle_error, y_angle_error, z_angle_error);
 
                 // x force is handled by a difference of rotation with top and bottom engines
-                var x_force = (float)_rotationAxisPIDFunctions[0].Compute(x_angle_error, 0);
+                var x_force = (float)_rotationAxisPIDFunctions[0].Compute(x_angle_error , 0);//* Math.Abs(x_angle_error)
 
                 // y force is handled by a difference of rotation between opposite engines (not simulated now)
-                var y_force = (float)_translationAxisPIDFunctions[1].Compute(y_angle_error, 0);
+                var y_force = (float)_translationAxisPIDFunctions[1].Compute(y_angle_error, 0); // * Math.Abs(y_angle_error)
 
                 // z force is handled by a difference of rotation with left and right engines
-                var z_force = (float)_rotationAxisPIDFunctions[2].Compute(z_angle_error, 0);
+                var z_force = (float)_rotationAxisPIDFunctions[2].Compute(z_angle_error , 0); //* Math.Abs(z_angle_error)
 
                 var pidForce = new Vector3(x_force, y_force, z_force);
                 pidForce = pidForce.normalized * Math.Min(pidForce.magnitude, MaxEngineForce);

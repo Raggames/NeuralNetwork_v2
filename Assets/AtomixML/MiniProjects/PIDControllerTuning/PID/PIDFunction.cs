@@ -70,10 +70,10 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
 
             var current_error = targetValue - currentValue;
 
-            var result = _p * current_error;
+            var result = _p * current_error ;
 
             result += _i * Integral();
-            result += _d * Derivative(current_error);
+            result += _d * Derivative(current_error) ;
 
             return result;
         }
