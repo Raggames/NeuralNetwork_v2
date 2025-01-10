@@ -1,6 +1,5 @@
 ﻿using Atom.MachineLearning.Core;
 using Atom.MachineLearning.Core.Maths;
-using Atom.MachineLearning.Core.Visualization;
 using Atom.MachineLearning.IO;
 using Sirenix.OdinInspector;
 using System;
