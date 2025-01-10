@@ -611,19 +611,21 @@ namespace Atom.MachineLearning.Core
             if (other.length != this.length)
                 throw new Exception("Cosine angle can be computed with compatible vectors only");
 
-            double dot = 0.0;
+            double result = 0.0;
 
+            // dot
             for (int i = 0; i < this.length; ++i)
                 for (int j = 0; j < this.length; ++j)
-                    dot += Data[i] * other[j];
+                    result += Data[i] * other[j];
 
-            dot /= magnitude * other.magnitude;
+            // divide by magn
+            result /= magnitude * other.magnitude;
 
-            return dot;
+            return Math.Acos(result);
         }
 
         /// <summary>
-        /// Return the cosine angle with other vector
+        /// Return the cosine angle with other vector (squarred version
         /// </summary>
         /// <param name="other"></param>
         /// <returns></returns>
@@ -632,15 +634,15 @@ namespace Atom.MachineLearning.Core
             if (other.length != this.length)
                 throw new Exception("Cosine angle can be computed with compatible vectors only");
 
-            double dot = 0.0;
+            double result = 0.0;
 
             for (int i = 0; i < this.length; ++i)
                 for (int j = 0; j < this.length; ++j)
-                    dot += Data[i] * other[j];
+                    result += Data[i] * other[j];
 
-            dot /= sqrdMagnitude * other.sqrdMagnitude;
+            result /= sqrdMagnitude * other.sqrdMagnitude;
 
-            return dot;
+            return Math.Acos(result);
         }
 
     }

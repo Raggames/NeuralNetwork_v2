@@ -47,6 +47,7 @@ namespace Atom.MachineLearning.Unsupervised.AngleBasedOutlierDetection
             // we take a point and note it as origin
             // (while predicting, this will be the actual input)
             NVector origin = inputData;
+            double data_variance = 0.0;
 
             for (int j = 0; j < _x_datas.Length - 1; j++)
             {
@@ -65,14 +66,21 @@ namespace Atom.MachineLearning.Unsupervised.AngleBasedOutlierDetection
                     var angle = origin_to_x.CosineAngle(origin_to_y);
 
                     // compute variance of point (?)
-                    var variance = Math.Pow(angle - _mean, 2);
+                    data_variance += Math.Pow(angle - _mean, 2);
 
-                    Debug.Log(variance);
+                    Debug.Log(data_variance);
                 }
             }
 
-            // should return somehow, the purcentage of chances that the item is an outlier
-            return 0;
+            // variance is computed by summing (data - mean ) squarred and the divide by samples count
+
+            data_variance /= (_x_datas.Length - 1); // sample variance
+            //data_variance /= (_x_datas.Length); // population variance
+
+
+            // should return somehow, the ratio 01 of chances that the item is an outlier
+            // now its binary, but could we imagine something more continuous ?
+            return data_variance < _varianceThreshold ? 1 : 0;
         }
 
         public ITrainingResult FitSynchronously(NVector[] x_datas)
@@ -157,6 +165,11 @@ namespace Atom.MachineLearning.Unsupervised.AngleBasedOutlierDetection
             return new TrainingResult();
         }
 
+        public double ScoreSynchronously()
+        {
+            return 0;
+        }
+
         [Button]
         public void TestAngleAlg()
         {
@@ -225,9 +238,5 @@ namespace Atom.MachineLearning.Unsupervised.AngleBasedOutlierDetection
             return row_permutations_counter;
         }
 
-        public double ScoreSynchronously()
-        {
-            throw new NotImplementedException();
-        }
     }
 }

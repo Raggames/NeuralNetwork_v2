@@ -10,13 +10,16 @@ namespace Atom.MachineLearning.Core.Visualization.VisualElements
 {
     public class AxisChart : AtomMLChart
     {
-        public AxisChart(int width = 300, int height = 300)
+        public AxisChart(int width = 100, int height = 100)
         {
-            style.width = width;
-            style.height = height;
-            style.left = 0;   // Distance from the left edge
-            style.bottom = 0; // Distance from the bottom edge
-            generateVisualContent += DrawOrthonormalLines;
+            style.width = new Length(width, LengthUnit.Percent);  // 50% of parent width
+            style.height = new Length(height, LengthUnit.Percent);
+            generateVisualContent += DrawOrthonormalLines_BottomLeftAnchored;
+        }
+
+        protected override void DrawOrthonormalLines_AutomaticCentered(MeshGenerationContext ctx)
+        {
+            throw new NotImplementedException();
         }
     }
 }

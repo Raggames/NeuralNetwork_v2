@@ -1,4 +1,5 @@
 ﻿using Atom.MachineLearning.Core.Visualization.VisualElements;
+using Atom.MachineLearning.IO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -42,14 +43,16 @@ namespace Atom.MachineLearning.Core.Visualization
             _root.Clear();
         }
 
-        public VisualElement AddContainer(string name, Color backgroundColor, Vector2Int dimensions)
+        public AtomMLVisualElement AddContainer(string name, Color backgroundColor, Vector2Int dimensions)
         {
-            var parent = new VisualElement();
+            var parent = new AtomMLVisualElement();
             parent.name = name;
-            parent.style.position = Position.Absolute;
+
+            parent.style.position = Position.Relative;
             parent.style.width = dimensions.x;
             parent.style.height = dimensions.y;
             parent.style.backgroundColor = backgroundColor;
+
             _root.Add(parent);
 
             return parent;
@@ -81,24 +84,26 @@ namespace Atom.MachineLearning.Core.Visualization
         public SimpleLineChart Add_SimpleLine(Func<List<Vector2>> getPoints, float lineWidth, Vector2Int dimensions, VisualElement container = null)
         {
             var chart = new SimpleLineChart(getPoints, lineWidth, dimensions.x, dimensions.y);
-
+            
             return AddChart(chart, container);
         }
 
         public SimpleLineChart Add_SimpleLine(Func<List<double>> getPoints, float lineWidth, Vector2Int dimensions, VisualElement container = null)
         {
             var chart = new SimpleLineChart(getPoints, lineWidth, dimensions.x, dimensions.y);
-            chart.style.position = Position.Absolute;
-            chart.style.top = 0;
-            chart.style.left = 0;
+            
             return AddChart(chart, container);
         }
-
-
 
         public Scatter2DChart Add_Scatter(double[,] matrice, VisualElement container = null)
         {
             var chart = new Scatter2DChart(() => matrice);
+            return AddChart(chart, container);
+        }
+
+        public Scatter2DChart Add_Scatter(NVector[] array, VisualElement container = null)
+        {
+            var chart = new Scatter2DChart(() => NMatrix.DenseOfColumnVectors(array).Datas);
             return AddChart(chart, container);
         }
 

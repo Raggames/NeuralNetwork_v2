@@ -30,7 +30,7 @@ namespace Atom.MachineLearning.Core.Visualization.VisualElements
             style.backgroundColor = new StyleColor(Color.white);
 
             generateVisualContent += GenerateGradientColoredScatter;
-            generateVisualContent += DrawOrthonormalLines;
+            generateVisualContent += DrawOrthonormalLines_BottomLeftAnchored;
         }
 
         protected void GenerateGradientColoredScatter(MeshGenerationContext ctx)
@@ -71,5 +71,12 @@ namespace Atom.MachineLearning.Core.Visualization.VisualElements
                 painter2D.Fill();
             }
         }
+
+
+        protected override void DrawOrthonormalLines_AutomaticCentered(MeshGenerationContext ctx)
+        {
+            throw new NotImplementedException();
+        }
+
     }
 }

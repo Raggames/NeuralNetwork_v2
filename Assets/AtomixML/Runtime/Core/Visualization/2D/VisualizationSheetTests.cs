@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace Atom.MachineLearning.Core.Visualization
 {
@@ -29,7 +30,19 @@ namespace Atom.MachineLearning.Core.Visualization
                 points[i] = Math.Pow(i, 2);
             }
 
-            _visualizationSheet.Add_SimpleLine(points, 2, new Vector2Int(300, 300));
+            var dimension = new Vector2Int(300, 300);
+
+            // on crée une boite conteneur
+            var parent = _visualizationSheet.AddContainer("c1", Color.green, dimension);
+            parent.SetPadding(10, 10, 10, 10);
+            // on ajoute un graphe qui contient seulement les axis
+            var axis = _visualizationSheet.AddAxis("a1", new Color(0, 0, 0, 0), new Vector2Int(100, 100), parent);
+
+            var lineGraph = _visualizationSheet.Add_SimpleLine(points, 3, new Vector2Int(100, 100), axis);
+            // permet d s'afficher par dessus les AXIS
+            //lineGraph.backgroundColor = new Color(1, 1, 0, 1);
+            lineGraph.SetPadding(10, 10, 10, 10);
+            lineGraph.Refresh();
         }
 
 
@@ -44,7 +57,17 @@ namespace Atom.MachineLearning.Core.Visualization
                 points[i] = 1f / Math.Pow(i, 2);
             }
 
-            _visualizationSheet.Add_SimpleLine(points, 2, new Vector2Int(300, 300));
+            var parent = _visualizationSheet.AddContainer("c1", Color.green, new Vector2Int(500, 300));
+            parent.SetPadding(10, 10, 10, 10);
+
+            var line = _visualizationSheet.Add_SimpleLine(points, 2, new Vector2Int(500, 300), parent);
+            line.style.position = Position.Relative;
+            line.style.top = 0;
+            line.style.left = 0;
+            line.style.right = 0;
+            line.style.bottom = 0;
+
+            line.DrawBottomLeftGraduation();
         }
 
         [Button]

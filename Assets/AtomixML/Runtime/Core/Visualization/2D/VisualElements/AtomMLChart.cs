@@ -8,15 +8,8 @@ using UnityEngine.UIElements;
 
 namespace Atom.MachineLearning.Core.Visualization.VisualElements
 {
-    public abstract class AtomMLChart : VisualElement
+    public abstract class AtomMLChart : AtomMLVisualElement
     {
-        protected int margin = 20; //px
-
-        protected double width => style.width.value.value;
-        protected double height => style.height.value.value;
-        protected double real_width => width - 2 * margin;
-        protected double real_heigth => height - 2 * margin;
-
         private Color _strokeColor = Color.black;
         public Color strokeColor { get { return _strokeColor; } set { _strokeColor = value; } }
 
@@ -28,35 +21,53 @@ namespace Atom.MachineLearning.Core.Visualization.VisualElements
         protected double y_min = 0;
         protected double y_max = 0;
 
+        #region Drawing
+
         public Vector2 Plot(double x_normalized, double y_normalized)
         {
-            var x = (float)(margin + x_normalized * real_width);
-            var y = (float)(margin + y_normalized * real_heigth);
+            var x = (float)(paddingLeft + x_normalized * real_width);
+            var y = (float)(paddingBottom + (1 - y_normalized) * real_heigth);
 
             return new Vector2(x, y);
         }
 
-        public void DrawGraduation()
+        #endregion
+
+        #region Orthonormal lines
+        /// <summary>
+        /// Affiche les lignes X, Y ancrées en bas à gauche du graphe
+        /// </summary>
+        public void DrawBottomLeftGraduation()
         {
             // Implement graduation drawing logic here
-            generateVisualContent += DrawOrthonormalLines;
+            generateVisualContent += DrawOrthonormalLines_BottomLeftAnchored;
             Refresh();
         }
 
+        public void DrawAutomaticCenteredGraduation()
+        {
+            generateVisualContent += DrawOrthonormalLines_BottomLeftAnchored;
+            Refresh();
+        }
 
-        protected void DrawOrthonormalLines(MeshGenerationContext ctx)
+        protected void DrawOrthonormalLines_BottomLeftAnchored(MeshGenerationContext ctx)
         {
             var painter2D = ctx.painter2D;
             painter2D.BeginPath();
 
-            painter2D.MoveTo(Plot(0, 1));
-            painter2D.LineTo(Plot(1, 1));
+            painter2D.MoveTo(Plot(0, 0));
+            painter2D.LineTo(Plot(1, 0));
 
-            painter2D.MoveTo(Plot(0, 1));
-            painter2D.LineTo(Plot(0, 0));
+            painter2D.MoveTo(Plot(0, 0));
+            painter2D.LineTo(Plot(0, 1));
 
             painter2D.Stroke();
         }
+
+        protected abstract void DrawOrthonormalLines_AutomaticCentered(MeshGenerationContext ctx);
+
+        #endregion
+
 
         public void Refresh()
         {
