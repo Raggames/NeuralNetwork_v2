@@ -20,6 +20,7 @@ namespace Atom.MachineLearning.Unsupervised.AngleBasedOutlierDetection
         /// The threshold to determine whereas the tested data is an outlier, or not
         /// </summary>
         [SerializeField, HyperParameter] private float _varianceThreshold = 0f;
+        [SerializeField, HyperParameter] private bool _predictVariance = true;
 
         [Space]
         [SerializeField, LearnedParameter] private NVector[] _x_datas;
@@ -73,10 +74,10 @@ namespace Atom.MachineLearning.Unsupervised.AngleBasedOutlierDetection
             }
 
             // variance is computed by summing (data - mean ) squarred and the divide by samples count
-
             data_variance /= (_x_datas.Length - 1); // sample variance
-            //data_variance /= (_x_datas.Length); // population variance
 
+            if (_predictVariance)
+                return data_variance;
 
             // should return somehow, the ratio 01 of chances that the item is an outlier
             // now its binary, but could we imagine something more continuous ?

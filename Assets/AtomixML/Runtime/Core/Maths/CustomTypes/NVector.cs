@@ -704,6 +704,24 @@ namespace Atom.MachineLearning.Core
             return result;
         }
 
+        public static double[,] ToDoubleMatrix(this NVector[] matrix)
+        {
+            int rows = matrix.Length;
+            int cols = matrix[0].length;
+            var result = new double[rows, cols];
+            for (int i = 0; i < rows; ++i)
+            {
+                for (int j = 0; j < cols; ++j)
+                {
+                    result[i, j] = matrix[i][j];
+                }
+            }
+
+            return result;
+        }
+
+
+
         /// <summary>
         /// Get a NVector representing the column at given index on the the NVectorArray (a matrix)
         /// </summary>

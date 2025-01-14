@@ -1,6 +1,7 @@
 ﻿using Atom.MachineLearning.Core;
 using Atom.MachineLearning.Core.Maths;
 using Atom.MachineLearning.IO;
+using Atomix.ChartBuilder;
 using Sirenix.OdinInspector;
 using System;
 using System.Collections.Generic;
@@ -52,7 +53,11 @@ namespace Atom.MachineLearning.Unsupervised.AngleBasedOutlierDetection
 
             _visualizationSheet.Awake();
 
-            _visualizationSheet.Add_Scatter(array);
+            var container = _visualizationSheet.AddContainer("c0", Color.black, new Vector2Int(750, 750));
+            container.SetPadding(25, 25, 25, 25);
+            var scatter = _visualizationSheet.Add_Scatter(array.ToDoubleMatrix(), new Vector2Int(100, 100), container);
+            scatter.SetTitle("Random points with outliers");
+            scatter.DrawAutomaticGrid();
         }
     }
 }

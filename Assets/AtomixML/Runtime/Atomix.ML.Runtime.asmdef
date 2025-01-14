@@ -2,7 +2,8 @@
     "name": "Atomix.ML.Runtime",
     "rootNamespace": "",
     "references": [
-        "GUID:ad968d605628d06499b62cdc30f11cf8"
+        "GUID:ad968d605628d06499b62cdc30f11cf8",
+        "GUID:0b77a7d040032f749b708dfc7e511c77"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

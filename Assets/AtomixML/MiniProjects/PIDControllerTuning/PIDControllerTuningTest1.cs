@@ -1,5 +1,5 @@
-using Atom.MachineLearning.Core.Visualization;
-using Atom.MachineLearning.Core.Visualization.VisualElements;
+using Atomix.ChartBuilder;
+using Atomix.ChartBuilder.VisualElements;
 using Sirenix.OdinInspector;
 using System.Collections.Generic;
 using UnityEngine;
@@ -42,8 +42,8 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
             _consigneLine.strokeColor = Color.green;
             _consigneLine.backgroundColor = new Color(0, 0, 0, 0);
 
-            _samplesLine.yRange = new Vector2(0, 30);
-            _consigneLine.yRange = new Vector2(0, 30);
+            _samplesLine.fixed_range_y = new Vector2Double(0, 30);
+            _consigneLine.fixed_range_y = new Vector2Double(0, 30);
 
             _pidFunction.SetTime(Time.fixedDeltaTime);
         }

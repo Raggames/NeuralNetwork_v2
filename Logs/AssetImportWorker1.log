@@ -15,7 +15,7 @@ C:/Users/Rag/wkspaces/NeuralNetwork_v2
 -logFile
 Logs/AssetImportWorker1.log
 -srvPort
-49341
+62017
 -job-worker-count
 3
 -background-job-worker-count
@@ -59,14 +59,14 @@ C:/Users/Rag/wkspaces/NeuralNetwork_v2
     "memorysetup-temp-allocator-size-gi-baking-worker=262144"
     "memorysetup-temp-allocator-size-gi-baking-worker=262144"
     "memorysetup-temp-allocator-size-gfx=262144"
-Player connection [8020]  Target information:
+Player connection [24280]  Target information:
 
-Player connection [8020]  * "[IP] 192.168.56.1 [Port] 0 [Flags] 2 [Guid] 3970222598 [EditorId] 3970222598 [Version] 1048832 [Id] WindowsEditor(7,DESKTOP-2A2I4TP) [Debug] 1 [PackageName] WindowsEditor [ProjectName] Editor" 
+Player connection [24280]  * "[IP] 192.168.56.1 [Port] 0 [Flags] 2 [Guid] 192240651 [EditorId] 192240651 [Version] 1048832 [Id] WindowsEditor(7,DESKTOP-2A2I4TP) [Debug] 1 [PackageName] WindowsEditor [ProjectName] Editor" 
 
-Player connection [8020]  * "[IP] 192.168.1.16 [Port] 0 [Flags] 2 [Guid] 3970222598 [EditorId] 3970222598 [Version] 1048832 [Id] WindowsEditor(7,DESKTOP-2A2I4TP) [Debug] 1 [PackageName] WindowsEditor [ProjectName] Editor" 
+Player connection [24280]  * "[IP] 192.168.1.16 [Port] 0 [Flags] 2 [Guid] 192240651 [EditorId] 192240651 [Version] 1048832 [Id] WindowsEditor(7,DESKTOP-2A2I4TP) [Debug] 1 [PackageName] WindowsEditor [ProjectName] Editor" 
 
-Player connection [8020] Host joined multi-casting on [225.0.0.222:54997]...
-Player connection [8020] Host joined alternative multi-casting on [225.0.0.222:34997]...
+Player connection [24280] Host joined multi-casting on [225.0.0.222:54997]...
+Player connection [24280] Host joined alternative multi-casting on [225.0.0.222:34997]...
 JobSystem: Creating JobQueue using job-worker-count value 3
 [Physics::Module] Initialized fallback backend.
 [Physics::Module] Id: 0xdecafbad
@@ -77,7 +77,7 @@ Library Redirect Path: Library/
 [Physics::Module] SDK Version: 4.1.2
 [Physics::Module] Integration Version: 1.0.0
 [Physics::Module] Threading Mode: Multi-Threaded
-Refreshing native plugins compatible for Editor in 1.68 ms, found 3 plugins.
+Refreshing native plugins compatible for Editor in 1.57 ms, found 3 plugins.
 Preloading 0 native plugins for Editor in 0.00 ms.
 Initialize engine version: 6000.0.25f1 (4859ab7b5a49)
 [Subsystems] Discovering subsystems at path C:/Program Files/Unity/Hub/Editor/6000.0.25f1/Editor/Data/Resources/UnitySubsystems
@@ -93,44 +93,44 @@ Initialize mono
 Mono path[0] = 'C:/Program Files/Unity/Hub/Editor/6000.0.25f1/Editor/Data/Managed'
 Mono path[1] = 'C:/Program Files/Unity/Hub/Editor/6000.0.25f1/Editor/Data/MonoBleedingEdge/lib/mono/unityjit-win32'
 Mono config path = 'C:/Program Files/Unity/Hub/Editor/6000.0.25f1/Editor/Data/MonoBleedingEdge/etc'
-Using monoOptions --debugger-agent=transport=dt_socket,embedding=1,server=y,suspend=n,address=127.0.0.1:56580
+Using monoOptions --debugger-agent=transport=dt_socket,embedding=1,server=y,suspend=n,address=127.0.0.1:56200
 Begin MonoManager ReloadAssembly
 Registering precompiled unity dll's ...
 Register platform support module: C:/Program Files/Unity/Hub/Editor/6000.0.25f1/Editor/Data/PlaybackEngines/WindowsStandaloneSupport/UnityEditor.WindowsStandalone.Extensions.dll
-Registered in 0.003103 seconds.
-- Loaded All Assemblies, in  0.381 seconds
+Registered in 0.003265 seconds.
+- Loaded All Assemblies, in  0.377 seconds
 Native extension for WindowsStandalone target not found
 Mono: successfully reloaded assembly
-- Finished resetting the current domain, in  0.329 seconds
-Domain Reload Profiling: 708ms
-	BeginReloadAssembly (129ms)
+- Finished resetting the current domain, in  0.320 seconds
+Domain Reload Profiling: 694ms
+	BeginReloadAssembly (130ms)
 		ExecutionOrderSort (0ms)
 		DisableScriptedObjects (0ms)
 		BackupInstance (0ms)
 		ReleaseScriptingObjects (0ms)
 		CreateAndSetChildDomain (1ms)
-	RebuildCommonClasses (38ms)
-	RebuildNativeTypeToScriptingClass (13ms)
-	initialDomainReloadingComplete (47ms)
-	LoadAllAssembliesAndSetupDomain (152ms)
-		LoadAssemblies (125ms)
+	RebuildCommonClasses (35ms)
+	RebuildNativeTypeToScriptingClass (12ms)
+	initialDomainReloadingComplete (48ms)
+	LoadAllAssembliesAndSetupDomain (149ms)
+		LoadAssemblies (126ms)
 		RebuildTransferFunctionScriptingTraits (0ms)
-		AnalyzeDomain (149ms)
-			TypeCache.Refresh (147ms)
-				TypeCache.ScanAssembly (134ms)
+		AnalyzeDomain (146ms)
+			TypeCache.Refresh (145ms)
+				TypeCache.ScanAssembly (132ms)
 			BuildScriptInfoCaches (0ms)
-			ResolveRequiredComponents (1ms)
-	FinalizeReload (329ms)
+			ResolveRequiredComponents (0ms)
+	FinalizeReload (320ms)
 		ReleaseScriptCaches (0ms)
 		RebuildScriptCaches (0ms)
-		SetupLoadedEditorAssemblies (284ms)
+		SetupLoadedEditorAssemblies (270ms)
 			LogAssemblyErrors (0ms)
-			InitializePlatformSupportModulesInManaged (27ms)
+			InitializePlatformSupportModulesInManaged (26ms)
 			SetLoadedEditorAssemblies (5ms)
-			BeforeProcessingInitializeOnLoad (8ms)
-			ProcessInitializeOnLoadAttributes (176ms)
+			BeforeProcessingInitializeOnLoad (7ms)
+			ProcessInitializeOnLoadAttributes (161ms)
 			ProcessInitializeOnLoadMethodAttributes (65ms)
-			AfterProcessingInitializeOnLoad (3ms)
+			AfterProcessingInitializeOnLoad (7ms)
 			EditorAssembliesLoaded (0ms)
 		ExecutionOrderSort2 (0ms)
 		AwakeInstancesAfterBackupRestoration (0ms)
@@ -141,81 +141,97 @@ Import Worker Mode flag is 0x00
 Assembly reference Packages/com.unity.entities/Unity.Scenes.Editor/Internals/Properties/Unity.Properties.Internals.asmref has no target assembly definition
 Assembly reference Packages/com.unity.entities/Unity.Scenes.Editor/Internals/Properties/Unity.Properties.Internals.asmref has no target assembly definition
 Begin MonoManager ReloadAssembly
-- Loaded All Assemblies, in  1.101 seconds
+- Loaded All Assemblies, in  1.122 seconds
 Assembly reference Packages/com.unity.entities/Unity.Scenes.Editor/Internals/Properties/Unity.Properties.Internals.asmref has no target assembly definition
-Refreshing native plugins compatible for Editor in 1.11 ms, found 3 plugins.
+Refreshing native plugins compatible for Editor in 1.17 ms, found 3 plugins.
 Native extension for WindowsStandalone target not found
 Assembly reference Packages/com.unity.entities/Unity.Scenes.Editor/Internals/Properties/Unity.Properties.Internals.asmref has no target assembly definition
-TypeManager.Initialize took: 330ms
+TypeManager.Initialize took: 339ms
 Mono: successfully reloaded assembly
-- Finished resetting the current domain, in  1.847 seconds
-Domain Reload Profiling: 2941ms
-	BeginReloadAssembly (408ms)
+- Finished resetting the current domain, in  1.837 seconds
+Domain Reload Profiling: 2953ms
+	BeginReloadAssembly (410ms)
 		ExecutionOrderSort (0ms)
 		DisableScriptedObjects (6ms)
 		BackupInstance (0ms)
 		ReleaseScriptingObjects (0ms)
-		CreateAndSetChildDomain (33ms)
+		CreateAndSetChildDomain (31ms)
 	RebuildCommonClasses (36ms)
-	RebuildNativeTypeToScriptingClass (13ms)
+	RebuildNativeTypeToScriptingClass (12ms)
 	initialDomainReloadingComplete (44ms)
-	LoadAllAssembliesAndSetupDomain (593ms)
-		LoadAssemblies (410ms)
+	LoadAllAssembliesAndSetupDomain (613ms)
+		LoadAssemblies (444ms)
 		RebuildTransferFunctionScriptingTraits (0ms)
-		AnalyzeDomain (283ms)
-			TypeCache.Refresh (224ms)
-				TypeCache.ScanAssembly (205ms)
-			BuildScriptInfoCaches (53ms)
+		AnalyzeDomain (275ms)
+			TypeCache.Refresh (216ms)
+				TypeCache.ScanAssembly (197ms)
+			BuildScriptInfoCaches (52ms)
 			ResolveRequiredComponents (4ms)
-	FinalizeReload (1847ms)
+	FinalizeReload (1838ms)
 		ReleaseScriptCaches (0ms)
 		RebuildScriptCaches (0ms)
-		SetupLoadedEditorAssemblies (1654ms)
+		SetupLoadedEditorAssemblies (1644ms)
 			LogAssemblyErrors (0ms)
 			InitializePlatformSupportModulesInManaged (2ms)
-			SetLoadedEditorAssemblies (5ms)
-			BeforeProcessingInitializeOnLoad (129ms)
+			SetLoadedEditorAssemblies (4ms)
+			BeforeProcessingInitializeOnLoad (124ms)
 			ProcessInitializeOnLoadAttributes (1342ms)
-			ProcessInitializeOnLoadMethodAttributes (167ms)
-			AfterProcessingInitializeOnLoad (8ms)
+			ProcessInitializeOnLoadMethodAttributes (163ms)
+			AfterProcessingInitializeOnLoad (9ms)
 			EditorAssembliesLoaded (0ms)
 		ExecutionOrderSort2 (0ms)
-		AwakeInstancesAfterBackupRestoration (6ms)
+		AwakeInstancesAfterBackupRestoration (7ms)
 Launched and connected shader compiler UnityShaderCompiler.exe after 0.01 seconds
-Refreshing native plugins compatible for Editor in 1.18 ms, found 3 plugins.
+Refreshing native plugins compatible for Editor in 1.29 ms, found 3 plugins.
 Preloading 0 native plugins for Editor in 0.00 ms.
 Unloading 76 Unused Serialized files (Serialized files now loaded: 0)
-Unloading 5239 unused Assets / (4.8 MB). Loaded Objects now: 5880.
-Memory consumption went from 157.3 MB to 152.6 MB.
-Total: 21.347000 ms (FindLiveObjects: 0.594800 ms CreateObjectMapping: 0.899400 ms MarkObjects: 17.857900 ms  DeleteObjects: 1.993100 ms)
+Unloading 5241 unused Assets / (4.6 MB). Loaded Objects now: 5882.
+Memory consumption went from 157.4 MB to 152.7 MB.
+Total: 22.263000 ms (FindLiveObjects: 0.577800 ms CreateObjectMapping: 1.049400 ms MarkObjects: 18.671000 ms  DeleteObjects: 1.962500 ms)
+
+========================================================================
+Received Import Request.
+  Time since last request: 947416.909603 seconds.
+  path: Packages/com.atomixstudio.chart-builder/Runtime/2D
+  artifactKey: Guid(2be63fa65f7573546b98d913da87f40e) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Packages/com.atomixstudio.chart-builder/Runtime/2D using Guid(2be63fa65f7573546b98d913da87f40e) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: 'cf2b53fb52ec04401f99656771290bdd') in 0.0052996 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000026 seconds.
+  path: Packages/com.atomixstudio.chart-builder/Runtime/Core
+  artifactKey: Guid(11e2efd1bc8352f45844736e3fb748b7) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Packages/com.atomixstudio.chart-builder/Runtime/Core using Guid(11e2efd1bc8352f45844736e3fb748b7) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: 'a9fd0776f72c31564d829428dbd4d5b2') in 0.0005434 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
 
 ========================================================================
 Received Prepare
-Refreshing native plugins compatible for Editor in 1.21 ms, found 3 plugins.
+Refreshing native plugins compatible for Editor in 1.18 ms, found 3 plugins.
 Preloading 0 native plugins for Editor in 0.00 ms.
 Unloading 29 Unused Serialized files (Serialized files now loaded: 0)
-Unloading 5239 unused Assets / (4.4 MB). Loaded Objects now: 5891.
-Memory consumption went from 144.2 MB to 139.7 MB.
-Total: 21.112500 ms (FindLiveObjects: 0.626300 ms CreateObjectMapping: 1.017200 ms MarkObjects: 17.571700 ms  DeleteObjects: 1.896000 ms)
+Unloading 5230 unused Assets / (4.7 MB). Loaded Objects now: 5884.
+Memory consumption went from 144.4 MB to 139.7 MB.
+Total: 18.888800 ms (FindLiveObjects: 0.592600 ms CreateObjectMapping: 0.715200 ms MarkObjects: 15.825800 ms  DeleteObjects: 1.754400 ms)
 
 Prepare: number of updated asset objects reloaded= 0
 ========================================================================
 Received Prepare
-Refreshing native plugins compatible for Editor in 1.51 ms, found 3 plugins.
+Refreshing native plugins compatible for Editor in 1.20 ms, found 3 plugins.
 Preloading 0 native plugins for Editor in 0.00 ms.
 Unloading 29 Unused Serialized files (Serialized files now loaded: 0)
-Unloading 5229 unused Assets / (4.4 MB). Loaded Objects now: 5881.
-Memory consumption went from 143.8 MB to 139.4 MB.
-Total: 20.258400 ms (FindLiveObjects: 0.599100 ms CreateObjectMapping: 0.785100 ms MarkObjects: 16.806100 ms  DeleteObjects: 2.066700 ms)
+Unloading 5230 unused Assets / (4.5 MB). Loaded Objects now: 5884.
+Memory consumption went from 144.4 MB to 139.9 MB.
+Total: 18.826700 ms (FindLiveObjects: 0.574500 ms CreateObjectMapping: 0.736700 ms MarkObjects: 15.802300 ms  DeleteObjects: 1.712400 ms)
 
 Prepare: number of updated asset objects reloaded= 0
 ========================================================================
 Received Prepare
-Refreshing native plugins compatible for Editor in 1.24 ms, found 3 plugins.
+Refreshing native plugins compatible for Editor in 1.18 ms, found 3 plugins.
 Preloading 0 native plugins for Editor in 0.00 ms.
 Unloading 29 Unused Serialized files (Serialized files now loaded: 0)
-Unloading 5229 unused Assets / (4.3 MB). Loaded Objects now: 5881.
-Memory consumption went from 143.8 MB to 139.5 MB.
-Total: 20.808000 ms (FindLiveObjects: 0.629200 ms CreateObjectMapping: 0.846700 ms MarkObjects: 17.263800 ms  DeleteObjects: 2.067500 ms)
+Unloading 5230 unused Assets / (4.5 MB). Loaded Objects now: 5884.
+Memory consumption went from 144.4 MB to 139.9 MB.
+Total: 21.311400 ms (FindLiveObjects: 0.591400 ms CreateObjectMapping: 0.852100 ms MarkObjects: 18.113700 ms  DeleteObjects: 1.752900 ms)
 
 Prepare: number of updated asset objects reloaded= 0
