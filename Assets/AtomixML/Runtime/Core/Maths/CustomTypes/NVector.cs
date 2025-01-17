@@ -1,6 +1,7 @@
 ﻿using Atom.MachineLearning.Core.Maths;
 using Sirenix.OdinInspector;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Atom.MachineLearning.Core
@@ -464,7 +465,7 @@ namespace Atom.MachineLearning.Core
         /// <returns></returns>
         public static double StdDeviation(NVector a)
         {
-            return Math.Sqrt(Variance(a));  
+            return Math.Sqrt(Variance(a));
         }
 
         public static double Covariance(NVector a, NVector b)
@@ -615,13 +616,17 @@ namespace Atom.MachineLearning.Core
 
             // dot
             for (int i = 0; i < this.length; ++i)
-                for (int j = 0; j < this.length; ++j)
-                    result += Data[i] * other[j];
+                    result += Data[i] * other[i];
 
             // divide by magn
-            result /= magnitude * other.magnitude;
+            var magn_squarred = magnitude * other.magnitude;
+            if (magn_squarred == 0)
+                return 0;
+
+            result /= magn_squarred;
 
             return Math.Acos(result);
+            //return result;
         }
 
         /// <summary>
@@ -637,8 +642,7 @@ namespace Atom.MachineLearning.Core
             double result = 0.0;
 
             for (int i = 0; i < this.length; ++i)
-                for (int j = 0; j < this.length; ++j)
-                    result += Data[i] * other[j];
+                    result += Data[i] * other[i];
 
             result /= sqrdMagnitude * other.sqrdMagnitude;
 
@@ -719,6 +723,26 @@ namespace Atom.MachineLearning.Core
 
             return result;
         }
+
+        public static double[,] ToDoubleMatrix(this List<NVector> list)
+        {
+            if (list.Count == 0)
+                return new double[0, 0];
+
+            int rows = list.Count;
+            int cols = list[0].length;
+            var result = new double[rows, cols];
+            for (int i = 0; i < rows; ++i)
+            {
+                for (int j = 0; j < cols; ++j)
+                {
+                    result[i, j] = list[i][j];
+                }
+            }
+
+            return result;
+        }
+
 
 
 

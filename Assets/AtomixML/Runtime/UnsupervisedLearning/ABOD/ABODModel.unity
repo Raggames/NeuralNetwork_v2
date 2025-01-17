@@ -162,9 +162,9 @@ MonoBehaviour:
   m_Script: {fileID: 19102, guid: 0000000000000000e000000000000000, type: 0}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_PanelSettings: {fileID: 11400000, guid: e41fc3535e1e0b145b17dd8c5b70d25a, type: 2}
+  m_PanelSettings: {fileID: 11400000, guid: e31a3c8777f93634baabc87788be7ad5, type: 2}
   m_ParentUI: {fileID: 0}
-  sourceAsset: {fileID: 9197481963319205126, guid: 033ab2802bb215f418365bfc55de2d2d,
+  sourceAsset: {fileID: 9197481963319205126, guid: d0b8049dad465214898510b64651432e,
     type: 3}
   m_SortingOrder: 0
   m_WorldSpaceSizeMode: 1
@@ -646,11 +646,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _aBODModel:
-    _varianceThreshold: 0
-    _predictVariance: 1
+    _varianceThreshold: 23.4
+    _predictVariance: 0
     _x_datas: []
-    _mean: 0
-    _variance: 0
+    _mean: 125.66370614359208
+    _variance: 2478.735985261828
   _visualizationSheet: {fileID: 592820441}
 --- !u!4 &2026826062
 Transform:

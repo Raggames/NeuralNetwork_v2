@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
 {
-    public class PIDControllerTuningTest1 : MonoBehaviour
+    public class PIDControllerTuningTest : MonoBehaviour
     {
         [SerializeField] private VisualizationSheet _visualizationSheet;
 
