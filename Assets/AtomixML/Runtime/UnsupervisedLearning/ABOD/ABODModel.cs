@@ -25,8 +25,10 @@ namespace Atom.MachineLearning.Unsupervised.AngleBasedOutlierDetection
         [Space]
         [SerializeField, LearnedParameter] private NVector[] _x_datas;
         [SerializeField, LearnedParameter] private double[,] _angleMatrix;
-        [SerializeField, LearnedParameter] private double _mean;
-        [SerializeField, LearnedParameter] private double _variance;
+        [SerializeField, LearnedParameter] private double _population_mean_variance;
+        [SerializeField, LearnedParameter] private double _population_variance;
+        [SerializeField, LearnedParameter] private Vector2 _min_max_variance;
+        [SerializeField, LearnedParameter] private int _row_permutations_counter = 0;
 
         public string ModelName { get; set; }
         public string ModelVersion { get; set; }
@@ -42,11 +44,41 @@ namespace Atom.MachineLearning.Unsupervised.AngleBasedOutlierDetection
             return await Task.Run(() => ScoreSynchronously());
         }
 
-        private int _row_permutations_counter = 0;
+        public Dictionary<NVector, double> GetVariances()
+        {
+            var dict = new Dictionary<NVector, double>();   
+
+            for(int i = 0; i < _angleMatrix.GetLength(0); i++)
+            {
+                dict.Add(_x_datas[i], _angleMatrix[i, _row_permutations_counter + 2]);
+            }
+
+            return dict;
+        }
+
+        /// <summary>
+        /// True for outliers, false for non outliers
+        /// </summary>
+        /// <returns></returns>
+        public Dictionary<NVector, bool> GetClassedDatas()
+        {
+            var dict = new Dictionary<NVector, bool>();
+
+            for (int i = 0; i < _angleMatrix.GetLength(0); i++)
+            {
+                dict.Add(_x_datas[i], _angleMatrix[i, _row_permutations_counter + 2] < _varianceThreshold ? true : false);
+            }
+
+            return dict;
+        }
+
+        /// <summary>
+        /// Predict the variance for one sample
+        /// </summary>
+        /// <param name="inputData"></param>
+        /// <returns></returns>
         public double Predict(NVector inputData)
         {
-            _row_permutations_counter = GetRowPermutationsCount(_x_datas.Length);
-
             // we track angle between each permutation of point
             // a row of this matrix represent all angle between the point and every other possible angle permutation between this point and two others
             // we will sum the row to compute the total angle of a point
@@ -98,50 +130,6 @@ namespace Atom.MachineLearning.Unsupervised.AngleBasedOutlierDetection
             }
             var variance = sum / (_row_permutations_counter - 1);
 
-            /*
-                        // to clarify the algorithm
-                        // we take a point and note it as origin
-                        // (while predicting, this will be the actual input)
-                        NVector origin = inputData;
-                        double data_variance = 0.0;
-
-                        for (int j = 0; j < _x_datas.Length - 1; j++)
-                        {
-                            if (_x_datas[j] == origin)
-                                continue;
-
-                            // create a vector OX from origin to a point x (not equal to origin)
-                            NVector origin_to_x = _x_datas[j] - origin;
-
-                            for (int k = j + 1; k < _x_datas.Length; k++)
-                            {
-                                if (k == j)
-                                    continue;
-
-                                if (_x_datas[k] == origin)
-                                    continue;
-
-                                // create a vector OY from origin to a point y (x != origin, x != y, y != origin)
-                                NVector origin_to_y = _x_datas[k] - origin;
-
-                                // compute OX^OY angle
-                                var angle = origin_to_x.CosineAngle(origin_to_y);
-
-                                // compute variance of point (?)
-                                data_variance += Math.Pow(angle - _mean, 2);
-
-                            }
-                        }
-
-                        // variance is computed by summing (data - mean ) squarred and the divide by samples count
-                        data_variance /= (_x_datas.Length - 1); // sample variance
-                        Debug.Log(data_variance);
-
-                        if (_predictVariance)
-                            return data_variance;
-            */
-            Debug.Log(variance);
-
             if (_predictVariance)
                 return variance;
 
@@ -152,6 +140,7 @@ namespace Atom.MachineLearning.Unsupervised.AngleBasedOutlierDetection
 
         public ITrainingResult FitSynchronously(NVector[] x_datas)
         {
+            _min_max_variance = new Vector2(float.MaxValue, float.MinValue);
             _x_datas = x_datas;
 
             _row_permutations_counter = GetRowPermutationsCount(x_datas.Length);
@@ -159,7 +148,7 @@ namespace Atom.MachineLearning.Unsupervised.AngleBasedOutlierDetection
             // we track angle between each permutation of point
             // a row of this matrix represent all angle between the point and every other possible angle permutation between this point and two others
             // we will sum the row to compute the total angle of a point
-            _angleMatrix = new double[x_datas.Length, _row_permutations_counter + 1];
+            _angleMatrix = new double[x_datas.Length, _row_permutations_counter + 3];
 
             // iterate over the dataset to compute the angle between a point and two other points
             // we only compute angle between two unique pairs of vector            
@@ -199,25 +188,39 @@ namespace Atom.MachineLearning.Unsupervised.AngleBasedOutlierDetection
                         pair_index++;
                     }
                 }
+
+                var mean = _angleMatrix[i, _row_permutations_counter] / _x_datas.Length;
+                _angleMatrix[i, _row_permutations_counter + 1] = mean; // memorize mean
+
+                var var_sum = 0.0;
+                for (int j = 0; j < _row_permutations_counter - 1; j++)
+                {
+                    var_sum += Math.Pow(_angleMatrix[i, j] - mean, 2);
+                }
+
+                var variance = var_sum / (_row_permutations_counter - 1); // sample variance
+                _angleMatrix[i, _row_permutations_counter + 2] = variance; // memorize sample variance
+
+                _min_max_variance.x = Math.Min(_min_max_variance.x, (float)variance);
+                _min_max_variance.y = Math.Max(_min_max_variance.y, (float)variance);
             }
 
-            // compute variance
-
+            // compute mean of variance
             double sum = 0.0;
             for (int i = 0; i < _angleMatrix.GetLength(0); ++i)
             {
                 // last cell is the total angle of a point (sum of angle to every other unique vector like AB-AC = BA-CA)
-                sum += _angleMatrix[i, _row_permutations_counter];
+                sum += _angleMatrix[i, _row_permutations_counter + 2];
             }
-            _mean = sum / _angleMatrix.GetLength(0);
+            _population_mean_variance = sum / _angleMatrix.GetLength(0);
 
             double sqrd_sum = 0.0;
             for (int i = 0; i < _angleMatrix.GetLength(0); ++i)
             {
-                sqrd_sum += Math.Pow(_angleMatrix[i, _row_permutations_counter] - _mean, 2);
+                sqrd_sum += Math.Pow(_angleMatrix[i, _row_permutations_counter + 2] - _population_mean_variance, 2);
             }
 
-            _variance = sqrd_sum / _angleMatrix.GetLength(0);
+            _population_variance = sqrd_sum / _angleMatrix.GetLength(0);
 
             /*
              Calculons la variance de l’ensemble suivant : 2, 7, 3, 12, 9.

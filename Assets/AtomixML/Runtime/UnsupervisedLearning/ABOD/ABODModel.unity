@@ -646,11 +646,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _aBODModel:
-    _varianceThreshold: 23.4
+    _varianceThreshold: 15.7
     _predictVariance: 0
     _x_datas: []
-    _mean: 125.66370614359208
-    _variance: 2478.735985261828
+    _population_mean_variance: 46.11474739396362
+    _population_variance: 685.658796082267
+    _min_max_variance: {x: 0.487481, y: 97.55042}
+    _row_permutations_counter: 120
   _visualizationSheet: {fileID: 592820441}
 --- !u!4 &2026826062
 Transform:
