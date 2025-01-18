@@ -33,18 +33,18 @@ namespace Atom.MachineLearning.Supervised.Recommender.ItemBased
             test_set[6] = new NVector(new double[] { 3.5f, 0f, 0f }); // low rater that prefer chocolate
             test_set[7] = new NVector(new double[] { 0f, 0f, 0f }); // didn't rate any*/
 
-            var test_set = new NVector[10];
-            test_set[0] = new NVector(new double[] { 3f, 5f, 0f, 2f });
-            test_set[1] = new NVector(new double[] { 5f, 3f, 0f, 2.5 }); 
-            test_set[2] = new NVector(new double[] { 1f, 3f, 0f, 4.5f }); 
-            test_set[3] = new NVector(new double[] { 0, 0, 3f, 2.5f }); 
-            test_set[4] = new NVector(new double[] { 4f, 4.5f, 0f, 5f }); 
-            test_set[5] = new NVector(new double[] { 0, 0f, .5f, 4f }); 
-            test_set[6] = new NVector(new double[] { 1f, 0f, 0f, 5f }); 
-            test_set[7] = new NVector(new double[] { 1f, 2.5f, 4f, 0f }); 
-            test_set[8] = new NVector(new double[] { 0,0,0,0 }); 
-            test_set[9] = new NVector(new double[] { 4f,0,2.5f,0 }); 
-          
+            var test_set = new NVector[]
+            {
+                  new NVector(new double[] { 3f, 5f, 0f }),
+                new NVector(new double[] { 5f, 3f, 1.5f }),
+                new NVector(new double[] { 1f, 3f, 0f }),
+                new NVector(new double[] { 0, 2, 4f }),
+                new NVector(new double[] { 4f, 0f, .5f }),
+                new NVector(new double[] { .5f, 1f, 2.5f }),
+                new NVector(new double[] { 0, 0, 0 }),
+            };
+
+
 
             var result = await _model.Fit(test_set);
 

@@ -50,6 +50,8 @@ namespace Atom.MachineLearning.MiniProjects.RecommenderSystem
 
             var dictUsertypes = new Dictionary<int, string>();
             var parsed2 = new FeaturesSelector(new int[] { 0, 1 }).Transform(utDistribCsv);
+            string[] user_type_names = new string[ratingsCount];
+
             foreach (var feature in parsed2)
             {
                 dictUsertypes.Add(int.Parse(feature.Data[0]), feature.Data[1]);
@@ -78,7 +80,7 @@ namespace Atom.MachineLearning.MiniProjects.RecommenderSystem
             var user_types = new int[ratingsCount];
 
             var ratings = new NVector[ratingsCount];
-            
+
             // generating a second matrix that represent the mean value for each user-item if no rating for user (depending on the user profile), and the user actual rating otherwise
             // this set can be later used to check how the encoder is close from the average user (for ranking)
             // this set will be a bunch of duplicated datas, but that's for the sake of simplicity
@@ -90,12 +92,17 @@ namespace Atom.MachineLearning.MiniProjects.RecommenderSystem
                 // based on the user type, we have a profile 
                 // we use the min-max range for each item type for the given profile to generate a rating
                 user_types[u] = user_type;
+                string user_type_name = dictUsertypes[user_type];
 
+                user_type_names[u] = user_type_name;
+              
                 ratings[u] = new NVector(item_types.Length);
                 ratings_profile_means[u] = new NVector(item_types.Length);
 
                 for (int i = 0; i < item_types.Length; ++i)
                 {
+                    string item_type_name = dict[item_types[i]];
+
                     var item_type_min = _userToItemProfiles[user_type][item_types[i] * 2];
                     var item_type_max = _userToItemProfiles[user_type][item_types[i] * 2 + 1];
 
@@ -126,25 +133,25 @@ namespace Atom.MachineLearning.MiniProjects.RecommenderSystem
                     ratings_profile_means[u][i] = ratings[u][i];
                 }
 
-                Debug.Log($"Generated rating for user type {user_type} : {ratings[u]} ");
+                //Debug.Log($"Generated rating for user type {user_type} : {ratings[u]} ");
             }
 
-            DatasetRWUtils.WriteCSV($"{_outputDatasetCsvPath}_{ratingsCount}_{itemCount}.csv", ';', itemNames, ratings.ToStringMatrix());
-            DatasetRWUtils.WriteCSV($"{_outputDatasetCsvPath}_{ratingsCount}_{itemCount}_profile_means.csv", ';', itemNames, ratings_profile_means.ToStringMatrix());
+            DatasetRWUtils.WriteCSV($"{_outputDatasetCsvPath}_{ratingsCount}_{itemCount}.csv", ';', itemNames, user_type_names, ratings.ToStringMatrix());
+            DatasetRWUtils.WriteCSV($"{_outputDatasetCsvPath}_{ratingsCount}_{itemCount}_profile_means.csv", ';', itemNames, null, ratings_profile_means.ToStringMatrix());
 
             var usertypes_matrix = new string[ratings.Length, 1];
-            for(int i = 0; i < usertypes_matrix.GetLength(0);  i++)
+            for (int i = 0; i < usertypes_matrix.GetLength(0); i++)
                 usertypes_matrix[i, 0] = user_types[i].ToString();
 
-            DatasetRWUtils.WriteCSV($"{_outputDatasetCsvPath}_{ratingsCount}_{itemCount}_check.csv", ';', new string[] {"user_types"}, usertypes_matrix);
+            DatasetRWUtils.WriteCSV($"{_outputDatasetCsvPath}_{ratingsCount}_{itemCount}_check.csv", ';', new string[] { "user_types" }, null, usertypes_matrix);
 
             var model = new ItemBasedRecommenderModel("test", similarityFunction);
             var result = await model.Fit(ratings);
 
-            ComputePredictionsTest(epsilon, dictUsertypes, item_types, itemNames, user_types, ratings, model);
+            ComputePredictionsTest(epsilon, dictUsertypes, dict, item_types, itemNames, user_types, ratings, model);
         }
 
-        private void ComputePredictionsTest(double epsilon, Dictionary<int, string> dictUsertypes, int[] item_types, string[] itemNames, int[] user_types, NVector[] ratings, ItemBasedRecommenderModel model)
+        private void ComputePredictionsTest(double epsilon, Dictionary<int, string> dictUsertypes, Dictionary<int, string> dictItemtypes, int[] item_types, string[] itemNames, int[] user_types, NVector[] ratings, ItemBasedRecommenderModel model)
         {
             Debug.Log("Prediction-completed ratings");
 
@@ -157,7 +164,7 @@ namespace Atom.MachineLearning.MiniProjects.RecommenderSystem
             {
                 prediction_completed_ratings[u] = model.Predict(ratings[u]);
 
-                Debug.Log($"User {u} > " + prediction_completed_ratings[u].ToString());
+                Debug.Log($"User {u} / {dictUsertypes[user_types[u]]} > " + prediction_completed_ratings[u].ToString());
 
                 int user_type = user_types[u];
 
@@ -180,10 +187,15 @@ namespace Atom.MachineLearning.MiniProjects.RecommenderSystem
                         if (crt_absolute_error <= delta)
                         {
                             good_prediction_count++;
+
+                            Debug.Log($"Prediction " +
+                               $"{prediction_completed_ratings[u][i]} > min-max {min_rating}-{max_rating}. " +
+                               $"Item type {itemNames[i]}. " +
+                               $"User Type {dictUsertypes[user_type]}");
                         }
                         else
                         {
-                            Debug.Log($"Prediction " +
+                            Debug.LogError($"Prediction " +
                                 $"{prediction_completed_ratings[u][i]} > min-max {min_rating}-{max_rating}. " +
                                 $"Item type {itemNames[i]}. " +
                                 $"User Type {dictUsertypes[user_type]}");
@@ -191,7 +203,7 @@ namespace Atom.MachineLearning.MiniProjects.RecommenderSystem
 
                         // summing the absolute value of predicted - mean profile rating
                         // we multiply by rating delta to increase error for higher range, and minimise error for short range
-                        mean_error += crt_absolute_error ;
+                        mean_error += crt_absolute_error;
                         all_predictions_count++;
                     }
                 }

@@ -80,7 +80,7 @@ namespace Atom.MachineLearning.MiniProjects.RecommenderSystem
                 it_dict.Add(itemTypes[i][1], int.Parse(itemTypes[i][0]));
             }
 
-            var datas = DatasetRWUtils.ReadCSV(_datasetPath, ';', 0);
+            var datas = DatasetRWUtils.ReadCSV(_datasetPath, ';', 0, 1);
             int[] features_classes = new int[datas.GetLength(1)];
             string[] features_classes_names = new string[datas.GetLength(1)];
             for (int i = 0; i < datas.GetLength(1); ++i)
@@ -114,10 +114,15 @@ namespace Atom.MachineLearning.MiniProjects.RecommenderSystem
                         if (crt_absolute_error <= delta)
                         {
                             good_predictions++;
+
+                            Debug.Log($"Prediction " +
+                                $"{denormalized} > min-max {min_rating}-{max_rating}. " +
+                                $"Item type {features_classes_names[j]}. " +
+                                $"User Type {usertypeDict[user_type]}");
                         }
                         else
                         {
-                            Debug.Log($"Prediction " +
+                            Debug.LogError($"Prediction " +
                                 $"{denormalized} > min-max {min_rating}-{max_rating}. " +
                                 $"Item type {features_classes_names[j]}. " +
                                 $"User Type {usertypeDict[user_type]}");
@@ -150,7 +155,7 @@ namespace Atom.MachineLearning.MiniProjects.RecommenderSystem
                 it_dict.Add(itemTypes[i][1], int.Parse(itemTypes[i][0]));
             }
 
-            var datas = DatasetRWUtils.ReadCSV(_datasetPath, ';', 0);
+            var datas = DatasetRWUtils.ReadCSV(_datasetPath, ';', 0, 1);
             int[] features_classes = new int[datas.GetLength(1)];
             for (int i = 0; i < datas.GetLength(1); ++i)
             {
@@ -180,10 +185,15 @@ namespace Atom.MachineLearning.MiniProjects.RecommenderSystem
                         if (crt_absolute_error <= delta)
                         {
                             good_predictions++;
+
+                            Debug.Log($"Prediction " +
+                                $"{denormalized} > min-max {min_rating}-{max_rating}. " +
+                                $"Item type {features_classes[j]}. " +
+                                $"User Type {user_type}");
                         }
                         else
                         {
-                            Debug.Log($"Prediction " +
+                            Debug.LogError($"Prediction " +
                                 $"{denormalized} > min-max {min_rating}-{max_rating}. " +
                                 $"Item type {features_classes[j]}. " +
                                 $"User Type {user_type}");
@@ -250,7 +260,7 @@ namespace Atom.MachineLearning.MiniProjects.RecommenderSystem
         [Button]
         private async void Fit_2Layers(int hidden = 10, float split_ratio = .75f, LossFunctions lossFunction = LossFunctions.MaskedMeanSquarredError)
         {
-            var datas = DatasetRWUtils.ReadCSV(_datasetPath, ';', 1);
+            var datas = DatasetRWUtils.ReadCSV(_datasetPath, ';', 1, 1);
 
             var x_datas = new FeaturesParser().Transform(datas.ToNStringVectorArray());
 
@@ -283,7 +293,7 @@ namespace Atom.MachineLearning.MiniProjects.RecommenderSystem
         [Button]
         private async void Fit_2Layers_WithTuningSystem(int numParralel = 4, int tuningIterations = 4, int hidden = 10, float split_ratio = .75f, TuningSystemOptimizationAlgorithms optimizationAlgorithm = TuningSystemOptimizationAlgorithms.Gradient, LossFunctions lossFunction = LossFunctions.MaskedMeanSquarredError)
         {
-            var datas = DatasetRWUtils.ReadCSV(_datasetPath, ';', 1);
+            var datas = DatasetRWUtils.ReadCSV(_datasetPath, ';', 1, 1);
             var datas_profile_means = DatasetRWUtils.ReadCSV(_datasetPath.Replace(".csv", "_profile_means.csv"), ';', 1);
 
             var x_datas = new FeaturesParser().Transform(datas.ToNStringVectorArray());
@@ -354,7 +364,7 @@ namespace Atom.MachineLearning.MiniProjects.RecommenderSystem
         [Button]
         private async void Fit_4layers(int hidden1 = 15, int hidden2 = 8, float split_ratio = .75f,  LossFunctions lossFunction = LossFunctions.MaskedMeanSquarredError)
         {
-            var datas = DatasetRWUtils.ReadCSV(_datasetPath, ';', 1);
+            var datas = DatasetRWUtils.ReadCSV(_datasetPath, ';', 1, 1);
 
             var x_datas = new FeaturesParser().Transform(datas.ToNStringVectorArray());
             _normalizer = new TrMinMaxNormalizer();
@@ -390,7 +400,7 @@ namespace Atom.MachineLearning.MiniProjects.RecommenderSystem
         [Button]
         private async void Fit_4Layers_WithTuningSystem(int numParralel = 4, int tuningIterations = 4, int hidden1 = 15, int hidden2 = 8, float split_ratio = .75f, TuningSystemOptimizationAlgorithms optimizationAlgorithm = TuningSystemOptimizationAlgorithms.Gradient, LossFunctions lossFunction = LossFunctions.MaskedMeanSquarredError)
         {
-            var datas = DatasetRWUtils.ReadCSV(_datasetPath, ';', 1);
+            var datas = DatasetRWUtils.ReadCSV(_datasetPath, ';', 1, 1);
             var datas_profile_means = DatasetRWUtils.ReadCSV(_datasetPath.Replace(".csv", "_profile_means.csv"), ';', 1);
 
             var x_datas = new FeaturesParser().Transform(datas.ToNStringVectorArray());

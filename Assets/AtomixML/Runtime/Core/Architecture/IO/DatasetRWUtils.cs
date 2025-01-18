@@ -29,10 +29,10 @@ namespace Atom.MachineLearning.IO
         /// </summary>
         /// <param name="filepath"></param>
         /// <param name="separator"></param>
-        /// <param name="startIndex"> Skipping first rows (header rows ?) </param>
+        /// <param name="startIndex_x"> Skipping first rows (header rows ?) </param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public static string[,] ReadCSV(string filepath, char separator, int startIndex = 1)
+        public static string[,] ReadCSV(string filepath, char separator, int startIndex_x = 1, int start_index_y = 0)
         {
             //read
             var lines = File.ReadAllLines(filepath).ToList();
@@ -42,14 +42,14 @@ namespace Atom.MachineLearning.IO
             string[] text = lines.ToArray();
 
             var columns = text.First().Split(separator);
-            string[,] datas = new string[text.Length - startIndex, columns.Length];
+            string[,] datas = new string[text.Length - startIndex_x, columns.Length - start_index_y];
 
-            for (int i = startIndex; i < text.Length; ++i)
+            for (int i = startIndex_x; i < text.Length; ++i)
             {
                 var row = text[i].Split(separator);
 
-                for (int j = 0; j < row.Length; ++j)
-                    datas[i - startIndex, j] = row[j];
+                for (int j = start_index_y; j < row.Length; ++j)
+                    datas[i - startIndex_x, j - start_index_y] = row[j];
             }
 
             return datas;
@@ -62,7 +62,7 @@ namespace Atom.MachineLearning.IO
         /// <param name="separator">Character used to separate columns (e.g., comma, semicolon).</param>
         /// <param name="headers">Array of column headers.</param>
         /// <param name="datas">2D array of string data (rows and columns).</param>
-        public static void WriteCSV(string filepath, char separator, string[] headers, string[,] datas)
+        public static void WriteCSV(string filepath, char separator, string[] headers, string[] column_headers, string[,] datas)
         {
             if (headers == null || headers.Length == 0)
                 throw new ArgumentException("Headers cannot be null or empty.", nameof(headers));
@@ -74,17 +74,26 @@ namespace Atom.MachineLearning.IO
             StringBuilder csvContent = new StringBuilder();
 
             // Write headers
-            csvContent.AppendLine(string.Join(separator, headers));
+            if (column_headers == null)
+                csvContent.AppendLine(string.Join(separator, headers));
+            else
+                csvContent.AppendLine(string.Empty + separator + string.Join(separator, headers));
 
             // Write data rows
             for (int row = 0; row < datas.GetLength(0); row++)
             {
-                string[] rowData = new string[datas.GetLength(1)];
+                int lenght = column_headers != null ? datas.GetLength(1) + 1 : datas.GetLength(1);
+                int offset = column_headers != null ? 1 : 0;
+
+                string[] rowData = new string[lenght];
+                if (offset == 1)
+                    rowData[0] = column_headers[row];
+
                 for (int col = 0; col < datas.GetLength(1); col++)
                 {
                     // Escape separator characters if necessary
-                    string cell = datas[row, col]?.Replace(separator.ToString(), "\\" + separator) ?? "";
-                    rowData[col] = cell;
+                    var cell = datas[row, col]?.Replace(separator.ToString(), "\\" + separator) ?? "";
+                    rowData[col + offset] = cell;
                 }
                 csvContent.AppendLine(string.Join(separator, rowData));
             }
@@ -185,7 +194,7 @@ namespace Atom.MachineLearning.IO
                 index++;
             }
         }
-        
+
         /// <summary>
         /// Allows, for instance, to split data columns from label columns
         /// </summary>

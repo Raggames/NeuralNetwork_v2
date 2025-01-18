@@ -1,4 +1,4 @@
-ut/it,girl_toy,girl_toy_max,boy_toy,,both_toy,,books,,movies,,music_rock,,music_rap,,music_pop,,music_classic,,hightec,,makup_beauty,,sport_stuff,,gardening,
+ut/it,girl_toy,girl_toy_max,boy_toy,boy_toy_max,both_toy_max,both_toy_max,books_min,books_max,movies_min,movies_max,music_rock_min,music_rock_max,music_rap_min,music_rap_max,music_pop_min,music_pop_max,music_classic_min,music_classic_max,hightec_min,hightec_max,makup_beauty_min,makup_beauty_max,sport_stuff_min,sport_stuff_max,gardening_min,gardening_max
 girls,3,5,0,2,2,4,1,3,1,2,0,1,0,0,0,2,0,0,0,2,2,5,2,4,0,0
 boys,0,2,3,5,2,4,1,3,1,2,0,2,0,2,0,2,0,0,0,2,0,0,2,4,0,0
 young_men,0,1,1,2,0,0,2,4,3,5,3,5,2,4,2,3,0,1,4,5,0,0,3,5,0,2
