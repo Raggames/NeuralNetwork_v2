@@ -1,6 +1,6 @@
 ﻿using Atom.MachineLearning.Core;
 using Atom.MachineLearning.Core.Maths;
-using Atom.MachineLearning.Core.Optimizers;
+using Atom.MachineLearning.Core.Optimization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -52,7 +52,7 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
         {
             var entity = GameObject.Instantiate(_pf_drone);
 
-            entity.Genes = new NVector()
+            entity.Parameters = new NVector()
             {
                 Data = new double[6]
                 {

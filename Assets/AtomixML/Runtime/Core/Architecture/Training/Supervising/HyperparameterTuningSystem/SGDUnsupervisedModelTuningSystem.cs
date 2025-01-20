@@ -247,6 +247,8 @@ namespace Atom.MachineLearning.Core
             {
                 var trainerParam = (trainer as IStochasticGradientDescentParameters);
 
+                Debug.Log(trainerParam.GetHashCode());
+
                 // each feature will be a random part (-1, 1) * learningRate * (max-min) + gradient * gradient_rate
                 trainerParam.Epochs += (float)MLRandom.Shared.Range(-1.0, 1.0) * (kModelTuningProfile.UpperBound.Epochs - kModelTuningProfile.LowerBound.Epochs) * current_learning_rate + (float)current_gradient[0] * gradient_rate;
                 trainerParam.BatchSize += (float)MLRandom.Shared.Range(-1.0, 1.0)  * (kModelTuningProfile.UpperBound.BatchSize - kModelTuningProfile.LowerBound.BatchSize) * current_learning_rate + (float)current_gradient[1] * gradient_rate;

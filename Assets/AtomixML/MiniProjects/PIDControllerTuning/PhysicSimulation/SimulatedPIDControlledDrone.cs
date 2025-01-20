@@ -1,6 +1,6 @@
 using Atom.MachineLearning.Core;
 using Atom.MachineLearning.Core.Maths;
-using Atom.MachineLearning.Core.Optimizers;
+using Atom.MachineLearning.Core.Optimization;
 using Sirenix.OdinInspector;
 using System;
 using System.Collections.Generic;
@@ -16,7 +16,7 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
         AngularSpeed,
     }
 
-    public class SimulatedPIDControlledDrone : MonoBehaviour, IGeneticEntity
+    public class SimulatedPIDControlledDrone : MonoBehaviour, IGeneticOptimizable
     {
         private Rigidbody _rigidbody;
 
@@ -100,7 +100,7 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
         public int Generation { get; set; }
 
         [SerializeField] private NVector _genes;
-        public NVector Genes
+        public NVector Parameters
         {
             get => _genes; set
             {

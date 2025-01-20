@@ -320,7 +320,7 @@ namespace Atom.MachineLearning.Core
         }
 
         /// <summary>
-        /// WIP
+        /// Three dimensionnal cross product
         /// </summary>
         /// <param name="a"></param>
         /// <param name="b"></param>
@@ -328,26 +328,12 @@ namespace Atom.MachineLearning.Core
         /// <exception cref="ArgumentException"></exception>
         public static NVector Cross(NVector a, NVector b)
         {
-            if (a.length != b.length) throw new ArgumentException($"Vector dimensions aren't equals. A is {a.length} and B is {b.length}");
-            if (a.length < 3) throw new ArgumentException($"Vector should have at least 3 dimensions");
+            if (a.length != 3) throw new ArgumentException($"Vector should have 3 dimensions");
 
-            int columns = a.length;
-            for (int i = 0; i < columns; ++i)
-            {
-                for (int j = 0; j < columns; ++j)
-                {
-                    UnityEngine.Debug.Log("/" + a[j] + " < j > " + b[j]);
-
-                    if (j == i) continue;
-
-                    UnityEngine.Debug.Log(a[j] + " < j > " + b[j]);
-                    UnityEngine.Debug.Log(a[i] + " < i > " + b[i]);
-                }
-
-                UnityEngine.Debug.Log("----");
-            }
-
-            return new NVector();
+            return new NVector( 
+                a.y * b.z - a.z * b.y,
+                a.z * b.x - a.x * b.z,
+                a.x * b.y - a.y * b.x);
         }
 
 

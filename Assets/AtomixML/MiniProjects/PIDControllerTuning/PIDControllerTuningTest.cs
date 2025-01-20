@@ -35,7 +35,8 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
             var parent = _visualizationSheet.AddContainer("c1", Color.white, _graphDimensions);
             var axis = _visualizationSheet.AddAxis("a1", new Color(0, 0, 0, 0), _graphDimensions, parent);
 
-            _samplesLine = _visualizationSheet.Add_SimpleLine(() => _samples, _graphLineWidth, _graphDimensions, parent);
+            Debug.LogError("a fixer");
+           /* _samplesLine = _visualizationSheet.Add_SimpleLine(() => _samples, _graphLineWidth, _graphDimensions, parent);
             _samplesLine.backgroundColor = new Color(0, 0, 0, 0);
 
             _consigneLine = _visualizationSheet.Add_SimpleLine(() => _consignes, _graphLineWidth, _graphDimensions, parent);
@@ -44,7 +45,7 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
 
             _samplesLine.fixed_range_y = new Vector2Double(0, 30);
             _consigneLine.fixed_range_y = new Vector2Double(0, 30);
-
+*/
             _pidFunction.SetTime(Time.fixedDeltaTime);
         }
 

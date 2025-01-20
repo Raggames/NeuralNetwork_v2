@@ -6,16 +6,16 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace Atom.MachineLearning.Core.Optimizers
+namespace Atom.MachineLearning.Core.Optimization
 {
     [Serializable]
-    public class GeneticOptimizerBenchmarkEntity : IGeneticEntity
+    public class GeneticOptimizerBenchmarkEntity : IGeneticOptimizable
     {
         [SerializeField] private int _generation;
         [SerializeField] private NVector _genes;
 
         public int Generation { get => _generation; set => _generation = value; }
-        public NVector Genes { get => _genes; set => _genes = value; }
+        public NVector Parameters { get => _genes; set => _genes = value; }
 
         private string _genome = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOP" +
                                   "QRSTUVWXYZ 1234567890, .-;:_!#%&/()=?@${[]}";

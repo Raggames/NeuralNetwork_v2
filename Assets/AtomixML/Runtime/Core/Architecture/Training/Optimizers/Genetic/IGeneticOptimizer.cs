@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Atom.MachineLearning.Core.Optimizers
+namespace Atom.MachineLearning.Core.Optimization
 {
-    public interface IGeneticOptimizer<T> where T : IGeneticEntity
+    public interface IGeneticOptimizer<T> : IOptimizer<T> where T : IGeneticOptimizable
     {
         public int PopulationCount { get; set; }
         public int MaxIterations { get; set; }

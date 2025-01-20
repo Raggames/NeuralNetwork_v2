@@ -157,11 +157,12 @@ namespace Atom.MachineLearning.MiniProjects.RecommenderSystem
 
             var datas = DatasetRWUtils.ReadCSV(_datasetPath, ';', 0, 1);
             int[] features_classes = new int[datas.GetLength(1)];
+            string[] features_classes_names = new string[datas.GetLength(1)];
             for (int i = 0; i < datas.GetLength(1); ++i)
             {
                 features_classes[i] = it_dict[datas[0, i]];
+                features_classes_names[i] = datas[0, i];
             }
-
             for (int i = 0; i < runs; i++)
             {
                 var normalized_input = _normalizer.Predict(_ratingsDataset_train[i]);
@@ -383,6 +384,7 @@ namespace Atom.MachineLearning.MiniProjects.RecommenderSystem
 
             Debug.Log("End fit");
         }
+
 
         private AutoEncoderModel Create4LayerAE(int hidden1, int hidden2, int features)
         {

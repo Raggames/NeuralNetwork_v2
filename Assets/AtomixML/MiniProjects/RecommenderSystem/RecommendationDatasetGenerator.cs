@@ -27,6 +27,8 @@ namespace Atom.MachineLearning.MiniProjects.RecommenderSystem
         [Button]
         private async void GenerateDataset(int ratingsCount = 50, int itemCount = 10, double sparsity = .3f, double outlier_ratio = .1f, double epsilon = .75f, SimilarityFunctions similarityFunction = SimilarityFunctions.AdjustedCosine)
         {
+            MLRandom.SeedShared(DateTime.Now.Millisecond * DateTime.Now.Second);
+
             // sparsity = inverse of density of ratings per user
             // outlier = density of 'out profile range' ratings over dataset
             // espilon = minimum value to consider rating as an 'error' (too far from profile)
@@ -105,6 +107,7 @@ namespace Atom.MachineLearning.MiniProjects.RecommenderSystem
 
                     var item_type_min = _userToItemProfiles[user_type][item_types[i] * 2];
                     var item_type_max = _userToItemProfiles[user_type][item_types[i] * 2 + 1];
+
 
                     if (MLRandom.Shared.NextDouble() < generate_threshold)
                     {

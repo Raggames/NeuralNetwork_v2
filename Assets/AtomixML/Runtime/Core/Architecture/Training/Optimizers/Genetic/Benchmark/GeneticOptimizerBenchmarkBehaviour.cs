@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace Atom.MachineLearning.Core.Optimizers
+namespace Atom.MachineLearning.Core.Optimization
 {
     public class GeneticOptimizerBenchmarkBehaviour : MonoBehaviour
     {
@@ -15,7 +15,7 @@ namespace Atom.MachineLearning.Core.Optimizers
         [Button]
         private async void TestFit()
         {
-            await _geneticOptimizerBenchmark.Fit();
+            await _geneticOptimizerBenchmark.Optimize(null);
         }
     }
 }

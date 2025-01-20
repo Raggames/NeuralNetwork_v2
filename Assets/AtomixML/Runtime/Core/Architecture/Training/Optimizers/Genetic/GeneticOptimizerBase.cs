@@ -7,9 +7,9 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace Atom.MachineLearning.Core.Optimizers
+namespace Atom.MachineLearning.Core.Optimization
 {
-    public abstract class GeneticOptimizerBase<T> : IGeneticOptimizer<T> where T : IGeneticEntity
+    public abstract class GeneticOptimizerBase<T> : IGeneticOptimizer<T> where T : IGeneticOptimizable
     {
         [Header("Selection")]
         /// <summary>
@@ -45,7 +45,9 @@ namespace Atom.MachineLearning.Core.Optimizers
 
         private List<T> _selectionBuffer = new List<T>();
 
-        public async Task<T> Fit()
+
+        // model not needed here, the optimizer creates it
+        public async Task<T> Optimize(T model)
         {
             _currentIteration = 0;
 
@@ -54,8 +56,8 @@ namespace Atom.MachineLearning.Core.Optimizers
             {
                 T entity = CreateEntity();
 
-                for (int g = 0; g < entity.Genes.length; ++g)
-                    entity.Genes.Data[g] = entity.MutateGene(g);
+                for (int g = 0; g < entity.Parameters.length; ++g)
+                    entity.Parameters.Data[g] = entity.MutateGene(g);
 
                 _currentGenerationEntities.Add(entity);
             }
@@ -105,12 +107,12 @@ namespace Atom.MachineLearning.Core.Optimizers
             for (int i = 0; i < elit_count; ++i)
             {
                 T entity = CreateEntity();
-                for (int g = 0; g < _currentGenerationEntities[i].Genes.length; ++g)
+                for (int g = 0; g < _currentGenerationEntities[i].Parameters.length; ++g)
                 {
                     if (MLRandom.Shared.Chances(_elitMutationChances, 100))
-                        entity.Genes.Data[g] = entity.MutateGene(g);
+                        entity.Parameters.Data[g] = entity.MutateGene(g);
                     else
-                        entity.Genes.Data[g] = _currentGenerationEntities[i].Genes[g];
+                        entity.Parameters.Data[g] = _currentGenerationEntities[i].Parameters[g];
                 }
 
                 entity.Generation = _currentIteration;
@@ -155,15 +157,15 @@ namespace Atom.MachineLearning.Core.Optimizers
 
             double mut_limit = 100.0 - _crossoverMutationChances;
             double half_limit = mut_limit / 2;
-            for (int i = 0; i < entityA.Genes.length; ++i)
+            for (int i = 0; i < entityA.Parameters.length; ++i)
             {
                 var rnd = MLRandom.Shared.Range(0.0, 100.0);
                 if (rnd > mut_limit)
-                    entity.Genes.Data[i] = entity.MutateGene(i);
+                    entity.Parameters.Data[i] = entity.MutateGene(i);
                 else if (rnd > half_limit)
-                    entity.Genes.Data[i] = entityA.Genes[i];
+                    entity.Parameters.Data[i] = entityA.Parameters[i];
                 else
-                    entity.Genes.Data[i] = entityB.Genes[i];
+                    entity.Parameters.Data[i] = entityB.Parameters[i];
             }
 
             return entity;
