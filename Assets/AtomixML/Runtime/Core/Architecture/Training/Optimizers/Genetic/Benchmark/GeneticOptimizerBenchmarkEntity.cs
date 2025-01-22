@@ -9,13 +9,17 @@ using UnityEngine;
 namespace Atom.MachineLearning.Core.Optimization
 {
     [Serializable]
-    public class GeneticOptimizerBenchmarkEntity : IGeneticOptimizable
+    public class GeneticOptimizerBenchmarkEntity : IGeneticOptimizable<NVector, NVector>
     {
         [SerializeField] private int _generation;
         [SerializeField] private NVector _genes;
 
         public int Generation { get => _generation; set => _generation = value; }
-        public NVector Parameters { get => _genes; set => _genes = value; }
+        public NVector Weights { get => _genes; set => _genes = value; }
+
+        public string ModelName { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public string ModelVersion { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
 
         private string _genome = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOP" +
                                   "QRSTUVWXYZ 1234567890, .-;:_!#%&/()=?@${[]}";
@@ -30,6 +34,11 @@ namespace Atom.MachineLearning.Core.Optimization
         public double MutateGene(int geneIndex)
         {
             return (int)_genome[MLRandom.Shared.Range(0, _genome.Length)];
+        }
+
+        public NVector Predict(NVector inputData)
+        {
+            throw new NotImplementedException();
         }
     }
 }

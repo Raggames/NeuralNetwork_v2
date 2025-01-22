@@ -23,6 +23,11 @@ namespace Atom.MachineLearning.Core.Training
             throw new NotImplementedException();
         }
 
+        public ITrainingSupervisor SetAutosave(int epoch_interval = 1)
+        {
+            throw new NotImplementedException();
+        }
+
         public ITrainingSupervisor SetEpochIteration(IEpochIteratable target)
         {
             throw new NotImplementedException();

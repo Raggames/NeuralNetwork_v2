@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Atom.MachineLearning.Core.Optimization
 {
-    public interface IGeneticOptimizer<T> : IOptimizer<T> where T : IGeneticOptimizable
+    public interface IGeneticOptimizer<T, TInput, TOuput> : IOptimizer<T, TInput, TOuput> where T : IGeneticOptimizable<TInput, TOuput>
     {
         public int PopulationCount { get; set; }
         public int MaxIterations { get; set; }

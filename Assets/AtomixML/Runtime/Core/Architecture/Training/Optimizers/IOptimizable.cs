@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace Atom.MachineLearning.Core.Optimization
 {
-    public interface IOptimizable
+    public interface IOptimizable<TInput, KOutput> : IMLModel<TInput, KOutput>
     {
-        public NVector Parameters { get; set; }
+        public NVector Weights { get; set; }
     }
 }

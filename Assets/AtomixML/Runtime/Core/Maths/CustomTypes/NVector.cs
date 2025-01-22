@@ -150,6 +150,9 @@ namespace Atom.MachineLearning.Core
             return string.Join(", ", Data);
         }
 
+        public double last => Data[Data.Length - 1];
+        public double first => Data[0];
+
         /// <summary>
         /// Returns the magnitude of the vector
         /// </summary>

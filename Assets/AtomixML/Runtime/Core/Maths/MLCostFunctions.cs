@@ -33,7 +33,7 @@ namespace Atom.MachineLearning.Core.Maths
         public static double CrossEntropy(NVector t_values, NVector o_values)
         {
             double sum = 0.0;
-            for(int i  = 0; i < t_values.length; ++i)
+            for (int i = 0; i < t_values.length; ++i)
             {
                 sum += t_values[i] * Math.Log(o_values[i]);
             }
@@ -78,6 +78,26 @@ namespace Atom.MachineLearning.Core.Maths
         /// <param name="t_values"></param>
         /// <returns></returns>
         public static NVector MSE_Derivative(NVector t_values, NVector output_values)
+        {
+            return (t_values - output_values) * 2;
+        }
+
+        public static double MSE(double t_values, double o_values)
+        {
+            var error = t_values - o_values;
+            var result = 0.0;
+            result += Math.Pow(error, 2);
+
+            return result;
+        }
+
+        /// <summary>
+        /// Mean squarred error derivate
+        /// </summary>
+        /// <param name="output_values"></param>
+        /// <param name="t_values"></param>
+        /// <returns></returns>
+        public static double MSE_Derivative(double t_values, double output_values)
         {
             return (t_values - output_values) * 2;
         }

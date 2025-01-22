@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace Atom.MachineLearning.Core.Optimization
 {
-    public interface IOptimizer<T> where T : IOptimizable
+    public interface IOptimizer<T, TInput, TOuput> where T : IOptimizable<TInput, TOuput>
     {
-        public Task<T> Optimize(T model);
+        public Task<T> OptimizeAsync(T model);
     }
 }

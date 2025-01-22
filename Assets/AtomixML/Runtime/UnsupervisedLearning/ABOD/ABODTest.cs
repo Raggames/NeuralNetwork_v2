@@ -89,9 +89,6 @@ namespace Atom.MachineLearning.Unsupervised.AngleBasedOutlierDetection
             //var scatter = _visualizationSheet.Add_Scatter(array.ToDoubleMatrix(), new Vector2Int(100, 100), container);
             var scatter = _visualizationSheet.Add_Scatter(input_dict, new Vector2Int(100, 100), container);
 
-            scatter.gridSize = new Vector2Double(5, 5);
-            scatter.gridSizeMode = Atomix.ChartBuilder.VisualElements.ChartBaseElement.GridModes.FixedDeltaValue;
-
             scatter.SetPadding(50, 50, 50, 50);
             scatter.SetTitle("Random points with outliers");
             scatter.DrawAutomaticGrid();
@@ -104,9 +101,6 @@ namespace Atom.MachineLearning.Unsupervised.AngleBasedOutlierDetection
 
             //var scatter = _visualizationSheet.Add_Scatter(array.ToDoubleMatrix(), new Vector2Int(100, 100), container);
             var scatter_cleaned = _visualizationSheet.Add_Scatter(cleaned_data.ToDoubleMatrix(), new Vector2Int(100, 100), container_cleaned);
-
-            scatter_cleaned.gridSize = new Vector2Double(5,5);
-            scatter_cleaned.gridSizeMode = Atomix.ChartBuilder.VisualElements.ChartBaseElement.GridModes.FixedDeltaValue;
 
             scatter_cleaned.SetPadding(50, 50, 50, 50);
             scatter_cleaned.SetTitle("Random points after cleansing");

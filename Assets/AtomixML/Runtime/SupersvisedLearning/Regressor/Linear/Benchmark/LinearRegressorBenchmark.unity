@@ -405,8 +405,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _visualizationSheet: {fileID: 1039276513}
   _model:
-    _a: 0.81
-    _b: 2
+    _modelName: 
+    _modelVersion: 
+    _optimizer:
+      _epochs: 20000
+      _batchSize: 100
+      _learningRate: 0.01
+      _biasRate: 0.26
+      _momentum: 0
+      _weightDecay: 0
+    _bias: 2.9095677676576446
   _dataset: []
   _a: 0
 --- !u!4 &1571661245

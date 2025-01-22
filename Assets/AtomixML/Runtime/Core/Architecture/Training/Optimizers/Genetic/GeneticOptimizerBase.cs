@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace Atom.MachineLearning.Core.Optimization
 {
-    public abstract class GeneticOptimizerBase<T> : IGeneticOptimizer<T> where T : IGeneticOptimizable
+    public abstract class GeneticOptimizerBase<T, TInput, TOuput> : IGeneticOptimizer<T, TInput, TOuput> where T : IGeneticOptimizable<TInput, TOuput>
     {
         [Header("Selection")]
         /// <summary>
@@ -47,7 +47,7 @@ namespace Atom.MachineLearning.Core.Optimization
 
 
         // model not needed here, the optimizer creates it
-        public async Task<T> Optimize(T model)
+        public async Task<T> OptimizeAsync(T model)
         {
             _currentIteration = 0;
 
@@ -56,8 +56,8 @@ namespace Atom.MachineLearning.Core.Optimization
             {
                 T entity = CreateEntity();
 
-                for (int g = 0; g < entity.Parameters.length; ++g)
-                    entity.Parameters.Data[g] = entity.MutateGene(g);
+                for (int g = 0; g < entity.Weights.length; ++g)
+                    entity.Weights.Data[g] = entity.MutateGene(g);
 
                 _currentGenerationEntities.Add(entity);
             }
@@ -107,12 +107,12 @@ namespace Atom.MachineLearning.Core.Optimization
             for (int i = 0; i < elit_count; ++i)
             {
                 T entity = CreateEntity();
-                for (int g = 0; g < _currentGenerationEntities[i].Parameters.length; ++g)
+                for (int g = 0; g < _currentGenerationEntities[i].Weights.length; ++g)
                 {
                     if (MLRandom.Shared.Chances(_elitMutationChances, 100))
-                        entity.Parameters.Data[g] = entity.MutateGene(g);
+                        entity.Weights.Data[g] = entity.MutateGene(g);
                     else
-                        entity.Parameters.Data[g] = _currentGenerationEntities[i].Parameters[g];
+                        entity.Weights.Data[g] = _currentGenerationEntities[i].Weights[g];
                 }
 
                 entity.Generation = _currentIteration;
@@ -157,15 +157,15 @@ namespace Atom.MachineLearning.Core.Optimization
 
             double mut_limit = 100.0 - _crossoverMutationChances;
             double half_limit = mut_limit / 2;
-            for (int i = 0; i < entityA.Parameters.length; ++i)
+            for (int i = 0; i < entityA.Weights.length; ++i)
             {
                 var rnd = MLRandom.Shared.Range(0.0, 100.0);
                 if (rnd > mut_limit)
-                    entity.Parameters.Data[i] = entity.MutateGene(i);
+                    entity.Weights.Data[i] = entity.MutateGene(i);
                 else if (rnd > half_limit)
-                    entity.Parameters.Data[i] = entityA.Parameters[i];
+                    entity.Weights.Data[i] = entityA.Weights[i];
                 else
-                    entity.Parameters.Data[i] = entityB.Parameters[i];
+                    entity.Weights.Data[i] = entityB.Weights[i];
             }
 
             return entity;

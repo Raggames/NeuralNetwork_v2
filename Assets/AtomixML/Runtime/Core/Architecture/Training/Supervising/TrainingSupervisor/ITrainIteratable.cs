@@ -10,9 +10,4 @@ namespace Atom.MachineLearning.Core.Training
     {
         public void OnTrainNext(int index);
     } 
-    
-    public interface IBatchedTrainIteratable : IEpochIteratable
-    {
-        public void OnTrainNextBatch(int[] indexes);
-    }
 }

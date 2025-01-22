@@ -10,7 +10,7 @@ namespace Atom.MachineLearning.Core.Optimization
     /// <summary>
     /// Abstraction for genetic trainable agents/entities
     /// </summary>
-    public interface IGeneticOptimizable : IOptimizable
+    public interface IGeneticOptimizable<TInput, TOuput> : IOptimizable<TInput, TOuput>
     {
 
         public int Generation { get; set; }

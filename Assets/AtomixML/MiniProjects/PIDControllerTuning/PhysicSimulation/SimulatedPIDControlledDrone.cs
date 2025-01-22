@@ -16,7 +16,7 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
         AngularSpeed,
     }
 
-    public class SimulatedPIDControlledDrone : MonoBehaviour, IGeneticOptimizable
+    public class SimulatedPIDControlledDrone : MonoBehaviour, IGeneticOptimizable<NVector, NVector>
     {
         private Rigidbody _rigidbody;
 
@@ -100,7 +100,8 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
         public int Generation { get; set; }
 
         [SerializeField] private NVector _genes;
-        public NVector Parameters
+        
+        public NVector Weights
         {
             get => _genes; set
             {
@@ -114,6 +115,9 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
                 _trs_DRange = (int)_genes[5];
             }
         }
+
+        public string ModelName { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public string ModelVersion { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
         private void Awake()
         {
@@ -711,6 +715,10 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
             return angle > 180 ? angle - 360 : angle;
         }
 
+        public NVector Predict(NVector inputData)
+        {
+            throw new NotImplementedException();
+        }
     }
 
 }

@@ -17,7 +17,16 @@ namespace Atom.MachineLearning.Supervised.Regressor.Linear
         [SerializeField] private VisualizationSheet _visualizationSheet;
         [SerializeField] private LinearRegressorModel _model;
         [SerializeField] private NVector[] _dataset;
-                
+
+        [Button]
+        private async void TestLinearRegressor()
+        {
+            _model.Weights = new NVector(1);
+            _model.SetScoringMetricFunction(MLMetricFunctions.MMSE);
+            var result = await _model.Fit(_dataset);
+        }
+
+
         [Button]
         private void TestScore()
         {
@@ -27,6 +36,8 @@ namespace Atom.MachineLearning.Supervised.Regressor.Linear
         [Button]
         private void CreateSamples(int points_count = 100, float a = .5f, float b = .5f, float noise = .05f)
         {
+            MLRandom.SeedShared(DateTime.Now.Millisecond);
+
             _dataset = new NVector[points_count + 1];
             _dataset[0] = new NVector(0, 0);
             for (int i = 1 ; i < points_count + 1; i++)
@@ -49,8 +60,6 @@ namespace Atom.MachineLearning.Supervised.Regressor.Linear
             var scatter = _visualizationSheet.Add_Scatter(_dataset.ToDoubleMatrix(), new Vector2Int(100, 100), container);
 
             scatter.gridColor = Color.black;
-            scatter.gridSize = new Vector2Double(10, 10);
-            scatter.gridSizeMode = Atomix.ChartBuilder.VisualElements.ChartBaseElement.GridModes.FixedPointsCount;
             scatter.lineWidth = 1;
 
             scatter.SetPadding(50, 50, 50, 50);
@@ -76,8 +85,6 @@ namespace Atom.MachineLearning.Supervised.Regressor.Linear
             }
 
             var scatter_cleaned = _visualizationSheet.Add_Scatter(transformed.ToDoubleMatrix(), new Vector2Int(100, 100), container);
-            scatter_cleaned.gridSize = new Vector2Double(10, 10);
-            scatter_cleaned.gridSizeMode = Atomix.ChartBuilder.VisualElements.ChartBaseElement.GridModes.FixedPointsCount;
             scatter_cleaned.lineWidth = 1;
             scatter_cleaned.SetPadding(50, 50, 50, 50);
             scatter_cleaned.SetTitle("Transformed points (best-fit)");

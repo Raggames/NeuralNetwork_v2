@@ -10,7 +10,7 @@ namespace Atom.MachineLearning.Core.Optimization
     /// A base for gradient descent optimizers 
     /// TODO implement AdaGrad and Adam
     /// </summary>
-    public interface IGradientDescentOptimizer<T> : IOptimizer<T> where T : IGradientDescentOptimizable
+    public interface IGradientDescentOptimizer<T, TInput, TOuput> : IOptimizer<T, TInput, TOuput> where T : IGradientDescentOptimizable<TInput, TOuput>
     {
         public int Epochs { get; set; }
         public int BatchSize { get; set; }

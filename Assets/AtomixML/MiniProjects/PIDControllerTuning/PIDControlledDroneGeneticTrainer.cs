@@ -11,7 +11,7 @@ using UnityEngine;
 namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
 {
     [Serializable]
-    public class PIDControlledDroneGeneticTrainer : GeneticOptimizerBase<SimulatedPIDControlledDrone>
+    public class PIDControlledDroneGeneticTrainer : GeneticOptimizerBase<SimulatedPIDControlledDrone, NVector, NVector>
     {
         [SerializeField] private SimulatedPIDControlledDrone _pf_drone;
 
@@ -52,7 +52,7 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
         {
             var entity = GameObject.Instantiate(_pf_drone);
 
-            entity.Parameters = new NVector()
+            entity.Weights = new NVector()
             {
                 Data = new double[6]
                 {

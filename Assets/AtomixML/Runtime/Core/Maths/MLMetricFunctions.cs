@@ -93,5 +93,20 @@ namespace Atom.MachineLearning.Core.Maths
             double result = 1.0 - (sum_sqr_error / sum_dispersion);
             return result;
         }
+
+        public static double RR_Inverted(NVector[] t_datas, NVector[] o_datas) => 1.0 / RR(t_datas, o_datas);
+
+        public static double MMSE(NVector[] t_datas, NVector[] o_datas)
+        {
+            var mse = 0.0;
+            for(int i = 0; i < t_datas.Length; ++i)
+            {
+                mse += MLCostFunctions.MSE(t_datas[i], o_datas[i]);
+            }
+
+            return mse / t_datas.Length;
+        }
+
+        public static double MMSE_Inverted(NVector[] t_datas, NVector[] o_datas) => 1.0 / MMSE(t_datas, o_datas);
     }
 }

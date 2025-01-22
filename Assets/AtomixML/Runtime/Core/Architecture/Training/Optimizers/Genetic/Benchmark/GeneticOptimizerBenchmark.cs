@@ -9,7 +9,7 @@ using UnityEngine;
 namespace Atom.MachineLearning.Core.Optimization
 {
     [Serializable]
-    public class GeneticOptimizerBenchmark : GeneticOptimizerBase<GeneticOptimizerBenchmarkEntity>
+    public class GeneticOptimizerBenchmark : GeneticOptimizerBase<GeneticOptimizerBenchmarkEntity, NVector, NVector>
     {
         [SerializeField] private string _targetGenoma = "HELLO WORLD";
 
@@ -30,16 +30,16 @@ namespace Atom.MachineLearning.Core.Optimization
 
         public override GeneticOptimizerBenchmarkEntity CreateEntity()
         {
-            return new GeneticOptimizerBenchmarkEntity() { Parameters = new NVector(_targetGenoma.Length) };
+            return new GeneticOptimizerBenchmarkEntity() { Weights = new NVector(_targetGenoma.Length) };
         }
 
         public override double GetEntityScore(GeneticOptimizerBenchmarkEntity entity)
         {
             int sum = 0;
 
-            for (int i = 0; i < entity.Parameters.length; i++)
+            for (int i = 0; i < entity.Weights.length; i++)
             {
-                sum += (int)entity.Parameters[i] == (int)_targetGenoma[i] ? 0 : 1;
+                sum += (int)entity.Weights[i] == (int)_targetGenoma[i] ? 0 : 1;
             }
 
             // sum equal to 0 = no error from target
@@ -50,9 +50,9 @@ namespace Atom.MachineLearning.Core.Optimization
         public override void OnObjectiveReached(GeneticOptimizerBenchmarkEntity bestEntity)
         {
             string reconstructed = string.Empty;
-            for(int i = 0; i < bestEntity.Parameters.length;i++)
+            for(int i = 0; i < bestEntity.Weights.length;i++)
             {
-                reconstructed +=  (char)(bestEntity.Parameters[i]);
+                reconstructed +=  (char)(bestEntity.Weights[i]);
             }
 
             Debug.Log($"Achieved objective in {CurrentIteration} iterations > Reconstructed string is : {reconstructed}");
