@@ -27,29 +27,56 @@ namespace Atom.MachineLearning.Core.Optimization
         [HyperParameter, SerializeField] private double _momentum = .01f;
         [HyperParameter, SerializeField] private double _weightDecay = .0001f;
 
+        /// <summary>
+        /// The stopping threshold of the loss function 
+        /// </summary>
+        [HyperParameter, SerializeField] private double _lossThreshold = .001;
+
         private ITrainingSupervisor _trainingSupervisor;
         private T _model;
 
-        private NVector _momentumVector;
-
+        // to do templating
         private NVector[] _x_datas;
         private double[] _t_datas;
+        private Func<double, double> _costFunction;
 
-        private Func<NVector, NVector> _costFunction;
-
+        private List<double> _modelLossHistory;
         private List<double> _modelScoreHistory;
         private List<NVector> _modelParametersHistory;
-        private List<NVector> _gradientHistory;
-        private List<NVector> _momentumHistory;
+
+        private NVector _momentumVector;
+        NVector _x_sum;
+        NVector _x_sum_buffer;
+        private double _b_sum;
 
         private double _loss;
-        private int _batchIndex = 0;
 
         [ShowInInspector, ReadOnly] private double _currentLoss;
         [ShowInInspector, ReadOnly] private double _errorSum;
 
+        public struct OptimizationInfo
+        {
+            public OptimizationInfo(List<double> modelLossHistory, List<double> modelScoreHistory, List<NVector> modelParametersHistory)
+            {
+                this.modelLossHistory = modelLossHistory;
+                this.modelScoreHistory = modelScoreHistory;
+                this.modelParametersHistory = modelParametersHistory;
+            }
 
-        public void Initialize(T model, NVector[] x_datas, double[] t_datas, Func<NVector, NVector> costFunction)
+            public List<double> modelLossHistory { get; set; }
+            public List<double> modelScoreHistory { get; set; }
+            public List<NVector> modelParametersHistory { get; set; }
+        }
+
+        public OptimizationInfo optimizationInfo
+        {
+            get
+            {
+                return new OptimizationInfo(_modelLossHistory, _modelScoreHistory, _modelParametersHistory);
+            }
+        }
+
+        public void Initialize(T model, NVector[] x_datas, double[] t_datas, Func<double, double> costFunction, Func<double, double> costFunctionDerivative)
         {
             MLRandom.SeedShared(DateTime.Now.Millisecond * DateTime.Now.Second);
 
@@ -57,10 +84,21 @@ namespace Atom.MachineLearning.Core.Optimization
 
             _x_datas = x_datas;
             _t_datas = t_datas;
+
             _costFunction = costFunction;
+
             _currentLoss = 0;
             _errorSum = 0;
 
+            _modelLossHistory = new List<double>();
+            _modelScoreHistory = new List<double>();
+            _modelParametersHistory = new List<NVector>();
+
+            _momentumVector = new NVector(_model.Weights.length + 1);
+            _x_sum = new NVector(_model.Weights.length);
+            _x_sum_buffer = new NVector(_model.Weights.length);
+
+            RandomizeModelParameters();
 
             if (_trainingSupervisor != default(ITrainingSupervisor))
                 _trainingSupervisor.Cancel();
@@ -69,19 +107,12 @@ namespace Atom.MachineLearning.Core.Optimization
 
             _trainingSupervisor.SetEpochIteration(this);
             _trainingSupervisor.SetAutosave(_epochs / 100);
-            _modelScoreHistory = new List<double>();
-            _momentumHistory = new List<NVector>();
-            _gradientHistory = new List<NVector>();
-            _momentumVector = new NVector(_model.Weights.length + 1);
-
-            RandomizeModelParameters();
         }
 
         public async Task<T> OptimizeAsync()
         {
             if (_batchSize > 1)
             {
-                _batchIndex = 0;
                 _trainingSupervisor.SetTrainBatchIteration(this);
                 await _trainingSupervisor.RunBatchedAsync(Epochs, _x_datas.Length, _batchSize);
             }
@@ -94,60 +125,108 @@ namespace Atom.MachineLearning.Core.Optimization
             return _model;
         }
 
-        private void RandomizeModelParameters()
+        public void OnBeforeEpoch(int epochIndex)
         {
-            var parameters = new NVector(_model.Weights.length);
-            for (int i = 0; i < parameters.length; ++i)
-            {
-                parameters[i] = MLRandom.Shared.Range(-0.1, 0.1);
-            }
 
-            _model.Weights = parameters;
-            _model.Bias = MLRandom.Shared.Range(-0.1, 0.1);
         }
-
 
         public void OnTrainNextBatch(int[] indexes)
         {
-            NVector x_sum = new NVector(_model.Weights.length);
-            NVector x_sum_buffer = new NVector(_model.Weights.length);
-            var b_sum = 0.0;
+            for (int i = 0; i < _x_sum.length; ++i)
+            {
+                _x_sum[i] = 0;
+                _x_sum_buffer[i] = 0;
+            }
 
-            /*
-                    double step = lr * _stepClipping(_gradient[i] * _input[j]);
+            _b_sum = 0.0;
 
-                    _weights[i, j] += step;
-                    _weights[i, j] += _weightsInertia[i, j] * momentum;
-                    _weights[i, j] -= weigthDecay * _weights[i, j]; // L2 Regularization on stochastic gradient descent
-                    _weightsInertia[i, j] = step;             
-             */
+            var batch_error_sum = 0.0;
 
             foreach (var index in indexes)
             {
                 var output = _model.Predict(_x_datas[index]);
-                                
-                var error = MLCostFunctions.MSE_Derivative(output, _t_datas[index]);
-                _errorSum += MLCostFunctions.MSE(_t_datas[index], output);
+
+                // todo replace with delegates
+                var error = -MLCostFunctions.MSE_Derivative(_t_datas[index], output);
+                batch_error_sum += MLCostFunctions.MSE(_t_datas[index], output);
 
                 // xum_sum_buffer = W * error
                 //x_sum += x_sum_buffer;
-                NVector.ScalarMultiplyNonAlloc(_model.Weights, error , ref x_sum_buffer);
-                NVector.AddNonAlloc(x_sum_buffer, x_sum, ref x_sum);
+                NVector.ScalarMultiplyNonAlloc(_model.Weights, error, ref _x_sum_buffer);
+                NVector.AddNonAlloc(_x_sum_buffer, _x_sum, ref _x_sum);
 
-                b_sum += error;
+                _b_sum += error;
             }
 
-            NVector.ScalarDivideNonAlloc(x_sum, indexes.Length, ref x_sum);
-            //x_sum /= indexes.Length;
-            b_sum /= indexes.Length;
+            _errorSum += batch_error_sum / indexes.Length;
 
+            //x_sum /= indexes.Length;
+            NVector.ScalarDivideNonAlloc(_x_sum, indexes.Length, ref _x_sum);
+            _b_sum /= indexes.Length;
+
+            UpdateWeightsAndBias();
+        }
+
+        public void OnTrainNext(int index)
+        {
+            var output = _model.Predict(_x_datas[index]);
+
+            // todo replace with delegates
+            var error = -MLCostFunctions.MSE_Derivative(output, _t_datas[index]);
+            _errorSum += MLCostFunctions.MSE(_t_datas[index], output);
+
+            for (int i = 0; i < _x_sum.length; ++i)
+            {
+                _x_sum[i] = error * _model.Weights[i];
+            }
+
+            _b_sum = error;
+
+            UpdateWeightsAndBias();
+        }
+
+        public void OnAfterEpoch(int epochIndex)
+        {
+            var score = _model.ScoreSynchronously();
+            _modelScoreHistory.Add(score);
+
+            _currentLoss = (float)_errorSum / _x_datas.Length;
+            _modelLossHistory.Add(_currentLoss);
+
+            NVector currentModelParameters = GetCurrentModelParameters();
+
+            _modelParametersHistory.Add(currentModelParameters);
+
+            if (_currentLoss < _lossThreshold)
+            {
+                _trainingSupervisor.Cancel();
+                Debug.Log($"Objective achieved in {epochIndex + 1} epochs. Score {score}. Loss {_currentLoss}");
+                return;
+            }
+
+            _errorSum = 0;
+        }
+
+        private NVector GetCurrentModelParameters()
+        {
+            NVector currentModelParameters = new NVector(_model.Weights.length + 1);
+            for (int i = 0; i < _model.Weights.length; ++i)
+            {
+                currentModelParameters[i] = _model.Weights[i];
+            }
+            currentModelParameters[currentModelParameters.length - 1] = _model.Bias;
+            return currentModelParameters;
+        }
+
+        private NVector UpdateWeightsAndBias()
+        {
             NVector new_parameters = new NVector(_model.Weights.length);
 
             for (int i = 0; i < _model.Weights.length; ++i)
             {
                 new_parameters[i] = _model.Weights[i];
 
-                var grad = x_sum[i] * LearningRate;
+                var grad = _x_sum[i] * LearningRate;
 
                 new_parameters[i] -= grad;
                 new_parameters[i] -= _momentumVector[i] * Momentum;
@@ -157,65 +236,26 @@ namespace Atom.MachineLearning.Core.Optimization
             }
 
             _model.Weights = new_parameters;
-                        
-            double biasStep = b_sum * BiasRate;
+
+            double biasStep = _b_sum * LearningRate * BiasRate;
             _model.Bias -= biasStep;
             _model.Bias -= _momentumVector[_momentumVector.length - 1] * Momentum;
             _model.Bias += _model.Bias * WeightDecay;
             _momentumVector[_momentumVector.length - 1] = biasStep;
 
-            /*_modelParametersHistory[_batchIndex] = new_parameters;
-            _momentumHistory[_batchIndex] = _momentumVector;
-            _gradientHistory[_batchIndex] = _gradientVector;*/
-
-            _batchIndex++;
+            return new_parameters;
         }
 
-        public void OnTrainNext(int index)
+        private void RandomizeModelParameters()
         {
-            var output = _model.Predict(_x_datas[index]);
-            var error = MLCostFunctions.MSE_Derivative(output, _t_datas[index]);
-            _errorSum += MLCostFunctions.MSE(_t_datas[index], output);
-
-            NVector new_parameters = new NVector(_model.Weights.length);
-
-            for (int i = 0; i < _model.Weights.length; ++i)
+            var parameters = new NVector(_model.Weights.length);
+            for (int i = 0; i < parameters.length; ++i)
             {
-                var grad = error * _model.Weights[i] * LearningRate;
-                ///new_parameters[i] = _model.Weights[i] + grad + _momentumVector[i] * Momentum;
-                //_momentumVector[i] = new_parameters[i];
-                //new_parameters[i] -= new_parameters[i] * WeightDecay;
-                new_parameters[i] = _model.Weights[i] - grad;
+                parameters[i] = MLRandom.Shared.Range(0.001, 0.1);
             }
 
-            double biasStep = error * BiasRate;
-            double new_bias = _model.Bias - biasStep; // + _momentumVector[_momentumVector.length - 1] * Momentum;
-            //_momentumVector[_momentumVector.length - 1] = biasStep;
-            new_bias -= _model.Bias * WeightDecay;
-
-
-            _model.Weights = new_parameters;
-            _model.Bias = new_bias;
-
-            _modelParametersHistory.Add(new_parameters);
-
-            /*_momentumHistory[index] = _momentumVector;
-            _gradientHistory[index] = _gradientVector;*/
+            _model.Weights = parameters;
+            _model.Bias = MLRandom.Shared.Range(0.001, 0.1);
         }
-
-        public void OnBeforeEpoch(int epochIndex)
-        {
-
-        }
-
-        public void OnAfterEpoch(int epochIndex)
-        {
-            var score = _model.ScoreSynchronously();
-            _modelScoreHistory.Add(score);
-
-            _currentLoss = (float)_errorSum / _x_datas.Length;
-            _errorSum = 0;
-        }
-
     }
 }

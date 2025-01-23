@@ -94,12 +94,41 @@ namespace Atom.MachineLearning.Core.Maths
             return result;
         }
 
+        public static double RR(double[] t_datas, double[] o_datas)
+        {
+            /*
+             R² = 1 − ∑(yi − ŷi)² / ∑(yi − ȳ)²
+             yi représente les valeurs observées de la variable dépendante,
+             ŷi représente les valeurs prédites par le modèle,
+             ȳ est la moyenne des valeurs observées,
+             ∑(yi − ŷi)² est la somme des carrés des résidus (ou erreurs),
+             ∑(yi − ȳ)² est la somme totale des carrés, qui mesure la dispersion totale des valeurs observées.
+             */
+
+            double t_means = t_datas.Average();
+
+            double sum_sqr_error = 0.0;
+            double sum_dispersion = 0.0;
+
+            for (int i = 0; i < t_datas.Length; i++)
+            {
+                sum_sqr_error += Math.Pow(t_datas[i] - o_datas[i], 2);
+                sum_dispersion += Math.Pow(t_datas[i] - t_means, 2);
+            }
+
+            if (sum_dispersion == 0)
+                return 0;
+
+            double result = 1.0 - (sum_sqr_error / sum_dispersion);
+            return result;
+        }
+
         public static double RR_Inverted(NVector[] t_datas, NVector[] o_datas) => 1.0 / RR(t_datas, o_datas);
 
         public static double MMSE(NVector[] t_datas, NVector[] o_datas)
         {
             var mse = 0.0;
-            for(int i = 0; i < t_datas.Length; ++i)
+            for (int i = 0; i < t_datas.Length; ++i)
             {
                 mse += MLCostFunctions.MSE(t_datas[i], o_datas[i]);
             }
@@ -110,7 +139,7 @@ namespace Atom.MachineLearning.Core.Maths
         public static double MMSE(double[] t_datas, double[] o_datas)
         {
             var mse = 0.0;
-            for(int i = 0; i < t_datas.Length; ++i)
+            for (int i = 0; i < t_datas.Length; ++i)
             {
                 mse += MLCostFunctions.MSE(t_datas[i], o_datas[i]);
             }

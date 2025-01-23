@@ -409,12 +409,13 @@ MonoBehaviour:
     _modelVersion: 
     _optimizer:
       _epochs: 2000
-      _batchSize: 100
-      _learningRate: 0.001
-      _biasRate: 0.001
-      _momentum: 0.01
-      _weightDecay: 0
-    _bias: 0.5085216678631672
+      _batchSize: 50
+      _learningRate: 0.07
+      _biasRate: 0.05
+      _momentum: 0.1
+      _weightDecay: 0.00001
+      _lossThreshold: 0.000001
+    _bias: 0.2511618931535873
   _dataset: []
 --- !u!4 &1571661245
 Transform:

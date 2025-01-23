@@ -851,6 +851,51 @@ namespace Atom.MachineLearning.Core
             return column;
         }
 
+        /// <summary>
+        /// Takes a sample of the input data array with a resolution of ratio
+        /// For 1000 points and ratio 0.1, you will get an array of 100 points that are taken at an interval of 10
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="ratio"></param>
+        /// <returns></returns>
+        public static NVector[] Sample(this NVector[] data, double ratio = .1)
+        {
+            int points = (int)System.Math.Floor(data.Length * ratio);
+            int interval = data.Length / points;
+
+            var column = new NVector[points];
+
+            for (int i = 0; i < column.Length; ++i)
+            {
+                int index = i * interval;
+                if (index > data.Length)
+                    break;
+
+                column[i] = (NVector)data[index].Clone();
+            }
+
+            return column;
+        }
+
+        public static double[] Sample(this double[] data, double ratio = .1)
+        {
+            int points = (int)System.Math.Floor(data.Length * ratio);
+            int interval = data.Length / points;
+
+            var column = new double[points];
+
+            for (int i = 0; i < column.Length; ++i)
+            {
+                int index = i * interval;
+                if (index > data.Length)
+                    break;
+
+                column[i] = data[index];
+            }
+
+            return column;
+        }
+
         public static string[,] ToStringMatrix(this NVector[] matrix)
         {
             int rows = matrix.Length;

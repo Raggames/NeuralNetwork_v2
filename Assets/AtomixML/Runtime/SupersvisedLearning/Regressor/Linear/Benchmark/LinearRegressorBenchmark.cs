@@ -1,5 +1,6 @@
 ﻿using Atom.MachineLearning.Core;
 using Atom.MachineLearning.Core.Maths;
+using Atom.MachineLearning.Core.Transformers;
 using Atomix.ChartBuilder;
 using Atomix.ChartBuilder.VisualElements;
 using Sirenix.OdinInspector;
@@ -21,34 +22,63 @@ namespace Atom.MachineLearning.Supervised.Regressor.Linear
         [SerializeField] private NVector[] _dataset;
 
         [Button]
-        private async void TestLinearRegressor()
+        private async void TestLinearRegressor(bool normalize)
         {
             _model.Weights = new NVector(1);
-            _model.SetScoringMetricFunction(MLMetricFunctions.MMSE);
+            _model.ScoringMetricFunction = MLMetricFunctions.RR;
 
+            var transformer = new TrMinMaxNormalizer();
+            var normalized = normalize ? transformer.Transform(_dataset) : _dataset;
 
-            var t_datas = _dataset.ColumnToVector(_dataset[0].length - 1);
-            var x_datas = _dataset.RemoveColumn(1);
+            var t_datas = normalized.ColumnToVector(normalized[0].length - 1);
+            var x_datas = normalized.RemoveColumn(1);
 
             var result = await _model.Fit(x_datas, t_datas.Data);
 
-            var positions = new NVector[x_datas.Length];    
-            for(int i = 0; i < _dataset.Length; i++)
+            var positions = new NVector[x_datas.Length];
+            for (int i = 0; i < _dataset.Length; i++)
             {
                 var y = _model.Predict(x_datas[i]);
                 positions[i] = new NVector(x_datas[i][0], y);
             }
 
-            var scatter = DrawBaseDatasetGraph();
-            var line = _visualizationSheet.Add_SimpleLine(positions.ToDoubleMatrix(), 2, new Vector2Int(100, 100), scatter);
-            line.SetAbsolutePosition();
-            line.SetDimensions(LengthUnit.Pixel, (int)scatter.resolvedStyle.width, (int)scatter.resolvedStyle.height);
+            _visualizationSheet.Awake();
 
-            line.DrawAutomaticGrid();
-            line.gridColor = new Color(0, 0, 0, 0);
-            line.lineWidth = 2;
+            var root = _visualizationSheet.AddPixelSizedContainer("c0", new Vector2Int(1000, 1000));
+            root.style.flexDirection = new UnityEngine.UIElements.StyleEnum<UnityEngine.UIElements.FlexDirection>(UnityEngine.UIElements.FlexDirection.Row);
+            root.style.flexWrap = new StyleEnum<Wrap>(StyleKeyword.Auto);
 
+            var container = _visualizationSheet.AddContainer("c0", Color.black, new Vector2Int(100, 100), root);
+            container.SetPadding(10, 10, 10, 10);
+
+            //var scatter = _visualizationSheet.Add_Scatter(array.ToDoubleMatrix(), new Vector2Int(100, 100), container);
+            var scatter = _visualizationSheet.Add_Scatter(normalized.ToDoubleMatrix(), new Vector2Int(100, 100), container);
+
+            scatter.gridColor = Color.black;
+            scatter.lineWidth = 5;
+
+            scatter.SetPadding(50, 50, 50, 50);
+            scatter.SetTitle("Random points");
+            scatter.DrawAutomaticGrid();
+
+            scatter.AppendLine(positions.ToDoubleMatrix(), Color.blue, 2.5f);
+
+            var container2 = _visualizationSheet.AddContainer("c0", Color.black, new Vector2Int(100, 100), root);
+            container2.SetPadding(10, 10, 10, 10);
+
+            var optimisationInfo = _model.optimizer.optimizationInfo;
+
+            var line = _visualizationSheet.Add_SimpleLine(optimisationInfo.modelLossHistory.ToArray().Sample(.1), 2, new Vector2Int(100, 100), container2);
             line.SetPadding(50, 50, 50, 50);
+            line.SetTitle("Loss over epochs");
+            line.DrawAutomaticGrid();
+
+            var line2 = _visualizationSheet.Add_SimpleLine(optimisationInfo.modelParametersHistory.ToArray().Sample(.1).ColumnToVector(0).Data, 2, new Vector2Int(100, 100), container2);
+            line2.SetPadding(50, 50, 50, 50);
+            line2.SetTitle("Param over epochs");
+            line2.DrawAutomaticGrid();
+
+            root.Refresh();
         }
 
 
@@ -65,7 +95,7 @@ namespace Atom.MachineLearning.Supervised.Regressor.Linear
         [Button]
         private void CreateSamples(int points_count = 100, float a = .5f, float b = .5f, float noise = .05f)
         {
-            _a = a; 
+            _a = a;
             _b = b;
 
             MLRandom.SeedShared(DateTime.Now.Millisecond);
@@ -83,12 +113,13 @@ namespace Atom.MachineLearning.Supervised.Regressor.Linear
             var root = DrawBaseDatasetGraph();
         }
 
-        private ChartBuilderElement DrawBaseDatasetGraph()
+        private ChartBaseElement DrawBaseDatasetGraph()
         {
             _visualizationSheet.Awake();
 
-            var root = _visualizationSheet.AddPixelSizedContainer("c0", new Vector2Int(500, 500));
+            var root = _visualizationSheet.AddPixelSizedContainer("c0", new Vector2Int(1000, 1000));
             root.style.flexDirection = new UnityEngine.UIElements.StyleEnum<UnityEngine.UIElements.FlexDirection>(UnityEngine.UIElements.FlexDirection.Row);
+            root.style.flexWrap = new StyleEnum<Wrap>(StyleKeyword.Auto);
 
             var container = _visualizationSheet.AddContainer("c0", Color.black, new Vector2Int(100, 100), root);
             container.SetPadding(10, 10, 10, 10);
@@ -97,13 +128,20 @@ namespace Atom.MachineLearning.Supervised.Regressor.Linear
             var scatter = _visualizationSheet.Add_Scatter(_dataset.ToDoubleMatrix(), new Vector2Int(100, 100), container);
 
             scatter.gridColor = Color.black;
-            scatter.lineWidth = 1;
+            scatter.lineWidth = 5;
 
             scatter.SetPadding(50, 50, 50, 50);
             scatter.SetTitle("Random points");
             scatter.DrawAutomaticGrid();
 
+            //DrawChangeOfBasis(container);
 
+            return scatter;
+
+        }
+
+        private void DrawChangeOfBasis(ChartBuilderElement container)
+        {
             var vec = new NVector(1, _a, 0);
             var orth = NVector.Cross(vec, new NVector(0, 0, -1));
 
@@ -126,11 +164,7 @@ namespace Atom.MachineLearning.Supervised.Regressor.Linear
             scatter_cleaned.SetPadding(50, 50, 50, 50);
             scatter_cleaned.SetTitle("Transformed points (best-fit)");
             scatter_cleaned.DrawAutomaticGrid();
-
-            return scatter;
-
         }
 
-        
     }
 }

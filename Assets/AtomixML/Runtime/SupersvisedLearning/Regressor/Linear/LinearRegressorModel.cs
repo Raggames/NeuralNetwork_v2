@@ -13,13 +13,16 @@ namespace Atom.MachineLearning.Supervised.Regressor.Linear
 {
     [Serializable]
     /// <summary>
-    /// Two-dimensionnal linear regression
-    /// We will do a multi-dimensionnal as well later (look for MultiLinearRegressorModel)
+    /// N-dimensionnal linear regression
     /// </summary>
-    public class LinearRegressorModel : IMLModel<NVector, double>, IMLSupervisedTrainer<LinearRegressorModel, NVector, double>, IGradientDescentOptimizable<NVector, double>
+    public class LinearRegressorModel : 
+        IMLModel<NVector, double>, 
+        IMLSupervisedTrainer<LinearRegressorModel, NVector, double>, 
+        IGradientDescentOptimizable<NVector, double>
     {
         public string ModelName { get => _modelName; set => _modelName = value; }
         public string ModelVersion { get => _modelVersion; set => _modelVersion = value; }
+
         public LinearRegressorModel trainedModel { get; set; }
 
 
@@ -39,23 +42,19 @@ namespace Atom.MachineLearning.Supervised.Regressor.Linear
 
         private NVector[] _x_datas;
         private double[] _t_datas;
+
         private Func<double[], double[], double> _scoringMetricFunction;
+
+        public Func<double[], double[], double> ScoringMetricFunction { get => _scoringMetricFunction; set => _scoringMetricFunction = value; }
+
+        public GradientDescentOptimizerBase<LinearRegressorModel> optimizer => _optimizer;
 
         public LinearRegressorModel(string modelName, string modelVersion, Func<double[], double[], double> scoringMetricFunction)
         {
             ModelName = modelName;
             ModelVersion = modelVersion;
 
-            SetScoringMetricFunction(scoringMetricFunction);
-        }
-
-        /// <summary>
-        /// TODO template this for other models
-        /// </summary>
-        /// <param name="scoringMetricFunction"></param>
-        public void SetScoringMetricFunction(Func<double[], double[], double> scoringMetricFunction)
-        {
-            _scoringMetricFunction = scoringMetricFunction;
+            ScoringMetricFunction = scoringMetricFunction;
         }
 
         /// <summary>
@@ -68,15 +67,11 @@ namespace Atom.MachineLearning.Supervised.Regressor.Linear
                 return _weights;
             }
             set
-            {
-                for (int i = 0; i < value.length; ++i)
-                {
-                    if (Double.IsNaN(value[i]))
-                        throw new Exception();
-                }
+            {               
                 _weights = value;
             }
         }
+
         public double Bias { get { return _bias; } set { _bias = value; } }
 
         public async Task<ITrainingResult> Fit(NVector[] x_datas, double[] t_datas)
@@ -85,10 +80,11 @@ namespace Atom.MachineLearning.Supervised.Regressor.Linear
 
             _x_datas = x_datas;
             _t_datas = t_datas;
-            _optimizer.Initialize(this, x_datas, t_datas, null);
+            _optimizer.Initialize(this, x_datas, t_datas, null, null);
 
-            //await _optimizer.OptimizeAsync();
-            _weights = new NVector(1);
+            await _optimizer.OptimizeAsync();
+
+            /*_weights = new NVector(1);
             _weights[0] = 1;
             _bias = 0;
 
@@ -102,11 +98,6 @@ namespace Atom.MachineLearning.Supervised.Regressor.Linear
 
                 for (int j = 1; j < _x_datas.Length; ++j)
                 {
-                    /*var y = _weights[0] * j + _bias;
-                    var t_y = 2 * j + 4;*/
-                    //var error = t_y - y;
-                    //loss += MLCostFunctions.MSE(t_datas[j], y);
-
                     var prediction = Predict(_x_datas[j]);
                     var error = t_datas[j] - prediction;
                     loss += MLCostFunctions.MSE(t_datas[j], prediction);
@@ -141,7 +132,7 @@ namespace Atom.MachineLearning.Supervised.Regressor.Linear
             }
 
             Debug.Log(totalLoss);
-
+*/
 
             return new TrainingResult() { Accuracy = (float)ScoreSynchronously() };
         }
@@ -177,23 +168,7 @@ namespace Atom.MachineLearning.Supervised.Regressor.Linear
         }
 
         public double ScoreSynchronously()
-        {
-            // represent all data points on the 
-            /*var regression_direction = new NVector(1, _a, 0);
-            var orth = NVector.Cross(regression_direction, new NVector(0, 0, -1));
-
-            var x_axis = new NVector(regression_direction.x, regression_direction.y).normalized;
-            var y_axis = new NVector(orth.x, orth.y).normalized;
-
-            var transformed = new NVector[_x_datas.Length];
-            for (int i = 0; i < _x_datas.Length; ++i)
-            {
-                var transformed_point_x = NVector.Dot(_x_datas[i], x_axis) / x_axis.sqrdMagnitude;
-                var transformed_point_y = (NVector.Dot(_x_datas[i], y_axis) / y_axis.sqrdMagnitude) - _b;
-
-                transformed[i] = new NVector(transformed_point_x, transformed_point_y);
-            }*/
-
+        {           
             double[] y_values = new double[_x_datas.Length];
 
             for (int i = 0; i < _x_datas.Length; ++i)
