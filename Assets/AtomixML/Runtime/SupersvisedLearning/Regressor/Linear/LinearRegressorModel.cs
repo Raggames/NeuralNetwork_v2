@@ -80,13 +80,15 @@ namespace Atom.MachineLearning.Supervised.Regressor.Linear
 
         public async Task<ITrainingResult> Fit(NVector[] x_datas, double[] t_datas)
         {
+            MLRandom.SeedShared(0);
+
             _x_datas = x_datas;
 
             _optimizer.Initialize(this, x_datas, t_datas, null);
 
-            await _optimizer.OptimizeAsync();
-            /*_a = 0.01;
-            _b = 0.01;
+            //await _optimizer.OptimizeAsync();
+            _weights = new NVector(MLRandom.Shared.Range(0.001, 0.1));
+            _bias = MLRandom.Shared.Range(0.001, 0.1);
 
             double dw1 = 0.0, dw2 = 0.0, db = 0.0;
             double totalLoss = 0.0;
@@ -99,27 +101,40 @@ namespace Atom.MachineLearning.Supervised.Regressor.Linear
                 {
                     var prediction = Predict(_x_datas[j]);
 
-                    var error = prediction - _x_datas[j];
-                    loss += MLCostFunctions.MSE(_x_datas[j], prediction);
+                    var error =  prediction - t_datas[j];
+                    loss += MLCostFunctions.MSE(t_datas[j], prediction);
 
-                    dw1 += 2 * error.y * _a;
-                    db += 2 * error.y ;
+                    dw1 += 2 * error * _weights[0];
+                    db += 2 * error ;
                 }
 
+                int n = _x_datas.Length; 
                 totalLoss += loss;
 
-                int n = _x_datas.Length;
+                loss /= n;
+
+                if(loss < .1)
+                {
+                    Debug.LogError("break");
+                    break;
+                }    
+
                 dw1 /= n;
                 dw2 /= n;
                 db /= n;
 
                 // Update weights and bias
-                _a -= _optimizer.LearningRate * dw1;
-                _b -= _optimizer.LearningRate * db;
+                _weights[0] -= Math.Clamp(_optimizer.LearningRate * dw1, -.05, .05);
+                _bias -= Math.Clamp(_optimizer.BiasRate * db, -.05, .05);
 
+                loss /= n;
+
+                Debug.Log(loss);
+
+                await Task.Delay(1);
             }
 
-            Debug.Log(totalLoss);*/
+            Debug.Log(totalLoss);
 
 
             return new TrainingResult() { Accuracy = (float)ScoreSynchronously() };
@@ -145,13 +160,18 @@ namespace Atom.MachineLearning.Supervised.Regressor.Linear
         {
             var result = 0.0;
 
-            for (int i = 0; i < inputData.length - 1; ++i)
+            for (int i = 0; i < inputData.length; ++i)
             {
                 result += inputData[i] * _weights[i];
             }
 
             result += _bias;
 
+
+            if (Double.IsNaN(result))
+            {
+
+            }
             return result;
         }
 

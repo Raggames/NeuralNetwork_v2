@@ -126,12 +126,12 @@ namespace Atom.MachineLearning.Core.Optimization
             {
                 var output = _model.Predict(_x_datas[index]);
                                 
-                var error = MLCostFunctions.MSE_Derivative(_t_datas[index], output);
+                var error = MLCostFunctions.MSE_Derivative(output, _t_datas[index]);
                 _errorSum += MLCostFunctions.MSE(_t_datas[index], output);
 
                 // xum_sum_buffer = W * error
                 //x_sum += x_sum_buffer;
-                NVector.ScalarMultiplyNonAlloc(_model.Weights, error, ref x_sum_buffer);
+                NVector.ScalarMultiplyNonAlloc(_model.Weights, error , ref x_sum_buffer);
                 NVector.AddNonAlloc(x_sum_buffer, x_sum, ref x_sum);
 
                 b_sum += error;
@@ -149,9 +149,9 @@ namespace Atom.MachineLearning.Core.Optimization
 
                 var grad = x_sum[i] * LearningRate;
 
-                new_parameters[i] += grad;
-                new_parameters[i] += _momentumVector[i] * Momentum;
-                new_parameters[i] -= new_parameters[i] * WeightDecay;
+                new_parameters[i] -= grad;
+                new_parameters[i] -= _momentumVector[i] * Momentum;
+                new_parameters[i] += new_parameters[i] * WeightDecay;
 
                 _momentumVector[i] = grad;
             }
@@ -159,9 +159,9 @@ namespace Atom.MachineLearning.Core.Optimization
             _model.Weights = new_parameters;
                         
             double biasStep = b_sum * BiasRate;
-            _model.Bias += biasStep;
-            _model.Bias += _momentumVector[_momentumVector.length - 1] * Momentum;
-            _model.Bias -= _model.Bias * WeightDecay;
+            _model.Bias -= biasStep;
+            _model.Bias -= _momentumVector[_momentumVector.length - 1] * Momentum;
+            _model.Bias += _model.Bias * WeightDecay;
             _momentumVector[_momentumVector.length - 1] = biasStep;
 
             /*_modelParametersHistory[_batchIndex] = new_parameters;
