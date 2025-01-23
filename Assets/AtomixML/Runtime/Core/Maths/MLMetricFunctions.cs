@@ -107,6 +107,17 @@ namespace Atom.MachineLearning.Core.Maths
             return mse / t_datas.Length;
         }
 
+        public static double MMSE(double[] t_datas, double[] o_datas)
+        {
+            var mse = 0.0;
+            for(int i = 0; i < t_datas.Length; ++i)
+            {
+                mse += MLCostFunctions.MSE(t_datas[i], o_datas[i]);
+            }
+
+            return mse / t_datas.Length;
+        }
+
         public static double MMSE_Inverted(NVector[] t_datas, NVector[] o_datas) => 1.0 / MMSE(t_datas, o_datas);
     }
 }

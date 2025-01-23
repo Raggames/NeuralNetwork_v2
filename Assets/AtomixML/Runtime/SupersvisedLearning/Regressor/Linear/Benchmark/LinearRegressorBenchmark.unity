@@ -408,15 +408,14 @@ MonoBehaviour:
     _modelName: 
     _modelVersion: 
     _optimizer:
-      _epochs: 406
+      _epochs: 2000
       _batchSize: 100
-      _learningRate: 0.1
-      _biasRate: 0.27
+      _learningRate: 0.001
+      _biasRate: 0.001
       _momentum: 0.01
       _weightDecay: 0
-    _bias: 5.121080677682872
+    _bias: 0.5085216678631672
   _dataset: []
-  _a: 0
 --- !u!4 &1571661245
 Transform:
   m_ObjectHideFlags: 0

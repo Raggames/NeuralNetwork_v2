@@ -1,6 +1,7 @@
 ﻿using Atom.MachineLearning.Core;
 using Atom.MachineLearning.Core.Maths;
 using Atomix.ChartBuilder;
+using Atomix.ChartBuilder.VisualElements;
 using Sirenix.OdinInspector;
 using System;
 using System.Collections.Generic;
@@ -9,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace Atom.MachineLearning.Supervised.Regressor.Linear
 {
@@ -29,6 +31,24 @@ namespace Atom.MachineLearning.Supervised.Regressor.Linear
             var x_datas = _dataset.RemoveColumn(1);
 
             var result = await _model.Fit(x_datas, t_datas.Data);
+
+            var positions = new NVector[x_datas.Length];    
+            for(int i = 0; i < _dataset.Length; i++)
+            {
+                var y = _model.Predict(x_datas[i]);
+                positions[i] = new NVector(x_datas[i][0], y);
+            }
+
+            var scatter = DrawBaseDatasetGraph();
+            var line = _visualizationSheet.Add_SimpleLine(positions.ToDoubleMatrix(), 2, new Vector2Int(100, 100), scatter);
+            line.SetAbsolutePosition();
+            line.SetDimensions(LengthUnit.Pixel, (int)scatter.resolvedStyle.width, (int)scatter.resolvedStyle.height);
+
+            line.DrawAutomaticGrid();
+            line.gridColor = new Color(0, 0, 0, 0);
+            line.lineWidth = 2;
+
+            line.SetPadding(50, 50, 50, 50);
         }
 
 
@@ -38,14 +58,21 @@ namespace Atom.MachineLearning.Supervised.Regressor.Linear
             Debug.Log(_model.ScoreSynchronously());
         }
 
+
+        private float _a = 0;
+        private float _b = 0;
+
         [Button]
         private void CreateSamples(int points_count = 100, float a = .5f, float b = .5f, float noise = .05f)
         {
+            _a = a; 
+            _b = b;
+
             MLRandom.SeedShared(DateTime.Now.Millisecond);
 
             _dataset = new NVector[points_count + 1];
             _dataset[0] = new NVector(0, 0);
-            for (int i = 1 ; i < points_count + 1; i++)
+            for (int i = 1; i < points_count + 1; i++)
             {
                 var x = MLRandom.Shared.Range(0.0, 10.0);
                 var y = a * x + b + MLRandom.Shared.Range(-noise, noise);
@@ -53,9 +80,14 @@ namespace Atom.MachineLearning.Supervised.Regressor.Linear
                 _dataset[i] = new NVector(x, y);
             }
 
+            var root = DrawBaseDatasetGraph();
+        }
+
+        private ChartBuilderElement DrawBaseDatasetGraph()
+        {
             _visualizationSheet.Awake();
 
-            var root = _visualizationSheet.AddPixelSizedContainer("c0", new Vector2Int(400, 400));
+            var root = _visualizationSheet.AddPixelSizedContainer("c0", new Vector2Int(500, 500));
             root.style.flexDirection = new UnityEngine.UIElements.StyleEnum<UnityEngine.UIElements.FlexDirection>(UnityEngine.UIElements.FlexDirection.Row);
 
             var container = _visualizationSheet.AddContainer("c0", Color.black, new Vector2Int(100, 100), root);
@@ -72,7 +104,7 @@ namespace Atom.MachineLearning.Supervised.Regressor.Linear
             scatter.DrawAutomaticGrid();
 
 
-            var vec = new NVector(1, a, 0);
+            var vec = new NVector(1, _a, 0);
             var orth = NVector.Cross(vec, new NVector(0, 0, -1));
 
             Debug.Log(orth);
@@ -84,7 +116,7 @@ namespace Atom.MachineLearning.Supervised.Regressor.Linear
             for (int i = 0; i < _dataset.Length; ++i)
             {
                 var transformed_point_x = NVector.Dot(_dataset[i], x_axis) / x_axis.sqrdMagnitude;
-                var transformed_point_y = ( NVector.Dot(_dataset[i], y_axis) / y_axis.sqrdMagnitude) - b;
+                var transformed_point_y = (NVector.Dot(_dataset[i], y_axis) / y_axis.sqrdMagnitude) - _b;
 
                 transformed[i] = new NVector(transformed_point_x, transformed_point_y);
             }
@@ -94,20 +126,11 @@ namespace Atom.MachineLearning.Supervised.Regressor.Linear
             scatter_cleaned.SetPadding(50, 50, 50, 50);
             scatter_cleaned.SetTitle("Transformed points (best-fit)");
             scatter_cleaned.DrawAutomaticGrid();
-        }
 
-        [SerializeField] private float _a;
-
-        private void OnDrawGizmos()
-        {
-
-            // represent all data points on the 
-            var vec = new NVector(1, _a, 0);
-            var orth = NVector.Cross(vec, new NVector(0, 0, -1));
-
-            Debug.DrawRay(Vector3.zero, new Vector3(1, _a, 0).normalized, Color.red);
-            Debug.DrawRay(Vector3.zero, new Vector3((float)orth.x, (float)orth.y, (float)orth.z).normalized);
+            return scatter;
 
         }
+
+        
     }
 }

@@ -38,9 +38,10 @@ namespace Atom.MachineLearning.Supervised.Regressor.Linear
         [SerializeField, LearnedParameter] private double _bias;
 
         private NVector[] _x_datas;
-        private Func<NVector[], NVector[], double> _scoringMetricFunction;
+        private double[] _t_datas;
+        private Func<double[], double[], double> _scoringMetricFunction;
 
-        public LinearRegressorModel(string modelName, string modelVersion, Func<NVector[], NVector[], double> scoringMetricFunction)
+        public LinearRegressorModel(string modelName, string modelVersion, Func<double[], double[], double> scoringMetricFunction)
         {
             ModelName = modelName;
             ModelVersion = modelVersion;
@@ -52,7 +53,7 @@ namespace Atom.MachineLearning.Supervised.Regressor.Linear
         /// TODO template this for other models
         /// </summary>
         /// <param name="scoringMetricFunction"></param>
-        public void SetScoringMetricFunction(Func<NVector[], NVector[], double> scoringMetricFunction)
+        public void SetScoringMetricFunction(Func<double[], double[], double> scoringMetricFunction)
         {
             _scoringMetricFunction = scoringMetricFunction;
         }
@@ -83,55 +84,60 @@ namespace Atom.MachineLearning.Supervised.Regressor.Linear
             MLRandom.SeedShared(0);
 
             _x_datas = x_datas;
-
+            _t_datas = t_datas;
             _optimizer.Initialize(this, x_datas, t_datas, null);
 
             //await _optimizer.OptimizeAsync();
-            _weights = new NVector(MLRandom.Shared.Range(0.001, 0.1));
-            _bias = MLRandom.Shared.Range(0.001, 0.1);
+            _weights = new NVector(1);
+            _weights[0] = 1;
+            _bias = 0;
 
             double dw1 = 0.0, dw2 = 0.0, db = 0.0;
             double totalLoss = 0.0;
+            double n = _x_datas.Length;
 
             for (int i = 0; i < _optimizer.Epochs; ++i)
             {
                 var loss = 0.0;
 
-                for (int j = 0; j < _x_datas.Length; ++j)
+                for (int j = 1; j < _x_datas.Length; ++j)
                 {
-                    var prediction = Predict(_x_datas[j]);
+                    /*var y = _weights[0] * j + _bias;
+                    var t_y = 2 * j + 4;*/
+                    //var error = t_y - y;
+                    //loss += MLCostFunctions.MSE(t_datas[j], y);
 
-                    var error =  prediction - t_datas[j];
+                    var prediction = Predict(_x_datas[j]);
+                    var error = t_datas[j] - prediction;
                     loss += MLCostFunctions.MSE(t_datas[j], prediction);
 
-                    dw1 += 2 * error * _weights[0];
-                    db += 2 * error ;
+                    dw1 += error * _weights[0];
+                    db += error;
                 }
-
-                int n = _x_datas.Length; 
-                totalLoss += loss;
 
                 loss /= n;
 
-                if(loss < .1)
+                totalLoss += loss;
+
+                dw1 = -2.0 / n * dw1;
+                db = -2.0 / n * db;
+
+                loss /= n;
+
+                if (loss < .005)
                 {
                     Debug.LogError("break");
                     break;
-                }    
-
-                dw1 /= n;
-                dw2 /= n;
-                db /= n;
+                }
 
                 // Update weights and bias
                 _weights[0] -= Math.Clamp(_optimizer.LearningRate * dw1, -.05, .05);
                 _bias -= Math.Clamp(_optimizer.BiasRate * db, -.05, .05);
 
-                loss /= n;
-
                 Debug.Log(loss);
 
-                await Task.Delay(1);
+                if (i % 50 == 0)
+                    await Task.Delay(1);
             }
 
             Debug.Log(totalLoss);
@@ -167,11 +173,6 @@ namespace Atom.MachineLearning.Supervised.Regressor.Linear
 
             result += _bias;
 
-
-            if (Double.IsNaN(result))
-            {
-
-            }
             return result;
         }
 
@@ -193,14 +194,14 @@ namespace Atom.MachineLearning.Supervised.Regressor.Linear
                 transformed[i] = new NVector(transformed_point_x, transformed_point_y);
             }*/
 
-            NVector[] y_values = new NVector[_x_datas.Length];
+            double[] y_values = new double[_x_datas.Length];
 
             for (int i = 0; i < _x_datas.Length; ++i)
             {
-                y_values[i] = new NVector(Predict(_x_datas[i]));
+                y_values[i] = Predict(_x_datas[i]);
             }
 
-            return _scoringMetricFunction(_x_datas, y_values);
+            return _scoringMetricFunction(_t_datas, y_values);
         }
 
         public async Task<double> Score()
