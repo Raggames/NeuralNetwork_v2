@@ -23,7 +23,12 @@ namespace Atom.MachineLearning.Supervised.Regressor.Linear
         {
             _model.Weights = new NVector(1);
             _model.SetScoringMetricFunction(MLMetricFunctions.MMSE);
-            var result = await _model.Fit(_dataset);
+
+
+            var t_datas = _dataset.ColumnToVector(_dataset[0].length - 1);
+            var x_datas = _dataset.RemoveColumn(1);
+
+            var result = await _model.Fit(x_datas, t_datas.Data);
         }
 
 

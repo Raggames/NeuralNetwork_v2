@@ -150,7 +150,7 @@ namespace Atom.MachineLearning.Core
             return string.Join(", ", Data);
         }
 
-        public double last => Data[Data.Length - 1];
+        public double last => Data.Length > 0 ? Data[Data.Length - 1] : first;
         public double first => Data[0];
 
         /// <summary>
@@ -231,6 +231,66 @@ namespace Atom.MachineLearning.Core
 
             return this;
         }
+
+        public static void ScalarMultiplyNonAlloc(NVector vector, double scalar, ref NVector resultBuffer)
+        {
+            if (vector.length != resultBuffer.length)
+                throw new Exception($"Result buffer dimensions mismatch : required {vector.length}");
+
+            for (int i = 0; i < vector.length; ++i)
+            {
+                resultBuffer[i] = vector[i] * scalar;
+            }
+        }
+
+        public static void ScalarDivideNonAlloc(NVector vector, double scalar, ref NVector resultBuffer)
+        {
+            if (vector.length != resultBuffer.length)
+                throw new Exception($"Result buffer dimensions mismatch : required {vector.length}");
+
+            for (int i = 0; i < vector.length; ++i)
+            {
+                resultBuffer[i] = vector[i] / scalar;
+            }
+        }
+
+        /// <summary>
+        /// A plus B
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <param name="resultBuffer"></param>
+        /// <exception cref="Exception"></exception>
+        public static void AddNonAlloc(NVector a, NVector b, ref NVector resultBuffer)
+        {
+            if (a.length != b.length || a.length != resultBuffer.length || b.length != resultBuffer.length)
+                throw new Exception($"Result buffer dimensions mismatch : required {a.length}");
+
+            for (int i = 0; i < resultBuffer.length; ++i)
+            {
+                resultBuffer[i] = a[i] + b[i];
+            }
+        }
+
+        /// <summary>
+        /// A minus B
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <param name="resultBuffer"></param>
+        /// <exception cref="Exception"></exception>
+        public static void SubstractNonAlloc(NVector a, NVector b, ref NVector resultBuffer)
+        {
+            if (a.length != b.length || a.length != resultBuffer.length || b.length != resultBuffer.length)
+                throw new Exception($"Result buffer dimensions mismatch : required {a.length}");
+
+            for (int i = 0; i < resultBuffer.length; ++i)
+            {
+                resultBuffer[i] = a[i] - b[i];
+            }
+        }
+
+
 
         /// <summary>
         /// Dot product of the two n-dimensional vectors
@@ -333,7 +393,7 @@ namespace Atom.MachineLearning.Core
         {
             if (a.length != 3) throw new ArgumentException($"Vector should have 3 dimensions");
 
-            return new NVector( 
+            return new NVector(
                 a.y * b.z - a.z * b.y,
                 a.z * b.x - a.x * b.z,
                 a.x * b.y - a.y * b.x);
@@ -605,7 +665,7 @@ namespace Atom.MachineLearning.Core
 
             // dot
             for (int i = 0; i < this.length; ++i)
-                    result += Data[i] * other[i];
+                result += Data[i] * other[i];
 
             // divide by magn
             var magn_squarred = magnitude * other.magnitude;
@@ -631,7 +691,7 @@ namespace Atom.MachineLearning.Core
             double result = 0.0;
 
             for (int i = 0; i < this.length; ++i)
-                    result += Data[i] * other[i];
+                result += Data[i] * other[i];
 
             result /= sqrdMagnitude * other.sqrdMagnitude;
 
@@ -732,8 +792,34 @@ namespace Atom.MachineLearning.Core
             return result;
         }
 
+        /// <summary>
+        /// Get a NVector representing the column at given index on the the NVectorArray (a matrix)
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="columnIndex"></param>
+        /// <returns></returns>
+        public static NVector[] RemoveColumn(this NVector[] data, int columnIndex)
+        {
+            var column = new NVector[data.Length];
+            var length = data[0].length - 1;
 
+            for (int i = 0; i < data.Length; ++i)
+            {
+                int ind = 0;
+                column[i] = new NVector(length);
 
+                for (int j = 0; j < data[i].length; ++j)
+                {
+                    if (j != columnIndex)
+                    {
+                        column[i][ind] = data[i][j];
+                        ind++;
+                    }
+                }
+            }
+
+            return column;
+        }
 
         /// <summary>
         /// Get a NVector representing the column at given index on the the NVectorArray (a matrix)
@@ -741,13 +827,25 @@ namespace Atom.MachineLearning.Core
         /// <param name="data"></param>
         /// <param name="columnIndex"></param>
         /// <returns></returns>
-        public static NVector Column(this NVector[] data, int columnIndex)
+        public static NVector ColumnToVector(this NVector[] data, int columnIndex)
         {
             var column = new NVector(data.Length);
 
             for (int i = 0; i < data.Length; ++i)
             {
                 column[i] = data[i][columnIndex];
+            }
+
+            return column;
+        }
+
+        public static NVector[] VectorToColumn(this NVector data)
+        {
+            var column = new NVector[data.length];
+
+            for (int i = 0; i < column.Length; ++i)
+            {
+                column[i] = new NVector(data[i]);
             }
 
             return column;

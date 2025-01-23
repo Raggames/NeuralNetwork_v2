@@ -8,6 +8,6 @@ namespace Atom.MachineLearning.Core.Optimization
 {
     public interface IOptimizer<T, TInput, TOuput> where T : IOptimizable<TInput, TOuput>
     {
-        public Task<T> OptimizeAsync(T model);
+        public Task<T> OptimizeAsync();
     }
 }

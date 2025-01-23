@@ -47,7 +47,7 @@ namespace Atom.MachineLearning.Core.Optimization
 
 
         // model not needed here, the optimizer creates it
-        public async Task<T> OptimizeAsync(T model)
+        public async Task<T> OptimizeAsync()
         {
             _currentIteration = 0;
 

@@ -42,8 +42,6 @@ namespace Atom.MachineLearning.Core.Training
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public interface IMLSupervisedTrainer<TModel, TModelInputData, TModelOutputData>
-        where TModelInputData : IMLInOutData
-        where TModelOutputData : IMLInOutData
         where TModel : IMLModel<TModelInputData, TModelOutputData>
     {
         public TModel trainedModel { get; set; }

@@ -15,7 +15,7 @@ namespace Atom.MachineLearning.Core.Optimization
         [Button]
         private async void TestFit()
         {
-            await _geneticOptimizerBenchmark.OptimizeAsync(null);
+            await _geneticOptimizerBenchmark.OptimizeAsync();
         }
     }
 }

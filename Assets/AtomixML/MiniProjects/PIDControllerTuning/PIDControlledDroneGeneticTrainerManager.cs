@@ -10,7 +10,7 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
         [Button]
         private async void TestFit()
         {
-            await _droneGeneticTrainer.OptimizeAsync(null);
+            await _droneGeneticTrainer.OptimizeAsync();
         }
     }
 }
