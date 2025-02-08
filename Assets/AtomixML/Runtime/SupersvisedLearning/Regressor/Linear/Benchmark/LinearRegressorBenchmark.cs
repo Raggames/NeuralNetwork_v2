@@ -58,7 +58,7 @@ namespace Atom.MachineLearning.Supervised.Regressor.Linear
             scatter.lineWidth = 5;
 
             scatter.SetPadding(50, 50, 50, 50);
-            scatter.SetTitle("Random points");
+            scatter.SetTitle("Points and Model Regression Line");
             scatter.DrawAutomaticGrid();
 
             scatter.AppendLine(positions.ToDoubleMatrix(), Color.blue, 2.5f);
@@ -75,7 +75,7 @@ namespace Atom.MachineLearning.Supervised.Regressor.Linear
 
             var line2 = _visualizationSheet.Add_SimpleLine(optimisationInfo.modelParametersHistory.ToArray().Sample(.1).ColumnToVector(0).Data, 2, new Vector2Int(100, 100), container2);
             line2.SetPadding(50, 50, 50, 50);
-            line2.SetTitle("Param over epochs");
+            line2.SetTitle("X over epochs");
             line2.DrawAutomaticGrid();
 
             root.Refresh();

@@ -4,7 +4,7 @@ using System.IO;
 using UnityEditor;
 using Sirenix.OdinInspector;
 
-namespace Atomix.ML.Editor
+namespace Atom.MachineLearning.Editor
 {
     public class RandomTextureGenerator : MonoBehaviour
     {

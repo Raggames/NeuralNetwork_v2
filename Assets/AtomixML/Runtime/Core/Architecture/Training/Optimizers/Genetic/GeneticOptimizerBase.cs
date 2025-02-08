@@ -37,6 +37,7 @@ namespace Atom.MachineLearning.Core.Optimization
 
         [ShowInInspector, ReadOnly] private int _currentIteration;
         [ShowInInspector, ReadOnly] private List<T> _currentGenerationEntities;
+        [ShowInInspector, ReadOnly] private List<T> _generationBestEntityHistory = new List<T>();
 
         public int PopulationCount { get => _populationCount; set => _populationCount = value; }
         public int MaxIterations { get => _maxIterations; set => _maxIterations = value; }
@@ -69,6 +70,7 @@ namespace Atom.MachineLearning.Core.Optimization
                 _currentGenerationEntities = _currentGenerationEntities.OrderByDescending(t => GetEntityScore(t)).ToList();
 
                 var bestScore = GetEntityScore(_currentGenerationEntities[0]);
+                _generationBestEntityHistory.Add(_currentGenerationEntities[0]);
 
                 if (bestScore >= _fitnessObjective)
                 {
@@ -82,10 +84,16 @@ namespace Atom.MachineLearning.Core.Optimization
 
                 _currentIteration++;
                 _currentGenerationEntities = SelectNextGeneration();
+
+                await Task.Delay(1);
             }
 
             // always return the first entity (highest score)
-            return _currentGenerationEntities[0];
+            var ordered_history = _generationBestEntityHistory.OrderByDescending(t => GetEntityScore(t)).ToArray();
+            Debug.Log("Best overall score : " + GetEntityScore(ordered_history[0]));
+
+
+            return ordered_history[0];
         }
 
         public abstract T CreateEntity();
@@ -137,7 +145,6 @@ namespace Atom.MachineLearning.Core.Optimization
 
         protected abstract void ClearPreviousGeneration(List<T> previousGenerationEntities);
         
-
         public T SelectEntity(float limitPurcentage)
         {
             int limitIndex = (int)(limitPurcentage * _populationCount / 100.0);
