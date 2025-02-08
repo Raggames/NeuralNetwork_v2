@@ -103,9 +103,18 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
 
         private MomentumIndicator _momentumIndicator = new MomentumIndicator(12);
         private MACDIndicator _macdIndicator = new MACDIndicator(12, 26, 9);
+        private RSIIndicator _rsiIndicator = new RSIIndicator(12);
 
         public MomentumIndicator momentum => _momentumIndicator;
         public MACDIndicator macd => _macdIndicator;
+        public RSIIndicator rsi => _rsiIndicator;
+
+        private void InitializeIndicators()
+        {
+            _momentumIndicator = new MomentumIndicator(12);
+            _macdIndicator = new MACDIndicator(12, 26, 9);
+            _rsiIndicator = new RSIIndicator(12);
+        }
 
         #endregion
 
@@ -118,7 +127,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         private TradingBotEntity GenerateTradingBot_Momentum_MACD()
         {
             var entity = new TradingBotEntity();
-            entity.Initialize(this, Convert.ToDecimal(_startWallet), Convert.ToDecimal(_maxTransactionAmount), Convert.ToDecimal( _takeProfit), Convert.ToDecimal(_stopLoss));
+            entity.Initialize(this, Convert.ToDecimal(_startWallet), Convert.ToDecimal(_maxTransactionAmount), Convert.ToDecimal(_takeProfit), Convert.ToDecimal(_stopLoss));
 
             // registering functions that will be optimized
             // each indicator score is ultimately summed and the sum is compared to a threshold/bias to make a decision
@@ -131,10 +140,13 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
 
         #endregion
 
+        #region Execution
+
         [Button]
         private async void ExecuteTraining()
         {
             _market_samples = GetMarketDatas();
+            InitializeIndicators();
 
             _optimizer.Initialize(this,
                 // entity generation
@@ -150,6 +162,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         private async void ExecuteTesting()
         {
             _market_samples = GetMarketDatas();
+            InitializeIndicators();
 
             _tradingBotEntity.Initialize(this, Convert.ToDecimal(_startWallet), Convert.ToDecimal(_maxTransactionAmount), Convert.ToDecimal(_takeProfit), Convert.ToDecimal(_stopLoss));
 
@@ -195,7 +208,16 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
                 // compute closing values indicators
                 _momentumIndicator.ComputeMomentum(timestampData.Close);
                 _macdIndicator.ComputeMACD(timestampData.Close);
+                _rsiIndicator.ComputeRSI(timestampData.Close);
             }
         }
+
+        #endregion
+
+        #region Visualization
+
+
+
+        #endregion
     }
 }
