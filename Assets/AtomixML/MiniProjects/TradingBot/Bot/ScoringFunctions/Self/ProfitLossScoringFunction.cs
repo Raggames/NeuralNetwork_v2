@@ -6,23 +6,20 @@ using System.Threading.Tasks;
 
 namespace Atom.MachineLearning.MiniProjects.TradingBot
 {
-    public class RSIScoringFunction : ITendancyIndicator<TradingBotEntity, double>
+    public class ProfitLossScoringFunction : ITradingBotScoringFunction<TradingBotEntity, double>
     {
         public int ParametersCount => 2;
 
         public double ComputeScore(TradingBotEntity input, decimal currentPrice, ref int weightIndex)
         {
-            var crt_rsi = input.manager.rsi.current;
+            if (input.currentTransactionEnteredPrice == 0)
+                return 0.0;
 
-            // normalize rsi to -1 > 1 
-            var normalized_rsi = (crt_rsi - 50) / 50;
+            var delta = decimal.ToDouble(currentPrice - input.currentTransactionEnteredPrice);
 
-            // not taking price in account here ? 
-
-            var score = input.Weights[weightIndex] * Math.Exp(decimal.ToDouble(normalized_rsi) * input.Weights[weightIndex + 1]);
+            var score = input.Weights[weightIndex] * Math.Exp((delta) * input.Weights[weightIndex + 1]);
             weightIndex += 2;
             return score;
-
         }
     }
 }

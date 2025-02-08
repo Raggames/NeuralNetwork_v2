@@ -9,7 +9,7 @@ namespace Atom.MachineLearning.Core
     [Serializable]
     public struct NVector : IMLInOutData, ICloneable
     {
-        [ShowInInspector, ReadOnly] public double[] Data { get; set; }
+        [ShowInInspector] public double[] Data { get; set; }
 
         public int length => Data.Length;
 

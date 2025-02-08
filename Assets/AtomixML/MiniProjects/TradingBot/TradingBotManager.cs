@@ -67,7 +67,6 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
 
         [SerializeField] private TradingBotsOptimizer _optimizer;
 
-
         private List<MarketData> _market_samples = new List<MarketData>();
 
         /// <summary>
@@ -79,11 +78,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         /// all avalaible samples
         /// </summary>
         public List<MarketData> marketSamples => _market_samples;
-
-        /// <summary>
-        /// Samples up to the current sample of the simulation
-        /// </summary>
-        public List<MarketData> currentMarketSamples { get; private set; }
+        public List<MarketData> currentMarketSamples { get; set; } = new List<MarketData>();
 
         public double learningRate => _optimizer.learningRate;
         public double thresholdRate => _optimizer.thresholdRate;
@@ -104,16 +99,25 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         private MomentumIndicator _momentumIndicator = new MomentumIndicator(12);
         private MACDIndicator _macdIndicator = new MACDIndicator(12, 26, 9);
         private RSIIndicator _rsiIndicator = new RSIIndicator(12);
+        private ChaikinMoneyFlowIndicator _chaikingMoneyFlow = new ChaikinMoneyFlowIndicator(5);
+        private MoneyFlowIndexIndicator _moneyFlowIndex = new MoneyFlowIndexIndicator(5);
+        private OnBalanceVolumeIndicator _onBalanceVolumeIndicator = new OnBalanceVolumeIndicator();
 
         public MomentumIndicator momentum => _momentumIndicator;
         public MACDIndicator macd => _macdIndicator;
         public RSIIndicator rsi => _rsiIndicator;
+        public OnBalanceVolumeIndicator obv => _onBalanceVolumeIndicator;
+        public ChaikinMoneyFlowIndicator cmf => _chaikingMoneyFlow;
+        public MoneyFlowIndexIndicator mfi => _moneyFlowIndex;
 
         private void InitializeIndicators()
         {
             _momentumIndicator = new MomentumIndicator(12);
             _macdIndicator = new MACDIndicator(12, 26, 9);
             _rsiIndicator = new RSIIndicator(12);
+            _chaikingMoneyFlow = new ChaikinMoneyFlowIndicator(5);
+            _moneyFlowIndex = new MoneyFlowIndexIndicator(5);
+            _onBalanceVolumeIndicator = new OnBalanceVolumeIndicator();
         }
 
         #endregion
@@ -131,8 +135,10 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
 
             // registering functions that will be optimized
             // each indicator score is ultimately summed and the sum is compared to a threshold/bias to make a decision
-            entity.RegisterTradingIndicatorScoringFunction((ITradingIndicatorScoringFunction<TradingBotEntity, double>)new MomentumScoringFunction());
-            entity.RegisterTradingIndicatorScoringFunction((ITradingIndicatorScoringFunction<TradingBotEntity, double>)new MACDScoringFunction());
+            entity.RegisterTradingIndicatorScoringFunction((ITradingBotScoringFunction<TradingBotEntity, double>)new MomentumScoringFunction());
+            entity.RegisterTradingIndicatorScoringFunction((ITradingBotScoringFunction<TradingBotEntity, double>)new MACDScoringFunction());
+            entity.RegisterTradingIndicatorScoringFunction((ITradingBotScoringFunction<TradingBotEntity, double>)new ProfitLossScoringFunction());
+            entity.RegisterTradingIndicatorScoringFunction((ITradingBotScoringFunction<TradingBotEntity, double>)new RSIScoringFunction());
             entity.EndPrepare();
 
             return entity;
@@ -169,6 +175,27 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             await RunEpoch(new List<TradingBotEntity> { _tradingBotEntity });
         }
 
+        /// <summary>
+        /// Run the current agent selected after training for one epoch
+        /// </summary>
+        [Button]
+        private async void ExecuteTestingMultipass()
+        {
+            _market_samples = GetMarketDatas();
+            InitializeIndicators();
+
+            _tradingBotEntity.Initialize(this, Convert.ToDecimal(_startWallet), Convert.ToDecimal(_maxTransactionAmount), Convert.ToDecimal(_takeProfit), Convert.ToDecimal(_stopLoss));
+
+            decimal total_profit = 0;
+            for (int i = 0; i < _optimizer.MaxIterations; ++i)
+            {
+                await RunEpoch(new List<TradingBotEntity> { _tradingBotEntity });
+                total_profit += Convert.ToDecimal(_startWallet) - _tradingBotEntity.walletAmount;
+            }
+
+            Debug.Log($"Overall profit for testing session is : {total_profit}");
+        }
+
         [Button]
         /// <summary>
         /// Runs a complete pass on a collection of market datas (stamps)
@@ -200,24 +227,35 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
                         }
                     }
 
-                    _prices_historic.AddRange(prices);
+                    //_prices_historic.AddRange(prices);
                 }
-
-                await Task.Delay(1);
 
                 // compute closing values indicators
                 _momentumIndicator.ComputeMomentum(timestampData.Close);
                 _macdIndicator.ComputeMACD(timestampData.Close);
                 _rsiIndicator.ComputeRSI(timestampData.Close);
+                _chaikingMoneyFlow.ComputeCMF(timestampData.Close, timestampData.High, timestampData.Low, timestampData.Volume);
+                _moneyFlowIndex.ComputeMFI(timestampData.Close, timestampData.High, timestampData.Low, timestampData.Volume);
+                _onBalanceVolumeIndicator.ComputeOBV(timestampData.Close, timestampData.Volume);
             }
+
+            // closing trading session, sell at closing price
+            for (int e = 0; e < entities.Count; e++)
+            {
+                if (entities[e].currentOwnedVolume > 0)
+                    entities[e].DoTransaction(0, currentMarketSamples[^1].Close);
+            }
+
+            //_prices_historic.AddRange(prices);
         }
-
-        #endregion
-
-        #region Visualization
-
-
-
-        #endregion
     }
+
+    #endregion
+
+    #region Visualization
+
+
+
+    #endregion
 }
+

@@ -24,8 +24,8 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         public string ModelName { get; set; } = "trading_bot_v1_aplha";
         public string ModelVersion { get; set; } = "0.0.1";
 
-        protected double buyThreshold => Weights[Weights.length - 1];
-        protected double sellThreshold => Weights[Weights.length - 2];
+        protected double buyThreshold => Weights[Weights.length - 1];// Math.Min(Weights[Weights.length - 1], Weights[Weights.length - 2]);
+        protected double sellThreshold => Weights[Weights.length - 2];// Math.Max(Weights[Weights.length - 1], Weights[Weights.length - 2]);
 
 
         [Header("Parameters")]
@@ -46,7 +46,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         [HyperParameter, SerializeField] private decimal _stopLoss = 0;
 
         [Header("Runtime variables")]
-        [LearnedParameter, SerializeField, ReadOnly] private NVector _weights;
+        [LearnedParameter, SerializeField] private NVector _weights;
 
         /// <summary>
         /// The wallet amount
@@ -59,9 +59,14 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         [ShowInInspector, ReadOnly] private decimal _currentTransactionAmount = 0;
 
         /// <summary>
+        /// Entered price of the current transaction if applicable
+        /// </summary>
+        [ShowInInspector, ReadOnly] private decimal _currentTransactionEnteredPrice = 0;
+
+        /// <summary>
         /// The amount of options holded by the agent
         /// </summary>
-        [ShowInInspector, ReadOnly] private decimal _currentOwnerVolume = 0;
+        [ShowInInspector, ReadOnly] private decimal _currentOwnedVolume = 0;
 
         /// <summary>
         /// Total number of selling transactions done
@@ -77,14 +82,15 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         private List<TransactionData> _transactionsHistory = new List<TransactionData>();
 
         private int _parametersCount = 2;
-        private List<ITradingIndicatorScoringFunction<TradingBotEntity, double>> _scoringFunctions = new List<ITradingIndicatorScoringFunction<TradingBotEntity, double>>();
+        private List<ITradingBotScoringFunction<TradingBotEntity, double>> _scoringFunctions = new List<ITradingBotScoringFunction<TradingBotEntity, double>>();
 
         private TradingBotManager _manager;
         public TradingBotManager manager => _manager;
 
-        public int transactionsCount => _sellTransactionsDoneCount;
         public decimal walletAmount => _walletAmount;
-
+        public decimal currentTransactionEnteredPrice => _currentTransactionEnteredPrice;
+        public decimal currentOwnedVolume => _currentOwnedVolume;
+        public int sellTransactionsCount => _sellTransactionsDoneCount;
 
         public void Initialize(TradingBotManager tradingBotManager, decimal startMoney = 10, decimal maxTransactionsAmount = 50, decimal takeProfit = 0, decimal stopLoss = 0)
         {
@@ -94,7 +100,8 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             _sellTransactionsDoneCount = 0;
             _buyTransactionsDoneCount = 0;
             _currentTransactionAmount = 0;
-            _currentOwnerVolume = 0;
+            _currentOwnedVolume = 0;
+            _currentTransactionEnteredPrice = 0;
             _walletAmount = startMoney;
             _maxTransactionAmount = maxTransactionsAmount;
             _takeProfit = takeProfit;
@@ -102,7 +109,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             _parametersCount = 2; // sell + buy threshold for n -1 and n-2 
         }
 
-        public TradingBotEntity RegisterTradingIndicatorScoringFunction(ITradingIndicatorScoringFunction<TradingBotEntity, double> tradingIndicatorScoringFunction)
+        public TradingBotEntity RegisterTradingIndicatorScoringFunction(ITradingBotScoringFunction<TradingBotEntity, double> tradingIndicatorScoringFunction)
         {
             _scoringFunctions.Add(tradingIndicatorScoringFunction);
             _parametersCount += tradingIndicatorScoringFunction.ParametersCount;
@@ -139,12 +146,12 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
                 score += _scoringFunctions[i].ComputeScore(this, currentPrice, ref weightIndex);
             }
 
-            if(score > buyThreshold && _walletAmount > 0)
+            if(_currentOwnedVolume <= 0 && score > buyThreshold && _walletAmount > 0)
             {
                 // buy
                 return 1;
             }
-            else if(score < sellThreshold && _currentOwnerVolume > 0)
+            else if(score < sellThreshold && _currentOwnedVolume > 0)
             {
                 // sell
                 return 0;
@@ -194,8 +201,8 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         }
 
         /// <summary>
-        /// 1 sell
-        /// 0 buy
+        /// 0 sell
+        /// 1 buy
         /// </summary>
         /// <param name="mode"></param>
         /// <param name="amount"></param>
@@ -205,10 +212,11 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             // sell
             if (mode == 0)
             {
-                var avalaible_volume = _currentOwnerVolume;
+                var avalaible_volume = _currentOwnedVolume;
                 var sell_total_price = avalaible_volume * price;
 
-                _currentOwnerVolume -= avalaible_volume;
+                _currentTransactionEnteredPrice = 0;
+                _currentOwnedVolume -= avalaible_volume;
                 _currentTransactionAmount -= sell_total_price;
                 _walletAmount += sell_total_price;
 
@@ -223,7 +231,8 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
                 var avalaible_money_amount = Math.Min(_walletAmount, _maxTransactionAmount - _currentTransactionAmount);
                 var buy_volume = avalaible_money_amount / price;
 
-                _currentOwnerVolume += buy_volume;
+                _currentTransactionEnteredPrice = price;
+                _currentOwnedVolume += buy_volume;
                 _currentTransactionAmount += avalaible_money_amount;
                 _walletAmount -= avalaible_money_amount;
                 _buyTransactionsDoneCount++;

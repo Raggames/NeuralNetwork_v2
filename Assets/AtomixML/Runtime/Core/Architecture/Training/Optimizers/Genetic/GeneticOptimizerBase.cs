@@ -38,6 +38,7 @@ namespace Atom.MachineLearning.Core.Optimization
         [ShowInInspector, ReadOnly] private int _currentIteration;
         [ShowInInspector, ReadOnly] private List<T> _currentGenerationEntities;
         [ShowInInspector, ReadOnly] private List<T> _generationBestEntityHistory = new List<T>();
+        private List<double> _generationBestEntityScoreHistory = new List<double>();
 
         public int PopulationCount { get => _populationCount; set => _populationCount = value; }
         public int MaxIterations { get => _maxIterations; set => _maxIterations = value; }
@@ -54,6 +55,8 @@ namespace Atom.MachineLearning.Core.Optimization
 
             _currentIteration = 0;
             _generationBestEntityHistory.Clear();
+            _generationBestEntityScoreHistory.Clear();
+
             _currentGenerationEntities = new List<T>();
             for (int i = 0; i < _populationCount; ++i)
             {
@@ -75,6 +78,7 @@ namespace Atom.MachineLearning.Core.Optimization
 
                 var bestScore = GetEntityScore(_currentGenerationEntities[0]);
                 _generationBestEntityHistory.Add(_currentGenerationEntities[0]);
+                _generationBestEntityScoreHistory.Add(bestScore);
 
                 if (bestScore >= _fitnessObjective)
                 {
@@ -119,6 +123,7 @@ namespace Atom.MachineLearning.Core.Optimization
             for (int i = 0; i < elit_count; ++i)
             {
                 T entity = CreateEntity();
+
                 for (int g = 0; g < _currentGenerationEntities[i].Weights.length; ++g)
                 {
                     if (MLRandom.Shared.Chances(_elitMutationChances, 100))

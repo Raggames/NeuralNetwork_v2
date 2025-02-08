@@ -236,4 +236,126 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             return current;
         }
     }
+
+    public class OnBalanceVolumeIndicator
+    {
+        private decimal _lastOBV = 0;
+        private decimal _lastClosingPrice = 0;
+        private bool _isFirstEntry = true;
+        public decimal current { get; private set; }
+
+        public decimal ComputeOBV(decimal closingPrice, decimal volume)
+        {
+            if (_isFirstEntry)
+            {
+                _lastClosingPrice = closingPrice;
+                _isFirstEntry = false;
+                return _lastOBV;
+            }
+
+            if (closingPrice > _lastClosingPrice)
+                _lastOBV += volume;
+            else if (closingPrice < _lastClosingPrice)
+                _lastOBV -= volume;
+
+            _lastClosingPrice = closingPrice;
+            current = _lastOBV;
+
+            return current;
+        }
+
+    }
+
+    public class ChaikinMoneyFlowIndicator
+    {
+        private int _period;
+        private List<decimal> _closingPrices = new List<decimal>();
+        private List<decimal> _highs = new List<decimal>();
+        private List<decimal> _lows = new List<decimal>();
+        private List<decimal>  _volumes = new List<decimal>();
+        public decimal current { get; private set; }    
+
+        public ChaikinMoneyFlowIndicator(int period)
+        {
+            _period = period;
+        }
+
+        public decimal ComputeCMF(decimal closingPrice, decimal high, decimal low, decimal volume)
+        {
+            _closingPrices.Add(closingPrice);
+            _highs.Add(high);
+            _lows.Add(low);
+            _volumes.Add(volume);
+
+            if (_closingPrices.Count < _period)
+                return 0;
+
+            decimal moneyFlowVolumeSum = 0;
+            decimal volumeSum = 0;
+
+            for (int i = _closingPrices.Count - _period; i < _closingPrices.Count; i++)
+            {
+                decimal moneyFlowMultiplier = ((_closingPrices[i] - _lows[i]) - (_highs[i] - _closingPrices[i])) / (_highs[i] - _lows[i]);
+                moneyFlowVolumeSum += moneyFlowMultiplier * _volumes[i];
+                volumeSum += _volumes[i];
+            }
+
+            current = moneyFlowVolumeSum / volumeSum;
+
+            return current;
+        }
+
+    }
+
+
+    public class MoneyFlowIndexIndicator
+    {
+        private int _period;
+
+        private List<decimal> _closingPrices = new List<decimal>();
+        private List<decimal> _highs = new List<decimal>();
+        private List<decimal> _lows = new List<decimal>();
+        private List<decimal> _volumes = new List<decimal>();
+
+        public MoneyFlowIndexIndicator(int period)
+        {
+            _period = period;
+        }
+
+        public decimal current { get; private set; }
+
+        public decimal ComputeMFI(decimal closingPrice, decimal high, decimal low, decimal volume)
+        {
+            _closingPrices.Add(closingPrice);
+            _highs.Add(high);
+            _lows.Add(low);
+            _volumes.Add(volume);
+
+            if (_closingPrices.Count < _period)
+                return 0;
+
+            decimal positiveFlow = 0;
+            decimal negativeFlow = 0;
+
+            for (int i = 1; i < _period; i++)
+            {
+                decimal typicalPricePrev = (_highs[i - 1] + _lows[i - 1] + _closingPrices[i - 1]) / 3;
+                decimal typicalPriceCurrent = (_highs[i] + _lows[i] + _closingPrices[i]) / 3;
+                decimal moneyFlow = typicalPriceCurrent * _volumes[i];
+
+                if (typicalPriceCurrent > typicalPricePrev)
+                    positiveFlow += moneyFlow;
+                else if (typicalPriceCurrent < typicalPricePrev)
+                    negativeFlow += moneyFlow;
+            }
+
+            if (negativeFlow == 0)
+                return 50;
+
+            decimal moneyFlowRatio = positiveFlow / negativeFlow;
+            current = 100 - (100 / (1 + moneyFlowRatio));
+            return current;
+        }
+    }
+
 }

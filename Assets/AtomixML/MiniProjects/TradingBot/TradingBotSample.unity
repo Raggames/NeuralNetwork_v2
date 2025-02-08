@@ -338,7 +338,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _tradingBotEntity: {}
-  _datasetPath: C:\Users\Rag\wkspaces\NeuralNetwork_v2\Assets\AtomixML\MiniProjects\TradingBot\Resources\stable_uptrend_data.csv
+  _datasetPath: C:\Users\Rag\wkspaces\NeuralNetwork_v2\Assets\AtomixML\MiniProjects\TradingBot\Resources\crypto_low_volatility_day.csv
   _transactionsPerTimeStampMin: 3
   _transactionsPerTimeStampMax: 7
   _startWallet: 50
@@ -351,13 +351,13 @@ MonoBehaviour:
     _crossoverSelectionLimitPurcentage: 50
     _crossoverMutationChances: 30
     _randomSelectionPurcentage: 5
-    _populationCount: 25
-    _maxIterations: 10
+    _populationCount: 15
+    _maxIterations: 5
     _fitnessObjective: 20000
     _walletScoreBonusMultiplier: 10
     _transactionsScoreMalusMultiplier: 0
-    _learningRate: 0.01
-    _thresholdRate: 0.02
+    _learningRate: 0.1
+    _thresholdRate: 0.2
 --- !u!4 &1809157371
 Transform:
   m_ObjectHideFlags: 0

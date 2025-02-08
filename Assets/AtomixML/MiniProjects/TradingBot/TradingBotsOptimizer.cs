@@ -43,13 +43,16 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
 
         public override double GetEntityScore(TradingBotEntity entity)
         {
+            if (entity.sellTransactionsCount == 0)
+                return 0;
+
             // to do prise en compte des stocks sur la valeur à la fin ? 
-            return decimal.ToDouble(entity.walletAmount * Convert.ToDecimal(_walletScoreBonusMultiplier) + entity.transactionsCount * Convert.ToDecimal(_transactionsScoreMalusMultiplier));
+            return decimal.ToDouble(entity.walletAmount * Convert.ToDecimal(_walletScoreBonusMultiplier) + entity.sellTransactionsCount * Convert.ToDecimal(_transactionsScoreMalusMultiplier));
         }
 
         public override void OnObjectiveReached(TradingBotEntity bestEntity)
         {
-            Debug.Log($"Best entity on training. Amout {bestEntity.walletAmount} $, Transactions Done : {bestEntity.transactionsCount}");
+            Debug.Log($"Best entity on training. Amout {bestEntity.walletAmount} $, Transactions Done : {bestEntity.sellTransactionsCount}");
         }
 
         protected override void ClearPreviousGeneration(List<TradingBotEntity> previousGenerationEntities)
