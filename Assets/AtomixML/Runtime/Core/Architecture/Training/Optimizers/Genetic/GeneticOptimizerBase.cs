@@ -50,6 +50,8 @@ namespace Atom.MachineLearning.Core.Optimization
         // model not needed here, the optimizer creates it
         public async Task<T> OptimizeAsync()
         {
+            Debug.Log($"Start optimization : {_maxIterations} iterations, {_populationCount} entities");
+
             _currentIteration = 0;
             _generationBestEntityHistory.Clear();
             _currentGenerationEntities = new List<T>();
@@ -65,6 +67,8 @@ namespace Atom.MachineLearning.Core.Optimization
 
             while (_currentIteration < _maxIterations)
             {
+                Debug.Log($"Compute iteration {_currentIteration}");
+
                 await ComputeGeneration();
 
                 _currentGenerationEntities = _currentGenerationEntities.OrderByDescending(t => GetEntityScore(t)).ToList();
@@ -90,7 +94,7 @@ namespace Atom.MachineLearning.Core.Optimization
 
             // always return the first entity (highest score)
             var ordered_history = _generationBestEntityHistory.OrderByDescending(t => GetEntityScore(t)).ToArray();
-            Debug.Log("Best overall score : " + GetEntityScore(ordered_history[0]));
+            Debug.Log("End fit : best overall score : " + GetEntityScore(ordered_history[0]));
 
 
             return ordered_history[0];

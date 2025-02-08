@@ -3,7 +3,11 @@ using Atom.MachineLearning.Core.Maths;
 using Atom.MachineLearning.Core.Optimization;
 using Atom.MachineLearning.IO;
 using Sirenix.OdinInspector;
+using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -41,7 +45,13 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
     public class TradingBotManager : MonoBehaviour
     {
         [SerializeField] private TradingBotEntity _tradingBotEntity;
-        [SerializeField] private string _datasetPath = "Assets/AtomixML/MiniProjects/TradingBot/Resources/sample_intraday_data.csv";
+        [SerializeField, ValueDropdown("loadDatasets")] private string _datasetPath = "Assets/AtomixML/MiniProjects/TradingBot/Resources/sample_intraday_data.csv";
+
+        private IEnumerable loadDatasets()
+        {
+            var dir = new DirectoryInfo(Application.dataPath + "/AtomixML/MiniProjects/TradingBot/Resources/");
+            return dir.GetFiles().Where(t => !t.FullName.Contains(".meta")).Select(t => new ValueDropdownItem(t.Name, t.FullName));
+        }
 
         /// <summary>
         /// Range from low to medium-high frequency
@@ -49,6 +59,11 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         /// </summary>
         [SerializeField, Range(1, 100)] private int _transactionsPerTimeStampMin = 3;
         [SerializeField, Range(1, 100)] private int _transactionsPerTimeStampMax = 7;
+
+        [SerializeField] private float _startWallet = 0;
+        [SerializeField] private float _maxTransactionAmount = 0;
+        [SerializeField] private float _takeProfit = 0;
+        [SerializeField] private float _stopLoss = 0;
 
         [SerializeField] private TradingBotsOptimizer _optimizer;
 
@@ -70,12 +85,14 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         /// </summary>
         public List<MarketData> currentMarketSamples { get; private set; }
 
+        public double learningRate => _optimizer.learningRate;
+        public double thresholdRate => _optimizer.thresholdRate;
 
         #region Market Data
         [Button]
         public List<MarketData> GetMarketDatas()
         {
-            var data = new CSVReaderService().GetData<MarketDatas>(Application.dataPath + "/" + _datasetPath);
+            var data = new CSVReaderService().GetData<MarketDatas>(_datasetPath);
 
             return data.Datas;
         }
@@ -92,29 +109,51 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
 
         #endregion
 
+        /// <summary>
+        /// Contains generation function to get a trading bot with specific scoring functions
+        /// </summary>
+        /// <returns></returns>
+        #region Trading Bots
+
+        private TradingBotEntity GenerateTradingBot_Momentum_MACD()
+        {
+            var entity = new TradingBotEntity();
+            entity.Initialize(this, Convert.ToDecimal(_startWallet), Convert.ToDecimal(_maxTransactionAmount), Convert.ToDecimal( _takeProfit), Convert.ToDecimal(_stopLoss));
+
+            // registering functions that will be optimized
+            // each indicator score is ultimately summed and the sum is compared to a threshold/bias to make a decision
+            entity.RegisterTradingIndicatorScoringFunction((ITradingIndicatorScoringFunction<TradingBotEntity, double>)new MomentumScoringFunction());
+            entity.RegisterTradingIndicatorScoringFunction((ITradingIndicatorScoringFunction<TradingBotEntity, double>)new MACDScoringFunction());
+            entity.EndPrepare();
+
+            return entity;
+        }
+
+        #endregion
+
         [Button]
         private async void ExecuteTraining()
         {
             _market_samples = GetMarketDatas();
 
-
-
-            _optimizer.Initialize(this, 
+            _optimizer.Initialize(this,
                 // entity generation
-                () =>            
-                {
-                    var entity = new TradingBotEntity();
-                    entity.Initialize(this, 10, 50);
-                    // registering functions that will be optimized
-                    // each indicator score is ultimately summed and the sum is compared to a threshold/bias to make a decision
-                    entity.RegisterTradingIndicatorScoringFunction((ITradingIndicatorScoringFunction<TradingBotEntity, double>)new MomentumScoringFunction());
-                    entity.RegisterTradingIndicatorScoringFunction((ITradingIndicatorScoringFunction<TradingBotEntity, double>)new MACDScoringFunction());
-                    entity.EndPrepare();
-
-                return entity;
-            });
+                GenerateTradingBot_Momentum_MACD);
 
             _tradingBotEntity = await _optimizer.OptimizeAsync();
+        }
+
+        /// <summary>
+        /// Run the current agent selected after training for one epoch
+        /// </summary>
+        [Button]
+        private async void ExecuteTesting()
+        {
+            _market_samples = GetMarketDatas();
+
+            _tradingBotEntity.Initialize(this, Convert.ToDecimal(_startWallet), Convert.ToDecimal(_maxTransactionAmount), Convert.ToDecimal(_takeProfit), Convert.ToDecimal(_stopLoss));
+
+            await RunEpoch(new List<TradingBotEntity> { _tradingBotEntity });
         }
 
         [Button]
@@ -159,5 +198,4 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             }
         }
     }
-
 }

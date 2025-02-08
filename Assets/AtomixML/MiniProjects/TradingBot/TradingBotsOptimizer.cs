@@ -12,12 +12,17 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
     public class TradingBotsOptimizer : GeneticOptimizerBase<TradingBotEntity, decimal, int>
     {
         [Header("Training Bot Optimizer Parameters")]
-        [SerializeField] private float _walletScoreBonusMultiplier = 1;
-        [SerializeField] private float _transactionsScoreMalusMultiplier = 10;
+        [SerializeField] private float _walletScoreBonusMultiplier = 10;
+        [SerializeField] private float _transactionsScoreMalusMultiplier = 0;
+        [SerializeField] private float _learningRate = .01f;
+        [SerializeField] private float _thresholdRate = .02f;
 
 
         private TradingBotManager _manager;
         private Func<TradingBotEntity> _tradingBotCreateDelegate;
+
+        public double learningRate => _learningRate;
+        public double thresholdRate => _thresholdRate;
 
         public void Initialize(TradingBotManager manager, Func<TradingBotEntity> tradingBotCreateDelegate)
         {
@@ -39,7 +44,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         public override double GetEntityScore(TradingBotEntity entity)
         {
             // to do prise en compte des stocks sur la valeur à la fin ? 
-            return decimal.ToDouble(entity.walletAmount * Convert.ToDecimal(_walletScoreBonusMultiplier) - entity.transactionsCount * Convert.ToDecimal(_transactionsScoreMalusMultiplier));
+            return decimal.ToDouble(entity.walletAmount * Convert.ToDecimal(_walletScoreBonusMultiplier) + entity.transactionsCount * Convert.ToDecimal(_transactionsScoreMalusMultiplier));
         }
 
         public override void OnObjectiveReached(TradingBotEntity bestEntity)

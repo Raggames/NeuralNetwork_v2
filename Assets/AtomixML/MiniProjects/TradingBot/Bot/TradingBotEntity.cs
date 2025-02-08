@@ -24,26 +24,30 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         public string ModelName { get; set; } = "trading_bot_v1_aplha";
         public string ModelVersion { get; set; } = "0.0.1";
 
-        [SerializeField] private NVector _weights;
+        protected double buyThreshold => Weights[Weights.length - 1];
+        protected double sellThreshold => Weights[Weights.length - 2];
+
 
         [Header("Parameters")]
 
         /// <summary>
         /// Maximum transaction money amount authorized (reduce risk for each agent 
         /// </summary>
-        [SerializeField] private decimal _maxTransactionAmount = 0;
+        [HyperParameter, SerializeField] private decimal _maxTransactionAmount = 0;
 
         /// <summary>
         /// Take profit threshold
         /// </summary>
-        [SerializeField] private decimal _takeProfit = 0;
+        [HyperParameter, SerializeField] private decimal _takeProfit = 0;
 
         /// <summary>
         /// Stop loss threshold 
         /// </summary>
-        [SerializeField] private decimal _stopLoss = 0;
+        [HyperParameter, SerializeField] private decimal _stopLoss = 0;
 
         [Header("Runtime variables")]
+        [LearnedParameter, SerializeField, ReadOnly] private NVector _weights;
+
         /// <summary>
         /// The wallet amount
         /// </summary>
@@ -62,7 +66,13 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         /// <summary>
         /// Total number of selling transactions done
         /// </summary>
-        [ShowInInspector, ReadOnly] private int _transactionsDoneCount = 0;
+        [ShowInInspector, ReadOnly] private int _sellTransactionsDoneCount = 0;
+
+        /// <summary>
+        /// Total number of buying transactions done
+        /// </summary>
+        [ShowInInspector, ReadOnly] private int _buyTransactionsDoneCount = 0;
+
 
         private List<TransactionData> _transactionsHistory = new List<TransactionData>();
 
@@ -72,24 +82,23 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         private TradingBotManager _manager;
         public TradingBotManager manager => _manager;
 
-        public int transactionsCount => _transactionsDoneCount;
+        public int transactionsCount => _sellTransactionsDoneCount;
         public decimal walletAmount => _walletAmount;
 
 
-        protected double buyThreshold => Weights[Weights.length - 1];
-        protected double sellThreshold => Weights[Weights.length - 2];
-
-
-        public void Initialize(TradingBotManager tradingBotManager, decimal startMoney = 10, decimal maxTotalOngoingTransactionAmount = 50)
+        public void Initialize(TradingBotManager tradingBotManager, decimal startMoney = 10, decimal maxTransactionsAmount = 50, decimal takeProfit = 0, decimal stopLoss = 0)
         {
             _manager = tradingBotManager;
 
             _transactionsHistory.Clear();
-            _transactionsDoneCount = 0;
+            _sellTransactionsDoneCount = 0;
+            _buyTransactionsDoneCount = 0;
             _currentTransactionAmount = 0;
             _currentOwnerVolume = 0;
             _walletAmount = startMoney;
-            _maxTransactionAmount = maxTotalOngoingTransactionAmount;
+            _maxTransactionAmount = maxTransactionsAmount;
+            _takeProfit = takeProfit;
+            _stopLoss = stopLoss;
             _parametersCount = 2; // sell + buy threshold for n -1 and n-2 
         }
 
@@ -130,7 +139,25 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
                 score += _scoringFunctions[i].ComputeScore(this, currentPrice, ref weightIndex);
             }
 
-            // ongoing transaction
+            if(score > buyThreshold && _walletAmount > 0)
+            {
+                // buy
+                return 1;
+            }
+            else if(score < sellThreshold && _currentOwnerVolume > 0)
+            {
+                // sell
+                return 0;
+
+            }
+            else
+            {
+                // wait, not moment to sell or buy, or no money or no volume
+                return 2;
+            }
+
+            // v1
+            /*// ongoing transaction
             if (_currentOwnerVolume > 0)
             {
                 // if result under threshold, the agent will wait or sell as it indicates that the opportunity is going down
@@ -163,7 +190,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
                     // wait, not moment to buy
                     return 2;
                 }
-            }
+            }*/
         }
 
         /// <summary>
@@ -186,7 +213,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
                 _walletAmount += sell_total_price;
 
                 // for now we only track sold transaction because the agent can only done one at a time for the sake of simplicity
-                _transactionsDoneCount++;
+                _sellTransactionsDoneCount++;
 
                 _transactionsHistory.Add(new TransactionData("none", sell_total_price, avalaible_volume, DateTime.UtcNow, 0));
             }
@@ -199,7 +226,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
                 _currentOwnerVolume += buy_volume;
                 _currentTransactionAmount += avalaible_money_amount;
                 _walletAmount -= avalaible_money_amount;
-
+                _buyTransactionsDoneCount++;
                 _transactionsHistory.Add(new TransactionData("none", avalaible_money_amount, buy_volume, DateTime.UtcNow, 1));
 
             }
@@ -208,10 +235,16 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
 
         public double MutateGene(int geneIndex)
         {
-            return Weights[geneIndex] + MLRandom.Shared.Range(-.01, .01);
+            if(geneIndex < Weights.length - 2)
+            {
+                return Weights[geneIndex] + MLRandom.Shared.Range(-1, 1) * manager.learningRate;
 
+            }
+            else
+            {
+                return Weights[geneIndex] + MLRandom.Shared.Range(-1, 1) * manager.thresholdRate;
+            }
         }
-
     }
 }
 
