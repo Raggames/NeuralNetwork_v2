@@ -45,6 +45,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
 
         /// <summary>
         /// Range from low to medium-high frequency
+        /// The simulation will generate from min to max prices for each agent at each period) 
         /// </summary>
         [SerializeField, Range(1, 100)] private int _transactionsPerTimeStampMin = 3;
         [SerializeField, Range(1, 100)] private int _transactionsPerTimeStampMax = 7;
@@ -53,7 +54,21 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
 
 
         private List<MarketData> _market_samples = new List<MarketData>();
+
+        /// <summary>
+        /// total price history brings all the generated prices for each step of the simulation (so its number of prices generated * number of agents * marketSamplesCount)
+        /// </summary>
         private List<decimal> _prices_historic = new List<decimal>();
+
+        /// <summary>
+        /// all avalaible samples
+        /// </summary>
+        public List<MarketData> marketSamples => _market_samples;
+
+        /// <summary>
+        /// Samples up to the current sample of the simulation
+        /// </summary>
+        public List<MarketData> currentMarketSamples { get; private set; }
 
 
         #region Market Data
@@ -108,12 +123,15 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         /// </summary>
         public async Task RunEpoch(List<TradingBotEntity> entities)
         {
+            currentMarketSamples.Clear();
+
             // for each timestamp in the trading datas we got
             for (int i = 1; i < _market_samples.Count; i++)
             {
                 var timestampData = _market_samples[i];
+                currentMarketSamples.Add(timestampData);
 
-                for(int e = 0; e < entities.Count; e++)
+                for (int e = 0; e < entities.Count; e++)
                 {
                     // generate a price batch 
                     // it is a random set of potential prices that could appear in that timestamp
@@ -128,8 +146,6 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
                         {
                             entities[e].DoTransaction(result, price);
                         }
-
-                        Debug.Log(result);
                     }
 
                     _prices_historic.AddRange(prices);

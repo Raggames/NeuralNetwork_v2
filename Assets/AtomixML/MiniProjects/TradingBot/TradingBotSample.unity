@@ -337,13 +337,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 170b76b05d4f5d14fb3d75c4aa35a56e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _tradingBotEntity:
-    _currentTransactionMoneyAmount: -84.74899393106898
-    _currentMoney: 94.74899393106898
-    _currentStockAmount: 0
-    _maxTotalOngoingTransactionAmount: 50
+  _tradingBotEntity: {}
   _datasetPath: AtomixML/MiniProjects/TradingBot/Resources/sample_intraday_data.csv
-  _transactionsPerTimeStamp: 5
+  _transactionsPerTimeStampMin: 3
+  _transactionsPerTimeStampMax: 7
+  _optimizer:
+    _elitPurcentage: 10
+    _elitMutationChances: 10
+    _crossoverSelectionLimitPurcentage: 50
+    _crossoverMutationChances: 30
+    _randomSelectionPurcentage: 5
+    _populationCount: 10
+    _maxIterations: 10
+    _fitnessObjective: 120
+    _walletScoreBonusMultiplier: 10
+    _transactionsScoreMalusMultiplier: 1
 --- !u!4 &1809157371
 Transform:
   m_ObjectHideFlags: 0

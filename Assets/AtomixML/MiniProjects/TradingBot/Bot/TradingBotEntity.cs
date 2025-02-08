@@ -66,7 +66,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
 
         private List<TransactionData> _transactionsHistory = new List<TransactionData>();
 
-        private int _parametersCount = 1;
+        private int _parametersCount = 2;
         private List<ITradingIndicatorScoringFunction<TradingBotEntity, double>> _scoringFunctions = new List<ITradingIndicatorScoringFunction<TradingBotEntity, double>>();
 
         private TradingBotManager _manager;
@@ -74,6 +74,11 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
 
         public int transactionsCount => _transactionsDoneCount;
         public decimal walletAmount => _walletAmount;
+
+
+        protected double buyThreshold => Weights[Weights.length - 1];
+        protected double sellThreshold => Weights[Weights.length - 2];
+
 
         public void Initialize(TradingBotManager tradingBotManager, decimal startMoney = 10, decimal maxTotalOngoingTransactionAmount = 50)
         {
@@ -85,7 +90,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             _currentOwnerVolume = 0;
             _walletAmount = startMoney;
             _maxTransactionAmount = maxTotalOngoingTransactionAmount;
-            _parametersCount = 1;
+            _parametersCount = 2; // sell + buy threshold for n -1 and n-2 
         }
 
         public TradingBotEntity RegisterTradingIndicatorScoringFunction(ITradingIndicatorScoringFunction<TradingBotEntity, double> tradingIndicatorScoringFunction)
@@ -98,12 +103,11 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
 
         public TradingBotEntity EndPrepare()
         {
-
             Weights = new NVector(_parametersCount);
 
             for (int i = 0; i < Weights.length; i++)
             {
-                Weights.Data[i] = MLRandom.Shared.Range(-.3, .3);
+                Weights.Data[i] = MLRandom.Shared.Range(-.01, .01);
             }
 
             return this;
@@ -123,18 +127,15 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
 
             for(int i = 0; i < _scoringFunctions.Count; ++i)
             {
-                score += _scoringFunctions[i].ComputeScore(this,  ref weightIndex);
+                score += _scoringFunctions[i].ComputeScore(this, currentPrice, ref weightIndex);
             }
 
-            Debug.Log(score + "  " + Weights[Weights.length - 1]);
-
-            // if result above threshold, the agent will buy or keep 
-            // if result under threshold, the agent will wait or sell
-            var result = score > Weights[Weights.length - 1];
-
             // ongoing transaction
-            if (_currentTransactionAmount > 0)
+            if (_currentOwnerVolume > 0)
             {
+                // if result under threshold, the agent will wait or sell as it indicates that the opportunity is going down
+                var result = score < sellThreshold;
+
                 if (!result)
                 {
                     // sell
@@ -148,6 +149,9 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             }
             else
             {
+                // if result above buy threshold, the agent will buy or keep as it indicates a good opportunity
+                var result = score > buyThreshold;
+
                 // should buy, has money, has not too much outgoing money
                 if (result && _walletAmount > 0 && _currentTransactionAmount < _maxTransactionAmount)
                 {
@@ -204,14 +208,8 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
 
         public double MutateGene(int geneIndex)
         {
-            if (geneIndex == 1 || geneIndex == 3 || geneIndex == 5)
-            {
-                return Weights[geneIndex] + MLRandom.Shared.Range(-.1, .1);
-            }
-            else
-            {
-                return Weights[geneIndex] + MLRandom.Shared.Range(-1, 1);
-            }
+            return Weights[geneIndex] + MLRandom.Shared.Range(-.01, .01);
+
         }
 
     }

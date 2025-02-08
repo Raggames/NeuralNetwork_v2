@@ -9,7 +9,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
     public interface ITradingIndicatorScoringFunction<TInput, KOutput>
     {
         public int ParametersCount { get; }
-        public KOutput ComputeScore(TInput input, ref int weightIndex);
+        public KOutput ComputeScore(TInput input, decimal currentPrice, ref int weightIndex);
     }
 
     public interface IMomentumIndicator<TInput, KOutput> : ITradingIndicatorScoringFunction<TInput, KOutput>

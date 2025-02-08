@@ -51,7 +51,7 @@ namespace Atom.MachineLearning.Core.Optimization
         public async Task<T> OptimizeAsync()
         {
             _currentIteration = 0;
-
+            _generationBestEntityHistory.Clear();
             _currentGenerationEntities = new List<T>();
             for (int i = 0; i < _populationCount; ++i)
             {
