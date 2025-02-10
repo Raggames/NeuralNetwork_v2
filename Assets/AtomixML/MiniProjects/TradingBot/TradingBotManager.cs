@@ -36,6 +36,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             Example: 100-1000 price points per timestamp.
          */
 
+    [ExecuteInEditMode]
     /// <summary>
     /// The trading bot manager is a meta-entity that is binded to a title.
     /// It is responsible of the training of tradingBot entities on historical datas by genetic optimization.
@@ -53,13 +54,16 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             return dir.GetFiles().Where(t => !t.FullName.Contains(".meta")).Select(t => new ValueDropdownItem(t.Name, t.FullName));
         }
 
+        [Header("Market parameters")]
         /// <summary>
         /// Range from low to medium-high frequency
         /// The simulation will generate from min to max prices for each agent at each period) 
         /// </summary>
         [SerializeField, Range(1, 100)] private int _transactionsPerTimeStampMin = 3;
         [SerializeField, Range(1, 100)] private int _transactionsPerTimeStampMax = 7;
+        [SerializeField, Range(1, 100)] private int _slippageChances = 10;
 
+        [Header("Entity parameters")]
         [SerializeField] private float _startWallet = 0;
         [SerializeField] private float _maxTransactionAmount = 0;
         [SerializeField] private float _takeProfit = 0;
@@ -159,6 +163,8 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
                 GenerateTradingBot_Momentum_MACD);
 
             _tradingBotEntity = await _optimizer.OptimizeAsync();
+
+            //ModelSerializer.SaveModel(_tradingBotEntity, Guid.NewGuid().ToString());
         }
 
         /// <summary>
@@ -184,16 +190,26 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             _market_samples = GetMarketDatas();
             InitializeIndicators();
 
-            _tradingBotEntity.Initialize(this, Convert.ToDecimal(_startWallet), Convert.ToDecimal(_maxTransactionAmount), Convert.ToDecimal(_takeProfit), Convert.ToDecimal(_stopLoss));
+            var bots = new List<TradingBotEntity>();    
 
             decimal total_profit = 0;
-            for (int i = 0; i < _optimizer.MaxIterations; ++i)
+            for (int i = 0; i < _optimizer.PopulationCount; ++i)
             {
-                await RunEpoch(new List<TradingBotEntity> { _tradingBotEntity });
-                total_profit += Convert.ToDecimal(_startWallet) - _tradingBotEntity.walletAmount;
+                var bot = new TradingBotEntity(_tradingBotEntity);
+                bot.Initialize(this, Convert.ToDecimal(_startWallet), Convert.ToDecimal(_maxTransactionAmount), Convert.ToDecimal(_takeProfit), Convert.ToDecimal(_stopLoss));
+                bots.Add(bot);
+
             }
 
-            Debug.Log($"Overall profit for testing session is : {total_profit}");
+            await RunEpochParallel(bots);
+
+            foreach(var bot in bots)
+            {
+                total_profit += bot.walletAmount - Convert.ToDecimal(_startWallet);
+            }
+            var profit_purcent = decimal.ToDouble(total_profit) / (_startWallet * bots.Count) * 100;
+
+            Debug.Log($"Overall profit for testing session is : {total_profit}$ / {profit_purcent} % profit ");
         }
 
         [Button]
@@ -217,13 +233,14 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
                     // we ignore complicated stuff (volume , etc..) for the moment and focus on the core of the problem (OHLC)
                     var prices = PriceGenerator.GenerateGaussianPriceBatch(timestampData.Open, timestampData.Low, timestampData.High, MLRandom.Shared.Range(_transactionsPerTimeStampMin, _transactionsPerTimeStampMax));
 
-                    foreach (var price in prices)
+                    foreach (var current_price in prices)
                     {
-                        var result = entities[e].Predict(price);
+                        var result = entities[e].Predict(current_price);
 
                         if (result != 2)
                         {
-                            entities[e].DoTransaction(result, price);
+                            // entities[e].DoTransaction(result, price);
+                            DoTransaction(timestampData, entities[e], result, current_price);
                         }
                     }
 
@@ -237,16 +254,107 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
                 _chaikingMoneyFlow.ComputeCMF(timestampData.Close, timestampData.High, timestampData.Low, timestampData.Volume);
                 _moneyFlowIndex.ComputeMFI(timestampData.Close, timestampData.High, timestampData.Low, timestampData.Volume);
                 _onBalanceVolumeIndicator.ComputeOBV(timestampData.Close, timestampData.Volume);
+
+                await Task.Delay(1);
             }
+
+            decimal total_epoch_profit = 0;
 
             // closing trading session, sell at closing price
             for (int e = 0; e < entities.Count; e++)
             {
                 if (entities[e].currentOwnedVolume > 0)
                     entities[e].DoTransaction(0, currentMarketSamples[^1].Close);
+
+                total_epoch_profit +=  entities[e].walletAmount - Convert.ToDecimal(_startWallet);
             }
 
+            var profit_purcent = decimal.ToDouble(total_epoch_profit) / (_startWallet * entities.Count) * 100;
+
+            Debug.Log($"Epoch ended. Total profit: {total_epoch_profit}. Investment : {_startWallet * entities.Count }. Profit % {profit_purcent}");
             //_prices_historic.AddRange(prices);
+        }
+
+        [Button]
+        /// <summary>
+        /// Runs a complete pass on a collection of market datas (stamps)
+        /// </summary>
+        public async Task RunEpochParallel(List<TradingBotEntity> entities)
+        {
+            currentMarketSamples.Clear();
+
+            var tasks = new Task[entities.Count];
+
+            // for each timestamp in the trading datas we got
+            for (int i = 1; i < _market_samples.Count; i++)
+            {
+                var timestampData = _market_samples[i];
+                currentMarketSamples.Add(timestampData);
+
+                for (int e = 0; e < entities.Count; e++)
+                {
+                    tasks[e] = RunEntity(entities[e], timestampData);
+                }
+
+                await Task.WhenAll(tasks);
+
+                //_prices_historic.AddRange(prices);
+
+                // compute closing values indicators
+                _momentumIndicator.ComputeMomentum(timestampData.Close);
+                _macdIndicator.ComputeMACD(timestampData.Close);
+                _rsiIndicator.ComputeRSI(timestampData.Close);
+                _chaikingMoneyFlow.ComputeCMF(timestampData.Close, timestampData.High, timestampData.Low, timestampData.Volume);
+                _moneyFlowIndex.ComputeMFI(timestampData.Close, timestampData.High, timestampData.Low, timestampData.Volume);
+                _onBalanceVolumeIndicator.ComputeOBV(timestampData.Close, timestampData.Volume);
+            }
+
+            decimal total_epoch_profit = 0;
+
+            // closing trading session, sell at closing price
+            for (int e = 0; e < entities.Count; e++)
+            {
+                if (entities[e].currentOwnedVolume > 0)
+                    entities[e].DoTransaction(0, currentMarketSamples[^1].Close);
+
+                total_epoch_profit += entities[e].walletAmount - Convert.ToDecimal(_startWallet);
+            }
+
+            var profit_purcent = decimal.ToDouble(total_epoch_profit) / (_startWallet * entities.Count) * 100;
+
+            Debug.Log($"Epoch ended. Total profit: {total_epoch_profit}. Investment : {_startWallet * entities.Count}. Profit % {profit_purcent}");
+        }
+
+        private async Task RunEntity(TradingBotEntity entity, MarketData timestampData)
+        {
+            // generate a price batch 
+            // it is a random set of potential prices that could appear in that timestamp
+            // we ignore complicated stuff (volume , etc..) for the moment and focus on the core of the problem (OHLC)
+            var prices = PriceGenerator.GenerateGaussianPriceBatch(timestampData.Open, timestampData.Low, timestampData.High, MLRandom.Shared.Range(_transactionsPerTimeStampMin, _transactionsPerTimeStampMax));
+
+            foreach (var current_price in prices)
+            {
+                var result = entity.Predict(current_price);
+
+                if (result != 2)
+                {
+                    DoTransaction(timestampData, entity, result, current_price);
+                }
+            }
+
+            await Task.Delay(1);
+        }
+
+        private void DoTransaction(MarketData stamp, TradingBotEntity entity, int transactionType, decimal ask_price)
+        {
+            if(MLRandom.Shared.Chances(_slippageChances, 100))
+            {
+                entity.DoTransaction(transactionType, PriceGenerator.GenerateGaussianPrice(stamp.Open, stamp.Low, stamp.High));
+            }
+            else
+            {
+                entity.DoTransaction(transactionType, ask_price);
+            }
         }
     }
 

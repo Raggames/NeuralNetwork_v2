@@ -119,6 +119,72 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &338641945
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 338641947}
+  - component: {fileID: 338641946}
+  m_Layer: 0
+  m_Name: TradingBotManager (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &338641946
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 338641945}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 170b76b05d4f5d14fb3d75c4aa35a56e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _tradingBotEntity: {}
+  _datasetPath: C:\Users\enboud\Documents\UNITY\AtomixML\Assets\AtomixML\MiniProjects\TradingBot\Resources\crypto_low_volatility_day.csv
+  _transactionsPerTimeStampMin: 3
+  _transactionsPerTimeStampMax: 7
+  _slippageChances: 10
+  _startWallet: 50
+  _maxTransactionAmount: 200
+  _takeProfit: 0
+  _stopLoss: 0
+  _optimizer:
+    _elitPurcentage: 6.29
+    _elitMutationChances: 7.82
+    _crossoverSelectionLimitPurcentage: 42.29
+    _crossoverMutationChances: 43.9
+    _randomSelectionPurcentage: 3.4
+    _populationCount: 50
+    _maxIterations: 5
+    _fitnessObjective: 20000
+    _walletScoreBonusMultiplier: 10
+    _transactionsScoreMalusMultiplier: 0
+    _learningRate: 0.3
+    _thresholdRate: 0.53
+--- !u!4 &338641947
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 338641945}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.063879, y: 2.0078514, z: 0.5959201}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &506331739
 GameObject:
   m_ObjectHideFlags: 0
@@ -338,9 +404,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _tradingBotEntity: {}
-  _datasetPath: C:\Users\Rag\wkspaces\NeuralNetwork_v2\Assets\AtomixML\MiniProjects\TradingBot\Resources\crypto_low_volatility_day.csv
+  _datasetPath: C:\Users\enboud\Documents\UNITY\AtomixML\Assets\AtomixML\MiniProjects\TradingBot\Resources\crypto_low_volatility_day.csv
   _transactionsPerTimeStampMin: 3
   _transactionsPerTimeStampMax: 7
+  _slippageChances: 10
   _startWallet: 50
   _maxTransactionAmount: 200
   _takeProfit: 0
@@ -351,7 +418,7 @@ MonoBehaviour:
     _crossoverSelectionLimitPurcentage: 50
     _crossoverMutationChances: 30
     _randomSelectionPurcentage: 5
-    _populationCount: 15
+    _populationCount: 50
     _maxIterations: 5
     _fitnessObjective: 20000
     _walletScoreBonusMultiplier: 10
@@ -380,3 +447,4 @@ SceneRoots:
   - {fileID: 506331742}
   - {fileID: 1220108068}
   - {fileID: 1809157371}
+  - {fileID: 338641947}

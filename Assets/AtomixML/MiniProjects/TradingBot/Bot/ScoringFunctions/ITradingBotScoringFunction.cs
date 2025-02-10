@@ -13,6 +13,10 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
     /// <typeparam name="KOutput"></typeparam>
     public interface ITradingBotScoringFunction<TInput, KOutput>
     {
+        /// <summary>
+        /// TODO IMPLEMENT BASE PARAMETERS THAT INITIALISES ON AGENT CREATES
+        /// TAKE THIS INITIAL PARAM AS PARAMETER COUNT INSTEAD OF THIS PROPERTY
+        /// </summary>
         public int ParametersCount { get; }
         public KOutput ComputeScore(TInput input, decimal currentPrice, ref int weightIndex);
     }

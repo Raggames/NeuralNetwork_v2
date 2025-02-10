@@ -68,7 +68,8 @@ namespace Atom.MachineLearning.Supervised.Regressor.Linear
 
             var optimisationInfo = _model.optimizer.optimizationInfo;
 
-            var line = _visualizationSheet.Add_SimpleLine(optimisationInfo.modelLossHistory.ToArray().Sample(.1), 2, new Vector2Int(100, 100), container2);
+            Debug.LogError("fix missing function ? Samples ?");
+            /*var line = _visualizationSheet.Add_SimpleLine(optimisationInfo.modelLossHistory.ToArray().Sample(.1), 2, new Vector2Int(100, 100), container2);
             line.SetPadding(50, 50, 50, 50);
             line.SetTitle("Loss over epochs");
             line.DrawAutomaticGrid();
@@ -76,7 +77,7 @@ namespace Atom.MachineLearning.Supervised.Regressor.Linear
             var line2 = _visualizationSheet.Add_SimpleLine(optimisationInfo.modelParametersHistory.ToArray().Sample(.1).ColumnToVector(0).Data, 2, new Vector2Int(100, 100), container2);
             line2.SetPadding(50, 50, 50, 50);
             line2.SetTitle("X over epochs");
-            line2.DrawAutomaticGrid();
+            line2.DrawAutomaticGrid();*/
 
             root.Refresh();
         }

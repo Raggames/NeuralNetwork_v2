@@ -300,6 +300,9 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
                 volumeSum += _volumes[i];
             }
 
+            if (volumeSum == 0)
+                return 0;
+
             current = moneyFlowVolumeSum / volumeSum;
 
             return current;

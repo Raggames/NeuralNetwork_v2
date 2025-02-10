@@ -38,7 +38,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         public override async Task ComputeGeneration()
         {
             // run a complete epoch on market datas with all entities
-            await _manager.RunEpoch(CurrentGenerationEntities);
+            await _manager.RunEpochParallel(CurrentGenerationEntities);
         }
 
         public override double GetEntityScore(TradingBotEntity entity)
