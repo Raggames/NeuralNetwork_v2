@@ -9,7 +9,7 @@ namespace Atom.MachineLearning.Core
     [Serializable]
     public struct NVector : IMLInOutData, ICloneable
     {
-        [ShowInInspector] public double[] Data { get; set; }
+        [ShowInInspector, ReadOnly] public double[] Data { get; set; }
 
         public int length => Data.Length;
 
@@ -546,6 +546,13 @@ namespace Atom.MachineLearning.Core
         /// <returns></returns>
         public static double[,] CovarianceMatrix(NVector[] datas)
         {
+            // TODO
+            // utiliser NMatrix
+            // créer une fonction Slice de NMatrix qui permet de créer une liste de row et une liste de column pour accélérer les calculs
+            // précalculer un vecteur d_mean qui sera la moyenne de chaque row 
+
+            // utiliser (x - dmean[i]) * (y - dmeans[j]) / n 
+
             int dimensions = datas[0].length;
             var matrix = new double[datas[0].length, datas[0].length];
 
@@ -561,8 +568,8 @@ namespace Atom.MachineLearning.Core
                     // summing each column into two arrays
                     for (int k = 0; k < datas.Length; k++)
                     {
-                        featureIValues[k] = datas[k][i];
-                        featureJValues[k] = datas[k][j];
+                        featureIValues[k] = datas[k][i]; // colonne i
+                        featureJValues[k] = datas[k][j]; // colonne j
                     }
 
                     // Compute covariance matrix between features i and j
@@ -846,51 +853,6 @@ namespace Atom.MachineLearning.Core
             for (int i = 0; i < column.Length; ++i)
             {
                 column[i] = new NVector(data[i]);
-            }
-
-            return column;
-        }
-
-        /// <summary>
-        /// Takes a sample of the input data array with a resolution of ratio
-        /// For 1000 points and ratio 0.1, you will get an array of 100 points that are taken at an interval of 10
-        /// </summary>
-        /// <param name="data"></param>
-        /// <param name="ratio"></param>
-        /// <returns></returns>
-        public static NVector[] Sample(this NVector[] data, double ratio = .1)
-        {
-            int points = (int)System.Math.Floor(data.Length * ratio);
-            int interval = data.Length / points;
-
-            var column = new NVector[points];
-
-            for (int i = 0; i < column.Length; ++i)
-            {
-                int index = i * interval;
-                if (index > data.Length)
-                    break;
-
-                column[i] = (NVector)data[index].Clone();
-            }
-
-            return column;
-        }
-
-        public static double[] Sample(this double[] data, double ratio = .1)
-        {
-            int points = (int)System.Math.Floor(data.Length * ratio);
-            int interval = data.Length / points;
-
-            var column = new double[points];
-
-            for (int i = 0; i < column.Length; ++i)
-            {
-                int index = i * interval;
-                if (index > data.Length)
-                    break;
-
-                column[i] = data[index];
             }
 
             return column;
