@@ -6,13 +6,15 @@ using System.Threading.Tasks;
 
 namespace Atom.MachineLearning.MiniProjects.TradingBot
 {
-    public class OnBalanceVolumeScoringFunction : IVolumeIndicator<TradingBotEntity, double>
+    public class ADXScoringFunction : ITendancyIndicator<TradingBotEntity, double>
     {
         public int ParametersCount => 2;
 
         public double ComputeScore(TradingBotEntity input, decimal currentPrice, ref int weightIndex)
         {
-            throw new NotImplementedException();
+            var score = input.Weights[weightIndex] * Math.Exp(decimal.ToDouble(input.manager.adx.current) * input.Weights[weightIndex + 1]);
+            weightIndex += 2;
+            return score;
         }
     }
 }

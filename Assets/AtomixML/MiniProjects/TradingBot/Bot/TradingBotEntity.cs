@@ -84,12 +84,14 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
 
         [ShowInInspector, ReadOnly] private decimal _total_buy_orders_amount = 0;
         [ShowInInspector, ReadOnly] private decimal _total_sell_orders_amount = 0;
+        [ShowInInspector, ReadOnly] private int _totalHoldingTime;
 
 
         [JsonIgnore] private List<TransactionData> _transactionsHistory = new List<TransactionData>();
 
         [JsonIgnore] private int _parametersCount = 2;
 
+        [JsonIgnore] private int _startHold;
         [JsonIgnore] private List<ITradingBotScoringFunction<TradingBotEntity, double>> _scoringFunctions = new List<ITradingBotScoringFunction<TradingBotEntity, double>>();
 
         [JsonIgnore] private TradingBotManager _manager;
@@ -99,6 +101,8 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         [JsonIgnore] public decimal currentTransactionEnteredPrice => _currentTransactionEnteredPrice;
         [JsonIgnore] public decimal currentOwnedVolume => _currentOwnedVolume;
         [JsonIgnore] public int sellTransactionsCount => _sellTransactionsDoneCount;
+        [JsonIgnore] public int totalHoldingTime => _totalHoldingTime;
+        [JsonIgnore] public decimal currentTransactionAmount => _currentTransactionAmount;
 
         public TradingBotEntity()
         {
@@ -123,6 +127,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             _total_profit = 0;
             _total_buy_orders_amount = 0;
             _total_sell_orders_amount = 0;
+            _totalHoldingTime = 0;
 
             _walletAmount = startMoney;
             _maxTransactionAmount = maxTransactionsAmount;
@@ -228,7 +233,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         /// </summary>
         /// <param name="mode"></param>
         /// <param name="amount"></param>
-        public void DoTransaction(int mode, decimal price)
+        public void DoTransaction(int mode, decimal price, decimal fee, int stampIndex)
         {
             // how to compute amount ?
             // sell
@@ -237,6 +242,8 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
                 var avalaible_volume = _currentOwnedVolume;
                 var sell_total_price = avalaible_volume * price;
 
+                var holded_time = stampIndex - _startHold;
+                _totalHoldingTime += holded_time;
 
                 if (sell_total_price < _currentTransactionAmount)
                     _total_loss += sell_total_price - _currentTransactionAmount;
@@ -249,7 +256,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
                 _currentOwnedVolume -= avalaible_volume;
                 _currentTransactionAmount -= sell_total_price;
                 _walletAmount += sell_total_price;
-
+                _walletAmount -= fee;
                 // for now we only track sold transaction because the agent can only done one at a time for the sake of simplicity
                 _sellTransactionsDoneCount++;
 
@@ -262,11 +269,13 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
                 var buy_volume = invested_money_amount / price;
 
                 _total_buy_orders_amount += invested_money_amount;
-
+                _startHold = stampIndex;
                 _currentTransactionEnteredPrice = price;
                 _currentOwnedVolume += buy_volume;
                 _currentTransactionAmount += invested_money_amount;
                 _walletAmount -= invested_money_amount;
+                _walletAmount -= fee;
+
                 _buyTransactionsDoneCount++;
                 _transactionsHistory.Add(new TransactionData("none", invested_money_amount, buy_volume, DateTime.UtcNow, 1));
 
@@ -276,14 +285,24 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
 
         public double MutateGene(int geneIndex)
         {
-            if (geneIndex < Weights.length - 2)
+            /*if (geneIndex < Weights.length - 2)
             {
-                return Weights[geneIndex] + MLRandom.Shared.Range(-1, 1) * manager.learningRate;
+                return Weights[geneIndex] +  MLRandom.Shared.Range(-1, 1) * manager.learningRate;
 
             }
             else
             {
                 return Weights[geneIndex] + MLRandom.Shared.Range(-1, 1) * manager.thresholdRate;
+            }*/
+
+            if (geneIndex < Weights.length - 2)
+            {
+                return Weights[geneIndex] + MLRandom.Shared.GaussianNoise(0) * manager.learningRate;
+
+            }
+            else
+            {
+                return Weights[geneIndex] + MLRandom.Shared.GaussianNoise(0) * manager.thresholdRate;
             }
         }
     }

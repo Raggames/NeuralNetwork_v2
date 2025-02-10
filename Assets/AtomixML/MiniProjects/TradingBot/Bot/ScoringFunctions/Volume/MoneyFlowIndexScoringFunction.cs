@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Atom.MachineLearning.MiniProjects.TradingBot
 {
-    public class OnBalanceVolumeScoringFunction : IVolumeIndicator<TradingBotEntity, double>
+    public class MoneyFlowIndexScoringFunction : IVolumeIndicator<TradingBotEntity, double>
     {
         public int ParametersCount => 2;
 

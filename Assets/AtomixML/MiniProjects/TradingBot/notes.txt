@@ -1,0 +1,7 @@
+﻿************** OPTIMIZATION *******************
+- Tester une fonction de fit qui pousse à tenir les positions plus longtemps
+- Pénaliser le nombre de transactions ? voir utiliser gains/transaction pour le fit
+
+
+************** MARKET SIMULATION **************
+- Faire des recherches plus poussées sur le fonctionnement pour mieux simuler

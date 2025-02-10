@@ -15,6 +15,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         {
             var crt_macd = input.manager.macd.current;
             int crt_period_index = input.manager.currentMarketSamples.Count;
+
             var p_previous = input.manager.currentMarketSamples[Math.Max(crt_period_index - 6, 0)].Close;
 
             // normalizing price with a previous period

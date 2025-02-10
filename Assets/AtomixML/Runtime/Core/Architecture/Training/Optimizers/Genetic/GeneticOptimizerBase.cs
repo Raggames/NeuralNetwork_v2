@@ -47,6 +47,8 @@ namespace Atom.MachineLearning.Core.Optimization
 
         private List<T> _selectionBuffer = new List<T>();
 
+        public Action<T> epochBestFitCallback { get; set; }
+
 
         // model not needed here, the optimizer creates it
         public async Task<T> OptimizeAsync()
@@ -80,6 +82,8 @@ namespace Atom.MachineLearning.Core.Optimization
                 _generationBestEntityHistory.Add(_currentGenerationEntities[0]);
                 _generationBestEntityScoreHistory.Add(bestScore);
 
+                epochBestFitCallback?.Invoke(_currentGenerationEntities[0]);
+
                 if (bestScore >= _fitnessObjective)
                 {
                     Debug.Log("Achived objective : " + bestScore);
@@ -97,11 +101,11 @@ namespace Atom.MachineLearning.Core.Optimization
             }
 
             // always return the first entity (highest score)
-            var ordered_history = _generationBestEntityHistory.OrderByDescending(t => GetEntityScore(t)).ToArray();
-            Debug.Log("End fit : best overall score : " + GetEntityScore(ordered_history[0]));
+            
+            Debug.Log("End fit : last generation score : " + GetEntityScore(_currentGenerationEntities[0]));
 
 
-            return ordered_history[0];
+            return _currentGenerationEntities[0];
         }
 
         public abstract T CreateEntity();

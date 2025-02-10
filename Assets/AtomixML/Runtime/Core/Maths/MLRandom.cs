@@ -28,6 +28,16 @@ namespace Atom.MachineLearning.Core.Maths
             _shared = new System.Random(seed);
         }
 
+        public static double GaussianNoise(this Random random, double mean = 0, double stdDev = 1.0)
+        {
+            double u1 = 1.0 - random.NextDouble();
+            double u2 = 1.0 - random.NextDouble();
+
+            double randStdNormal = Math.Sqrt(-2.0 * Math.Log(u1)) * Math.Sin(2.0 * Math.PI * u2);
+
+            return mean + stdDev * randStdNormal;
+        }
+
         public static double Range(this Random random, double minValue, double maxValue)
         {
             return random.NextDouble() * (maxValue - minValue) + minValue;
@@ -80,5 +90,6 @@ namespace Atom.MachineLearning.Core.Maths
             // Fallback (should not reach here if weights are correct)
             return -1;
         }
+
     }
 }

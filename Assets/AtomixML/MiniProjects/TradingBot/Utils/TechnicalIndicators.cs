@@ -9,6 +9,64 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
     using System.Collections.Generic;
     using System.Linq;
 
+    public class SimpleMovingAverage
+    {
+        private readonly Queue<decimal> _values = new Queue<decimal>();
+        private readonly int _period;
+        private decimal _sum = 0;
+
+        public decimal Current { get; private set; }
+
+        public SimpleMovingAverage(int period)
+        {
+            _period = period;
+        }
+
+        public decimal ComputeSMA(decimal newValue)
+        {
+            _values.Enqueue(newValue);
+            _sum += newValue;
+
+            if (_values.Count > _period)
+            {
+                _sum -= _values.Dequeue();
+            }
+
+            Current = _values.Count == _period ? _sum / _period : 0;
+            return Current;
+        }
+    }
+
+    public class ExponentialMovingAverage
+    {
+        private readonly int _period;
+        private readonly decimal _multiplier;
+        private bool _isFirstEntry = true;
+
+        public decimal current { get; private set; }
+
+        public ExponentialMovingAverage(int period)
+        {
+            _period = period;
+            _multiplier = 2m / (_period + 1);
+        }
+
+        public decimal ComputeEMA(decimal newValue)
+        {
+            if (_isFirstEntry)
+            {
+                current = newValue;
+                _isFirstEntry = false;
+            }
+            else
+            {
+                current = (newValue - current) * _multiplier + current;
+            }
+
+            return current;
+        }
+    }
+
     // MOMENTUM INDICATOR
     public class MomentumIndicator
     {
@@ -137,13 +195,13 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
     }
 
     // VOLUME INDICATOR (Simple Moving Average on Volume)
-    public class VolumeIndicator
+    public class MAVolumeIndicator
     {
         private Queue<decimal> _volumeBuffer = new Queue<decimal>();
         private int _period;
         public decimal current { get; private set; }
 
-        public VolumeIndicator(int period)
+        public MAVolumeIndicator(int period)
         {
             _period = period;
         }
@@ -295,7 +353,11 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
 
             for (int i = _closingPrices.Count - _period; i < _closingPrices.Count; i++)
             {
-                decimal moneyFlowMultiplier = ((_closingPrices[i] - _lows[i]) - (_highs[i] - _closingPrices[i])) / (_highs[i] - _lows[i]);
+                var delta = _highs[i] - _lows[i];
+                if (delta == 0)
+                    continue;
+
+                decimal moneyFlowMultiplier = ((_closingPrices[i] - _lows[i]) - (_highs[i] - _closingPrices[i])) / delta;
                 moneyFlowVolumeSum += moneyFlowMultiplier * _volumes[i];
                 volumeSum += _volumes[i];
             }

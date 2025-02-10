@@ -15,7 +15,17 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             // compare somehow the price relative to bollinger bands AND also the bollinger max-min amplitude
             // OR JUSTE THE WIDTH ?
 
-            return 0;
+            decimal width = 0;
+            if (input.manager.bollinger.current.UpperBand == 0 || input.manager.bollinger.current.MiddleBand == 0 || input.manager.bollinger.current.LowerBand == 0)
+                return 0;
+
+            width = (input.manager.bollinger.current.UpperBand - input.manager.bollinger.current.LowerBand) / input.manager.bollinger.current.MiddleBand;
+            /*            else
+                            width = (input.manager.bollinger.current.UpperBand - input.manager.bollinger.current.LowerBand) / input.manager.ema.current;
+            */
+            var score = input.Weights[weightIndex] * Math.Exp(decimal.ToDouble(width) * input.Weights[weightIndex + 1]);
+            weightIndex += 2;
+            return score;
         }
     }
 }

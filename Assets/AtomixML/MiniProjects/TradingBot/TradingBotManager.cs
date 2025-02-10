@@ -2,14 +2,19 @@ using Atom.MachineLearning.Core;
 using Atom.MachineLearning.Core.Maths;
 using Atom.MachineLearning.Core.Optimization;
 using Atom.MachineLearning.IO;
+using Atom.MachineLearning.MiniProjects.TradingBot.Data.TwelveDataAPI;
+using Atomix.ChartBuilder;
+using Newtonsoft.Json;
 using Sirenix.OdinInspector;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 
 namespace Atom.MachineLearning.MiniProjects.TradingBot
@@ -62,6 +67,8 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         [SerializeField, Range(1, 100)] private int _transactionsPerTimeStampMin = 3;
         [SerializeField, Range(1, 100)] private int _transactionsPerTimeStampMax = 7;
         [SerializeField, Range(1, 100)] private int _slippageChances = 10;
+        [SerializeField, Range(0f, 1f)] private float _trainTestSplit = .5f;
+        [SerializeField, Range(0f, .2f)] private float _transactionFee = .05f;
 
         [Header("Entity parameters")]
         [SerializeField] private float _startWallet = 0;
@@ -91,37 +98,51 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         [Button]
         public List<MarketData> GetMarketDatas()
         {
-            var data = new CSVReaderService().GetData<MarketDatas>(_datasetPath);
+            if (_datasetPath.Contains("csv"))
+                return new CSVReaderService().GetData<MarketDatas>(_datasetPath).Datas;
+            else if (_datasetPath.Contains("td"))
+            {
+                var data = new CSVReaderService().GetData<MarketDatas>(_datasetPath);
+                string fileData = System.IO.File.ReadAllText(_datasetPath, Encoding.UTF8);
+                return JsonConvert.DeserializeObject<StockDataResponse>(fileData).Values.Select(t => new MarketData()
+                {
+                    Close = t.Close,
+                    High = t.High,
+                    Low = t.Low,
+                    Open = t.Open,
+                    Timestamp = t.DateTime,
+                    Volume = t.Volume,
+                }).ToList();
+            }
 
-            return data.Datas;
+            return null;
         }
 
         #endregion
 
         #region Functions
 
-        private MomentumIndicator _momentumIndicator = new MomentumIndicator(12);
-        private MACDIndicator _macdIndicator = new MACDIndicator(12, 26, 9);
-        private RSIIndicator _rsiIndicator = new RSIIndicator(12);
-        private ChaikinMoneyFlowIndicator _chaikingMoneyFlow = new ChaikinMoneyFlowIndicator(5);
-        private MoneyFlowIndexIndicator _moneyFlowIndex = new MoneyFlowIndexIndicator(5);
-        private OnBalanceVolumeIndicator _onBalanceVolumeIndicator = new OnBalanceVolumeIndicator();
+        private TechnicalAnalysis _technicalAnalysis = new TechnicalAnalysis();
 
-        public MomentumIndicator momentum => _momentumIndicator;
-        public MACDIndicator macd => _macdIndicator;
-        public RSIIndicator rsi => _rsiIndicator;
-        public OnBalanceVolumeIndicator obv => _onBalanceVolumeIndicator;
-        public ChaikinMoneyFlowIndicator cmf => _chaikingMoneyFlow;
-        public MoneyFlowIndexIndicator mfi => _moneyFlowIndex;
+        public MomentumIndicator momentum => _technicalAnalysis.momentum;
+        public MACDIndicator macd => _technicalAnalysis.macd;
+        public RSIIndicator rsi => _technicalAnalysis.rsi;
+        public OnBalanceVolumeIndicator obv => _technicalAnalysis.obv;
+        public ChaikinMoneyFlowIndicator cmf => _technicalAnalysis.cmf;
+        public MoneyFlowIndexIndicator mfi => _technicalAnalysis.mfi;
+        public ADXIndicator adx => _technicalAnalysis.adx;
+        public BollingerBandsIndicator bollinger => _technicalAnalysis.bollinger;
+        public ExponentialMovingAverage ema => _technicalAnalysis.ema;
 
         private void InitializeIndicators()
         {
-            _momentumIndicator = new MomentumIndicator(12);
-            _macdIndicator = new MACDIndicator(12, 26, 9);
-            _rsiIndicator = new RSIIndicator(12);
-            _chaikingMoneyFlow = new ChaikinMoneyFlowIndicator(5);
-            _moneyFlowIndex = new MoneyFlowIndexIndicator(5);
-            _onBalanceVolumeIndicator = new OnBalanceVolumeIndicator();
+            _technicalAnalysis = new TechnicalAnalysis();
+            _technicalAnalysis.Initialize();
+        }
+
+        public void UpdateIndicators(MarketData timestampData)
+        {
+            _technicalAnalysis.Update(timestampData);
         }
 
         #endregion
@@ -139,10 +160,13 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
 
             // registering functions that will be optimized
             // each indicator score is ultimately summed and the sum is compared to a threshold/bias to make a decision
-            entity.RegisterTradingIndicatorScoringFunction((ITradingBotScoringFunction<TradingBotEntity, double>)new MomentumScoringFunction());
-            entity.RegisterTradingIndicatorScoringFunction((ITradingBotScoringFunction<TradingBotEntity, double>)new MACDScoringFunction());
-            entity.RegisterTradingIndicatorScoringFunction((ITradingBotScoringFunction<TradingBotEntity, double>)new ProfitLossScoringFunction());
-            entity.RegisterTradingIndicatorScoringFunction((ITradingBotScoringFunction<TradingBotEntity, double>)new RSIScoringFunction());
+            //entity.RegisterTradingIndicatorScoringFunction(new MomentumScoringFunction());
+            entity.RegisterTradingIndicatorScoringFunction(new MACDScoringFunction());
+            entity.RegisterTradingIndicatorScoringFunction(new ProfitLossScoringFunction());
+            entity.RegisterTradingIndicatorScoringFunction(new RSIScoringFunction());
+            //entity.RegisterTradingIndicatorScoringFunction(new BollingerBandsVolatilityScoringFunction());
+            //entity.RegisterTradingIndicatorScoringFunction(new ADXScoringFunction());
+
             entity.EndPrepare();
 
             return entity;
@@ -158,12 +182,16 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             _market_samples = GetMarketDatas();
             InitializeIndicators();
 
+            // register best fit of each generation in local variable
+            _optimizer.epochBestFitCallback += (bestFit) => _tradingBotEntity = new TradingBotEntity(bestFit);
+
             _optimizer.Initialize(this,
                 // entity generation
                 GenerateTradingBot_Momentum_MACD);
 
-            _tradingBotEntity = await _optimizer.OptimizeAsync();
-
+            // register best overall entity/dna
+            var best = await _optimizer.OptimizeAsync();
+            _tradingBotEntity = new TradingBotEntity(best);
             //ModelSerializer.SaveModel(_tradingBotEntity, Guid.NewGuid().ToString());
         }
 
@@ -190,7 +218,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             _market_samples = GetMarketDatas();
             InitializeIndicators();
 
-            var bots = new List<TradingBotEntity>();    
+            var bots = new List<TradingBotEntity>();
 
             decimal total_profit = 0;
             for (int i = 0; i < _optimizer.PopulationCount; ++i)
@@ -201,9 +229,9 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
 
             }
 
-            await RunEpochParallel(bots);
+            await RunEpochParallel(bots, false);
 
-            foreach(var bot in bots)
+            foreach (var bot in bots)
             {
                 total_profit += bot.walletAmount - Convert.ToDecimal(_startWallet);
             }
@@ -240,7 +268,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
                         if (result != 2)
                         {
                             // entities[e].DoTransaction(result, price);
-                            DoTransaction(timestampData, entities[e], result, current_price);
+                            DoTransaction(timestampData, entities[e], result, current_price, i);
                         }
                     }
 
@@ -248,12 +276,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
                 }
 
                 // compute closing values indicators
-                _momentumIndicator.ComputeMomentum(timestampData.Close);
-                _macdIndicator.ComputeMACD(timestampData.Close);
-                _rsiIndicator.ComputeRSI(timestampData.Close);
-                _chaikingMoneyFlow.ComputeCMF(timestampData.Close, timestampData.High, timestampData.Low, timestampData.Volume);
-                _moneyFlowIndex.ComputeMFI(timestampData.Close, timestampData.High, timestampData.Low, timestampData.Volume);
-                _onBalanceVolumeIndicator.ComputeOBV(timestampData.Close, timestampData.Volume);
+                UpdateIndicators(timestampData);
 
                 await Task.Delay(1);
             }
@@ -264,14 +287,14 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             for (int e = 0; e < entities.Count; e++)
             {
                 if (entities[e].currentOwnedVolume > 0)
-                    entities[e].DoTransaction(0, currentMarketSamples[^1].Close);
+                    entities[e].DoTransaction(0, currentMarketSamples[^1].Close, 0, _market_samples.Count);
 
-                total_epoch_profit +=  entities[e].walletAmount - Convert.ToDecimal(_startWallet);
+                total_epoch_profit += entities[e].walletAmount - Convert.ToDecimal(_startWallet);
             }
 
             var profit_purcent = decimal.ToDouble(total_epoch_profit) / (_startWallet * entities.Count) * 100;
 
-            Debug.Log($"Epoch ended. Total profit: {total_epoch_profit}. Investment : {_startWallet * entities.Count }. Profit % {profit_purcent}");
+            Debug.Log($"Epoch ended. Total profit: {total_epoch_profit}. Investment : {_startWallet * entities.Count}. Profit % {profit_purcent}");
             //_prices_historic.AddRange(prices);
         }
 
@@ -279,21 +302,33 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         /// <summary>
         /// Runs a complete pass on a collection of market datas (stamps)
         /// </summary>
-        public async Task RunEpochParallel(List<TradingBotEntity> entities)
+        public async Task RunEpochParallel(List<TradingBotEntity> entities, bool train = true)
         {
             currentMarketSamples.Clear();
 
             var tasks = new Task[entities.Count];
 
+            int start_index = 1;
+            int stop_index = _market_samples.Count;
+
+            if (train)
+            {
+                stop_index = (int)(_market_samples.Count * _trainTestSplit);
+            }
+            else
+            {
+                start_index = (int)(_market_samples.Count * _trainTestSplit) + 1;
+            }
+
             // for each timestamp in the trading datas we got
-            for (int i = 1; i < _market_samples.Count; i++)
+            for (int i = start_index; i < stop_index; i++)
             {
                 var timestampData = _market_samples[i];
                 currentMarketSamples.Add(timestampData);
 
                 for (int e = 0; e < entities.Count; e++)
                 {
-                    tasks[e] = RunEntity(entities[e], timestampData);
+                    tasks[e] = RunEntity(entities[e], timestampData, i);
                 }
 
                 await Task.WhenAll(tasks);
@@ -301,12 +336,8 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
                 //_prices_historic.AddRange(prices);
 
                 // compute closing values indicators
-                _momentumIndicator.ComputeMomentum(timestampData.Close);
-                _macdIndicator.ComputeMACD(timestampData.Close);
-                _rsiIndicator.ComputeRSI(timestampData.Close);
-                _chaikingMoneyFlow.ComputeCMF(timestampData.Close, timestampData.High, timestampData.Low, timestampData.Volume);
-                _moneyFlowIndex.ComputeMFI(timestampData.Close, timestampData.High, timestampData.Low, timestampData.Volume);
-                _onBalanceVolumeIndicator.ComputeOBV(timestampData.Close, timestampData.Volume);
+                UpdateIndicators(timestampData);
+
             }
 
             decimal total_epoch_profit = 0;
@@ -315,7 +346,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             for (int e = 0; e < entities.Count; e++)
             {
                 if (entities[e].currentOwnedVolume > 0)
-                    entities[e].DoTransaction(0, currentMarketSamples[^1].Close);
+                    entities[e].DoTransaction(0, currentMarketSamples[^1].Close, 0, _market_samples.Count);
 
                 total_epoch_profit += entities[e].walletAmount - Convert.ToDecimal(_startWallet);
             }
@@ -325,7 +356,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             Debug.Log($"Epoch ended. Total profit: {total_epoch_profit}. Investment : {_startWallet * entities.Count}. Profit % {profit_purcent}");
         }
 
-        private async Task RunEntity(TradingBotEntity entity, MarketData timestampData)
+        private async Task RunEntity(TradingBotEntity entity, MarketData timestampData, int stampIndex)
         {
             // generate a price batch 
             // it is a random set of potential prices that could appear in that timestamp
@@ -338,32 +369,75 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
 
                 if (result != 2)
                 {
-                    DoTransaction(timestampData, entity, result, current_price);
+                    DoTransaction(timestampData, entity, result, current_price, stampIndex);
                 }
             }
 
             await Task.Delay(1);
         }
 
-        private void DoTransaction(MarketData stamp, TradingBotEntity entity, int transactionType, decimal ask_price)
+        private void DoTransaction(MarketData stamp, TradingBotEntity entity, int transactionType, decimal ask_price, int stampIndex)
         {
-            if(MLRandom.Shared.Chances(_slippageChances, 100))
+            if (MLRandom.Shared.Chances(_slippageChances, 100))
             {
-                entity.DoTransaction(transactionType, PriceGenerator.GenerateGaussianPrice(stamp.Open, stamp.Low, stamp.High));
+                var price = PriceGenerator.GenerateGaussianPrice(stamp.Open, stamp.Low, stamp.High);
+                var fee = price * Convert.ToDecimal(_transactionFee);
+                entity.DoTransaction(transactionType, price, fee, stampIndex);
             }
             else
             {
-                entity.DoTransaction(transactionType, ask_price);
+                var fee = ask_price * Convert.ToDecimal(_transactionFee);
+                entity.DoTransaction(transactionType, ask_price, fee, stampIndex);
             }
         }
+        #endregion
+
+
+        #region Visualization
+        [SerializeField] private VisualizationSheet _visualizationSheet;
+
+
+        [Button]
+        private void VisualizeDataset(float position = 0, int range = 100)
+        {
+            _market_samples = GetMarketDatas();
+
+            _visualizationSheet.Awake();
+
+            var root = _visualizationSheet.AddPixelSizedContainer("c0", new Vector2Int(1000, 1000));
+            root.style.flexDirection = new UnityEngine.UIElements.StyleEnum<UnityEngine.UIElements.FlexDirection>(UnityEngine.UIElements.FlexDirection.Row);
+            root.style.flexWrap = new StyleEnum<Wrap>(StyleKeyword.Auto);
+
+            var container = _visualizationSheet.AddContainer("c0", Color.black, new Vector2Int(100, 100), root);
+            container.SetPadding(10, 10, 10, 10);
+
+            int start = (int)(_market_samples.Count * position);
+            var slice = _market_samples.GetRange(start, range);
+            var slice_close = slice.Select(t => Convert.ToDouble(t.Close)).ToArray();
+            var line = _visualizationSheet.Add_SimpleLine(slice_close, 2, new Vector2Int(100, 100), container);
+
+            var tech = new TechnicalAnalysis();
+            tech.Initialize();
+
+            double[,] rsi = new double[slice.Count, 1];
+            int i = 0;
+            foreach (var sample in slice)
+            {
+                tech.Update(sample);
+                rsi[i, 0] = Convert.ToDouble(tech.rsi.current);
+                i++;
+            }
+
+            line.SetPadding(50, 50, 50, 50);
+            line.SetTitle("Market Prices");
+            line.DrawAutomaticGrid();
+
+            line.AppendLine(rsi, Color.green, 1.75f);
+        }
+
+        #endregion
     }
 
-    #endregion
 
-    #region Visualization
-
-
-
-    #endregion
 }
 
