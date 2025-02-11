@@ -58,10 +58,11 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             // on pousse la marge moyenne (par transaction) et le volume aussi
             var score = Convert.ToDouble(entity.meanMargin * Math.Abs(entity.totalMargin)) * _profitScoreBonusMultiplier;
 
-            if (entity.sellTransactionsCount == 1)
-                score *= .05;
-            else
-                score *= Math.Log(entity.sellTransactionsCount * _transactionsScoreMalusMultiplier, 2);
+            if (_transactionsScoreMalusMultiplier != 0)
+                if (entity.sellTransactionsCount == 1)
+                    score *= .05;
+                else
+                    score *= Math.Log(entity.sellTransactionsCount * _transactionsScoreMalusMultiplier, 2);
 
             score += entity.totalHoldingTime * _transactionHoldingTimeMultiplier;
 

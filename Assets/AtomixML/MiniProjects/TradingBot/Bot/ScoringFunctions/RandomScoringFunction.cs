@@ -11,9 +11,13 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
     {
         public int ParametersCount => 1;
 
+        public double[] InitialParameters { get; set; } = new double[] { 1, 1 };
+
         public double ComputeScore(TradingBotEntity input, decimal currentPrice, ref int weightIndex)
         {
-            return MLRandom.Shared.Range(-1.0, 1.0);
+            var score =  MLRandom.Shared.Range(-1.0 * input.Weights[weightIndex], 1.0 * input.Weights[weightIndex + 1]);
+            weightIndex += 2;
+            return score;
         }
     }
 }

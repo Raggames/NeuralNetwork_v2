@@ -187,7 +187,8 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             //entity.RegisterTradingIndicatorScoringFunction(new BollingerBandsVolatilityScoringFunction());
             //entity.RegisterTradingIndicatorScoringFunction(new ADXScoringFunction());
 
-            entity.RegisterTradingIndicatorScoringFunction(new DefaultStrategyScoringFunction());
+            //entity.RegisterTradingIndicatorScoringFunction(new DefaultStrategyScoringFunction());
+            entity.RegisterTradingIndicatorScoringFunction(new SimpleStrategyScoringFunction());
 
             entity.EndPrepare();
 

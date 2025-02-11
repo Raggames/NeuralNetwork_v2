@@ -8,7 +8,8 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
 {
     public class DefaultStrategyScoringFunction : ITradingBotScoringFunction<TradingBotEntity, double>
     {
-        public int ParametersCount => 10;
+        public double[] InitialParameters { get; set; } = new double[10];
+        
 
         public double ComputeScore(TradingBotEntity input, decimal currentPrice, ref int weightIndex)
         {
@@ -22,10 +23,9 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
                 rsiScore *= momentumScore;
 
                 var profit_delta = decimal.ToDouble(currentPrice - input.currentTransactionEnteredPrice);
+                var profit_score = input.Weights[weightIndex + 3] * Math.Exp((profit_delta) * input.Weights[weightIndex + 4]);
 
-                var score = input.Weights[weightIndex + 3] * Math.Exp((profit_delta) * input.Weights[weightIndex + 4]);
-
-                rsiScore *= score;
+                rsiScore *= profit_score;
 
                 return rsiScore;
             }

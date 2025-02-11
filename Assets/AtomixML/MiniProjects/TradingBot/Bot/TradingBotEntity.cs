@@ -25,8 +25,8 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         public string ModelName { get; set; } = "trading_bot_v1_aplha";
         public string ModelVersion { get; set; } = "0.0.1";
 
-        [JsonIgnore] protected double buyThreshold => .55; // Math.Max(Weights[Weights.length - 1], Weights[Weights.length - 2]);//Weights[Weights.length - 1]; 
-        [JsonIgnore] protected double sellThreshold => .45; // Math.Min(Weights[Weights.length - 1], Weights[Weights.length - 2]); // Weights[Weights.length - 2]; 
+        [JsonIgnore] protected double buyThreshold => .55 + Math.Abs(Weights[0]); // Math.Max(Weights[Weights.length - 1], Weights[Weights.length - 2]);//Weights[Weights.length - 1]; 
+        [JsonIgnore] protected double sellThreshold => .45 - Math.Abs(Weights[0]); // Math.Min(Weights[Weights.length - 1], Weights[Weights.length - 2]); // Weights[Weights.length - 2]; 
 
 
         [Header("Parameters")]
@@ -143,13 +143,13 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             _maxTransactionAmount = maxTransactionsAmount;
             _takeProfit = takeProfit;
             _stopLoss = stopLoss;
-            _parametersCount = 2; // sell + buy threshold for n -1 and n-2 
+            _parametersCount = 1;
         }
 
         public TradingBotEntity RegisterTradingIndicatorScoringFunction(ITradingBotScoringFunction<TradingBotEntity, double> tradingIndicatorScoringFunction)
         {
             _scoringFunctions.Add(tradingIndicatorScoringFunction);
-            _parametersCount += tradingIndicatorScoringFunction.ParametersCount;
+            _parametersCount += tradingIndicatorScoringFunction.InitialParameters.Length;
 
             return this;
         }
@@ -159,9 +159,15 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             Weights = new NVector(_parametersCount);
             _gradient = new NVector(_parametersCount);
 
-            for (int i = 0; i < Weights.length; i++)
+            // weight 1 is the threshold param
+            int k = 1;
+            for (int i = 0; i < _scoringFunctions.Count; ++i)
             {
-                Weights.Data[i] = MLRandom.Shared.Range(-1, 1);
+                for (int j = 0; j < _scoringFunctions[i].InitialParameters.Length; ++j)
+                {
+                    Weights.Data[k] = _scoringFunctions[i].InitialParameters[j] + MLRandom.Shared.Range(-.05, .05);
+                    k++;
+                }
             }
 
             return this;
@@ -182,9 +188,11 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             for (int i = 0; i < _scoringFunctions.Count; ++i)
             {
                 score += _scoringFunctions[i].ComputeScore(this, currentPrice, ref weightIndex);
+
+                // to do weight index increment here
             }
 
-            score = MLActivationFunctions.Sigmoid(score);   
+            score = MLActivationFunctions.Sigmoid(score);
 
             if (!isHoldingPosition && score > buyThreshold && _walletAmount > 0)
             {
@@ -259,7 +267,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
                 _totalHoldingTime += holded_time;
 
                 var margin = (price - _currentTransactionEnteredPrice) * _currentOwnedVolume - fee;
-                _total_marging += margin;    
+                _total_marging += margin;
 
                 _total_sell_orders_amount += sell_total_price;
 
@@ -306,7 +314,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
                 return Weights[geneIndex] + MLRandom.Shared.Range(-1, 1) * manager.thresholdRate;
             }*/
 
-            if (geneIndex < Weights.length - 2)
+            if (geneIndex > 0)
             {
                 var current_grad = MLRandom.Shared.GaussianNoise(0) * manager.learningRate;// * Weights[geneIndex];
                 var old_grad = _gradient[geneIndex];

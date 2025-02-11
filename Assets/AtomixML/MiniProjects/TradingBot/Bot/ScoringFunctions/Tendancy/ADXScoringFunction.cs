@@ -8,7 +8,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
 {
     public class ADXScoringFunction : ITendancyIndicator<TradingBotEntity, double>
     {
-        public int ParametersCount => 2;
+        public double[] InitialParameters { get; set; } = new double[2];
 
         public double ComputeScore(TradingBotEntity input, decimal currentPrice, ref int weightIndex)
         {

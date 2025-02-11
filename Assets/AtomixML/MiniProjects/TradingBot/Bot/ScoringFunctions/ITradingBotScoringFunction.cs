@@ -14,10 +14,11 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
     public interface ITradingBotScoringFunction<TInput, KOutput>
     {
         /// <summary>
-        /// TODO IMPLEMENT BASE PARAMETERS THAT INITIALISES ON AGENT CREATES
-        /// TAKE THIS INITIAL PARAM AS PARAMETER COUNT INSTEAD OF THIS PROPERTY
+        /// Initial parameters of the entity for this function.
+        /// This property is used to initialize the weights on the entity so it is required to create the correct number of weights here.
         /// </summary>
-        public int ParametersCount { get; }
+        public double[] InitialParameters { get; set; }
+
         public KOutput ComputeScore(TInput input, decimal currentPrice, ref int weightIndex);
     }
 
