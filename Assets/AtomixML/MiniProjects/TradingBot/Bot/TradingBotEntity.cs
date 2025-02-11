@@ -25,8 +25,8 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         public string ModelName { get; set; } = "trading_bot_v1_aplha";
         public string ModelVersion { get; set; } = "0.0.1";
 
-        [JsonIgnore] protected double buyThreshold => Math.Max(Weights[Weights.length - 1], Weights[Weights.length - 2]);//Weights[Weights.length - 1]; 
-        [JsonIgnore] protected double sellThreshold =>Math.Min(Weights[Weights.length - 1], Weights[Weights.length - 2]); // Weights[Weights.length - 2]; 
+        [JsonIgnore] protected double buyThreshold => .55; // Math.Max(Weights[Weights.length - 1], Weights[Weights.length - 2]);//Weights[Weights.length - 1]; 
+        [JsonIgnore] protected double sellThreshold => .45; // Math.Min(Weights[Weights.length - 1], Weights[Weights.length - 2]); // Weights[Weights.length - 2]; 
 
 
         [Header("Parameters")]
@@ -79,8 +79,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         /// </summary>
         [ShowInInspector, ReadOnly] private int _buyTransactionsDoneCount = 0;
 
-        [ShowInInspector, ReadOnly] private decimal _total_loss = 0;
-        [ShowInInspector, ReadOnly] private decimal _total_profit = 0;
+        [ShowInInspector, ReadOnly] private decimal _total_marging = 0;
 
         [ShowInInspector, ReadOnly] private decimal _total_buy_orders_amount = 0;
         [ShowInInspector, ReadOnly] private decimal _total_sell_orders_amount = 0;
@@ -94,17 +93,20 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         [JsonIgnore] private int _startHold;
         [JsonIgnore] private decimal _initialWallet;
         [JsonIgnore] private List<ITradingBotScoringFunction<TradingBotEntity, double>> _scoringFunctions = new List<ITradingBotScoringFunction<TradingBotEntity, double>>();
+        [JsonIgnore] private NVector _gradient;
 
         [JsonIgnore] private TradingBotManager _manager;
         [JsonIgnore] public TradingBotManager manager => _manager;
         [JsonIgnore] public decimal totalBalance => _walletAmount - _initialWallet;
+        [JsonIgnore] public decimal totalMargin => _total_marging;
+        [JsonIgnore] public decimal meanMargin => _sellTransactionsDoneCount > 0 ? _total_marging / _sellTransactionsDoneCount : 0;
         [JsonIgnore] public decimal walletAmount => _walletAmount;
         [JsonIgnore] public decimal currentTransactionEnteredPrice => _currentTransactionEnteredPrice;
         [JsonIgnore] public decimal currentOwnedVolume => _currentOwnedVolume;
         [JsonIgnore] public int sellTransactionsCount => _sellTransactionsDoneCount;
         [JsonIgnore] public int totalHoldingTime => _totalHoldingTime;
         [JsonIgnore] public decimal currentTransactionAmount => _currentTransactionAmount;
-
+        [JsonIgnore] public bool isHoldingPosition => _currentOwnedVolume > 0;
         public TradingBotEntity()
         {
         }
@@ -112,6 +114,13 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         public TradingBotEntity(TradingBotEntity tradingBotEntity)
         {
             Weights = new NVector(tradingBotEntity.Weights.Data);
+            _gradient = new NVector(tradingBotEntity.Weights.length);
+
+            // clone functions
+            foreach (var scoringFuction in tradingBotEntity._scoringFunctions)
+            {
+                RegisterTradingIndicatorScoringFunction((ITradingBotScoringFunction<TradingBotEntity, double>)Activator.CreateInstance(scoringFuction.GetType()));
+            }
         }
 
         public void Initialize(TradingBotManager tradingBotManager, decimal startMoney = 10, decimal maxTransactionsAmount = 50, decimal takeProfit = 0, decimal stopLoss = 0)
@@ -124,8 +133,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             _currentTransactionAmount = 0;
             _currentOwnedVolume = 0;
             _currentTransactionEnteredPrice = 0;
-            _total_loss = 0;
-            _total_profit = 0;
+            _total_marging = 0;
             _total_buy_orders_amount = 0;
             _total_sell_orders_amount = 0;
             _totalHoldingTime = 0;
@@ -149,10 +157,11 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         public TradingBotEntity EndPrepare()
         {
             Weights = new NVector(_parametersCount);
+            _gradient = new NVector(_parametersCount);
 
             for (int i = 0; i < Weights.length; i++)
             {
-                Weights.Data[i] = MLRandom.Shared.Range(-.01, .01);
+                Weights.Data[i] = MLRandom.Shared.Range(-1, 1);
             }
 
             return this;
@@ -175,12 +184,14 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
                 score += _scoringFunctions[i].ComputeScore(this, currentPrice, ref weightIndex);
             }
 
-            if (_currentOwnedVolume <= 0 && score > buyThreshold && _walletAmount > 0)
+            score = MLActivationFunctions.Sigmoid(score);   
+
+            if (!isHoldingPosition && score > buyThreshold && _walletAmount > 0)
             {
                 // buy
                 return 1;
             }
-            else if (score < sellThreshold && _currentOwnedVolume > 0)
+            else if (isHoldingPosition && score < sellThreshold)
             {
                 // sell
                 return 0;
@@ -247,10 +258,8 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
                 var holded_time = stampIndex - _startHold;
                 _totalHoldingTime += holded_time;
 
-                if (sell_total_price < _currentTransactionAmount)
-                    _total_loss += sell_total_price - _currentTransactionAmount;
-                else
-                    _total_profit += sell_total_price - _currentTransactionAmount;
+                var margin = (price - _currentTransactionEnteredPrice) * _currentOwnedVolume - fee;
+                _total_marging += margin;    
 
                 _total_sell_orders_amount += sell_total_price;
 
@@ -267,7 +276,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             // buy
             else if (mode == 1)
             {
-                var invested_money_amount = Math.Min(_walletAmount, _maxTransactionAmount - _currentTransactionAmount);
+                var invested_money_amount = Math.Min(_walletAmount - fee, _maxTransactionAmount - _currentTransactionAmount - fee);
                 var buy_volume = invested_money_amount / price;
 
                 _total_buy_orders_amount += invested_money_amount;
@@ -299,12 +308,21 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
 
             if (geneIndex < Weights.length - 2)
             {
-                return Weights[geneIndex] + MLRandom.Shared.GaussianNoise(0) * manager.learningRate;
+                var current_grad = MLRandom.Shared.GaussianNoise(0) * manager.learningRate;// * Weights[geneIndex];
+                var old_grad = _gradient[geneIndex];
+                _gradient[geneIndex] = current_grad;
+                current_grad += old_grad * .5;
 
+                return Weights[geneIndex] + current_grad;
             }
             else
             {
-                return Weights[geneIndex] + MLRandom.Shared.GaussianNoise(0) * manager.thresholdRate;
+                var current_grad = MLRandom.Shared.GaussianNoise(0) * manager.thresholdRate;// * Weights[geneIndex];
+                var old_grad = _gradient[geneIndex];
+                _gradient[geneIndex] = current_grad;
+                current_grad += old_grad * .5;
+
+                return Weights[geneIndex] + current_grad;
             }
         }
     }

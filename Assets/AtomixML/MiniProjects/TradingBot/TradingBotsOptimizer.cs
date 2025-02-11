@@ -14,7 +14,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
     {
         [Header("Training Bot Optimizer Parameters")]
         [SerializeField, Range(0f, 1f)] private float _batchSizeRatio = .02f;
-        [SerializeField] private float _walletScoreBonusMultiplier = 3;
+        [SerializeField] private float _profitScoreBonusMultiplier = 3;
         [SerializeField] private float _transactionsScoreMalusMultiplier = 1;
         [SerializeField] private float _transactionHoldingTimeMultiplier = 2;
         [SerializeField] private float _learningRate = .01f;
@@ -46,12 +46,23 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
 
         public override double GetEntityScore(TradingBotEntity entity)
         {
-            if (entity.sellTransactionsCount == 0)
+            // we do transactionCount - 1 because we do automatic closing transaction on end epoch but we don't want to take this in account
+            if (entity.sellTransactionsCount <= 0)
                 return 0;
+            /**
+             * A réfléchir, calculer la marge en % par transaction et checher à maximiser cette marge devrait de facto aider à passer la barrière des fees et du holding ?
+             * 
+             * **/
 
             // to do prise en compte des stocks sur la valeur à la fin ? 
-            var score = Convert.ToDouble(entity.totalBalance) * _walletScoreBonusMultiplier;
-            score *= Math.Log(entity.sellTransactionsCount * _transactionsScoreMalusMultiplier, 2);
+            // on pousse la marge moyenne (par transaction) et le volume aussi
+            var score = Convert.ToDouble(entity.meanMargin * Math.Abs(entity.totalMargin)) * _profitScoreBonusMultiplier;
+
+            if (entity.sellTransactionsCount == 1)
+                score *= .05;
+            else
+                score *= Math.Log(entity.sellTransactionsCount * _transactionsScoreMalusMultiplier, 2);
+
             score += entity.totalHoldingTime * _transactionHoldingTimeMultiplier;
 
             return score;
@@ -64,7 +75,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
 
         protected override void ClearPreviousGeneration(List<TradingBotEntity> previousGenerationEntities)
         {
-            
+
         }
     }
 }

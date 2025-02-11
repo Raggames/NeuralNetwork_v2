@@ -165,6 +165,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         /// <returns></returns>
         #region Trading Bots
 
+        [Button]
         private void SaveCurrent()
         {
             ModelSerializer.SaveModel(_tradingBotEntity, Guid.NewGuid().ToString());
@@ -177,12 +178,16 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
 
             // registering functions that will be optimized
             // each indicator score is ultimately summed and the sum is compared to a threshold/bias to make a decision
-            //entity.RegisterTradingIndicatorScoringFunction(new MomentumScoringFunction());
+
+            /*entity.RegisterTradingIndicatorScoringFunction(new MomentumScoringFunction());
             entity.RegisterTradingIndicatorScoringFunction(new MACDScoringFunction());
             entity.RegisterTradingIndicatorScoringFunction(new ProfitLossScoringFunction());
-            entity.RegisterTradingIndicatorScoringFunction(new RSIScoringFunction());
+            entity.RegisterTradingIndicatorScoringFunction(new RSIScoringFunction());*/
+
             //entity.RegisterTradingIndicatorScoringFunction(new BollingerBandsVolatilityScoringFunction());
             //entity.RegisterTradingIndicatorScoringFunction(new ADXScoringFunction());
+
+            entity.RegisterTradingIndicatorScoringFunction(new DefaultStrategyScoringFunction());
 
             entity.EndPrepare();
 
@@ -231,18 +236,21 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         /// Run the current agent selected after training for one epoch
         /// </summary>
         [Button]
-        private async void ExecuteTestingMultipass()
+        private async void ExecuteTestingMultipass(bool overallElite = false)
         {
             _market_samples = GetMarketDatas(false);
 
             InitializeIndicators();
 
+            var selectedEliteEntities = overallElite ? _optimizer.OverallGenerationsEliteEntities : _optimizer.LastGenerationEliteEntities;
+
             var bots = new List<TradingBotEntity>();
 
             for (int i = 0; i < _optimizer.PopulationCount; ++i)
             {
-                var bot = new TradingBotEntity(_tradingBotEntity);
+                var bot = new TradingBotEntity(selectedEliteEntities[MLRandom.Shared.Range(0, selectedEliteEntities.Count)]);
                 bot.Initialize(this, Convert.ToDecimal(_startWallet), Convert.ToDecimal(_maxTransactionAmount), Convert.ToDecimal(_takeProfit), Convert.ToDecimal(_stopLoss));
+
                 bots.Add(bot);
 
             }
@@ -335,6 +343,8 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             int start_index = MLRandom.Shared.Range(0, _market_samples.Count - batchLength);
             int stop_index = start_index + batchLength;
 
+            Debug.Log($"Start epoch. Batch size {batchLength} samples.");
+
             // for each timestamp in the trading datas we got
             for (int i = start_index; i < stop_index; i++)
             {
@@ -352,7 +362,6 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
 
                 // compute closing values indicators
                 UpdateIndicators(timestampData);
-
             }
 
             decimal total_epoch_profit = 0;

@@ -150,13 +150,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _tradingBotEntity: {}
   _datasetPath: C:\Users\enboud\Documents\UNITY\AtomixML\Assets\AtomixML\MiniProjects\TradingBot\Resources\csv_crypto_low_volatility_day.csv
-  _transactionsPerTimeStampMin: 3
-  _transactionsPerTimeStampMax: 7
+  _transactionsPerTimeStampMin: 1
+  _transactionsPerTimeStampMax: 1
   _slippageChances: 1
   _trainTestSplit: 0.745
-  _transactionFee: 0.001
-  _startWallet: 50
-  _maxTransactionAmount: 200
+  _transactionFee: 0.01
+  _startWallet: 1000
+  _maxTransactionAmount: 1000
   _takeProfit: 0
   _stopLoss: 0
   _optimizer:
@@ -166,12 +166,12 @@ MonoBehaviour:
     _crossoverMutationChances: 43.9
     _randomSelectionPurcentage: 3.4
     _populationCount: 100
-    _maxIterations: 100
-    _fitnessObjective: 20000
+    _maxIterations: 25
+    _fitnessObjective: 2000000
     _batchSizeRatio: 0.219
-    _walletScoreBonusMultiplier: 20
-    _transactionsScoreMalusMultiplier: 1.5
-    _transactionHoldingTimeMultiplier: -0.1
+    _profitScoreBonusMultiplier: 3
+    _transactionsScoreMalusMultiplier: 7.19
+    _transactionHoldingTimeMultiplier: 0
     _learningRate: 0.1
     _thresholdRate: 0.1
   _visualizationSheet: {fileID: 420925724}
@@ -495,7 +495,7 @@ MonoBehaviour:
     _maxIterations: 5
     _fitnessObjective: 20000
     _batchSizeRatio: 0.02
-    _walletScoreBonusMultiplier: 10
+    _profitScoreBonusMultiplier: 3
     _transactionsScoreMalusMultiplier: 0
     _transactionHoldingTimeMultiplier: 2
     _learningRate: 0.1

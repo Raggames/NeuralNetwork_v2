@@ -137,6 +137,13 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
 
             decimal diPlus = 100 * (smoothedDMPlus / smoothedTR);
             decimal diMinus = 100 * (smoothedDMMinus / smoothedTR);
+
+            if(diMinus + diPlus == 0)
+            {
+                current = 0;
+                return 0;
+            }    
+
             decimal dx = 100 * Math.Abs(diPlus - diMinus) / (diPlus + diMinus);
 
             _previousHigh = high;
@@ -227,6 +234,8 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         private decimal _previousClose;
 
         public decimal current { get; private set; }
+        //public decimal currentNormalized => (current - 50) / 50;
+        public decimal currentNormalized => current / 100;
 
         public RSIIndicator(int period)
         {

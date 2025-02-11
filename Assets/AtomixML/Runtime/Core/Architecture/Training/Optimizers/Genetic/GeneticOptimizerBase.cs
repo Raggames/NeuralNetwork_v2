@@ -37,13 +37,16 @@ namespace Atom.MachineLearning.Core.Optimization
 
         [ShowInInspector, ReadOnly] private int _currentIteration;
         [ShowInInspector, ReadOnly] private List<T> _currentGenerationEntities;
-        [ShowInInspector, ReadOnly] private List<T> _generationBestEntityHistory = new List<T>();
-        private List<double> _generationBestEntityScoreHistory = new List<double>();
+        [ShowInInspector, ReadOnly] private List<T> _lastGenerationElite = new List<T>();
+        [ShowInInspector, ReadOnly] private List<T> _overrallGenerationElite = new List<T>();
 
         public int PopulationCount { get => _populationCount; set => _populationCount = value; }
         public int MaxIterations { get => _maxIterations; set => _maxIterations = value; }
         public int CurrentIteration { get => _currentIteration; }
         public List<T> CurrentGenerationEntities { get => _currentGenerationEntities; set => _currentGenerationEntities = value; }
+
+        public List<T> LastGenerationEliteEntities => _lastGenerationElite;
+        public List<T> OverallGenerationsEliteEntities => _overrallGenerationElite;
 
         private List<T> _selectionBuffer = new List<T>();
 
@@ -56,8 +59,6 @@ namespace Atom.MachineLearning.Core.Optimization
             Debug.Log($"Start optimization : {_maxIterations} iterations, {_populationCount} entities");
 
             _currentIteration = 0;
-            _generationBestEntityHistory.Clear();
-            _generationBestEntityScoreHistory.Clear();
 
             _currentGenerationEntities = new List<T>();
             for (int i = 0; i < _populationCount; ++i)
@@ -79,16 +80,23 @@ namespace Atom.MachineLearning.Core.Optimization
                 _currentGenerationEntities = _currentGenerationEntities.OrderByDescending(t => GetEntityScore(t)).ToList();
 
                 var bestScore = GetEntityScore(_currentGenerationEntities[0]);
-                _generationBestEntityHistory.Add(_currentGenerationEntities[0]);
-                _generationBestEntityScoreHistory.Add(bestScore);
+
+                int selected_elite_count = (int)Math.Ceiling(_elitPurcentage * _currentGenerationEntities.Count / 100);
+                _overrallGenerationElite.AddRange(_currentGenerationEntities.GetRange(0, selected_elite_count));
 
                 epochBestFitCallback?.Invoke(_currentGenerationEntities[0]);
 
                 if (bestScore >= _fitnessObjective)
                 {
-                    Debug.Log("Achived objective : " + bestScore);
+                    Debug.Log("Achieved objective : " + bestScore);
                     OnObjectiveReached(_currentGenerationEntities[0]);
 
+                    break;
+                }
+
+                if(_currentIteration == _maxIterations - 1)
+                {
+                    Debug.Log("Stop training");
                     break;
                 }
 
@@ -103,7 +111,14 @@ namespace Atom.MachineLearning.Core.Optimization
             // always return the first entity (highest score)
             
             Debug.Log("End fit : last generation score : " + GetEntityScore(_currentGenerationEntities[0]));
+            _overrallGenerationElite = _overrallGenerationElite.OrderByDescending(t => GetEntityScore(t)).ToList();
 
+            // best entities of the last generation
+            int count = (int)Math.Ceiling(_elitPurcentage * _currentGenerationEntities.Count / 100);
+            _lastGenerationElite = _currentGenerationEntities.GetRange(0, count);
+
+            // also take best entities from overall training ?
+            //_lastGenerationElite.AddRange(_generationBestEntityHistory.GetRange(0, (int)(_elitPurcentage * _currentGenerationEntities.Count)));
 
             return _currentGenerationEntities[0];
         }
