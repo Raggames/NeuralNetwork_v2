@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Atom.MachineLearning.MiniProjects.TradingBot
 {
-    public class OnBalanceVolumeScoringFunction : IVolumeIndicator<TradingBotEntity, double>
+    public class OnBalanceVolumeScoringFunction
     {
         public double[] InitialParameters { get; set; } = new double[2];
 

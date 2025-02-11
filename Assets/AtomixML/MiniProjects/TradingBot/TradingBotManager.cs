@@ -1,3 +1,4 @@
+using Assets.AtomixML.MiniProjects.TradingBot.Bot.Strategies;
 using Atom.MachineLearning.Core;
 using Atom.MachineLearning.Core.Maths;
 using Atom.MachineLearning.Core.Optimization;
@@ -70,13 +71,21 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         [SerializeField, Range(0f, 1f)] private float _trainTestSplit = .5f;
         [SerializeField, Range(0f, .2f)] private float _transactionFee = .05f;
 
+        [SerializeField] private string _symbol = "AAPL";
+
         [Header("Entity parameters")]
         [SerializeField] private float _startWallet = 0;
         [SerializeField] private float _maxTransactionAmount = 0;
         [SerializeField] private float _takeProfit = 0;
         [SerializeField] private float _stopLoss = 0;
 
-        [SerializeField] private TradingBotsOptimizer _optimizer;
+        [Header("Visualization")]
+        [SerializeField] private VisualizationSheet _visualizationSheet;
+
+
+
+        [Header("Optimizer")]
+        [SerializeField, HideLabel] private TradingBotsOptimizer _optimizer;
 
         private List<MarketData> _market_samples = new List<MarketData>();
 
@@ -90,7 +99,32 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         public double learningRate => _optimizer.learningRate;
         public double thresholdRate => _optimizer.thresholdRate;
 
+        public string Symbol => _symbol;
+
         #region Market Data
+
+        public List<MarketData> GetMarketDatas(string symbol, OHCDTimeIntervals interval)
+        {
+            var dir = new DirectoryInfo(Application.dataPath + "/AtomixML/MiniProjects/TradingBot/Resources/");
+            var files = dir.GetFiles().Where(t => !t.FullName.Contains(".meta")).ToList();
+            var interval_string = TimeIntervalExtensions.Interval(interval);
+
+            var set = files.Find(t => t.Name.Contains(symbol.ToLower()) && t.Name.Contains(interval_string)).FullName;
+
+            var data = new CSVReaderService().GetData<MarketDatas>(set);
+            string fileData = System.IO.File.ReadAllText(set, Encoding.UTF8);
+            return JsonConvert.DeserializeObject<StockDataResponse>(fileData).Values.Select(t => new MarketData()
+            {
+                Close = t.Close,
+                High = t.High,
+                Low = t.Low,
+                Open = t.Open,
+                Timestamp = t.DateTime,
+                Volume = t.Volume,
+            }).ToList();
+        }
+
+
         [Button]
         public List<MarketData> GetMarketDatas(bool train)
         {
@@ -117,7 +151,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
 
         public List<MarketData> SplitDatas(List<MarketData> allDatas, bool train)
         {
-            int split_index = (int)(allDatas.Count * _trainTestSplit); 
+            int split_index = (int)(allDatas.Count * _trainTestSplit);
 
             if (train)
             {
@@ -175,22 +209,8 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         {
             var entity = new TradingBotEntity();
             entity.Initialize(this, Convert.ToDecimal(_startWallet), Convert.ToDecimal(_maxTransactionAmount), Convert.ToDecimal(_takeProfit), Convert.ToDecimal(_stopLoss));
-
-            // registering functions that will be optimized
-            // each indicator score is ultimately summed and the sum is compared to a threshold/bias to make a decision
-
-            /*entity.RegisterTradingIndicatorScoringFunction(new MomentumScoringFunction());
-            entity.RegisterTradingIndicatorScoringFunction(new MACDScoringFunction());
-            entity.RegisterTradingIndicatorScoringFunction(new ProfitLossScoringFunction());
-            entity.RegisterTradingIndicatorScoringFunction(new RSIScoringFunction());*/
-
-            //entity.RegisterTradingIndicatorScoringFunction(new BollingerBandsVolatilityScoringFunction());
-            //entity.RegisterTradingIndicatorScoringFunction(new ADXScoringFunction());
-
-            //entity.RegisterTradingIndicatorScoringFunction(new DefaultStrategyScoringFunction());
-            entity.RegisterTradingIndicatorScoringFunction(new SimpleStrategyScoringFunction());
-
-            entity.EndPrepare();
+            //entity.SetStrategy(new SMAPivotPointsStrategy());
+            entity.SetStrategy(new EMAScalpingStrategy());
 
             return entity;
         }
@@ -281,32 +301,26 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             // for each timestamp in the trading datas we got
             for (int i = 1; i < _market_samples.Count; i++)
             {
-                var timestampData = _market_samples[i];
-                currentMarketSamples.Add(timestampData);
+                _periodIndex = i;
+                currentMarketSamples.Add(currentPeriod);
 
                 for (int e = 0; e < entities.Count; e++)
                 {
+                    entities[e].UpdateOHLC(currentPeriod);
+
                     // generate a price batch 
                     // it is a random set of potential prices that could appear in that timestamp
                     // we ignore complicated stuff (volume , etc..) for the moment and focus on the core of the problem (OHLC)
-                    var prices = PriceGenerator.GenerateGaussianPriceBatch(timestampData.Open, timestampData.Low, timestampData.High, MLRandom.Shared.Range(_transactionsPerTimeStampMin, _transactionsPerTimeStampMax));
+                    var prices = PriceUtils.GenerateGaussianPriceBatch(currentPeriod.Open, currentPeriod.Low, currentPeriod.High, MLRandom.Shared.Range(_transactionsPerTimeStampMin, _transactionsPerTimeStampMax));
 
                     foreach (var current_price in prices)
                     {
-                        var result = entities[e].Predict(current_price);
-
-                        if (result != 2)
-                        {
-                            // entities[e].DoTransaction(result, price);
-                            DoTransaction(timestampData, entities[e], result, current_price, i);
-                        }
+                        entities[e].Predict(current_price);
                     }
-
-                    //_prices_historic.AddRange(prices);
                 }
 
                 // compute closing values indicators
-                UpdateIndicators(timestampData);
+                UpdateIndicators(currentPeriod);
 
                 await Task.Delay(1);
             }
@@ -316,9 +330,9 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             // closing trading session, sell at closing price
             for (int e = 0; e < entities.Count; e++)
             {
-                if (entities[e].currentOwnedVolume > 0)
-                    entities[e].DoTransaction(0, currentMarketSamples[^1].Close, 0, _market_samples.Count);
-
+                /*                if (entities[e].currentOwnedVolume > 0)
+                                    entities[e].OnTransactionExecuted(0, currentMarketSamples[^1].Close, 0, _market_samples.Count);
+                */
                 total_epoch_profit += entities[e].walletAmount - Convert.ToDecimal(_startWallet);
             }
 
@@ -327,6 +341,10 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             Debug.Log($"Epoch ended. Total profit: {total_epoch_profit}. Investment : {_startWallet * entities.Count}. Profit % {profit_purcent}");
             //_prices_historic.AddRange(prices);
         }
+
+        public MarketData currentPeriod => _market_samples[_periodIndex];
+
+        private int _periodIndex = 0;
 
         [Button]
         /// <summary>
@@ -337,7 +355,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             currentMarketSamples.Clear();
 
             var tasks = new Task[entities.Count];
-            
+
             // we take only a batchSizeRatio part of the total sample each epoch
             // the range is selected randomly to train on different part of the total datas during training
             int batchLength = (int)(_market_samples.Count * batchSizeRatio);
@@ -349,12 +367,12 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             // for each timestamp in the trading datas we got
             for (int i = start_index; i < stop_index; i++)
             {
-                var timestampData = _market_samples[i];
-                currentMarketSamples.Add(timestampData);
+                _periodIndex = i;
+                currentMarketSamples.Add(currentPeriod);
 
                 for (int e = 0; e < entities.Count; e++)
                 {
-                    tasks[e] = RunEntity(entities[e], timestampData, i);
+                    tasks[e] = RunEntity(entities[e], currentPeriod, i);
                 }
 
                 await Task.WhenAll(tasks);
@@ -362,7 +380,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
                 //_prices_historic.AddRange(prices);
 
                 // compute closing values indicators
-                UpdateIndicators(timestampData);
+                UpdateIndicators(currentPeriod);
             }
 
             decimal total_epoch_profit = 0;
@@ -371,8 +389,8 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             // closing trading session, sell at closing price
             for (int e = 0; e < entities.Count; e++)
             {
-                if (entities[e].currentOwnedVolume > 0)
-                    entities[e].DoTransaction(0, currentMarketSamples[^1].Close, 0, _market_samples.Count);
+                /*if (entities[e].currentOwnedVolume > 0)
+                    entities[e].OnTransactionExecuted(0, currentMarketSamples[^1].Close, 0, _market_samples.Count);*/
 
                 total_epoch_profit += entities[e].walletAmount - Convert.ToDecimal(_startWallet);
                 total_transactions += entities[e].sellTransactionsCount;
@@ -385,43 +403,39 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
 
         private async Task RunEntity(TradingBotEntity entity, MarketData timestampData, int stampIndex)
         {
+            entity.UpdateOHLC(currentPeriod);
+
             // generate a price batch 
             // it is a random set of potential prices that could appear in that timestamp
             // we ignore complicated stuff (volume , etc..) for the moment and focus on the core of the problem (OHLC)
-            var prices = PriceGenerator.GenerateGaussianPriceBatch(timestampData.Open, timestampData.Low, timestampData.High, MLRandom.Shared.Range(_transactionsPerTimeStampMin, _transactionsPerTimeStampMax));
+            var prices = PriceUtils.GenerateGaussianPriceBatch(timestampData.Open, timestampData.Low, timestampData.High, MLRandom.Shared.Range(_transactionsPerTimeStampMin, _transactionsPerTimeStampMax));
 
             foreach (var current_price in prices)
             {
-                var result = entity.Predict(current_price);
-
-                if (result != 2)
-                {
-                    DoTransaction(timestampData, entity, result, current_price, stampIndex);
-                }
+                entity.Predict(current_price);
             }
 
             await Task.Delay(1);
         }
 
-        private void DoTransaction(MarketData stamp, TradingBotEntity entity, int transactionType, decimal ask_price, int stampIndex)
+        public void ExecuteTransaction(MarketData stamp, TradingBotEntity entity, int transactionType, decimal ask_price)
         {
             if (MLRandom.Shared.Chances(_slippageChances, 100))
             {
-                var price = PriceGenerator.GenerateGaussianPrice(stamp.Open, stamp.Low, stamp.High);
+                var price = PriceUtils.GenerateGaussianPrice(stamp.Open, stamp.Low, stamp.High);
                 var fee = price * Convert.ToDecimal(_transactionFee);
-                entity.DoTransaction(transactionType, price, fee, stampIndex);
+                entity.OnTransactionExecuted(transactionType, price, fee, _periodIndex);
             }
             else
             {
                 var fee = ask_price * Convert.ToDecimal(_transactionFee);
-                entity.DoTransaction(transactionType, ask_price, fee, stampIndex);
+                entity.OnTransactionExecuted(transactionType, ask_price, fee, _periodIndex);
             }
         }
         #endregion
 
 
         #region Visualization
-        [SerializeField] private VisualizationSheet _visualizationSheet;
 
 
         [Button]

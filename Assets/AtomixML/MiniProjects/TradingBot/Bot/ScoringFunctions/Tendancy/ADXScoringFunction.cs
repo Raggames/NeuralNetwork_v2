@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Atom.MachineLearning.MiniProjects.TradingBot
 {
-    public class ADXScoringFunction : ITendancyIndicator<TradingBotEntity, double>
+    public class ADXScoringFunction
     {
         public double[] InitialParameters { get; set; } = new double[2];
 

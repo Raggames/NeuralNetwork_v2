@@ -9,6 +9,29 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
     using System.Collections.Generic;
     using System.Linq;
 
+
+    public class PivotPoint
+    {
+        public decimal Pivot { get; private set; }
+        public decimal Support1 { get; private set; }
+        public decimal Support2 { get; private set; }
+        public decimal Support3 { get; private set; }
+        public decimal Resistance1 { get; private set; }
+        public decimal Resistance2 { get; private set; }
+        public decimal Resistance3 { get; private set; }
+
+        public void Compute(decimal high, decimal low, decimal close)
+        {
+            Pivot = (high + low + close) / 3;
+            Resistance1 = (2 * Pivot) - low;
+            Resistance2 = Pivot + (high - low);
+            Resistance3 = high + 2 * (Pivot - low);
+            Support1 = (2 * Pivot) - high;
+            Support2 = Pivot - (high - low);
+            Support3 = low - 2 * (high - Pivot);
+        }
+    }
+
     public class SimpleMovingAverage
     {
         private readonly Queue<decimal> _values = new Queue<decimal>();

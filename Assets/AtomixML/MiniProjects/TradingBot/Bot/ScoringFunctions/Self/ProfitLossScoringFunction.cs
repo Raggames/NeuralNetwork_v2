@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Atom.MachineLearning.MiniProjects.TradingBot
 {
-    public class ProfitLossScoringFunction : ITradingBotScoringFunction<TradingBotEntity, double>
+    public class ProfitLossScoringFunction 
     {
         public double[] InitialParameters { get; set; } = new double[2];
 

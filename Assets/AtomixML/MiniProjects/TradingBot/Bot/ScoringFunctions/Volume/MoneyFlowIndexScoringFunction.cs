@@ -2,7 +2,7 @@
 
 namespace Atom.MachineLearning.MiniProjects.TradingBot
 {
-    public class MoneyFlowIndexScoringFunction : IVolumeIndicator<TradingBotEntity, double>
+    public class MoneyFlowIndexScoringFunction 
     {
         public double[] InitialParameters { get; set; } = new double[2];
 

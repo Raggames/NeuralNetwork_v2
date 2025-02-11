@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Atom.MachineLearning.MiniProjects.TradingBot
 {
-    public class MomentumScoringFunction : IMomentumIndicator<TradingBotEntity, double>
+    public class MomentumScoringFunction 
     {
         public double[] InitialParameters { get; set; } = new double[2];
 

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Atom.MachineLearning.MiniProjects.TradingBot
 {
-    public class BollingerBandsVolatilityScoringFunction : IVolatilityIndicator<TradingBotEntity, double>
+    public class BollingerBandsVolatilityScoringFunction 
     {
         public double[] InitialParameters { get; set; } = new double[2];
 

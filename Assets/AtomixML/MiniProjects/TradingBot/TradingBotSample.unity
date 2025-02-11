@@ -149,32 +149,33 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _tradingBotEntity: {}
-  _datasetPath: C:\Users\enboud\Documents\UNITY\AtomixML\Assets\AtomixML\MiniProjects\TradingBot\Resources\csv_crypto_low_volatility_day.csv
-  _transactionsPerTimeStampMin: 1
-  _transactionsPerTimeStampMax: 1
+  _datasetPath: C:\Users\Rag\wkspaces\NeuralNetwork_v2\Assets\AtomixML\MiniProjects\TradingBot\Resources\td_aapl_1mn_20250101_to_20250210.txt
+  _transactionsPerTimeStampMin: 18
+  _transactionsPerTimeStampMax: 34
   _slippageChances: 1
   _trainTestSplit: 0.745
   _transactionFee: 0.01
+  _symbol: AAPL
   _startWallet: 1000
   _maxTransactionAmount: 1000
   _takeProfit: 0
   _stopLoss: 0
+  _visualizationSheet: {fileID: 420925724}
   _optimizer:
     _elitPurcentage: 6.29
     _elitMutationChances: 7.82
     _crossoverSelectionLimitPurcentage: 42.29
     _crossoverMutationChances: 43.9
     _randomSelectionPurcentage: 3.4
-    _populationCount: 100
-    _maxIterations: 25
+    _populationCount: 5
+    _maxIterations: 1
     _fitnessObjective: 2000000
-    _batchSizeRatio: 0.219
+    _batchSizeRatio: 0.109
     _profitScoreBonusMultiplier: 3
     _transactionsScoreMalusMultiplier: 7.19
     _transactionHoldingTimeMultiplier: 0
     _learningRate: 0.1
     _thresholdRate: 0.1
-  _visualizationSheet: {fileID: 420925724}
 --- !u!4 &338641947
 Transform:
   m_ObjectHideFlags: 0
@@ -481,10 +482,12 @@ MonoBehaviour:
   _slippageChances: 10
   _trainTestSplit: 0.5
   _transactionFee: 0.5
+  _symbol: AAPL
   _startWallet: 50
   _maxTransactionAmount: 200
   _takeProfit: 0
   _stopLoss: 0
+  _visualizationSheet: {fileID: 0}
   _optimizer:
     _elitPurcentage: 10
     _elitMutationChances: 10
@@ -500,7 +503,6 @@ MonoBehaviour:
     _transactionHoldingTimeMultiplier: 2
     _learningRate: 0.1
     _thresholdRate: 0.2
-  _visualizationSheet: {fileID: 0}
 --- !u!4 &1809157371
 Transform:
   m_ObjectHideFlags: 0

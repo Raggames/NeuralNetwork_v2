@@ -6,6 +6,7 @@ using UnityEngine;
 
 namespace Atom.MachineLearning.MiniProjects.TradingBot
 {
+
     [Serializable]
     public class MarketDatas
     {

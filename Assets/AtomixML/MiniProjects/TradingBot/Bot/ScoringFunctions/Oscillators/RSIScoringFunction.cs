@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Atom.MachineLearning.MiniProjects.TradingBot
 {
-    public class RSIScoringFunction : IOscillatorIndicator<TradingBotEntity, double>
+    public class RSIScoringFunction
     {
         public double[] InitialParameters { get; set; } = new double[2];
 

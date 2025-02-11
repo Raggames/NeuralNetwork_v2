@@ -17,6 +17,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         private ADXIndicator _adxIndicator = new ADXIndicator(5);
         private BollingerBandsIndicator _bollingerBandsIndicator = new BollingerBandsIndicator(5, 1);
         private ExponentialMovingAverage _exponentialMovingAverageIndicator = new ExponentialMovingAverage(5);
+        private PivotPoint _pivotPoint = new PivotPoint();  
 
         public MomentumIndicator momentum => _momentumIndicator;
         public MACDIndicator macd => _macdIndicator;
@@ -27,6 +28,8 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         public ADXIndicator adx => _adxIndicator;
         public BollingerBandsIndicator bollinger => _bollingerBandsIndicator;
         public ExponentialMovingAverage ema => _exponentialMovingAverageIndicator;
+
+        public PivotPoint pivotPoint => _pivotPoint;
 
         public void Initialize()
         {
@@ -39,6 +42,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             _adxIndicator = new ADXIndicator(5);
             _bollingerBandsIndicator = new BollingerBandsIndicator(12, 1);
             _exponentialMovingAverageIndicator = new ExponentialMovingAverage(5);
+            _pivotPoint = new PivotPoint();
         }
 
         public void Update(MarketData timestampData)

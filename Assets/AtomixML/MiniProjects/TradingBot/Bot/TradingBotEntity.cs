@@ -25,9 +25,6 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         public string ModelName { get; set; } = "trading_bot_v1_aplha";
         public string ModelVersion { get; set; } = "0.0.1";
 
-        [JsonIgnore] protected double buyThreshold => .55 + Math.Abs(Weights[0]); // Math.Max(Weights[Weights.length - 1], Weights[Weights.length - 2]);//Weights[Weights.length - 1]; 
-        [JsonIgnore] protected double sellThreshold => .45 - Math.Abs(Weights[0]); // Math.Min(Weights[Weights.length - 1], Weights[Weights.length - 2]); // Weights[Weights.length - 2]; 
-
 
         [Header("Parameters")]
 
@@ -86,17 +83,17 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         [ShowInInspector, ReadOnly] private int _totalHoldingTime;
 
 
-        [JsonIgnore] private List<TransactionData> _transactionsHistory = new List<TransactionData>();
+        private List<TransactionData> _transactionsHistory = new List<TransactionData>();
 
-        [JsonIgnore] private int _parametersCount = 2;
-
-        [JsonIgnore] private int _startHold;
-        [JsonIgnore] private decimal _initialWallet;
-        [JsonIgnore] private List<ITradingBotScoringFunction<TradingBotEntity, double>> _scoringFunctions = new List<ITradingBotScoringFunction<TradingBotEntity, double>>();
-        [JsonIgnore] private NVector _gradient;
+        private int _startHold;
+        private decimal _initialWallet;
+        private ITradingBotStrategy<TradingBotEntity> _strategy;
+        private NVector _gradient;
+        private bool _isLongPosition = true; // not yet implemented
 
         [JsonIgnore] private TradingBotManager _manager;
         [JsonIgnore] public TradingBotManager manager => _manager;
+        [JsonIgnore] public ITradingBotStrategy<TradingBotEntity> strategy => _strategy;
         [JsonIgnore] public decimal totalBalance => _walletAmount - _initialWallet;
         [JsonIgnore] public decimal totalMargin => _total_marging;
         [JsonIgnore] public decimal meanMargin => _sellTransactionsDoneCount > 0 ? _total_marging / _sellTransactionsDoneCount : 0;
@@ -107,6 +104,10 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         [JsonIgnore] public int totalHoldingTime => _totalHoldingTime;
         [JsonIgnore] public decimal currentTransactionAmount => _currentTransactionAmount;
         [JsonIgnore] public bool isHoldingPosition => _currentOwnedVolume > 0;
+
+        [JsonIgnore] public bool isLongPosition => _isLongPosition;
+        [JsonIgnore] public bool isShortPosition => !_isLongPosition;
+
         public TradingBotEntity()
         {
         }
@@ -115,12 +116,8 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         {
             Weights = new NVector(tradingBotEntity.Weights.Data);
             _gradient = new NVector(tradingBotEntity.Weights.length);
-
-            // clone functions
-            foreach (var scoringFuction in tradingBotEntity._scoringFunctions)
-            {
-                RegisterTradingIndicatorScoringFunction((ITradingBotScoringFunction<TradingBotEntity, double>)Activator.CreateInstance(scoringFuction.GetType()));
-            }
+            Initialize(tradingBotEntity.manager, tradingBotEntity._initialWallet, tradingBotEntity._maxTransactionAmount);
+            SetStrategy( (ITradingBotStrategy<TradingBotEntity>)Activator.CreateInstance(tradingBotEntity._strategy.GetType()));
         }
 
         public void Initialize(TradingBotManager tradingBotManager, decimal startMoney = 10, decimal maxTransactionsAmount = 50, decimal takeProfit = 0, decimal stopLoss = 0)
@@ -143,34 +140,27 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             _maxTransactionAmount = maxTransactionsAmount;
             _takeProfit = takeProfit;
             _stopLoss = stopLoss;
-            _parametersCount = 1;
         }
 
-        public TradingBotEntity RegisterTradingIndicatorScoringFunction(ITradingBotScoringFunction<TradingBotEntity, double> tradingIndicatorScoringFunction)
+        public void SetStrategy(ITradingBotStrategy<TradingBotEntity> strategy)
         {
-            _scoringFunctions.Add(tradingIndicatorScoringFunction);
-            _parametersCount += tradingIndicatorScoringFunction.InitialParameters.Length;
+            _strategy = strategy;
+            var paramCount = strategy.InitialParameters.Length;
 
-            return this;
-        }
+            Weights = new NVector(paramCount);
+            _gradient = new NVector(paramCount);
 
-        public TradingBotEntity EndPrepare()
-        {
-            Weights = new NVector(_parametersCount);
-            _gradient = new NVector(_parametersCount);
-
-            // weight 1 is the threshold param
-            int k = 1;
-            for (int i = 0; i < _scoringFunctions.Count; ++i)
+            for (int j = 0; j < _strategy.InitialParameters.Length; ++j)
             {
-                for (int j = 0; j < _scoringFunctions[i].InitialParameters.Length; ++j)
-                {
-                    Weights.Data[k] = _scoringFunctions[i].InitialParameters[j] + MLRandom.Shared.Range(-.05, .05);
-                    k++;
-                }
+                Weights.Data[j] = _strategy.InitialParameters[j] + MLRandom.Shared.Range(-.05, .05);
             }
 
-            return this;
+            _strategy.Initialize(this);
+        }
+
+        public void UpdateOHLC(MarketData marketData)
+        {
+            _strategy.OnOHLCUpdate(marketData);
         }
 
         /// <summary>
@@ -182,70 +172,19 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         /// <returns></returns>
         public int Predict(decimal currentPrice)
         {
-            double score = 0;
-            int weightIndex = 0;
+            _strategy.RealTimeUpdate(manager.currentPeriod, currentPrice);
 
-            for (int i = 0; i < _scoringFunctions.Count; ++i)
-            {
-                score += _scoringFunctions[i].ComputeScore(this, currentPrice, ref weightIndex);
+            return 0;
+        }
 
-                // to do weight index increment here
-            }
+        public void EnterPosition(decimal price)
+        {
+            manager.ExecuteTransaction(manager.currentPeriod, this, 1, price);
+        }
 
-            score = MLActivationFunctions.Sigmoid(score);
-
-            if (!isHoldingPosition && score > buyThreshold && _walletAmount > 0)
-            {
-                // buy
-                return 1;
-            }
-            else if (isHoldingPosition && score < sellThreshold)
-            {
-                // sell
-                return 0;
-
-            }
-            else
-            {
-                // wait, not moment to sell or buy, or no money or no volume
-                return 2;
-            }
-
-            // v1
-            /*// ongoing transaction
-            if (_currentOwnerVolume > 0)
-            {
-                // if result under threshold, the agent will wait or sell as it indicates that the opportunity is going down
-                var result = score < sellThreshold;
-
-                if (!result)
-                {
-                    // sell
-                    return 0;
-                }
-                else
-                {
-                    // wait, not moment to sell
-                    return 2;
-                }
-            }
-            else
-            {
-                // if result above buy threshold, the agent will buy or keep as it indicates a good opportunity
-                var result = score > buyThreshold;
-
-                // should buy, has money, has not too much outgoing money
-                if (result && _walletAmount > 0 && _currentTransactionAmount < _maxTransactionAmount)
-                {
-                    // buy
-                    return 1;
-                }
-                else
-                {
-                    // wait, not moment to buy
-                    return 2;
-                }
-            }*/
+        public void ExitPosition(decimal price)
+        {
+            manager.ExecuteTransaction(manager.currentPeriod, this, 0, price);
         }
 
         /// <summary>
@@ -254,7 +193,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         /// </summary>
         /// <param name="mode"></param>
         /// <param name="amount"></param>
-        public void DoTransaction(int mode, decimal price, decimal fee, int stampIndex)
+        public void OnTransactionExecuted(int mode, decimal price, decimal fee, int stampIndex)
         {
             // how to compute amount ?
             // sell
@@ -304,16 +243,6 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
 
         public double MutateGene(int geneIndex)
         {
-            /*if (geneIndex < Weights.length - 2)
-            {
-                return Weights[geneIndex] +  MLRandom.Shared.Range(-1, 1) * manager.learningRate;
-
-            }
-            else
-            {
-                return Weights[geneIndex] + MLRandom.Shared.Range(-1, 1) * manager.thresholdRate;
-            }*/
-
             if (geneIndex > 0)
             {
                 var current_grad = MLRandom.Shared.GaussianNoise(0) * manager.learningRate;// * Weights[geneIndex];

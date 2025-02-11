@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Atom.MachineLearning.MiniProjects.TradingBot
 {
-    public class MACDScoringFunction : ITendancyIndicator<TradingBotEntity, double>
+    public class MACDScoringFunction 
     {
         public double[] InitialParameters { get; set; } = new double[2];
 

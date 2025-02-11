@@ -709,6 +709,8 @@ namespace Atom.MachineLearning.Core
 
     public static class NVectorExtensions
     {
+        public static double ToDecimal(this decimal value) => Convert.ToDouble(value);
+
         /// <summary>
         /// Srt euclidian distance between two multidimensionnal vectors represented by float arrays
         /// </summary>
