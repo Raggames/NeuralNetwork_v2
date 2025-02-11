@@ -1,4 +1,5 @@
-﻿using Atom.MachineLearning.Core.Optimization;
+﻿using Atom.MachineLearning.Core.Maths;
+using Atom.MachineLearning.Core.Optimization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +13,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
     public class TradingBotsOptimizer : GeneticOptimizerBase<TradingBotEntity, decimal, int>
     {
         [Header("Training Bot Optimizer Parameters")]
+        [SerializeField, Range(0f, 1f)] private float _batchSizeRatio = .02f;
         [SerializeField] private float _walletScoreBonusMultiplier = 3;
         [SerializeField] private float _transactionsScoreMalusMultiplier = 1;
         [SerializeField] private float _transactionHoldingTimeMultiplier = 2;
@@ -39,7 +41,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         public override async Task ComputeGeneration()
         {
             // run a complete epoch on market datas with all entities
-            await _manager.RunEpochParallel(CurrentGenerationEntities, true);
+            await _manager.RunEpochParallel(CurrentGenerationEntities, true, _batchSizeRatio);
         }
 
         public override double GetEntityScore(TradingBotEntity entity)
@@ -48,8 +50,8 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
                 return 0;
 
             // to do prise en compte des stocks sur la valeur à la fin ? 
-            var score = Convert.ToDouble(entity.walletAmount) * _walletScoreBonusMultiplier;
-            score -= entity.sellTransactionsCount * _transactionsScoreMalusMultiplier;
+            var score = Convert.ToDouble(entity.totalBalance) * _walletScoreBonusMultiplier;
+            score *= Math.Log(entity.sellTransactionsCount * _transactionsScoreMalusMultiplier, 2);
             score += entity.totalHoldingTime * _transactionHoldingTimeMultiplier;
 
             return score;

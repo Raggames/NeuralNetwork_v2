@@ -25,8 +25,8 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         public string ModelName { get; set; } = "trading_bot_v1_aplha";
         public string ModelVersion { get; set; } = "0.0.1";
 
-        [JsonIgnore] protected double buyThreshold => Weights[Weights.length - 1];// Math.Min(Weights[Weights.length - 1], Weights[Weights.length - 2]);
-        [JsonIgnore] protected double sellThreshold => Weights[Weights.length - 2];// Math.Max(Weights[Weights.length - 1], Weights[Weights.length - 2]);
+        [JsonIgnore] protected double buyThreshold => Math.Max(Weights[Weights.length - 1], Weights[Weights.length - 2]);//Weights[Weights.length - 1]; 
+        [JsonIgnore] protected double sellThreshold =>Math.Min(Weights[Weights.length - 1], Weights[Weights.length - 2]); // Weights[Weights.length - 2]; 
 
 
         [Header("Parameters")]
@@ -92,11 +92,12 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         [JsonIgnore] private int _parametersCount = 2;
 
         [JsonIgnore] private int _startHold;
+        [JsonIgnore] private decimal _initialWallet;
         [JsonIgnore] private List<ITradingBotScoringFunction<TradingBotEntity, double>> _scoringFunctions = new List<ITradingBotScoringFunction<TradingBotEntity, double>>();
 
         [JsonIgnore] private TradingBotManager _manager;
         [JsonIgnore] public TradingBotManager manager => _manager;
-
+        [JsonIgnore] public decimal totalBalance => _walletAmount - _initialWallet;
         [JsonIgnore] public decimal walletAmount => _walletAmount;
         [JsonIgnore] public decimal currentTransactionEnteredPrice => _currentTransactionEnteredPrice;
         [JsonIgnore] public decimal currentOwnedVolume => _currentOwnedVolume;
@@ -129,6 +130,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             _total_sell_orders_amount = 0;
             _totalHoldingTime = 0;
 
+            _initialWallet = startMoney;
             _walletAmount = startMoney;
             _maxTransactionAmount = maxTransactionsAmount;
             _takeProfit = takeProfit;

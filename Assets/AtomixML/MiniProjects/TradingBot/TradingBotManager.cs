@@ -85,10 +85,6 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         /// </summary>
         private List<decimal> _prices_historic = new List<decimal>();
 
-        /// <summary>
-        /// all avalaible samples
-        /// </summary>
-        public List<MarketData> marketSamples => _market_samples;
         public List<MarketData> currentMarketSamples { get; set; } = new List<MarketData>();
 
         public double learningRate => _optimizer.learningRate;
@@ -96,15 +92,15 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
 
         #region Market Data
         [Button]
-        public List<MarketData> GetMarketDatas()
+        public List<MarketData> GetMarketDatas(bool train)
         {
             if (_datasetPath.Contains("csv"))
-                return new CSVReaderService().GetData<MarketDatas>(_datasetPath).Datas;
+                return SplitDatas(new CSVReaderService().GetData<MarketDatas>(_datasetPath).Datas, train);
             else if (_datasetPath.Contains("td"))
             {
                 var data = new CSVReaderService().GetData<MarketDatas>(_datasetPath);
                 string fileData = System.IO.File.ReadAllText(_datasetPath, Encoding.UTF8);
-                return JsonConvert.DeserializeObject<StockDataResponse>(fileData).Values.Select(t => new MarketData()
+                return SplitDatas(JsonConvert.DeserializeObject<StockDataResponse>(fileData).Values.Select(t => new MarketData()
                 {
                     Close = t.Close,
                     High = t.High,
@@ -112,11 +108,27 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
                     Open = t.Open,
                     Timestamp = t.DateTime,
                     Volume = t.Volume,
-                }).ToList();
+                }).ToList(), train);
             }
 
             return null;
         }
+
+
+        public List<MarketData> SplitDatas(List<MarketData> allDatas, bool train)
+        {
+            int split_index = (int)(allDatas.Count * _trainTestSplit); 
+
+            if (train)
+            {
+                return allDatas.GetRange(0, split_index);
+            }
+            else
+            {
+                return allDatas.GetRange(split_index + 1, allDatas.Count - split_index - 1);
+            }
+        }
+
 
         #endregion
 
@@ -153,6 +165,11 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         /// <returns></returns>
         #region Trading Bots
 
+        private void SaveCurrent()
+        {
+            ModelSerializer.SaveModel(_tradingBotEntity, Guid.NewGuid().ToString());
+        }
+
         private TradingBotEntity GenerateTradingBot_Momentum_MACD()
         {
             var entity = new TradingBotEntity();
@@ -176,10 +193,11 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
 
         #region Execution
 
+
         [Button]
         private async void ExecuteTraining()
         {
-            _market_samples = GetMarketDatas();
+            _market_samples = GetMarketDatas(true);
             InitializeIndicators();
 
             // register best fit of each generation in local variable
@@ -201,7 +219,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         [Button]
         private async void ExecuteTesting()
         {
-            _market_samples = GetMarketDatas();
+            _market_samples = GetMarketDatas(false);
             InitializeIndicators();
 
             _tradingBotEntity.Initialize(this, Convert.ToDecimal(_startWallet), Convert.ToDecimal(_maxTransactionAmount), Convert.ToDecimal(_takeProfit), Convert.ToDecimal(_stopLoss));
@@ -215,12 +233,12 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         [Button]
         private async void ExecuteTestingMultipass()
         {
-            _market_samples = GetMarketDatas();
+            _market_samples = GetMarketDatas(false);
+
             InitializeIndicators();
 
             var bots = new List<TradingBotEntity>();
 
-            decimal total_profit = 0;
             for (int i = 0; i < _optimizer.PopulationCount; ++i)
             {
                 var bot = new TradingBotEntity(_tradingBotEntity);
@@ -231,13 +249,16 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
 
             await RunEpochParallel(bots, false);
 
+            decimal total_profit = 0;
+            int total_transactions = 0;
             foreach (var bot in bots)
             {
                 total_profit += bot.walletAmount - Convert.ToDecimal(_startWallet);
+                total_transactions += bot.sellTransactionsCount;
             }
             var profit_purcent = decimal.ToDouble(total_profit) / (_startWallet * bots.Count) * 100;
 
-            Debug.Log($"Overall profit for testing session is : {total_profit}$ / {profit_purcent} % profit ");
+            Debug.Log($"Overall profit for testing session is : {total_profit}$ / {profit_purcent} % profit / {total_transactions} transactions.");
         }
 
         [Button]
@@ -302,23 +323,17 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         /// <summary>
         /// Runs a complete pass on a collection of market datas (stamps)
         /// </summary>
-        public async Task RunEpochParallel(List<TradingBotEntity> entities, bool train = true)
+        public async Task RunEpochParallel(List<TradingBotEntity> entities, bool train = true, float batchSizeRatio = 1f)
         {
             currentMarketSamples.Clear();
 
             var tasks = new Task[entities.Count];
-
-            int start_index = 1;
-            int stop_index = _market_samples.Count;
-
-            if (train)
-            {
-                stop_index = (int)(_market_samples.Count * _trainTestSplit);
-            }
-            else
-            {
-                start_index = (int)(_market_samples.Count * _trainTestSplit) + 1;
-            }
+            
+            // we take only a batchSizeRatio part of the total sample each epoch
+            // the range is selected randomly to train on different part of the total datas during training
+            int batchLength = (int)(_market_samples.Count * batchSizeRatio);
+            int start_index = MLRandom.Shared.Range(0, _market_samples.Count - batchLength);
+            int stop_index = start_index + batchLength;
 
             // for each timestamp in the trading datas we got
             for (int i = start_index; i < stop_index; i++)
@@ -341,6 +356,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             }
 
             decimal total_epoch_profit = 0;
+            int total_transactions = 0;
 
             // closing trading session, sell at closing price
             for (int e = 0; e < entities.Count; e++)
@@ -349,11 +365,12 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
                     entities[e].DoTransaction(0, currentMarketSamples[^1].Close, 0, _market_samples.Count);
 
                 total_epoch_profit += entities[e].walletAmount - Convert.ToDecimal(_startWallet);
+                total_transactions += entities[e].sellTransactionsCount;
             }
 
             var profit_purcent = decimal.ToDouble(total_epoch_profit) / (_startWallet * entities.Count) * 100;
 
-            Debug.Log($"Epoch ended. Total profit: {total_epoch_profit}. Investment : {_startWallet * entities.Count}. Profit % {profit_purcent}");
+            Debug.Log($"Epoch ended. Total profit: {total_epoch_profit}. Investment : {_startWallet * entities.Count}. Profit % {profit_purcent}. Transactions {total_transactions}. ");
         }
 
         private async Task RunEntity(TradingBotEntity entity, MarketData timestampData, int stampIndex)
@@ -400,7 +417,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         [Button]
         private void VisualizeDataset(float position = 0, int range = 100)
         {
-            _market_samples = GetMarketDatas();
+            _market_samples = GetMarketDatas(false);
 
             _visualizationSheet.Awake();
 
