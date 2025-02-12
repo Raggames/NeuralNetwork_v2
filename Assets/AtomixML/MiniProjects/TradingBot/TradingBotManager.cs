@@ -69,7 +69,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         [SerializeField, Range(1, 100)] private int _transactionsPerTimeStampMax = 7;
         [SerializeField, Range(1, 100)] private int _slippageChances = 10;
         [SerializeField, Range(0f, 1f)] private float _trainTestSplit = .5f;
-        [SerializeField, Range(0f, .2f)] private float _transactionFee = .05f;
+        [SerializeField, Range(0f, .2f)] private float _spread = .005f;
 
         [SerializeField] private string _symbol = "AAPL";
 
@@ -342,9 +342,9 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             //_prices_historic.AddRange(prices);
         }
 
-        public MarketData currentPeriod => _market_samples[_periodIndex];
-
         private int _periodIndex = 0;
+        public MarketData currentPeriod => _market_samples[_periodIndex];
+        public int currentPeriodIndex => _periodIndex;
 
         [Button]
         /// <summary>
@@ -418,25 +418,89 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             await Task.Delay(1);
         }
 
-        public void ExecuteTransaction(MarketData stamp, TradingBotEntity entity, int transactionType, decimal ask_price)
+        public void EnterPositionRequest(TradingBotEntity tradingBotEntity, decimal requestedPrice, decimal amount, BuySignals buySignals, int lever = 1)
+        {
+            switch (buySignals)
+            {
+                case BuySignals.Long_Buy:
+                    var price = ComputeEnterPriceWithSpread(requestedPrice);
+                    var volume_sold = amount / price; // lever
+                    tradingBotEntity.EnterPositionCallback(buySignals, price, amount, volume_sold, _periodIndex);
+                    break;
+                case BuySignals.Short_Sell:
+                    price = ComputeEnterPriceWithSpread(requestedPrice);
+                    var volume_borrowed = (amount * lever) / price;
+                    tradingBotEntity.EnterPositionCallback(buySignals, price, 0, volume_borrowed, _periodIndex);
+                    break;
+            }
+        }
+
+        public void ExitPositionRequest(TradingBotEntity entity, BuySignals buySignals, decimal price, decimal volume)
+        {
+            switch (buySignals)
+            {
+                case BuySignals.Long_Buy:
+                    var amount = volume * ComputeEnterPriceWithSpread(price);
+                    entity.ExitPositionCallback(amount, volume);
+                    break;
+                case BuySignals.Short_Sell:
+                    amount = volume * ComputeEnterPriceWithSpread(price);
+                    entity.ExitPositionCallback(-amount, volume);
+
+                    break;
+            }
+        }
+
+        public decimal ComputeEnterPriceWithSpread(decimal base_price)
         {
             if (MLRandom.Shared.Chances(_slippageChances, 100))
             {
-                var price = PriceUtils.GenerateGaussianPrice(stamp.Open, stamp.Low, stamp.High);
-                var fee = price * Convert.ToDecimal(_transactionFee);
-                entity.OnTransactionExecuted(transactionType, price, fee, _periodIndex);
+                var slipped_price = PriceUtils.GenerateGaussianPrice(currentPeriod.Open, currentPeriod.Low, currentPeriod.High);
+                var fee = slipped_price * Convert.ToDecimal(_spread);
+
+                return slipped_price + fee;
             }
             else
             {
-                var fee = ask_price * Convert.ToDecimal(_transactionFee);
-                entity.OnTransactionExecuted(transactionType, ask_price, fee, _periodIndex);
+                var fee = base_price * Convert.ToDecimal(_spread);
+                return base_price + fee;
             }
         }
+
+        public decimal ComputeExitWithSpread(decimal base_price)
+        {
+            if (MLRandom.Shared.Chances(_slippageChances, 100))
+            {
+                var slipped_price = PriceUtils.GenerateGaussianPrice(currentPeriod.Open, currentPeriod.Low, currentPeriod.High);
+                var fee = slipped_price * Convert.ToDecimal(_spread);
+
+                return slipped_price - fee;
+            }
+            else
+            {
+                var fee = base_price * Convert.ToDecimal(_spread);
+                return base_price - fee;
+            }
+        }
+
         #endregion
 
 
         #region Visualization
 
+        [SerializeField, Range(0f, 1f), OnValueChanged(nameof(updateCurrentView))] private float _horizontal;
+        [SerializeField, Range(0f, 1f), OnValueChanged(nameof(updateCurrentView))] private float _zoom;
+
+        private void updateCurrentView()
+        {
+            int minmum_points = 10;
+
+            int zoom_total = minmum_points + (int)((1f - _market_samples.Count) * _zoom);
+            int start = (int)(_market_samples.Count * _horizontal);
+
+            int range = Math.Min(_market_samples.Count - start, zoom_total);
+            var slice = _market_samples.GetRange(start, range);
+        }
 
         [Button]
         private void VisualizeDataset(float position = 0, int range = 100)
@@ -460,12 +524,13 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             var tech = new TechnicalAnalysis();
             tech.Initialize();
 
-            double[,] rsi = new double[slice.Count, 1];
+            double[,] rsi = new double[slice.Count, 2];
             int i = 0;
             foreach (var sample in slice)
             {
                 tech.Update(sample);
-                rsi[i, 0] = Convert.ToDouble(tech.rsi.current);
+                rsi[i, 0] = i;
+                rsi[i, 1] = Convert.ToDouble(tech.rsi.current);
                 i++;
             }
 
@@ -473,7 +538,12 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             line.SetTitle("Market Prices");
             line.DrawAutomaticGrid();
 
-            line.AppendLine(rsi, Color.green, 1.75f);
+            line.AppendLine(rsi, Color.blue, 2.75f);
+
+            line.Refresh();
+
+            var line2 = _visualizationSheet.Add_SimpleLine(rsi, 2, new Vector2Int(100, 100), container);
+            line2.backgroundColor = new Color(0, 0, 0, 0);
         }
 
         #endregion

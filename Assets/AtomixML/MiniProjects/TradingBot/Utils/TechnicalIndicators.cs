@@ -161,11 +161,11 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             decimal diPlus = 100 * (smoothedDMPlus / smoothedTR);
             decimal diMinus = 100 * (smoothedDMMinus / smoothedTR);
 
-            if(diMinus + diPlus == 0)
+            if (diMinus + diPlus == 0)
             {
                 current = 0;
                 return 0;
-            }    
+            }
 
             decimal dx = 100 * Math.Abs(diPlus - diMinus) / (diPlus + diMinus);
 
@@ -362,8 +362,8 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         private List<decimal> _closingPrices = new List<decimal>();
         private List<decimal> _highs = new List<decimal>();
         private List<decimal> _lows = new List<decimal>();
-        private List<decimal>  _volumes = new List<decimal>();
-        public decimal current { get; private set; }    
+        private List<decimal> _volumes = new List<decimal>();
+        public decimal current { get; private set; }
 
         public ChaikinMoneyFlowIndicator(int period)
         {
@@ -451,6 +451,121 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
 
             decimal moneyFlowRatio = positiveFlow / negativeFlow;
             current = 100 - (100 / (1 + moneyFlowRatio));
+            return current;
+        }
+    }
+
+    public class WeightedVolumeMovingAverage
+    {
+        private int _period;
+        private List<decimal> _prices = new List<decimal>();
+        private List<decimal> _volumes = new List<decimal>();
+
+        public WeightedVolumeMovingAverage(int period)
+        {
+            _period = period;
+        }
+
+        public decimal current { get; private set; }
+
+        public decimal ComputeWVMA(decimal price, decimal volume)
+        {
+            _prices.Add(price);
+            _volumes.Add(volume);
+
+            if (_prices.Count < _period)
+                return 0;
+
+            if (_prices.Count > _period)
+            {
+                _prices.RemoveAt(0);
+                _volumes.RemoveAt(0);
+            }
+
+            decimal weightedSum = 0;
+            decimal totalVolume = 0;
+
+            for (int i = 0; i < _prices.Count; i++)
+            {
+                weightedSum += _prices[i] * _volumes[i];
+                totalVolume += _volumes[i];
+            }
+
+            current = totalVolume == 0 ? 0 : weightedSum / totalVolume;
+            return current;
+        }
+    }
+
+    public class WeightedVolumeAveragePriceIndicator
+    {
+        private decimal _cumulativeWeightedPrice = 0;
+        private decimal _cumulativeVolume = 0;
+
+        public decimal current { get; private set; }
+
+        public decimal ComputeWVAP(decimal price, decimal volume)
+        {
+            _cumulativeWeightedPrice += price * volume;
+            _cumulativeVolume += volume;
+
+            current = _cumulativeVolume == 0 ? 0 : _cumulativeWeightedPrice / _cumulativeVolume;
+            return current;
+        }
+    }
+
+    /// <summary>
+    /// https://www.bajajfinserv.in/keltner-channel#:~:text=The%20Keltner%20Channel%20is%20calculated,Line%20%2D%20(2%20x%20ATR)
+    /// </summary>
+    public class KeltnerChannelIndicator
+    {
+        private ExponentialMovingAverage _ema;
+        private AverageTrueRangeIndicator _atr;
+
+        private decimal _upperChannelMult;
+        private decimal _lowerChannelMult;
+
+        public (decimal LowerBand, decimal MiddleBand, decimal UpperBand) current { get; private set; }
+
+        public KeltnerChannelIndicator(int emaPeriods = 20, decimal upperChannelMult = 2, decimal lowerChannelMult = 2)
+        {
+            _ema = new ExponentialMovingAverage(emaPeriods);
+            _upperChannelMult = upperChannelMult;
+            _lowerChannelMult = lowerChannelMult;
+        }
+
+        public (decimal UpperBand, decimal MiddleBand, decimal LowerBand) ComputeKeltnerChannel(decimal low, decimal high, decimal close)
+        {
+            var middle = _ema.ComputeEMA(close);
+            var atr = _atr.ComputeATR(low, high, close);
+            var upper = middle + _upperChannelMult * atr;
+            var lower = middle - _lowerChannelMult * atr;
+
+            current = (lower, middle, upper);
+            return current;
+        }
+    }
+
+    /// <summary>
+    /// https://www.avatrade.com/education/technical-analysis-indicators-strategies/atr-indicator-strategies#1
+    /// </summary>
+
+    public class AverageTrueRangeIndicator
+    {
+        private int _n;
+        private decimal _previousClose;
+        public decimal current { get; private set; }
+
+        public decimal ComputeATR(decimal low, decimal high, decimal close)
+        {
+            var tr = Math.Max(high - low, high - _previousClose);
+            tr = Math.Max(tr, low - _previousClose);
+
+            var atr = (current * (_n - 1) + tr) / _n;
+            current = atr;
+
+            _previousClose = close;
+            _n++;
+
             return current;
         }
     }

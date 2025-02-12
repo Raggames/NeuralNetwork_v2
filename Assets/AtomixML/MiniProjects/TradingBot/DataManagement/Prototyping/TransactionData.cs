@@ -12,20 +12,20 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         public decimal Price { get; set; }       // Transaction price
         public decimal Volume { get; set; }      // Number of shares/contracts/coins
         public DateTime Timestamp { get; set; }  // Time of transaction
-        public int TransactionType { get; set; }  // "BUY = 1" or "SELL=0"
+        public BuySignals Signal { get; set; }
 
-        public TransactionData(string assetSymbol, decimal price, decimal volume, DateTime timestamp, int transactionType)
+        public TransactionData(string assetSymbol, decimal price, decimal volume, DateTime timestamp, BuySignals signal)
         {
             AssetSymbol = assetSymbol;
             Price = price;
             Volume = volume;
             Timestamp = timestamp;
-            TransactionType = transactionType;
+            Signal = signal;
         }
 
         public override string ToString()
         {
-            return $"{Timestamp}: {TransactionType} {Volume} of {AssetSymbol} at {Price:C}";
+            return $"{Timestamp}: {Signal} {Volume} of {AssetSymbol} at {Price:C}";
         }
     }
 }

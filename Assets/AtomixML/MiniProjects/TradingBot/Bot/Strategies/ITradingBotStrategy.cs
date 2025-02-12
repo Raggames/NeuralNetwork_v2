@@ -21,6 +21,10 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         public TInput context { get; set; }
         public decimal entryPrice { get; set; }
 
+        public decimal takeProfit { get; set; }
+        public decimal stopLoss { get; set; }
+
+
         public void Initialize(TInput context)
         {
              this.context = context;
@@ -52,15 +56,13 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
                 var signal = CheckEntryConditions(currentPrice);
                 switch (signal)
                 {                    
-                    case BuySignals.Long_Sell:
+                    case BuySignals.Long_Buy:
                         entryPrice = currentPrice;
-                        context.EnterPosition(currentPrice);
+                        context.EnterPosition(currentPrice, BuySignals.Long_Buy);
                         break;
-                    case BuySignals.Short_Buy:
-                        // not yet implemented on market side
-                        return;
+                    case BuySignals.Short_Sell:
                         entryPrice = currentPrice;
-                        context.EnterPosition(currentPrice);
+                        context.EnterPosition(currentPrice, BuySignals.Short_Sell);
                         break;
                 }
             }

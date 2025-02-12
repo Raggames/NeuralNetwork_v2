@@ -13,11 +13,11 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         /// <summary>
         /// Buy / achat
         /// </summary>
-        Long_Sell = 1,
+        Long_Buy = 1,
 
         /// <summary>
         /// Sell / vente à découvert
         /// </summary>
-        Short_Buy = 2,
+        Short_Sell = 2,
     }
 }

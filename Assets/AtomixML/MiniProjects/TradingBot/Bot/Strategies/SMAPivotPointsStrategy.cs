@@ -38,6 +38,9 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
 
         public decimal entryPrice { get ; set; }
 
+        public decimal takeProfit { get; set; } = .85m;
+        public decimal stopLoss { get; set; } = -5m;
+
         public void OnInitialize()
         {
             _sma = new SimpleMovingAverage(14);
@@ -66,11 +69,11 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         {
             if(currentPrice * x1 > _pivotPoint.Pivot && currentPrice * x2 > _sma.Current)
             {
-                return BuySignals.Short_Buy;
+                return BuySignals.Short_Sell;
             }
             else if (currentPrice * x3 < _pivotPoint.Pivot && currentPrice * x4 < _sma.Current)
             {
-                return BuySignals.Long_Sell;
+                return BuySignals.Long_Buy;
             }
 
             return BuySignals.None;
@@ -78,11 +81,17 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
 
         public bool CheckExitConditions(decimal currentPrice)
         {
+            if (context.positionBalancePurcent >= takeProfit)
+                return true;
+
+            if (context.positionBalancePurcent <= stopLoss)
+                return true;
+
             /*
              Take Profit at Resistance 1 (R1) for longs, Support 1 (S1) for shorts.
              Stop Loss at the Pivot Point (PP) for longs, R1 for shorts.
              */
-            if (context.isLongPosition)
+            if (context.currentPositionType == BuySignals.Long_Buy)
             {
                 // take profit
                 if (currentPrice >= _pivotPoint.Resistance1 * tpLong)

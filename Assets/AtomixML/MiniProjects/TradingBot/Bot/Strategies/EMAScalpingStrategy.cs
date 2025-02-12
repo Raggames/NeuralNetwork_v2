@@ -9,6 +9,9 @@ namespace Assets.AtomixML.MiniProjects.TradingBot.Bot.Strategies
 {
     public class EMAScalpingStrategy : ITradingBotStrategy<TradingBotEntity>
     {
+        public decimal takeProfit { get; set; } = .85m;
+        public decimal stopLoss { get; set; } = -5m;
+
         public double[] InitialParameters { get; set; } = new double[]
         {
             // enter
@@ -18,7 +21,7 @@ namespace Assets.AtomixML.MiniProjects.TradingBot.Bot.Strategies
             1, 
             1, 
             // exit
-            60, // pips threshold
+            1000, // pips threshold
             1, // tp long
             1, // sl long
             1, // tp short
@@ -74,11 +77,11 @@ namespace Assets.AtomixML.MiniProjects.TradingBot.Bot.Strategies
         {
             if( _ema5.current < _ema10.current && context.manager.rsi.current < rsiLongThreshold && currentPrice * x1 < _ema5.current)
             {
-                return BuySignals.Long_Sell;
+                return BuySignals.Long_Buy;
             }
             else if (_ema5.current > _ema10.current && context.manager.rsi.current > rsiShortThreshold && currentPrice * x3 > _ema5.current)
             {
-                return BuySignals.Short_Buy;
+                return BuySignals.Short_Sell;
             }
 
             return BuySignals.None;
@@ -86,10 +89,14 @@ namespace Assets.AtomixML.MiniProjects.TradingBot.Bot.Strategies
 
         public bool CheckExitConditions(decimal currentPrice)
         {
-            var pips = PriceUtils.ComputePips(entryPrice, currentPrice); 
 
-            
-            if (context.isLongPosition)
+            if (context.positionBalancePurcent >= takeProfit)
+                return true;
+
+            if (context.positionBalancePurcent <= stopLoss)
+                return true;
+
+            if (context.currentPositionType == BuySignals.Long_Buy)
             {
                 // take profit
                 if (currentPrice >= _pivotPoint.Resistance1 * tpLong)
@@ -109,6 +116,8 @@ namespace Assets.AtomixML.MiniProjects.TradingBot.Bot.Strategies
                 if (currentPrice >= _pivotPoint.Resistance1 * slShort)
                     return true;
             }
+
+            var pips = PriceUtils.ComputePips(entryPrice, currentPrice);
 
             // take profit
             if (pips > pipsThreshold)
