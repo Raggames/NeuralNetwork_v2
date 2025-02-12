@@ -254,24 +254,31 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
 
         public double MutateGene(int geneIndex)
         {
-            if (geneIndex > 0)
-            {
-                var current_grad = MLRandom.Shared.GaussianNoise(0) * manager.learningRate * Weights[geneIndex];
-                var old_grad = _gradient[geneIndex];
-                _gradient[geneIndex] = current_grad;
-                current_grad += old_grad * .5;
+            var current_grad = MLRandom.Shared.Range(-1, 1) * manager.learningRate * Weights[geneIndex];
+            var old_grad = _gradient[geneIndex];
+            _gradient[geneIndex] = current_grad;
+            current_grad += old_grad * .5;
 
-                return Weights[geneIndex] + current_grad;
-            }
-            else
-            {
-                var current_grad = MLRandom.Shared.GaussianNoise(0) * manager.thresholdRate * Weights[geneIndex];
-                var old_grad = _gradient[geneIndex];
-                _gradient[geneIndex] = current_grad;
-                current_grad += old_grad * .5;
+            return Weights[geneIndex] + current_grad;
 
-                return Weights[geneIndex] + current_grad;
-            }
+            /* if (geneIndex > 0)
+             {
+                 var current_grad = MLRandom.Shared.GaussianNoise(0) * manager.learningRate * Weights[geneIndex];
+                 var old_grad = _gradient[geneIndex];
+                 _gradient[geneIndex] = current_grad;
+                 current_grad += old_grad * .5;
+
+                 return Weights[geneIndex] + current_grad;
+             }
+             else
+             {
+                 var current_grad = MLRandom.Shared.GaussianNoise(0) * manager.thresholdRate * Weights[geneIndex];
+                 var old_grad = _gradient[geneIndex];
+                 _gradient[geneIndex] = current_grad;
+                 current_grad += old_grad * .5;
+
+                 return Weights[geneIndex] + current_grad;
+             }*/
         }
     }
 }

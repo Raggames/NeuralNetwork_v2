@@ -150,11 +150,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _tradingBotEntity: {}
   _datasetPath: C:\Users\Rag\wkspaces\NeuralNetwork_v2\Assets\AtomixML\MiniProjects\TradingBot\Resources\td_aapl_1mn_20250101_to_20250210.txt
-  _transactionsPerTimeStampMin: 18
-  _transactionsPerTimeStampMax: 34
+  _transactionsPerTimeStampMin: 1
+  _transactionsPerTimeStampMax: 1
   _slippageChances: 1
   _trainTestSplit: 0.745
-  _transactionFee: 0.01
+  _spread: 0.00005
   _symbol: AAPL
   _startWallet: 1000
   _maxTransactionAmount: 1000
@@ -174,8 +174,10 @@ MonoBehaviour:
     _profitScoreBonusMultiplier: 3
     _transactionsScoreMalusMultiplier: 7.19
     _transactionHoldingTimeMultiplier: 0
-    _learningRate: 0.1
-    _thresholdRate: 0.1
+    _learningRate: 0.005
+    _thresholdRate: 0.005
+  _horizontal: 0.201
+  _zoom: 0
 --- !u!4 &338641947
 Transform:
   m_ObjectHideFlags: 0
@@ -481,7 +483,7 @@ MonoBehaviour:
   _transactionsPerTimeStampMax: 7
   _slippageChances: 10
   _trainTestSplit: 0.5
-  _transactionFee: 0.5
+  _spread: 0.005
   _symbol: AAPL
   _startWallet: 50
   _maxTransactionAmount: 200
@@ -503,6 +505,8 @@ MonoBehaviour:
     _transactionHoldingTimeMultiplier: 2
     _learningRate: 0.1
     _thresholdRate: 0.2
+  _horizontal: 0
+  _zoom: 0
 --- !u!4 &1809157371
 Transform:
   m_ObjectHideFlags: 0

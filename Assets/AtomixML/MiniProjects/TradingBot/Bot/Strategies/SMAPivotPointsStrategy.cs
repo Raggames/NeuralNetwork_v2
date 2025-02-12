@@ -36,7 +36,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         protected decimal tpShort => Convert.ToDecimal(context.Weights[6]);
         protected decimal slShort => Convert.ToDecimal(context.Weights[7]);
 
-        public decimal entryPrice { get ; set; }
+        public decimal entryPrice { get; set; }
 
         public decimal takeProfit { get; set; } = .85m;
         public decimal stopLoss { get; set; } = -5m;
@@ -67,7 +67,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
 
         public BuySignals CheckEntryConditions(decimal currentPrice)
         {
-            if(currentPrice * x1 > _pivotPoint.Pivot && currentPrice * x2 > _sma.Current)
+            if (currentPrice * x1 > _pivotPoint.Pivot && currentPrice * x2 > _sma.Current)
             {
                 return BuySignals.Short_Sell;
             }
@@ -93,23 +93,35 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
              */
             if (context.currentPositionType == BuySignals.Long_Buy)
             {
-                // take profit
-                if (currentPrice >= _pivotPoint.Resistance1 * tpLong)
-                    return true;
-
-                // stop loss
-                if(currentPrice <=  _pivotPoint.Pivot * slLong)
-                    return true;
+                if (context.positionBalancePurcent > 0)
+                {
+                    // take profit
+                    if (currentPrice >= _pivotPoint.Resistance1 * tpLong)
+                        return true;
+                }
+                else
+                {    // stop loss
+                    if (currentPrice <= _pivotPoint.Pivot * slLong)
+                        return true;
+                }
             }
             else
             {
-                // take profit
-                if (currentPrice <= _pivotPoint.Support1 * tpShort)
-                    return true;
+                if (context.positionBalancePurcent > 0)
+                {
+                    // take profit
+                    if (currentPrice <= _pivotPoint.Support1 * tpShort)
+                        return true;
+                }
+                else
+                {
+                    // stop loss
+                    if (currentPrice >= _pivotPoint.Resistance1 * slShort)
+                        return true;
+                }
 
-                // stop loss
-                if (currentPrice >= _pivotPoint.Resistance1 * slShort)
-                    return true;
+
+
             }
 
 

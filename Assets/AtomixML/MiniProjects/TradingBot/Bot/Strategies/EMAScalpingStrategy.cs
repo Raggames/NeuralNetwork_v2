@@ -18,7 +18,7 @@ namespace Assets.AtomixML.MiniProjects.TradingBot.Bot.Strategies
             1, // multiplier for price entry condition
             35, // rsi long/buy
             70, // rsi short/sell
-            1, 
+            1,
             1, 
             // exit
             1000, // pips threshold
@@ -28,7 +28,7 @@ namespace Assets.AtomixML.MiniProjects.TradingBot.Bot.Strategies
             1 // sl short
         };
 
-        public TradingBotEntity context { get; set ; }
+        public TradingBotEntity context { get; set; }
         public decimal entryPrice { get; set; }
 
         private ExponentialMovingAverage _ema5;
@@ -75,7 +75,7 @@ namespace Assets.AtomixML.MiniProjects.TradingBot.Bot.Strategies
 
         public BuySignals CheckEntryConditions(decimal currentPrice)
         {
-            if( _ema5.current < _ema10.current && context.manager.rsi.current < rsiLongThreshold && currentPrice * x1 < _ema5.current)
+            if (_ema5.current < _ema10.current && context.manager.rsi.current < rsiLongThreshold && currentPrice * x1 < _ema5.current)
             {
                 return BuySignals.Long_Buy;
             }
@@ -89,7 +89,7 @@ namespace Assets.AtomixML.MiniProjects.TradingBot.Bot.Strategies
 
         public bool CheckExitConditions(decimal currentPrice)
         {
-
+            // purcentage TP/SL
             if (context.positionBalancePurcent >= takeProfit)
                 return true;
 
@@ -98,23 +98,34 @@ namespace Assets.AtomixML.MiniProjects.TradingBot.Bot.Strategies
 
             if (context.currentPositionType == BuySignals.Long_Buy)
             {
-                // take profit
-                if (currentPrice >= _pivotPoint.Resistance1 * tpLong)
-                    return true;
+                if (context.positionBalancePurcent > 0)
+                {
+                    // take profit
+                    if (currentPrice >= _pivotPoint.Resistance1 * tpLong)
+                        return true;
+                }
+                else
+                {
+                    // stop loss
+                    if (currentPrice <= _pivotPoint.Pivot * slLong)
+                        return true;
+                }
 
-                // stop loss
-                if (currentPrice <= _pivotPoint.Pivot * slLong)
-                    return true;
             }
             else
             {
-                // take profit
-                if (currentPrice <= _pivotPoint.Support1 * tpShort)
-                    return true;
-
-                // stop loss
-                if (currentPrice >= _pivotPoint.Resistance1 * slShort)
-                    return true;
+                if (context.positionBalancePurcent > 0)
+                {
+                    // take profit
+                    if (currentPrice <= _pivotPoint.Support1 * tpShort)
+                        return true;
+                }
+                else
+                {
+                    // stop loss
+                    if (currentPrice >= _pivotPoint.Resistance1 * slShort)
+                        return true;
+                }
             }
 
             var pips = PriceUtils.ComputePips(entryPrice, currentPrice);
