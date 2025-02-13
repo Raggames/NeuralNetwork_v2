@@ -199,6 +199,7 @@ namespace Assets.AtomixML.MiniProjects.TradingBot.Bot.Strategies
 
             var max_invest = context.walletAmount * actual_leverage;
             var basePrice = PriceUtils.ComputeBassoATRComposedPositionSizing(max_invest, riskPerTradePurcent, _maximalDrawdownIndicator.current, _averageTrueRangeIndicator.current, atrMultiplier);
+            basePrice = Math.Clamp(basePrice, 0, max_invest);
 
             // compute needed leverage to achieve and then apply 
             /*if(basePrice > context.walletAmount)

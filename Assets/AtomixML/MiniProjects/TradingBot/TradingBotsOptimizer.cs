@@ -15,7 +15,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         [Header("Training Bot Optimizer Parameters")]
         [SerializeField, Range(0f, 1f)] private float _batchSizeRatio = .02f;
         [SerializeField] private float _profitScoreBonusMultiplier = 3;
-        [SerializeField] private float _lossesCountMalusMultiplier = 2;
+        [SerializeField] private float _gainLossRatioMultiplier = 2;
         //[SerializeField] private float _learningRate = .01f;
         [Space]
         [SerializeField] float[] _minMaxLearningRate = new float[] { 1.5f, .1f };
@@ -62,7 +62,8 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
 
             score += entity.totalHoldingTime * _transactionHoldingTimeMultiplier;*/
 
-            var score = Convert.ToDouble(entity.totalMargin) * _profitScoreBonusMultiplier;
+            var score = Convert.ToDouble(entity.totalBalance) * _profitScoreBonusMultiplier * 
+                Math.Log(Math.Pow(1 + entity.gainLossRatio * _gainLossRatioMultiplier, 2));
 
             return score;
         }

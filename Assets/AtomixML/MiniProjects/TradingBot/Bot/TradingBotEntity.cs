@@ -70,8 +70,8 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
 
         [ShowInInspector, ReadOnly] private decimal _sessionTotalBalance = 0;
         [ShowInInspector, ReadOnly] private int _totalHoldingTime;
-        [ShowInInspector, ReadOnly] private int _gains;
-        [ShowInInspector, ReadOnly] private int _losses;
+        [ShowInInspector, ReadOnly] private float _gains;
+        [ShowInInspector, ReadOnly] private float _losses;
         [ShowInInspector, ReadOnly] private double _totalGainsAmount;
         [ShowInInspector, ReadOnly] private double _totalLossesAmount;
 
@@ -91,6 +91,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         [JsonIgnore] public TradingBotManager manager => _manager;
         [JsonIgnore] public ITradingBotStrategy<TradingBotEntity> strategy => _strategy;
 
+        [JsonIgnore] public float gainLossRatio => (_gains + 1) / (_losses + 1);
         [JsonIgnore] public decimal totalBalance => _walletAmount - _initialWallet;
         [JsonIgnore] public decimal totalMargin => _sessionTotalBalance;
         [JsonIgnore] public decimal meanMargin => _transactionsHistory.Count == 0 ? 0 : _sessionTotalBalance / _transactionsHistory.Count;
