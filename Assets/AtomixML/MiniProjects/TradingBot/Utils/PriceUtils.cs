@@ -9,19 +9,26 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
 {
     public static class PriceUtils
     {
-        public static decimal ComputeBassoATRComposedPositionSizing(decimal accountSize, decimal riskPerTradePurcent, decimal atr, decimal atrMultiplier)
+        public static decimal ComputeBassoATRComposedPositionSizing(decimal accountSize, decimal riskPerTradePurcent, decimal maxDrowdown, decimal atr, decimal atrMultiplier)
         {
-            return Math.Min(ComputeBassoPositionSizing(accountSize, riskPerTradePurcent), ComputeATRPositionSizing(accountSize, riskPerTradePurcent, atr, atrMultiplier));  
+            return Math.Min(ComputeBassoPositionSizing(accountSize, riskPerTradePurcent, maxDrowdown), ComputeATRPositionSizing(accountSize, riskPerTradePurcent, atr, atrMultiplier));  
         }
 
         public static decimal ComputeATRPositionSizing(decimal accountSize, decimal riskPerTradePurcent, decimal atr, decimal atrMultiplier)
         {
+            if(atr == 0)
+                return accountSize * riskPerTradePurcent / atrMultiplier;
+
             return (accountSize * riskPerTradePurcent) / (atr * atrMultiplier);
         }
 
-        public static decimal ComputeBassoPositionSizing(decimal accountSize, decimal riskPerTradePurcent)
+
+        public static decimal ComputeBassoPositionSizing(decimal accountSize, decimal riskPerTradePurcent, decimal maxDrowdown)
         {
-            return accountSize * riskPerTradePurcent;
+            if (maxDrowdown == 0)
+                return accountSize * riskPerTradePurcent;
+
+            return (accountSize * riskPerTradePurcent) / maxDrowdown;
         }
 
         public static decimal ComputeFixedFractionnalPositionSizing(decimal accountSize, decimal riskPerTradePurcent)

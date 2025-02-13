@@ -53,16 +53,20 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             }
             else
             {
+                // can't enter with no money 
+                if (context.walletAmount < 0)
+                    return;
+
                 var signal = CheckEntryConditions(currentPrice);
                 switch (signal)
                 {                    
                     case PositionTypes.Long_Buy:
                         entryPrice = currentPrice;
-                        context.EnterPosition(currentPrice, PositionTypes.Long_Buy);
+                        context.EnterPosition(currentPrice, ComputePositionAmount(currentPrice), PositionTypes.Long_Buy);
                         break;
                     case PositionTypes.Short_Sell:
                         entryPrice = currentPrice;
-                        context.EnterPosition(currentPrice, PositionTypes.Short_Sell);
+                        context.EnterPosition(currentPrice, ComputePositionAmount(currentPrice), PositionTypes.Short_Sell);
                         break;
                 }
             }
@@ -79,6 +83,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
 
         public PositionTypes CheckEntryConditions(decimal currentPrice);
 
+        public decimal ComputePositionAmount(decimal currentPrice);
         public bool CheckExitConditions(decimal currentPrice);
 
         public double OnGeneticOptimizerMutateWeight(int weightIndex);

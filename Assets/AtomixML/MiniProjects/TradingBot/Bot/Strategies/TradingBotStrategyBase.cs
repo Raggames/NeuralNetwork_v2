@@ -35,5 +35,10 @@ namespace Assets.AtomixML.MiniProjects.TradingBot.Bot.Strategies
         public abstract void OnTick(MarketData currentPeriod, decimal currentPrice);
 
         public abstract double OnGeneticOptimizerMutateWeight(int weightIndex);
+
+        public decimal ComputePositionAmount(decimal currentPrice)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

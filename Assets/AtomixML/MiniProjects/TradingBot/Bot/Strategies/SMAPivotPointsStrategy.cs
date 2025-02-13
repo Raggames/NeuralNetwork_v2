@@ -147,5 +147,11 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             var current_grad = MLRandom.Shared.Range(-1, 1) * context.manager.learningRate * context.Weights[weightIndex] * MutationRates[weightIndex];
             return context.Weights[weightIndex] + current_grad;
         }
+
+        public decimal ComputePositionAmount(decimal currentPrice)
+        {
+            // to do risk calculation / 
+            return context.walletAmount * currentPrice;
+        }
     }
 }

@@ -92,6 +92,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         private ITradingBotStrategy<TradingBotEntity> _strategy;
         private bool _isLongPosition = true; // not yet implemented
         private decimal _latestPrice;
+        private int _maxLeverage = 10;
 
         [JsonIgnore] private TradingBotManager _manager;
         [JsonIgnore] public TradingBotManager manager => _manager;
@@ -104,6 +105,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         public decimal meanMargin => _transactionsHistory.Count == 0 ? 0 : _sessionTotalBalance / _transactionsHistory.Count;
 
         [JsonIgnore] public decimal walletAmount => _walletAmount;
+        [JsonIgnore] public int maxLeverage => _maxLeverage;
         [JsonIgnore] public decimal currentPositionEntryPrice => _entryPrice;
         [JsonIgnore] public decimal currentOwnedVolume => _currentOwnedVolume;
         [JsonIgnore] public int sellTransactionsCount => _shortTransactionsCount;
@@ -146,7 +148,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             SetStrategy((ITradingBotStrategy<TradingBotEntity>)Activator.CreateInstance(tradingBotEntity._strategy.GetType()));
         }
 
-        public void Initialize(TradingBotManager tradingBotManager, decimal startMoney = 10, decimal maxTransactionsAmount = 50, decimal takeProfit = 0, decimal stopLoss = 0)
+        public void Initialize(TradingBotManager tradingBotManager, decimal startMoney = 10, decimal maxTransactionsAmount = 50, int maxLeverage = 10)
         {
             _manager = tradingBotManager;
 
@@ -161,9 +163,8 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
 
             _initialWallet = startMoney;
             _walletAmount = startMoney;
+            _maxLeverage = maxLeverage;
             _maxTransactionAmount = maxTransactionsAmount;
-            _takeProfit = takeProfit;
-            _stopLoss = stopLoss;
         }
 
         public void SetStrategy(ITradingBotStrategy<TradingBotEntity> strategy)
@@ -201,13 +202,13 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             return 0;
         }
 
-        public void EnterPosition(decimal price, PositionTypes buySignals)
+        public void EnterPosition(decimal price, decimal positionAmount, PositionTypes buySignals)
         {
             // move this to strategy risk management
             //var invested_money_amount = Math.Min(_walletAmount, _maxTransactionAmount - _currentTransactionAmount);
 
             // invest all every time 
-            manager.EnterPositionRequest(this, price, _walletAmount, buySignals);
+            manager.EnterPositionRequest(this, price, positionAmount, buySignals);
         }
 
         public void EnterPositionCallback(PositionTypes buySignals, decimal entryPrice, decimal amount, decimal volume, int stampIndex)
@@ -244,13 +245,13 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             manager.ExitPositionRequest(this, currentPositionType, currentPrice, _entryPrice, _currentOwnedVolume);
         }
 
-        public void ExitPositionCallback(decimal amount, decimal volume)
+        public void ExitPositionCallback(decimal amount, decimal volume, decimal exitPrice)
         {            
             if (manager.debugMode)
                 if (positionBalancePurcent > 0)
-                    Debug.Log($"***** Gain {positionBalance} > Exited {currentPositionType} position at {volume / amount} $, entered at {_entryPrice}, amount = {amount} ***** {manager.currentPeriod.Timestamp} ****");
+                    Debug.Log($"***** Gain {positionBalance} > Exited {currentPositionType} position at {exitPrice} $, entered at {_entryPrice}, amount = {amount} ***** {manager.currentPeriod.Timestamp} ****");
                 else
-                    Debug.Log($"***** Loss {positionBalance} > Exited {currentPositionType} position at {volume / amount} $, entered at {_entryPrice}, amount = {amount} ***** {manager.currentPeriod.Timestamp} ****");
+                    Debug.Log($"***** Loss {positionBalance} > Exited {currentPositionType} position at {exitPrice} $, entered at {_entryPrice}, amount = {amount} ***** {manager.currentPeriod.Timestamp} ****");
 
             var holded_time = manager.currentPeriodIndex - _startHold;
             _totalHoldingTime += holded_time;

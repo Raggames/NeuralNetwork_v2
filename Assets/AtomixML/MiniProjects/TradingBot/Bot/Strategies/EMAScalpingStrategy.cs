@@ -20,36 +20,44 @@ namespace Assets.AtomixML.MiniProjects.TradingBot.Bot.Strategies
             // exit
             10000, // pips threshold
             1, // tp long
-            1, // sl long
+            1, // sl long 
             1, // tp short
-            1 // sl short
+            1, // sl short
+            .05, // risk per trade purcent 5%
+            2, // atr multiplier
+            .3, // leverage computation multiplier
         };
 
         public double[] MutationRates { get; set; } = new double[]
         {
             // enter
-            .001, // long entry threshold multiplier
-            .1, // rsi long/buy threshold
-            .1, // rsi short/sell threshold
-            .001, // short entry threshold multiplier
+            .01, // long entry threshold multiplier
+            .05, // rsi long/buy threshold
+            .05, // rsi short/sell threshold
+            .01, // short entry threshold multiplier
             // exit
-            1, // pips threshold
-            .001, // tp long
-            .001, // sl long
-            .001, // tp short
-            .0011 // sl short
+            .08, // pips threshold
+            .1, // tp long
+            .1, // sl long
+            .1, // tp short
+            .1, // sl short
+            1, // risk per trade percent
+            .1, // atr multiplier
+            .1,// leverage comp mult
         };
-        
+
         public TradingBotEntity context { get; set; }
         public decimal entryPrice { get; set; }
 
         private ExponentialMovingAverage _ema5;
         private ExponentialMovingAverage _ema10;
         private PivotPoint _pivotPoint;
+        private AverageTrueRangeIndicator _averageTrueRangeIndicator;
+        private MaximalDrawdownIndicator _maximalDrawdownIndicator;
         private Dictionary<DateTime, MarketData> _days_datas = new Dictionary<DateTime, MarketData>();
 
-        public decimal takeProfit { get;} = .99m;
-        public decimal stopLoss { get;} = -.5m;
+        public decimal takeProfit { get; } = .99m;
+        public decimal stopLoss { get; } = -.5m;
         protected decimal x1 => Convert.ToDecimal(context.Weights[0]);
         protected decimal rsiLongThreshold => Convert.ToDecimal(context.Weights[1]);
         protected decimal rsiShortThreshold => Convert.ToDecimal(context.Weights[2]);
@@ -60,10 +68,17 @@ namespace Assets.AtomixML.MiniProjects.TradingBot.Bot.Strategies
         protected decimal tpShort => Convert.ToDecimal(context.Weights[7]);
         protected decimal slShort => Convert.ToDecimal(context.Weights[8]);
 
+        protected decimal riskPerTradePurcent => Convert.ToDecimal(context.Weights[9]);
+        protected decimal atrMultiplier => Convert.ToDecimal(context.Weights[10]);
+        protected double leverageRiskMultiplier => context.Weights[11];
+
         public void OnInitialize()
         {
+
             _ema5 = new ExponentialMovingAverage(5);
             _ema10 = new ExponentialMovingAverage(10);
+            _averageTrueRangeIndicator = new AverageTrueRangeIndicator();
+            _maximalDrawdownIndicator = new MaximalDrawdownIndicator();
             _pivotPoint = new PivotPoint();
             _days_datas = context.manager.GetMarketDatas(context.manager.Symbol, OHCDTimeIntervals.Day).ToDictionary(t => t.Timestamp.Date, t => t);
         }
@@ -77,6 +92,8 @@ namespace Assets.AtomixML.MiniProjects.TradingBot.Bot.Strategies
             //
             _ema5.ComputeEMA(newPeriod.Close);
             _ema10.ComputeEMA(newPeriod.Close);
+            _averageTrueRangeIndicator.ComputeATR(newPeriod.Low, newPeriod.High, newPeriod.Close);
+            _maximalDrawdownIndicator.ComputeMaxDrawdown(newPeriod.Close);
 
             MarketData yesterday = null;
             int i = -1;
@@ -163,8 +180,46 @@ namespace Assets.AtomixML.MiniProjects.TradingBot.Bot.Strategies
 
         public double OnGeneticOptimizerMutateWeight(int weightIndex)
         {
-            var current_grad = MLRandom.Shared.Range(-1, 1) * context.manager.learningRate * context.Weights[weightIndex] * MutationRates[weightIndex];            
+            var current_grad = MLRandom.Shared.Range(-1f, 1f) * context.manager.learningRate * context.Weights[weightIndex] * MutationRates[weightIndex];
             return context.Weights[weightIndex] + current_grad;
+        }
+
+        public decimal ComputePositionAmount(decimal currentPrice)
+        {
+            // in testing
+            // https://medium.com/@redsword_23261/technical-indicator-strategy-risk-management-strategy-adaptive-trend-following-strategy-5d09ec6a508c
+            // need more indicator for risk management of the leverage
+            // the 1/ecp(weight) will work as non linearity. the higher riskMultiplier the lower leverage. risk multiplier of 0 will be just maxLeverage
+            var actual_leverage = Convert.ToDecimal((1f / Math.Exp(leverageRiskMultiplier)) * context.maxLeverage);
+
+            var max_invest = context.walletAmount * actual_leverage;
+            var basePrice = PriceUtils.ComputeBassoATRComposedPositionSizing(max_invest, riskPerTradePurcent, _maximalDrawdownIndicator.current, _averageTrueRangeIndicator.current, atrMultiplier);
+
+            // compute needed leverage to achieve and then apply 
+            /*if(basePrice > context.walletAmount)
+            {
+                for (int i = context.maxLeverage; i >= 1; --i)
+                {
+                    if (i * context.walletAmount < basePrice)
+                    {
+                        basePrice = basePrice / context.maxLeverage * i;
+
+                        // https://medium.com/@redsword_23261/technical-indicator-strategy-risk-management-strategy-adaptive-trend-following-strategy-5d09ec6a508c
+
+                        // use fittable function to map the leverage depending on a learnable parameter
+                        // todo add a risk ratio for this factor
+                        var max_leverage = i;
+                        var actual_leverage = Convert.ToDecimal( 1f / Math.Exp(leverageRiskMultiplier * max_leverage));
+                        basePrice = basePrice / context.maxLeverage * actual_leverage;
+                    }
+                }
+            }*/
+
+
+            // retourne de bons résultats sans àa mais plus fluctuant
+            // context.walletAmount;
+
+            return basePrice; 
         }
     }
 }

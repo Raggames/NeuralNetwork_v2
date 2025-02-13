@@ -158,8 +158,7 @@ MonoBehaviour:
   _symbol: AAPL
   _startWallet: 1000
   _maxTransactionAmount: 1000
-  _takeProfit: 0
-  _stopLoss: 0
+  _maxLeverage: 10
   _visualizationSheet: {fileID: 420925724}
   _optimizer:
     _elitPurcentage: 6.29
@@ -170,7 +169,7 @@ MonoBehaviour:
     _populationCount: 50
     _maxIterations: 20
     _fitnessObjective: 2000000
-    _batchSizeRatio: 0.336
+    _batchSizeRatio: 0.022
     _profitScoreBonusMultiplier: 3
     _transactionsScoreMalusMultiplier: 7.19
     _transactionHoldingTimeMultiplier: 0
@@ -487,8 +486,7 @@ MonoBehaviour:
   _symbol: AAPL
   _startWallet: 50
   _maxTransactionAmount: 200
-  _takeProfit: 0
-  _stopLoss: 0
+  _maxLeverage: 10
   _visualizationSheet: {fileID: 0}
   _optimizer:
     _elitPurcentage: 10

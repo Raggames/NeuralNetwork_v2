@@ -77,8 +77,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         [Header("Entity parameters")]
         [SerializeField] private float _startWallet = 0;
         [SerializeField] private float _maxTransactionAmount = 0;
-        [SerializeField] private float _takeProfit = 0;
-        [SerializeField] private float _stopLoss = 0;
+        [SerializeField] private int _maxLeverage = 10;
 
         [Header("Visualization")]
         [SerializeField] private VisualizationSheet _visualizationSheet;
@@ -220,7 +219,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         private TradingBotEntity GenerateTradingBot_Momentum_MACD()
         {
             var entity = new TradingBotEntity();
-            entity.Initialize(this, Convert.ToDecimal(_startWallet), Convert.ToDecimal(_maxTransactionAmount), Convert.ToDecimal(_takeProfit), Convert.ToDecimal(_stopLoss));
+            entity.Initialize(this, Convert.ToDecimal(_startWallet), Convert.ToDecimal(_maxTransactionAmount), _maxLeverage);
             //entity.SetStrategy(new SMAPivotPointsStrategy());
             entity.SetStrategy(new EMAScalpingStrategy());
 
@@ -260,7 +259,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             _market_samples = GetMarketDatas(false);
             InitializeIndicators();
 
-            _tradingBotEntity.Initialize(this, Convert.ToDecimal(_startWallet), Convert.ToDecimal(_maxTransactionAmount), Convert.ToDecimal(_takeProfit), Convert.ToDecimal(_stopLoss));
+            _tradingBotEntity.Initialize(this, Convert.ToDecimal(_startWallet), Convert.ToDecimal(_maxTransactionAmount), _maxLeverage);
             _tokenSource = new CancellationTokenSource();
 
             await RunEpoch(new List<TradingBotEntity> { _tradingBotEntity }, _tokenSource.Token);
@@ -283,7 +282,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             for (int i = 0; i < _optimizer.PopulationCount; ++i)
             {
                 var bot = new TradingBotEntity(selectedEliteEntities[MLRandom.Shared.Range(0, selectedEliteEntities.Count)]);
-                bot.Initialize(this, Convert.ToDecimal(_startWallet), Convert.ToDecimal(_maxTransactionAmount), Convert.ToDecimal(_takeProfit), Convert.ToDecimal(_stopLoss));
+                bot.Initialize(this, Convert.ToDecimal(_startWallet), Convert.ToDecimal(_maxTransactionAmount), _maxLeverage);
 
                 bots.Add(bot);
 
@@ -458,24 +457,26 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
 
         public void ExitPositionRequest(TradingBotEntity entity, PositionTypes buySignals, decimal price, decimal entryPrice, decimal volume)
         {
+            var exit_price = ComputePrice(price); 
+
             switch (buySignals)
             {
                 case PositionTypes.Long_Buy:
-                    var amount = volume * ComputePrice(price);
+                    var amount = volume * exit_price;
                     amount -= volume * entryPrice;
 
                     /*var fee = price * Convert.ToDecimal(_spread);
                     amount += fee;*/
-                    entity.ExitPositionCallback(amount, volume);
+                    entity.ExitPositionCallback(amount, volume, exit_price);
 
                     break;
                 case PositionTypes.Short_Sell:
-                    amount = volume * ComputePrice(price);
+                    amount = volume * exit_price;
                     amount -= volume * entryPrice;
 
                     /*fee = price * Convert.ToDecimal(_spread);
                     amount -= fee;*/
-                    entity.ExitPositionCallback(-amount, volume);
+                    entity.ExitPositionCallback(-amount, volume, exit_price);
 
                     break;
             }

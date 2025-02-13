@@ -556,7 +556,14 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         public decimal current { get; private set; }
 
         public decimal ComputeATR(decimal low, decimal high, decimal close)
-        {
+        {           
+            if(_n == 0)
+            {
+                _previousClose = close;
+                _n++;
+                return 0;
+            }
+
             var tr = Math.Max(high - low, high - _previousClose);
             tr = Math.Max(tr, low - _previousClose);
 
@@ -581,10 +588,52 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         public decimal ComputeMaxDrawdown(decimal price)
         {
             _peakPrice = Math.Max(price, _peakPrice);
+
+            if(_peakPrice == 0)
+                return 0;
+
             decimal drwwdown = (_peakPrice - price) / _peakPrice;
             _maxDrawdown = Math.Max(_maxDrawdown, drwwdown);
-            
+
             return _maxDrawdown;
+        }
+    }
+
+    public class IncrementalVolatility
+    {
+        private double _meanReturn = 0;
+        private double _m2 = 0;
+        private int _count = 0;
+        private double _lastPrice = double.NaN;
+
+        public decimal current { get; private set; }
+
+        public decimal ComputeVolatility(double newPrice)
+        {
+            if (double.IsNaN(_lastPrice))
+            {
+                _lastPrice = newPrice;
+                return 0m;
+            }
+
+            // Compute log return
+            double logReturn = Math.Log(newPrice / _lastPrice);
+            _lastPrice = newPrice;
+            _count++;
+
+            // Welford’s online variance update
+            double delta = logReturn - _meanReturn;
+            _meanReturn += delta / _count;
+            _m2 += delta * (logReturn - _meanReturn);
+
+            if (_count < 2) return 0m; // Not enough data
+
+            // Standard deviation of log returns
+            double stdDev = Math.Sqrt(_m2 / (_count - 1));
+
+            // Annualized volatility (assuming 252 trading days)
+            current = Convert.ToDecimal(stdDev * Math.Sqrt(252) * 100);
+            return current;
         }
     }
 }
