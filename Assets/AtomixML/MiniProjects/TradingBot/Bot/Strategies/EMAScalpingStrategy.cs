@@ -26,6 +26,8 @@ namespace Assets.AtomixML.MiniProjects.TradingBot.Bot.Strategies
             .05, // risk per trade purcent 5%
             2, // atr multiplier
             .3, // leverage computation multiplier
+            .99, //% tp
+            -.5 // % sl
         };
 
         public double[] MutationRates { get; set; } = new double[]
@@ -41,9 +43,11 @@ namespace Assets.AtomixML.MiniProjects.TradingBot.Bot.Strategies
             .1, // sl long
             .1, // tp short
             .1, // sl short
-            1, // risk per trade percent
-            .1, // atr multiplier
-            .1,// leverage comp mult
+             1, // risk per trade percent
+            .33, // atr multiplier
+            .66,// leverage comp mult
+            .33, // take profit %
+            .33, // stop loss %
         };
 
         public TradingBotEntity context { get; set; }
@@ -56,8 +60,7 @@ namespace Assets.AtomixML.MiniProjects.TradingBot.Bot.Strategies
         private MaximalDrawdownIndicator _maximalDrawdownIndicator;
         private Dictionary<DateTime, MarketData> _days_datas = new Dictionary<DateTime, MarketData>();
 
-        public decimal takeProfit { get; } = .99m;
-        public decimal stopLoss { get; } = -.5m;
+       
         protected decimal x1 => Convert.ToDecimal(context.Weights[0]);
         protected decimal rsiLongThreshold => Convert.ToDecimal(context.Weights[1]);
         protected decimal rsiShortThreshold => Convert.ToDecimal(context.Weights[2]);
@@ -71,6 +74,8 @@ namespace Assets.AtomixML.MiniProjects.TradingBot.Bot.Strategies
         protected decimal riskPerTradePurcent => Convert.ToDecimal(context.Weights[9]);
         protected decimal atrMultiplier => Convert.ToDecimal(context.Weights[10]);
         protected double leverageRiskMultiplier => context.Weights[11];
+        public decimal takeProfit => Convert.ToDecimal(context.Weights[12]);
+        public decimal stopLoss => Convert.ToDecimal(context.Weights[13]);
 
         public void OnInitialize()
         {

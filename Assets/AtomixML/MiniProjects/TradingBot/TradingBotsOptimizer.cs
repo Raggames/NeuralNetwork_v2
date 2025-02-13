@@ -15,17 +15,17 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         [Header("Training Bot Optimizer Parameters")]
         [SerializeField, Range(0f, 1f)] private float _batchSizeRatio = .02f;
         [SerializeField] private float _profitScoreBonusMultiplier = 3;
-        [SerializeField] private float _transactionsScoreMalusMultiplier = 1;
-        [SerializeField] private float _transactionHoldingTimeMultiplier = 2;
-        [SerializeField] private float _learningRate = .01f;
-        [SerializeField] private float _thresholdRate = .02f;
-
+        [SerializeField] private float _lossesCountMalusMultiplier = 2;
+        //[SerializeField] private float _learningRate = .01f;
+        [Space]
+        [SerializeField] float[] _minMaxLearningRate = new float[] { 1.5f, .1f };
+        [SerializeField] float[] _minMaxBatchesSize = new float[] { .05f, .50f };
 
         private TradingBotManager _manager;
         private Func<TradingBotEntity> _tradingBotCreateDelegate;
 
-        public double learningRate => _learningRate;
-        public double thresholdRate => _thresholdRate;
+        public double adaptiveLearningRate => MLMath.InverseLerp(_minMaxLearningRate[0], _minMaxLearningRate[1], (float)CurrentIteration / (float)MaxIterations);
+        public double adaptiveBatchSizeRatio => MLMath.InverseLerp(_minMaxBatchesSize[0], _minMaxBatchesSize[1], (float)CurrentIteration / (float)MaxIterations);
 
         public void Initialize(TradingBotManager manager, Func<TradingBotEntity> tradingBotCreateDelegate)
         {
@@ -41,7 +41,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         public override async Task ComputeGeneration()
         {
             // run a complete epoch on market datas with all entities
-            await _manager.RunEpochParallel(CurrentGenerationEntities, true, _batchSizeRatio);
+            await _manager.RunEpochParallel(CurrentGenerationEntities, true, adaptiveBatchSizeRatio);
         }
 
         public override double GetEntityScore(TradingBotEntity entity)

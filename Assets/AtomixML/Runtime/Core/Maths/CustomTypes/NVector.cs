@@ -1,4 +1,5 @@
 ﻿using Atom.MachineLearning.Core.Maths;
+using Newtonsoft.Json;
 using Sirenix.OdinInspector;
 using System;
 using System.Collections.Generic;
@@ -9,15 +10,14 @@ namespace Atom.MachineLearning.Core
     [Serializable]
     public struct NVector : IMLInOutData, ICloneable
     {
-        [ShowInInspector] public double[] Data { get; set; }
+        [ShowInInspector, JsonProperty("Data")] public double[] Data { get; set; }
 
-        public int length => Data.Length;
+        [JsonIgnore] public int length => Data.Length;
 
-        public double x => Data[0];
-        public double y => Data[1];
-        public double z => Data[2];
-        public double w => Data[3];
-
+        [JsonIgnore] public double x => Data[0];
+        [JsonIgnore] public double y => Data[1];
+        [JsonIgnore] public double z => Data[2];
+        [JsonIgnore] public double w => Data[3];
 
         public object Clone()
         {
@@ -150,12 +150,13 @@ namespace Atom.MachineLearning.Core
             return string.Join(", ", Data);
         }
 
-        public double last => Data.Length > 0 ? Data[Data.Length - 1] : first;
-        public double first => Data[0];
+        [JsonIgnore] public double last => Data.Length > 0 ? Data[Data.Length - 1] : first;
+        [JsonIgnore] public double first => Data[0];
 
         /// <summary>
         /// Returns the magnitude of the vector
         /// </summary>
+        [JsonIgnore]
         public double magnitude
         {
             get
@@ -173,6 +174,7 @@ namespace Atom.MachineLearning.Core
         /// <summary>
         /// Returns the squarred magnitude of the vector
         /// </summary>
+        [JsonIgnore]
         public double sqrdMagnitude
         {
             get
@@ -190,6 +192,7 @@ namespace Atom.MachineLearning.Core
         /// <summary>
         /// Returns a normalized duplicate of the vector
         /// </summary>
+        [JsonIgnore]
         public NVector normalized
         {
             get

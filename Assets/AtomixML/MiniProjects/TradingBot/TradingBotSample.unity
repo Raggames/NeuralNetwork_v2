@@ -149,12 +149,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _tradingBotEntity: {}
-  _datasetPath: C:\Users\enboud\Documents\UNITY\AtomixML\Assets\AtomixML\MiniProjects\TradingBot\Resources\td_aapl_1mn_20250101_to_20250210.txt
+  _datasetPath: C:\Users\Rag\wkspaces\NeuralNetwork_v2\Assets\AtomixML\MiniProjects\TradingBot\Resources\td_aapl_1mn_20250101_to_20250210.txt
   _transactionsPerTimeStampMin: 14
   _transactionsPerTimeStampMax: 17
   _slippageChances: 1
   _trainTestSplit: 0.745
-  _spread: 0.00005
+  _spread: 0.00001
   _symbol: AAPL
   _startWallet: 1000
   _maxTransactionAmount: 1000
@@ -167,14 +167,17 @@ MonoBehaviour:
     _crossoverMutationChances: 43.9
     _randomSelectionPurcentage: 3.4
     _populationCount: 50
-    _maxIterations: 20
+    _maxIterations: 100
     _fitnessObjective: 2000000
     _batchSizeRatio: 0.022
     _profitScoreBonusMultiplier: 3
-    _transactionsScoreMalusMultiplier: 7.19
-    _transactionHoldingTimeMultiplier: 0
-    _learningRate: 1
-    _thresholdRate: 1
+    _lossesCountMalusMultiplier: 2
+    _minMaxLearningRate:
+    - 1
+    - 0.1
+    _minMaxBatchesSize:
+    - 0.01
+    - 0.3
   _horizontal: 0.201
   _zoom: 0
 --- !u!4 &338641947
@@ -499,10 +502,13 @@ MonoBehaviour:
     _fitnessObjective: 20000
     _batchSizeRatio: 0.02
     _profitScoreBonusMultiplier: 3
-    _transactionsScoreMalusMultiplier: 0
-    _transactionHoldingTimeMultiplier: 2
-    _learningRate: 0.1
-    _thresholdRate: 0.2
+    _lossesCountMalusMultiplier: 2
+    _minMaxLearningRate:
+    - 1.5
+    - 0.1
+    _minMaxBatchesSize:
+    - 1.5
+    - 0.1
   _horizontal: 0
   _zoom: 0
 --- !u!4 &1809157371

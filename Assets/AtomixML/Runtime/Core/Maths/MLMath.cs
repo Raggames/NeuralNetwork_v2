@@ -13,14 +13,22 @@ namespace Atom.MachineLearning.Core.Maths
             return Math.Exp(-distance / (2 * radius * radius));
         }
 
-        public static double Lerp(double value, double v_min, double v_max)
+        public static double Lerp( double v_min, double v_max, double value)
         {
             return Map(value, v_min, v_max, 0, 1);
+        }
+        
+        public static double InverseLerp( double v_min, double v_max, double value)
+        {
+            return Map(value, 0, 1, v_min, v_max);
         }
 
         public static double Map(double value, double inputMin, double inputMax, double outputMin, double outputMax)
         {
-            return (value - inputMin) / (inputMax - inputMin) * (outputMax - outputMin) + outputMin;
+            var m = (outputMax - outputMin) / (inputMax - inputMin);
+            var c = outputMin - m * inputMin; // point of interest: c is also equal to y2 - m * x2, though float math might lead to slightly different results.
+
+            return m * value + c;
         }
 
         public static void ColumnMinMax(double[,] matrix, int columnIndex, out double min, out double max)
