@@ -12,10 +12,10 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
 
         public double ComputeScore(TradingBotEntity input, decimal currentPrice, ref int weightIndex)
         {
-            if (input.currentPositionEnterPrice == 0)
+            if (input.currentPositionEntryPrice == 0)
                 return 0.0;
 
-            var delta = decimal.ToDouble(currentPrice - input.currentPositionEnterPrice);
+            var delta = decimal.ToDouble(currentPrice - input.currentPositionEntryPrice);
 
             var score = input.Weights[weightIndex] * Math.Exp((delta) * input.Weights[weightIndex + 1]);
             weightIndex += 2;

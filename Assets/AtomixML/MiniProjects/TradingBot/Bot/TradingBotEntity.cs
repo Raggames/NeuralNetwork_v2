@@ -70,26 +70,26 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         /// <summary>
         /// Total number of selling transactions done
         /// </summary>
-        [ShowInInspector, ReadOnly] private int _sellTransactionsDoneCount = 0;
+        [ShowInInspector, ReadOnly] private int _shortTransactionsCount = 0;
 
         /// <summary>
         /// Total number of buying transactions done
         /// </summary>
-        [ShowInInspector, ReadOnly] private int _buyTransactionsDoneCount = 0;
+        [ShowInInspector, ReadOnly] private int _longTransactionsCount = 0;
 
-        [ShowInInspector, ReadOnly] private decimal _total_marging = 0;
+        [ShowInInspector, ReadOnly] private decimal _total_shorts_amount = 0;
+        [ShowInInspector, ReadOnly] private decimal _total_longs_amount = 0;
 
-        [ShowInInspector, ReadOnly] private decimal _total_buy_orders_amount = 0;
-        [ShowInInspector, ReadOnly] private decimal _total_sell_orders_amount = 0;
+        [ShowInInspector, ReadOnly] private decimal _sessionTotalBalance = 0;
         [ShowInInspector, ReadOnly] private int _totalHoldingTime;
+        [ShowInInspector, ReadOnly] private PositionTypes _currentPositionType;
 
 
-        [SerializeField] private List<TransactionData> _transactionsHistory = new List<TransactionData>();
+        private List<TransactionData> _transactionsHistory = new List<TransactionData>();
 
         private int _startHold;
         private decimal _initialWallet;
         private ITradingBotStrategy<TradingBotEntity> _strategy;
-        private NVector _gradient;
         private bool _isLongPosition = true; // not yet implemented
         private decimal _latestPrice;
 
@@ -98,17 +98,21 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         [JsonIgnore] public ITradingBotStrategy<TradingBotEntity> strategy => _strategy;
 
         [JsonIgnore] public decimal totalBalance => _walletAmount - _initialWallet;
-        [JsonIgnore] public decimal totalMargin => _total_marging;
-        [JsonIgnore] public decimal meanMargin => _sellTransactionsDoneCount > 0 ? _total_marging / _sellTransactionsDoneCount : 0;
+        [JsonIgnore] public decimal totalMargin => _sessionTotalBalance;
+
+        [JsonIgnore]
+        public decimal meanMargin => _transactionsHistory.Count == 0 ? 0 : _sessionTotalBalance / _transactionsHistory.Count;
+
         [JsonIgnore] public decimal walletAmount => _walletAmount;
-        [JsonIgnore] public decimal currentPositionEnterPrice => _entryPrice;
+        [JsonIgnore] public decimal currentPositionEntryPrice => _entryPrice;
         [JsonIgnore] public decimal currentOwnedVolume => _currentOwnedVolume;
-        [JsonIgnore] public int sellTransactionsCount => _sellTransactionsDoneCount;
+        [JsonIgnore] public int sellTransactionsCount => _shortTransactionsCount;
         [JsonIgnore] public int totalHoldingTime => _totalHoldingTime;
         [JsonIgnore] public decimal currentTransactionAmount => _currentTransactionAmount;
-        [JsonIgnore] public bool isHoldingPosition => _currentOwnedVolume > 0;
 
-        [JsonIgnore] public BuySignals currentPositionType { get; private set; }
+        [JsonIgnore] public bool isHoldingPosition => currentPositionType != PositionTypes.None;
+
+        [JsonIgnore] public PositionTypes currentPositionType { get => _currentPositionType; private set => _currentPositionType = value; }
 
         [JsonIgnore]
         public decimal positionBalance
@@ -123,12 +127,13 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         {
             get
             {
-                if (currentPositionType == BuySignals.Short_Sell)
+                if (currentPositionType == PositionTypes.Short_Sell)
                     return ((_entryPrice - _latestPrice) / _entryPrice) * 100;
                 else
                     return ((_latestPrice - _entryPrice) / _entryPrice) * 100;
             }
         }
+
 
         public TradingBotEntity()
         {
@@ -137,7 +142,6 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         public TradingBotEntity(TradingBotEntity tradingBotEntity)
         {
             Weights = new NVector(tradingBotEntity.Weights.Data);
-            _gradient = new NVector(tradingBotEntity.Weights.length);
             Initialize(tradingBotEntity.manager, tradingBotEntity._initialWallet, tradingBotEntity._maxTransactionAmount);
             SetStrategy((ITradingBotStrategy<TradingBotEntity>)Activator.CreateInstance(tradingBotEntity._strategy.GetType()));
         }
@@ -147,14 +151,12 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             _manager = tradingBotManager;
 
             _transactionsHistory.Clear();
-            _sellTransactionsDoneCount = 0;
-            _buyTransactionsDoneCount = 0;
+            _shortTransactionsCount = 0;
+            _longTransactionsCount = 0;
             _currentTransactionAmount = 0;
             _currentOwnedVolume = 0;
             _entryPrice = 0;
-            _total_marging = 0;
-            _total_buy_orders_amount = 0;
-            _total_sell_orders_amount = 0;
+            _sessionTotalBalance = 0;
             _totalHoldingTime = 0;
 
             _initialWallet = startMoney;
@@ -170,11 +172,10 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             var paramCount = strategy.InitialParameters.Length;
 
             Weights = new NVector(paramCount);
-            _gradient = new NVector(paramCount);
 
             for (int j = 0; j < _strategy.InitialParameters.Length; ++j)
             {
-                Weights.Data[j] = _strategy.InitialParameters[j] + MLRandom.Shared.Range(-.05, .05);
+                Weights.Data[j] = _strategy.InitialParameters[j];
             }
 
             _strategy.Initialize(this);
@@ -200,66 +201,73 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             return 0;
         }
 
-        public void EnterPosition(decimal price, BuySignals buySignals)
+        public void EnterPosition(decimal price, PositionTypes buySignals)
         {
-            var invested_money_amount = Math.Min(_walletAmount, _maxTransactionAmount - _currentTransactionAmount);
+            // move this to strategy risk management
+            //var invested_money_amount = Math.Min(_walletAmount, _maxTransactionAmount - _currentTransactionAmount);
 
-            manager.EnterPositionRequest(this, price, invested_money_amount, buySignals);
+            // invest all every time 
+            manager.EnterPositionRequest(this, price, _walletAmount, buySignals);
         }
 
-        public void EnterPositionCallback(BuySignals buySignals, decimal entryPrice, decimal amount, decimal volume, int stampIndex)
+        public void EnterPositionCallback(PositionTypes buySignals, decimal entryPrice, decimal amount, decimal volume, int stampIndex)
         {
+            if (volume == 0)
+            {
+                Debug.LogError("null volume");
+            }
+
+            if (manager.debugMode)
+                Debug.Log($"***** Entered {buySignals} position at {entryPrice} $, amount = {amount} ***** {manager.currentPeriod.Timestamp} ****");
+
             currentPositionType = buySignals;
 
             _startHold = stampIndex;
             _entryPrice = entryPrice;
             _currentOwnedVolume += volume;
-            _currentTransactionAmount += amount;
-            _walletAmount -= amount;
 
             switch (buySignals)
             {
-                case BuySignals.Long_Buy:
-                    _buyTransactionsDoneCount++;
+                case PositionTypes.Long_Buy:
+                    _longTransactionsCount++;
                     break;
-                case BuySignals.Short_Sell:
-                    _sellTransactionsDoneCount++;
+                case PositionTypes.Short_Sell:
+                    _shortTransactionsCount++;
                     break;
             }
 
             _transactionsHistory.Add(new TransactionData(manager.Symbol, entryPrice, volume, DateTime.UtcNow, buySignals));
         }
 
-        public void ExitPosition(decimal price)
+        public void ExitPosition(decimal currentPrice)
         {
-            manager.ExitPositionRequest(this, currentPositionType, price, _currentOwnedVolume);
+            manager.ExitPositionRequest(this, currentPositionType, currentPrice, _entryPrice, _currentOwnedVolume);
         }
 
         public void ExitPositionCallback(decimal amount, decimal volume)
-        {
+        {            
+            if (manager.debugMode)
+                if (positionBalancePurcent > 0)
+                    Debug.Log($"***** Gain {positionBalance} > Exited {currentPositionType} position at {volume / amount} $, entered at {_entryPrice}, amount = {amount} ***** {manager.currentPeriod.Timestamp} ****");
+                else
+                    Debug.Log($"***** Loss {positionBalance} > Exited {currentPositionType} position at {volume / amount} $, entered at {_entryPrice}, amount = {amount} ***** {manager.currentPeriod.Timestamp} ****");
+
             var holded_time = manager.currentPeriodIndex - _startHold;
             _totalHoldingTime += holded_time;
-
-            var price = amount / volume;
-            var margin = (price - _entryPrice) * volume;
-            _total_marging += margin;
-            _total_sell_orders_amount += amount;            
+            _sessionTotalBalance += amount;
             _entryPrice = 0;
             _currentOwnedVolume -= volume;
-            _currentTransactionAmount -= amount;
             _walletAmount += amount;
+
+            currentPositionType = PositionTypes.None;
 
             // _transactionsHistory.Last()   <- complete transaaction history here
         }
 
         public double MutateGene(int geneIndex)
         {
-            var current_grad = MLRandom.Shared.Range(-1, 1) * manager.learningRate * Weights[geneIndex];
-            var old_grad = _gradient[geneIndex];
-            _gradient[geneIndex] = current_grad;
-            current_grad += old_grad * .5;
+            return _strategy.OnGeneticOptimizerMutateWeight(geneIndex);
 
-            return Weights[geneIndex] + current_grad;
 
             /* if (geneIndex > 0)
              {

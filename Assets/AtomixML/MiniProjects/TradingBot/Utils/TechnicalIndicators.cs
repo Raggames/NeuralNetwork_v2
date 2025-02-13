@@ -570,4 +570,21 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         }
     }
 
+    public class MaximalDrawdownIndicator
+    {
+        private decimal _peakPrice;
+        private decimal _maxDrawdown;
+
+        public decimal current => _maxDrawdown;
+        public decimal currentPercent => _maxDrawdown * 100;
+
+        public decimal ComputeMaxDrawdown(decimal price)
+        {
+            _peakPrice = Math.Max(price, _peakPrice);
+            decimal drwwdown = (_peakPrice - price) / _peakPrice;
+            _maxDrawdown = Math.Max(_maxDrawdown, drwwdown);
+            
+            return _maxDrawdown;
+        }
+    }
 }

@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -87,6 +88,8 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         [Header("Optimizer")]
         [SerializeField, HideLabel] private TradingBotsOptimizer _optimizer;
 
+
+        [Header("Market")]
         private List<MarketData> _market_samples = new List<MarketData>();
 
         /// <summary>
@@ -95,6 +98,10 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         private List<decimal> _prices_historic = new List<decimal>();
 
         public List<MarketData> currentMarketSamples { get; set; } = new List<MarketData>();
+
+        private int _periodIndex = 0;
+        public MarketData currentPeriod => _market_samples[_periodIndex];
+        public int currentPeriodIndex => _periodIndex;
 
         public double learningRate => _optimizer.learningRate;
         public double thresholdRate => _optimizer.thresholdRate;
@@ -113,7 +120,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
 
             var data = new CSVReaderService().GetData<MarketDatas>(set);
             string fileData = System.IO.File.ReadAllText(set, Encoding.UTF8);
-            return JsonConvert.DeserializeObject<StockDataResponse>(fileData).Values.Select(t => new MarketData()
+            var list = JsonConvert.DeserializeObject<StockDataResponse>(fileData).Values.Select(t => new MarketData()
             {
                 Close = t.Close,
                 High = t.High,
@@ -122,6 +129,11 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
                 Timestamp = t.DateTime,
                 Volume = t.Volume,
             }).ToList();
+
+            if (list[^1].Timestamp < list[0].Timestamp)
+                list.Reverse();
+
+            return list;
         }
 
 
@@ -217,7 +229,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
 
         #endregion
 
-        #region Execution
+        #region Execution / Training & Test Mode
 
 
         [Button]
@@ -249,15 +261,16 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             InitializeIndicators();
 
             _tradingBotEntity.Initialize(this, Convert.ToDecimal(_startWallet), Convert.ToDecimal(_maxTransactionAmount), Convert.ToDecimal(_takeProfit), Convert.ToDecimal(_stopLoss));
+            _tokenSource = new CancellationTokenSource();
 
-            await RunEpoch(new List<TradingBotEntity> { _tradingBotEntity });
+            await RunEpoch(new List<TradingBotEntity> { _tradingBotEntity }, _tokenSource.Token);
         }
 
         /// <summary>
         /// Run the current agent selected after training for one epoch
         /// </summary>
         [Button]
-        private async void ExecuteTestingMultipass(bool overallElite = false)
+        private async void ExecuteParrallelTesting(bool overallElite = false)
         {
             _market_samples = GetMarketDatas(false);
 
@@ -290,11 +303,10 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             Debug.Log($"Overall profit for testing session is : {total_profit}$ / {profit_purcent} % profit / {total_transactions} transactions.");
         }
 
-        [Button]
         /// <summary>
         /// Runs a complete pass on a collection of market datas (stamps)
         /// </summary>
-        public async Task RunEpoch(List<TradingBotEntity> entities)
+        public async Task RunEpoch(List<TradingBotEntity> entities, CancellationToken cancellationToken)
         {
             currentMarketSamples.Clear();
 
@@ -306,6 +318,9 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
 
                 for (int e = 0; e < entities.Count; e++)
                 {
+                    if (cancellationToken.IsCancellationRequested)
+                        break;
+
                     entities[e].UpdateOHLC(currentPeriod);
 
                     // generate a price batch 
@@ -321,6 +336,9 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
 
                 // compute closing values indicators
                 UpdateIndicators(currentPeriod);
+
+                if (cancellationToken.IsCancellationRequested)
+                    break;
 
                 await Task.Delay(1);
             }
@@ -342,11 +360,6 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             //_prices_historic.AddRange(prices);
         }
 
-        private int _periodIndex = 0;
-        public MarketData currentPeriod => _market_samples[_periodIndex];
-        public int currentPeriodIndex => _periodIndex;
-
-        [Button]
         /// <summary>
         /// Runs a complete pass on a collection of market datas (stamps)
         /// </summary>
@@ -418,73 +431,103 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             await Task.Delay(1);
         }
 
-        public void EnterPositionRequest(TradingBotEntity tradingBotEntity, decimal requestedPrice, decimal amount, BuySignals buySignals, int lever = 1)
+        #endregion
+
+        #region Broker / transaction simulation
+
+        public void EnterPositionRequest(TradingBotEntity tradingBotEntity, decimal requestedPrice, decimal amount, PositionTypes buySignals, int lever = 1)
         {
             switch (buySignals)
             {
-                case BuySignals.Long_Buy:
-                    var price = ComputeEnterPriceWithSpread(requestedPrice);
+                case PositionTypes.Long_Buy:
+                    var price = ComputePrice(requestedPrice);
+                    var fee = price * Convert.ToDecimal(_spread);
+                    price += fee;
                     var volume_sold = amount / price; // lever
                     tradingBotEntity.EnterPositionCallback(buySignals, price, amount, volume_sold, _periodIndex);
                     break;
-                case BuySignals.Short_Sell:
-                    price = ComputeEnterPriceWithSpread(requestedPrice);
+                case PositionTypes.Short_Sell:
+                    price = ComputePrice(requestedPrice);
+                    fee = price * Convert.ToDecimal(_spread);
+                    price += fee;
                     var volume_borrowed = (amount * lever) / price;
                     tradingBotEntity.EnterPositionCallback(buySignals, price, 0, volume_borrowed, _periodIndex);
                     break;
             }
         }
 
-        public void ExitPositionRequest(TradingBotEntity entity, BuySignals buySignals, decimal price, decimal volume)
+        public void ExitPositionRequest(TradingBotEntity entity, PositionTypes buySignals, decimal price, decimal entryPrice, decimal volume)
         {
             switch (buySignals)
             {
-                case BuySignals.Long_Buy:
-                    var amount = volume * ComputeEnterPriceWithSpread(price);
+                case PositionTypes.Long_Buy:
+                    var amount = volume * ComputePrice(price);
+                    amount -= volume * entryPrice;
+
+                    /*var fee = price * Convert.ToDecimal(_spread);
+                    amount += fee;*/
                     entity.ExitPositionCallback(amount, volume);
+
                     break;
-                case BuySignals.Short_Sell:
-                    amount = volume * ComputeEnterPriceWithSpread(price);
+                case PositionTypes.Short_Sell:
+                    amount = volume * ComputePrice(price);
+                    amount -= volume * entryPrice;
+
+                    /*fee = price * Convert.ToDecimal(_spread);
+                    amount -= fee;*/
                     entity.ExitPositionCallback(-amount, volume);
 
                     break;
             }
         }
 
-        public decimal ComputeEnterPriceWithSpread(decimal base_price)
+        public decimal ComputePrice(decimal base_price)
         {
             if (MLRandom.Shared.Chances(_slippageChances, 100))
             {
                 var slipped_price = PriceUtils.GenerateGaussianPrice(currentPeriod.Open, currentPeriod.Low, currentPeriod.High);
-                var fee = slipped_price * Convert.ToDecimal(_spread);
 
-                return slipped_price + fee;
+                return slipped_price;
             }
             else
             {
-                var fee = base_price * Convert.ToDecimal(_spread);
-                return base_price + fee;
-            }
-        }
-
-        public decimal ComputeExitWithSpread(decimal base_price)
-        {
-            if (MLRandom.Shared.Chances(_slippageChances, 100))
-            {
-                var slipped_price = PriceUtils.GenerateGaussianPrice(currentPeriod.Open, currentPeriod.Low, currentPeriod.High);
-                var fee = slipped_price * Convert.ToDecimal(_spread);
-
-                return slipped_price - fee;
-            }
-            else
-            {
-                var fee = base_price * Convert.ToDecimal(_spread);
-                return base_price - fee;
+                return base_price;
             }
         }
 
         #endregion
 
+
+        #region Execution / Manual
+
+        public bool debugMode { get; private set; }
+
+        private CancellationTokenSource _tokenSource;
+
+        [Button]
+        public async void ExecuteDebug()
+        {
+            debugMode = true;
+            _tokenSource = new CancellationTokenSource();
+            _market_samples = GetMarketDatas(true);
+            InitializeIndicators();
+            _tradingBotEntity = GenerateTradingBot_Momentum_MACD();
+
+            Debug.Log("Execute Debug Mode");
+
+            await RunEpoch(new List<TradingBotEntity> { _tradingBotEntity }, _tokenSource.Token);
+
+            Debug.Log("End Debug Mode");
+            debugMode = false;
+        }
+
+        #endregion
+
+        [Button]
+        public void StopDebug()
+        {
+            _tokenSource?.Cancel();
+        }
 
         #region Visualization
 

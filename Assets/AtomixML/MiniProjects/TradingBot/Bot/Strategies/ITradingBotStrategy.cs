@@ -21,8 +21,8 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         public TInput context { get; set; }
         public decimal entryPrice { get; set; }
 
-        public decimal takeProfit { get; set; }
-        public decimal stopLoss { get; set; }
+        public decimal takeProfit { get;  }
+        public decimal stopLoss { get; }
 
 
         public void Initialize(TInput context)
@@ -47,8 +47,8 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             {
                 if (CheckExitConditions(currentPrice))
                 {
-                    entryPrice = 0;
                     context.ExitPosition(currentPrice);
+                    entryPrice = 0;
                 }
             }
             else
@@ -56,13 +56,13 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
                 var signal = CheckEntryConditions(currentPrice);
                 switch (signal)
                 {                    
-                    case BuySignals.Long_Buy:
+                    case PositionTypes.Long_Buy:
                         entryPrice = currentPrice;
-                        context.EnterPosition(currentPrice, BuySignals.Long_Buy);
+                        context.EnterPosition(currentPrice, PositionTypes.Long_Buy);
                         break;
-                    case BuySignals.Short_Sell:
+                    case PositionTypes.Short_Sell:
                         entryPrice = currentPrice;
-                        context.EnterPosition(currentPrice, BuySignals.Short_Sell);
+                        context.EnterPosition(currentPrice, PositionTypes.Short_Sell);
                         break;
                 }
             }
@@ -77,9 +77,11 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
 
         public void OnTick(MarketData currentPeriod, decimal currentPrice);
 
-        public BuySignals CheckEntryConditions(decimal currentPrice);
+        public PositionTypes CheckEntryConditions(decimal currentPrice);
 
         public bool CheckExitConditions(decimal currentPrice);
+
+        public double OnGeneticOptimizerMutateWeight(int weightIndex);
     }
 
 }

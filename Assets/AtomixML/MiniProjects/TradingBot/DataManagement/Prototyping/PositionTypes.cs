@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Atom.MachineLearning.MiniProjects.TradingBot
 {
-    public enum BuySignals
+    public enum PositionTypes
     {
         None = 0,
 

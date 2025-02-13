@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Atom.MachineLearning.Core.Maths;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,15 +14,33 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         {
             // enter
             1, // multiplier for price entry condition
-            1, // default value to compare rsi for exit condition
+            1, // 
             1, // multiplier for price exit condition
             1, //
             // exit 
             1, // tp long
             1, // sl long
             1, // tp short
-            1 // sl short
+            1, // sl short
+            2.5,
+            -1,
         };
+
+        public double[] MutationRates { get; set; } = new double[]
+       {
+            // enter
+            .005, // multiplier for price entry condition
+            .005, // default value to compare rsi for exit condition
+            .005, // multiplier for price exit condition
+            .005, //
+            // exit 
+            .005, // tp long
+            .005, // sl long
+            .005, // tp short
+            .005, // sl short
+            .01,
+            .01,
+       };
 
         private SimpleMovingAverage _sma;
         private PivotPoint _pivotPoint;
@@ -35,11 +54,10 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         protected decimal slLong => Convert.ToDecimal(context.Weights[5]);
         protected decimal tpShort => Convert.ToDecimal(context.Weights[6]);
         protected decimal slShort => Convert.ToDecimal(context.Weights[7]);
+        public decimal takeProfit => Convert.ToDecimal(context.Weights[8]);
+        public decimal stopLoss => Convert.ToDecimal(context.Weights[9]);
 
         public decimal entryPrice { get; set; }
-
-        public decimal takeProfit { get; set; } = .85m;
-        public decimal stopLoss { get; set; } = -5m;
 
         public void OnInitialize()
         {
@@ -65,18 +83,18 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             //
         }
 
-        public BuySignals CheckEntryConditions(decimal currentPrice)
+        public PositionTypes CheckEntryConditions(decimal currentPrice)
         {
             if (currentPrice * x1 > _pivotPoint.Pivot && currentPrice * x2 > _sma.Current)
             {
-                return BuySignals.Short_Sell;
+                return PositionTypes.Short_Sell;
             }
             else if (currentPrice * x3 < _pivotPoint.Pivot && currentPrice * x4 < _sma.Current)
             {
-                return BuySignals.Long_Buy;
+                return PositionTypes.Long_Buy;
             }
 
-            return BuySignals.None;
+            return PositionTypes.None;
         }
 
         public bool CheckExitConditions(decimal currentPrice)
@@ -91,7 +109,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
              Take Profit at Resistance 1 (R1) for longs, Support 1 (S1) for shorts.
              Stop Loss at the Pivot Point (PP) for longs, R1 for shorts.
              */
-            if (context.currentPositionType == BuySignals.Long_Buy)
+            if (context.currentPositionType == PositionTypes.Long_Buy)
             {
                 if (context.positionBalancePurcent > 0)
                 {
@@ -119,14 +137,15 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
                     if (currentPrice >= _pivotPoint.Resistance1 * slShort)
                         return true;
                 }
-
-
-
             }
-
 
             return false;
         }
 
+        public double OnGeneticOptimizerMutateWeight(int weightIndex)
+        {
+            var current_grad = MLRandom.Shared.Range(-1, 1) * context.manager.learningRate * context.Weights[weightIndex] * MutationRates[weightIndex];
+            return context.Weights[weightIndex] + current_grad;
+        }
     }
 }

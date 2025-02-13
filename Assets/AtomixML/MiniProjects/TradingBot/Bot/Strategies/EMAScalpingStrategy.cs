@@ -1,4 +1,5 @@
-﻿using Atom.MachineLearning.MiniProjects.TradingBot;
+﻿using Atom.MachineLearning.Core.Maths;
+using Atom.MachineLearning.MiniProjects.TradingBot;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,9 +10,6 @@ namespace Assets.AtomixML.MiniProjects.TradingBot.Bot.Strategies
 {
     public class EMAScalpingStrategy : ITradingBotStrategy<TradingBotEntity>
     {
-        public decimal takeProfit { get; set; } = .85m;
-        public decimal stopLoss { get; set; } = -5m;
-
         public double[] InitialParameters { get; set; } = new double[]
         {
             // enter
@@ -19,15 +17,29 @@ namespace Assets.AtomixML.MiniProjects.TradingBot.Bot.Strategies
             35, // rsi long/buy
             70, // rsi short/sell
             1,
-            1, 
             // exit
-            1000, // pips threshold
+            10000, // pips threshold
             1, // tp long
             1, // sl long
             1, // tp short
             1 // sl short
         };
 
+        public double[] MutationRates { get; set; } = new double[]
+        {
+            // enter
+            .001, // long entry threshold multiplier
+            .1, // rsi long/buy threshold
+            .1, // rsi short/sell threshold
+            .001, // short entry threshold multiplier
+            // exit
+            1, // pips threshold
+            .001, // tp long
+            .001, // sl long
+            .001, // tp short
+            .0011 // sl short
+        };
+        
         public TradingBotEntity context { get; set; }
         public decimal entryPrice { get; set; }
 
@@ -36,16 +48,17 @@ namespace Assets.AtomixML.MiniProjects.TradingBot.Bot.Strategies
         private PivotPoint _pivotPoint;
         private Dictionary<DateTime, MarketData> _days_datas = new Dictionary<DateTime, MarketData>();
 
+        public decimal takeProfit { get;} = .99m;
+        public decimal stopLoss { get;} = -.5m;
         protected decimal x1 => Convert.ToDecimal(context.Weights[0]);
         protected decimal rsiLongThreshold => Convert.ToDecimal(context.Weights[1]);
         protected decimal rsiShortThreshold => Convert.ToDecimal(context.Weights[2]);
         protected decimal x3 => Convert.ToDecimal(context.Weights[3]);
-        protected decimal x4 => Convert.ToDecimal(context.Weights[4]);
-        protected decimal pipsThreshold => Convert.ToDecimal(context.Weights[5]);
-        protected decimal tpLong => Convert.ToDecimal(context.Weights[6]);
-        protected decimal slLong => Convert.ToDecimal(context.Weights[7]);
-        protected decimal tpShort => Convert.ToDecimal(context.Weights[8]);
-        protected decimal slShort => Convert.ToDecimal(context.Weights[9]);
+        protected decimal pipsThreshold => Convert.ToDecimal(context.Weights[4]);
+        protected decimal tpLong => Convert.ToDecimal(context.Weights[5]);
+        protected decimal slLong => Convert.ToDecimal(context.Weights[6]);
+        protected decimal tpShort => Convert.ToDecimal(context.Weights[7]);
+        protected decimal slShort => Convert.ToDecimal(context.Weights[8]);
 
         public void OnInitialize()
         {
@@ -73,18 +86,18 @@ namespace Assets.AtomixML.MiniProjects.TradingBot.Bot.Strategies
             _pivotPoint.Compute(yesterday.High, yesterday.Low, yesterday.Close); _pivotPoint.Compute(yesterday.High, yesterday.Low, yesterday.Close);
         }
 
-        public BuySignals CheckEntryConditions(decimal currentPrice)
+        public PositionTypes CheckEntryConditions(decimal currentPrice)
         {
             if (_ema5.current < _ema10.current && context.manager.rsi.current < rsiLongThreshold && currentPrice * x1 < _ema5.current)
             {
-                return BuySignals.Long_Buy;
+                return PositionTypes.Long_Buy;
             }
             else if (_ema5.current > _ema10.current && context.manager.rsi.current > rsiShortThreshold && currentPrice * x3 > _ema5.current)
             {
-                return BuySignals.Short_Sell;
+                return PositionTypes.Short_Sell;
             }
 
-            return BuySignals.None;
+            return PositionTypes.None;
         }
 
         public bool CheckExitConditions(decimal currentPrice)
@@ -96,7 +109,7 @@ namespace Assets.AtomixML.MiniProjects.TradingBot.Bot.Strategies
             if (context.positionBalancePurcent <= stopLoss)
                 return true;
 
-            if (context.currentPositionType == BuySignals.Long_Buy)
+            if (context.currentPositionType == PositionTypes.Long_Buy)
             {
                 if (context.positionBalancePurcent > 0)
                 {
@@ -111,6 +124,14 @@ namespace Assets.AtomixML.MiniProjects.TradingBot.Bot.Strategies
                         return true;
                 }
 
+
+                var pips = PriceUtils.ComputePips(entryPrice, currentPrice);
+
+                // take profit
+                if (pips > pipsThreshold)
+                {
+                    return true;
+                }
             }
             else
             {
@@ -126,18 +147,24 @@ namespace Assets.AtomixML.MiniProjects.TradingBot.Bot.Strategies
                     if (currentPrice >= _pivotPoint.Resistance1 * slShort)
                         return true;
                 }
+
+                var pips = PriceUtils.ComputePips(currentPrice, entryPrice);
+
+                // take profit
+                if (pips > pipsThreshold)
+                {
+                    return true;
+                }
             }
 
-            var pips = PriceUtils.ComputePips(entryPrice, currentPrice);
-
-            // take profit
-            if (pips > pipsThreshold)
-            {
-                return true;
-            }
 
             return false;
         }
 
+        public double OnGeneticOptimizerMutateWeight(int weightIndex)
+        {
+            var current_grad = MLRandom.Shared.Range(-1, 1) * context.manager.learningRate * context.Weights[weightIndex] * MutationRates[weightIndex];            
+            return context.Weights[weightIndex] + current_grad;
+        }
     }
 }

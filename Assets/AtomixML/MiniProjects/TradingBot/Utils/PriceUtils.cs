@@ -9,6 +9,26 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
 {
     public static class PriceUtils
     {
+        public static decimal ComputeBassoATRComposedPositionSizing(decimal accountSize, decimal riskPerTradePurcent, decimal atr, decimal atrMultiplier)
+        {
+            return Math.Min(ComputeBassoPositionSizing(accountSize, riskPerTradePurcent), ComputeATRPositionSizing(accountSize, riskPerTradePurcent, atr, atrMultiplier));  
+        }
+
+        public static decimal ComputeATRPositionSizing(decimal accountSize, decimal riskPerTradePurcent, decimal atr, decimal atrMultiplier)
+        {
+            return (accountSize * riskPerTradePurcent) / (atr * atrMultiplier);
+        }
+
+        public static decimal ComputeBassoPositionSizing(decimal accountSize, decimal riskPerTradePurcent)
+        {
+            return accountSize * riskPerTradePurcent;
+        }
+
+        public static decimal ComputeFixedFractionnalPositionSizing(decimal accountSize, decimal riskPerTradePurcent)
+        {
+            return accountSize * riskPerTradePurcent;
+        }
+
         public static decimal ComputePips(decimal entryPrice, decimal exitPrice)
         {
             decimal pipValue = 0.0001m;

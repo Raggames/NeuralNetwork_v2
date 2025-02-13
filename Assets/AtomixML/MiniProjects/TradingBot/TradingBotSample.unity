@@ -149,9 +149,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _tradingBotEntity: {}
-  _datasetPath: C:\Users\Rag\wkspaces\NeuralNetwork_v2\Assets\AtomixML\MiniProjects\TradingBot\Resources\td_aapl_1mn_20250101_to_20250210.txt
-  _transactionsPerTimeStampMin: 1
-  _transactionsPerTimeStampMax: 1
+  _datasetPath: C:\Users\enboud\Documents\UNITY\AtomixML\Assets\AtomixML\MiniProjects\TradingBot\Resources\td_aapl_1mn_20250101_to_20250210.txt
+  _transactionsPerTimeStampMin: 14
+  _transactionsPerTimeStampMax: 17
   _slippageChances: 1
   _trainTestSplit: 0.745
   _spread: 0.00005
@@ -167,15 +167,15 @@ MonoBehaviour:
     _crossoverSelectionLimitPurcentage: 42.29
     _crossoverMutationChances: 43.9
     _randomSelectionPurcentage: 3.4
-    _populationCount: 5
-    _maxIterations: 1
+    _populationCount: 50
+    _maxIterations: 20
     _fitnessObjective: 2000000
-    _batchSizeRatio: 0.109
+    _batchSizeRatio: 0.336
     _profitScoreBonusMultiplier: 3
     _transactionsScoreMalusMultiplier: 7.19
     _transactionHoldingTimeMultiplier: 0
-    _learningRate: 0.005
-    _thresholdRate: 0.005
+    _learningRate: 1
+    _thresholdRate: 1
   _horizontal: 0.201
   _zoom: 0
 --- !u!4 &338641947

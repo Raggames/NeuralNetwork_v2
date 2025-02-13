@@ -46,14 +46,10 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
 
         public override double GetEntityScore(TradingBotEntity entity)
         {
-            // we do transactionCount - 1 because we do automatic closing transaction on end epoch but we don't want to take this in account
+            /*// we do transactionCount - 1 because we do automatic closing transaction on end epoch but we don't want to take this in account
             if (entity.sellTransactionsCount <= 0)
                 return 0;
-            /**
-             * A réfléchir, calculer la marge en % par transaction et checher à maximiser cette marge devrait de facto aider à passer la barrière des fees et du holding ?
-             * 
-             * **/
-
+           
             // to do prise en compte des stocks sur la valeur à la fin ? 
             // on pousse la marge moyenne (par transaction) et le volume aussi
             var score = Convert.ToDouble(entity.meanMargin * Math.Abs(entity.totalMargin)) * _profitScoreBonusMultiplier;
@@ -64,7 +60,9 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
                 else
                     score *= Math.Log(entity.sellTransactionsCount * _transactionsScoreMalusMultiplier, 2);
 
-            score += entity.totalHoldingTime * _transactionHoldingTimeMultiplier;
+            score += entity.totalHoldingTime * _transactionHoldingTimeMultiplier;*/
+
+            var score = Convert.ToDouble(entity.totalMargin) * _profitScoreBonusMultiplier;
 
             return score;
         }

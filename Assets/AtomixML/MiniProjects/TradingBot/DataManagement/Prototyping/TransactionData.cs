@@ -6,18 +6,22 @@ using System.Threading.Tasks;
 
 namespace Atom.MachineLearning.MiniProjects.TradingBot
 {
-    public struct TransactionData
+    public class TransactionData
     {
         public string AssetSymbol { get; set; }  // e.g., "AAPL", "BTCUSD"
-        public decimal Price { get; set; }       // Transaction price
+        public decimal EntryPrice { get; set; }       // Transaction price
+        public decimal ExitPrice { get; set; }       // Transaction price
         public decimal Volume { get; set; }      // Number of shares/contracts/coins
         public DateTime Timestamp { get; set; }  // Time of transaction
-        public BuySignals Signal { get; set; }
+        public PositionTypes Signal { get; set; }
 
-        public TransactionData(string assetSymbol, decimal price, decimal volume, DateTime timestamp, BuySignals signal)
+
+        public decimal Balance => (ExitPrice - EntryPrice) * Volume;
+
+        public TransactionData(string assetSymbol, decimal entryPrice, decimal volume, DateTime timestamp, PositionTypes signal)
         {
             AssetSymbol = assetSymbol;
-            Price = price;
+            EntryPrice = entryPrice;
             Volume = volume;
             Timestamp = timestamp;
             Signal = signal;
@@ -25,7 +29,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
 
         public override string ToString()
         {
-            return $"{Timestamp}: {Signal} {Volume} of {AssetSymbol} at {Price:C}";
+            return $"{Timestamp}: {Signal} {Volume} of {AssetSymbol}. Entry {EntryPrice}, Exit {ExitPrice}. Balance {Balance}";
         }
     }
 }
