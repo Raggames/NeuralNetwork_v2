@@ -151,7 +151,7 @@ MonoBehaviour:
   _tradingBotEntity: {}
   _datasetPath: C:\Users\Rag\wkspaces\NeuralNetwork_v2\Assets\AtomixML\MiniProjects\TradingBot\Resources\td_aapl_1mn_20250101_to_20250210.txt
   _transactionsPerTimeStampMin: 14
-  _transactionsPerTimeStampMax: 17
+  _transactionsPerTimeStampMax: 26
   _slippageChances: 1
   _trainTestSplit: 0.745
   _spread: 0.00001
@@ -171,13 +171,14 @@ MonoBehaviour:
     _fitnessObjective: 2000000
     _batchSizeRatio: 0.022
     _profitScoreBonusMultiplier: 3
-    _lossesCountMalusMultiplier: 2
+    _gainLossRatioMultiplier: 2
     _minMaxLearningRate:
     - 1
     - 0.1
     _minMaxBatchesSize:
     - 0.01
     - 0.3
+  _priceNoiseLevel: 0.19
   _horizontal: 0.201
   _zoom: 0
 --- !u!4 &338641947
@@ -502,13 +503,14 @@ MonoBehaviour:
     _fitnessObjective: 20000
     _batchSizeRatio: 0.02
     _profitScoreBonusMultiplier: 3
-    _lossesCountMalusMultiplier: 2
+    _gainLossRatioMultiplier: 2
     _minMaxLearningRate:
     - 1.5
     - 0.1
     _minMaxBatchesSize:
     - 1.5
     - 0.1
+  _priceNoiseLevel: 0.1
   _horizontal: 0
   _zoom: 0
 --- !u!4 &1809157371

@@ -153,5 +153,15 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             // to do risk calculation / 
             return context.walletAmount * currentPrice;
         }
+
+        public void OnEnterPosition()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void OnExitPosition()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

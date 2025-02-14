@@ -9,6 +9,13 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+/* TODO 
+ *  Q-LEARNING FOR TREND/PATTERN STRATEGY
+ * 
+ * 
+ * 
+ */
+
 namespace Atom.MachineLearning.MiniProjects.TradingBot
 {
     /// <summary>

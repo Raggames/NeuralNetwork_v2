@@ -16,7 +16,8 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         private OnBalanceVolumeIndicator _onBalanceVolumeIndicator = new OnBalanceVolumeIndicator();
         private ADXIndicator _adxIndicator = new ADXIndicator(5);
         private BollingerBandsIndicator _bollingerBandsIndicator = new BollingerBandsIndicator(5, 1);
-        private ExponentialMovingAverage _exponentialMovingAverageIndicator = new ExponentialMovingAverage(5);
+        private ExponentialMovingAverage _exponentialMovingAverageIndicator5 = new ExponentialMovingAverage(5);
+        private ExponentialMovingAverage _exponentialMovingAverageIndicator10 = new ExponentialMovingAverage(10);
         private PivotPoint _pivotPoint = new PivotPoint();  
 
         public MomentumIndicator momentum => _momentumIndicator;
@@ -27,7 +28,8 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         public MoneyFlowIndexIndicator mfi => _moneyFlowIndex;
         public ADXIndicator adx => _adxIndicator;
         public BollingerBandsIndicator bollinger => _bollingerBandsIndicator;
-        public ExponentialMovingAverage ema => _exponentialMovingAverageIndicator;
+        public ExponentialMovingAverage ema5 => _exponentialMovingAverageIndicator5;
+        public ExponentialMovingAverage ema10 => _exponentialMovingAverageIndicator10;
 
         public PivotPoint pivotPoint => _pivotPoint;
 
@@ -41,7 +43,8 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             _onBalanceVolumeIndicator = new OnBalanceVolumeIndicator();
             _adxIndicator = new ADXIndicator(5);
             _bollingerBandsIndicator = new BollingerBandsIndicator(12, 1);
-            _exponentialMovingAverageIndicator = new ExponentialMovingAverage(5);
+            _exponentialMovingAverageIndicator5 = new ExponentialMovingAverage(5);
+            _exponentialMovingAverageIndicator10 = new ExponentialMovingAverage(10);
             _pivotPoint = new PivotPoint();
         }
 
@@ -55,7 +58,8 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             _onBalanceVolumeIndicator.ComputeOBV(timestampData.Close, timestampData.Volume);
             _adxIndicator.ComputeADX(timestampData.High, timestampData.Low, timestampData.Close);
             _bollingerBandsIndicator.ComputeBands(timestampData.Close);
-            _exponentialMovingAverageIndicator.ComputeEMA(timestampData.Close);
+            _exponentialMovingAverageIndicator5.ComputeEMA(timestampData.Close);
+            _exponentialMovingAverageIndicator10.ComputeEMA(timestampData.Close);
         }
     }
 }

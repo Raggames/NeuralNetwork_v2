@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Assets.AtomixML.MiniProjects.TradingBot.Bot.Strategies
+namespace Atom.MachineLearning.MiniProjects.TradingBot
 {
     public class EMAScalpingStrategy : ITradingBotStrategy<TradingBotEntity>
     {
@@ -38,7 +38,7 @@ namespace Assets.AtomixML.MiniProjects.TradingBot.Bot.Strategies
             .05, // rsi short/sell threshold
             .01, // short entry threshold multiplier
             // exit
-            .08, // pips threshold
+            .8, // pips threshold / .8
             .1, // tp long
             .1, // sl long
             .1, // tp short
@@ -58,8 +58,11 @@ namespace Assets.AtomixML.MiniProjects.TradingBot.Bot.Strategies
         private PivotPoint _pivotPoint;
         private AverageTrueRangeIndicator _averageTrueRangeIndicator;
         private MaximalDrawdownIndicator _maximalDrawdownIndicator;
+        private RSIIndicator _rsi;
+
         private Dictionary<DateTime, MarketData> _days_datas = new Dictionary<DateTime, MarketData>();
 
+        private decimal _peak;
        
         protected decimal x1 => Convert.ToDecimal(context.Weights[0]);
         protected decimal rsiLongThreshold => Convert.ToDecimal(context.Weights[1]);
@@ -84,6 +87,7 @@ namespace Assets.AtomixML.MiniProjects.TradingBot.Bot.Strategies
             _ema10 = new ExponentialMovingAverage(10);
             _averageTrueRangeIndicator = new AverageTrueRangeIndicator();
             _maximalDrawdownIndicator = new MaximalDrawdownIndicator();
+            _rsi = new RSIIndicator(9);
             _pivotPoint = new PivotPoint();
             _days_datas = context.manager.GetMarketDatas(context.manager.Symbol, OHCDTimeIntervals.Day).ToDictionary(t => t.Timestamp.Date, t => t);
         }
@@ -99,22 +103,23 @@ namespace Assets.AtomixML.MiniProjects.TradingBot.Bot.Strategies
             _ema10.ComputeEMA(newPeriod.Close);
             _averageTrueRangeIndicator.ComputeATR(newPeriod.Low, newPeriod.High, newPeriod.Close);
             _maximalDrawdownIndicator.ComputeMaxDrawdown(newPeriod.Close);
+            _rsi.ComputeRSI(newPeriod.Close);  
 
             MarketData yesterday = null;
             int i = -1;
             while (!_days_datas.TryGetValue(newPeriod.Timestamp.AddDays(i).Date, out yesterday))
                 i--;
 
-            _pivotPoint.Compute(yesterday.High, yesterday.Low, yesterday.Close); _pivotPoint.Compute(yesterday.High, yesterday.Low, yesterday.Close);
+            _pivotPoint.Compute(yesterday.High, yesterday.Low, yesterday.Close); 
         }
 
         public PositionTypes CheckEntryConditions(decimal currentPrice)
         {
-            if (_ema5.current < _ema10.current && context.manager.rsi.current < rsiLongThreshold && currentPrice * x1 < _ema5.current)
+            if (_ema5.current < _ema10.current && _rsi.current < rsiLongThreshold && currentPrice * x1 < _ema5.current)
             {
                 return PositionTypes.Long_Buy;
             }
-            else if (_ema5.current > _ema10.current && context.manager.rsi.current > rsiShortThreshold && currentPrice * x3 > _ema5.current)
+            else if (_ema5.current > _ema10.current && _rsi.current > rsiShortThreshold && currentPrice * x3 > _ema5.current)
             {
                 return PositionTypes.Short_Sell;
             }
@@ -226,6 +231,16 @@ namespace Assets.AtomixML.MiniProjects.TradingBot.Bot.Strategies
             // context.walletAmount;
 
             return basePrice; 
+        }
+
+        public void OnEnterPosition()
+        {
+            
+        }
+
+        public void OnExitPosition()
+        {
+            
         }
     }
 }

@@ -11,12 +11,12 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
     {
         public static decimal ComputeBassoATRComposedPositionSizing(decimal accountSize, decimal riskPerTradePurcent, decimal maxDrowdown, decimal atr, decimal atrMultiplier)
         {
-            return Math.Min(ComputeBassoPositionSizing(accountSize, riskPerTradePurcent, maxDrowdown), ComputeATRPositionSizing(accountSize, riskPerTradePurcent, atr, atrMultiplier));  
+            return Math.Min(ComputeBassoPositionSizing(accountSize, riskPerTradePurcent, maxDrowdown), ComputeATRPositionSizing(accountSize, riskPerTradePurcent, atr, atrMultiplier));
         }
 
         public static decimal ComputeATRPositionSizing(decimal accountSize, decimal riskPerTradePurcent, decimal atr, decimal atrMultiplier)
         {
-            if(atr == 0)
+            if (atr == 0)
                 return accountSize * riskPerTradePurcent / atrMultiplier;
 
             return (accountSize * riskPerTradePurcent) / (atr * atrMultiplier);
@@ -123,6 +123,35 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             }
 
             return prices;
+        }
+/*
+        public static List<decimal> GenerateMovementPriceBatch(double open, double close, double low, double high, int steps = 50, double noiseLevel = 0.1)
+        {
+            Random rand = new Random();
+            List<decimal> priceSimulation = new List<decimal>();
+
+            // Create a smooth trend from open to close
+            for (int i = 0; i < steps; i++)
+            {
+                decimal price = GenerateMovementPrice(open, close, low, high, noiseLevel, i, steps);
+
+                priceSimulation.Add(price);
+            }
+
+            return priceSimulation;
+        }*/
+
+        public static decimal GenerateMovementPrice(decimal open,  decimal low, decimal high, decimal close, float noiseLevel, float i, float steps)
+        {
+            // Linear interpolation between open and close
+            decimal trend = Convert.ToDecimal((double)open + (double)(close - open) * (i / (steps - 1)));
+
+            // Add random noise, scaled by the high-low range
+            decimal noise = Convert.ToDecimal((MLRandom.Shared.NextDouble() * 2 - 1) * noiseLevel * (double)(high - low));
+
+            // Compute the new price and keep it within bounds
+            decimal price = Convert.ToDecimal(Math.Max(low, Math.Min(high, trend + noise)));
+            return price;
         }
     }
 }
