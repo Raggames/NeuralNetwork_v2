@@ -149,7 +149,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _tradingBotEntity: {}
-  _datasetPath: C:\Users\Rag\wkspaces\NeuralNetwork_v2\Assets\AtomixML\MiniProjects\TradingBot\Resources\td_aapl_1mn_20250101_to_20250210.txt
+  _datasetPath: C:\Users\enboud\Documents\UNITY\AtomixML\Assets\AtomixML\MiniProjects\TradingBot\Resources\td_aapl_1mn_20250101_to_20250210.txt
   _transactionsPerTimeStampMin: 14
   _transactionsPerTimeStampMax: 26
   _slippageChances: 1

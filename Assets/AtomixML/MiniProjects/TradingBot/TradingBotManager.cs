@@ -764,7 +764,6 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
                 rsi[i, 1] = Convert.ToDouble(tech.rsi.current);
                 i++;
             }
-
             var line2 = _visualizationSheet.Add_SimpleLine(rsi, 2, new Vector2Int(100, 100), container2);
             line2.strokeColor = Color.yellow;
             line2.SetPadding(50, 50, 50, 50);

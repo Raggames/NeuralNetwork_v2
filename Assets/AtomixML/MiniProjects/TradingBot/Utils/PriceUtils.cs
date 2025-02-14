@@ -60,10 +60,10 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         /// <param name="low"></param>
         /// <param name="high"></param>
         /// <returns></returns>
-        public static decimal GenerateGaussianPrice(decimal open, decimal low, decimal high)
+        public static decimal GenerateGaussianPrice(decimal open, decimal low, decimal high, decimal close, double progression, double spread = 4)
         {
-            double mean = (double)open;
-            double stdDev = ((double)(high - low)) / 4; // Adjustable spread
+            double mean = ((double)open + (double)close) / 2;
+            double stdDev = ((double)(high - low)) / spread; // Adjustable spread
 
             // Box-Muller transform to generate normal distribution
             double u1 = 1.0 - MLRandom.Shared.NextDouble();
@@ -71,6 +71,10 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             double randStdNormal = Math.Sqrt(-2.0 * Math.Log(u1)) * Math.Sin(2.0 * Math.PI * u2);
 
             double price = mean + stdDev * randStdNormal;
+
+            var m = ((double)close - (double)open) / mean;
+            price *= 1 + m;
+
             return Math.Max(low, Math.Min(high, (decimal)price)); // Ensure within range
         }
 
@@ -97,14 +101,14 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         /// <param name="high"></param>
         /// <param name="count"></param>
         /// <returns></returns>
-        public static List<decimal> GenerateGaussianPriceBatch(decimal open, decimal low, decimal high, int count)
+        public static List<decimal> GenerateGaussianPriceBatch(decimal open, decimal low, decimal high, decimal close, int count)
         {
             List<decimal> prices = new List<decimal>();
 
             for (int i = 0; i < count; i++)
             {
                 // Box-Muller transform for normal distribution
-                var price = GenerateGaussianPrice(open, low, high);
+                var price = GenerateGaussianPrice(open, low, high, close, (float)i / count);
                 prices.Add((decimal)price);
             }
 
