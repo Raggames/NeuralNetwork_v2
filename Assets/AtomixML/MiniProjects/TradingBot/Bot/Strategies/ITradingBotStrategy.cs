@@ -48,6 +48,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
                 if (CheckExitConditions(currentPrice))
                 {
                     context.ExitPosition(currentPrice);
+                    OnExitPosition();
                     entryPrice = 0;
                 }
             }
@@ -63,10 +64,12 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
                     case PositionTypes.Long_Buy:
                         entryPrice = currentPrice;
                         context.EnterPosition(currentPrice, ComputePositionAmount(currentPrice), PositionTypes.Long_Buy);
+                        OnEnterPosition();
                         break;
                     case PositionTypes.Short_Sell:
                         entryPrice = currentPrice;
                         context.EnterPosition(currentPrice, ComputePositionAmount(currentPrice), PositionTypes.Short_Sell);
+                        OnEnterPosition();
                         break;
                 }
             }
@@ -87,6 +90,10 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         public bool CheckExitConditions(decimal currentPrice);
 
         public double OnGeneticOptimizerMutateWeight(int weightIndex);
+
+        public void OnEnterPosition();
+        public void OnExitPosition();
+
     }
 
 }

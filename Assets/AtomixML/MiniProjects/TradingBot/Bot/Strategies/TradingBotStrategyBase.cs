@@ -7,9 +7,9 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace Assets.AtomixML.MiniProjects.TradingBot.Bot.Strategies
+namespace Atom.MachineLearning.MiniProjects.TradingBot
 {
-    internal abstract class TradingBotStrategyBase : ITradingBotStrategy<TradingBotEntity>
+    public abstract class TradingBotStrategyBase : ITradingBotStrategy<TradingBotEntity>
     {
 
         [Header("Optimization ")]
@@ -37,6 +37,16 @@ namespace Assets.AtomixML.MiniProjects.TradingBot.Bot.Strategies
         public abstract double OnGeneticOptimizerMutateWeight(int weightIndex);
 
         public decimal ComputePositionAmount(decimal currentPrice)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void OnEnterPosition()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void OnExitPosition()
         {
             throw new NotImplementedException();
         }

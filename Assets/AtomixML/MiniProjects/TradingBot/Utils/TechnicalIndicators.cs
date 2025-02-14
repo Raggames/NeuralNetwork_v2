@@ -9,6 +9,76 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
     using System.Collections.Generic;
     using System.Linq;
 
+    public class SupportResistanceIndicator
+    {
+        private int _n;
+        private decimal _highestHigh;
+        private decimal _lowestLow;
+        public decimal support { get; private set; }
+        public decimal resistance { get; private set; }
+
+        public SupportResistanceIndicator()
+        {
+            _n = 0;
+            _highestHigh = decimal.MinValue;
+            _lowestLow = decimal.MaxValue;
+        }
+
+        public void Compute(decimal low, decimal high)
+        {
+            if (_n == 0)
+            {
+                _highestHigh = high;
+                _lowestLow = low;
+                _n++;
+                return;
+            }
+
+            // Update highest high and lowest low incrementally
+            _highestHigh = Math.Max(_highestHigh, high);
+            _lowestLow = Math.Min(_lowestLow, low);
+
+            // Compute support and resistance levels
+            resistance = (_highestHigh + _lowestLow) / 2 + (_highestHigh - _lowestLow) / 2;
+            support = (_highestHigh + _lowestLow) / 2 - (_highestHigh - _lowestLow) / 2;
+
+            _n++;
+        }
+    }
+
+    public class MovingSupportResistanceIndicator
+    {
+        private int _period;
+        private Queue<decimal> _highs;
+        private Queue<decimal> _lows;
+        public decimal support { get; private set; }
+        public decimal resistance { get; private set; }
+
+        public MovingSupportResistanceIndicator(int period)
+        {
+            _period = period;
+            _highs = new Queue<decimal>(period);
+            _lows = new Queue<decimal>(period);
+        }
+
+        public void Compute(decimal low, decimal high)
+        {
+            if (_highs.Count == _period)
+            {
+                _highs.Dequeue();
+                _lows.Dequeue();
+            }
+
+            _highs.Enqueue(high);
+            _lows.Enqueue(low);
+
+            decimal highestHigh = _highs.Max();
+            decimal lowestLow = _lows.Min();
+
+            resistance = (highestHigh + lowestLow) / 2 + (highestHigh - lowestLow) / 2;
+            support = (highestHigh + lowestLow) / 2 - (highestHigh - lowestLow) / 2;
+        }
+    }
 
     public class PivotPoint
     {

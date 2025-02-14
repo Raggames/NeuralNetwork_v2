@@ -276,11 +276,13 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             _market_samples = GetMarketDatas(false);
             InitializeIndicators();
 
-            _tradingBotEntity.Initialize(this, Convert.ToDecimal(_startWallet),  _maxLeverage);
+            _tradingBotEntity.Initialize(this, Convert.ToDecimal(_startWallet), _maxLeverage);
             _tokenSource = new CancellationTokenSource();
 
             await RunEpoch(new List<TradingBotEntity> { _tradingBotEntity }, _tokenSource.Token);
         }
+
+        private decimal _totalSessionProfit;
 
         /// <summary>
         /// Run the current agent selected after training for one epoch
@@ -290,7 +292,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         {
             _market_samples = GetMarketDatas(false);
             _tokenSource = new CancellationTokenSource();
-
+            _totalSessionProfit = 0;
             InitializeIndicators();
 
             var selectedEliteEntities = overallElite ? _optimizer.OverallGenerationsEliteEntities : _optimizer.LastGenerationEliteEntities;
@@ -306,18 +308,16 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
 
             }
 
-            await RunEpochParallel(bots, _tokenSource.Token, false);
+            await RunEpochParallel2(bots, _tokenSource.Token, false);
 
             decimal total_profit = 0;
-            int total_transactions = 0;
             foreach (var bot in bots)
             {
                 total_profit += bot.walletAmount - Convert.ToDecimal(_startWallet);
-                total_transactions += bot.sellTransactionsCount;
             }
-            var profit_purcent = decimal.ToDouble(total_profit) / (_startWallet * bots.Count) * 100;
+            var profit_purcent = decimal.ToDouble(_totalSessionProfit) / (_startWallet * bots.Count * _optimizer.MaxIterations) * 100;
 
-            Debug.Log($"Overall profit for testing session is : {total_profit}$ / {profit_purcent} % profit / {total_transactions} transactions.");
+            Debug.Log($"Overall profit for testing session is : {_totalSessionProfit}$ / {profit_purcent} % profit.");
         }
 
         /// <summary>
@@ -335,7 +335,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
                 _periodIndex = i;
                 currentMarketSamples.Add(currentPeriod);
 
-                if(i > offset)
+                if (i > offset)
                 {
                     for (int e = 0; e < entities.Count; e++)
                     {
@@ -445,6 +445,86 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             Debug.Log($"Epoch ended. Total profit: {total_epoch_profit}. Investment : {_startWallet * entities.Count}. Profit % {profit_purcent}. Transactions {total_transactions}. ");
         }
 
+        /// <summary>
+        /// Runs a complete pass on a collection of market datas (stamps)
+        /// </summary>
+        public async Task RunEpochParallel2(List<TradingBotEntity> entities, CancellationToken cancellationToken, bool train = true, double batchSizeRatio = 1f)
+        {
+            currentMarketSamples.Clear();
+
+            int offset = 15;
+            // we take only a batchSizeRatio part of the total sample each epoch
+            // the range is selected randomly to train on different part of the total datas during training
+            int batchLength = (int)(_market_samples.Count * batchSizeRatio);
+            int start_index = MLRandom.Shared.Range(0, _market_samples.Count - batchLength);
+            start_index = Math.Clamp(start_index, 0, _market_samples.Count - 1);
+            int stop_index = start_index + batchLength - 1;
+            stop_index = Math.Clamp(stop_index, 0, _market_samples.Count - 1);
+
+            Debug.Log($"Start epoch. Batch size {batchLength} samples.");
+
+            var tasks = new Task[entities.Count];
+
+            for (int e = 0; e < entities.Count; e++)
+            {
+                tasks[e] = RunEntityBatch(entities[e], offset, start_index, stop_index, cancellationToken);
+            }
+
+            await Task.WhenAll(tasks);
+
+            decimal total_epoch_profit = 0;
+            int total_transactions = 0;
+
+            // closing trading session, sell at closing price
+            for (int e = 0; e < entities.Count; e++)
+            {
+                /*if (entities[e].currentOwnedVolume > 0)
+                    entities[e].OnTransactionExecuted(0, currentMarketSamples[^1].Close, 0, _market_samples.Count);*/
+
+                total_epoch_profit += entities[e].walletAmount - Convert.ToDecimal(_startWallet);
+                total_transactions += entities[e].sellTransactionsCount;
+            }
+
+            var profit_purcent = decimal.ToDouble(total_epoch_profit) / (_startWallet * entities.Count) * 100;
+
+            Debug.Log($"Epoch ended. Total profit: {total_epoch_profit}. Investment : {_startWallet * entities.Count}. Profit % {profit_purcent}. Transactions {total_transactions}. ");
+
+            _totalSessionProfit += total_epoch_profit;
+        }
+
+        private async Task RunEntityBatch(TradingBotEntity entity, int offset, int start_index, int stop_index, CancellationToken cancellationToken)
+        {
+            // for each timestamp in the trading datas we got
+            for (int i = start_index; i < stop_index; i++)
+            {
+                //_periodIndex = i;
+                var currentPeriod = _market_samples[i];
+
+                if (cancellationToken.IsCancellationRequested)
+                    break;
+
+                // we run a set of points to stabilize indicators first
+                if (i > start_index + offset)
+                {
+                    entity.UpdateOHLC(currentPeriod);
+
+
+                    // generate a price batch 
+                    // it is a random set of potential prices that could appear in that timestamp
+                    // we ignore complicated stuff (volume , etc..) for the moment and focus on the core of the problem (OHLC)
+                    int prices_count = MLRandom.Shared.Range(_transactionsPerTimeStampMin, _transactionsPerTimeStampMax);
+
+                    for (int j = 0; j < prices_count; j++)
+                    {
+                        entity.Predict(PriceUtils.GenerateGaussianPrice(currentPeriod.Open, currentPeriod.Low, currentPeriod.High, currentPeriod.Close, 0));
+                    }
+                }
+
+                if (i % 100 == 0)
+                    await Task.Delay(1);
+            }
+        }
+
         private async Task RunEntity(TradingBotEntity entity, MarketData timestampData, int stampIndex)
         {
             entity.UpdateOHLC(currentPeriod);
@@ -500,7 +580,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
                     amount *= volume;
 
                     //var fee = price * Convert.ToDecimal(_spread);
-                   // amount -= fee;
+                    // amount -= fee;
                     entity.ExitPositionCallback(amount, volume, exit_price);
 
                     break;
@@ -517,22 +597,22 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
                     break;
             }
 
-/*            switch (buySignals)
-            {
-                case PositionTypes.Long_Buy:
-                    var amount = (volume * exit_price) - (volume * entryPrice);
-                    amount -= fee; // Deduct transaction fee
+            /*            switch (buySignals)
+                        {
+                            case PositionTypes.Long_Buy:
+                                var amount = (volume * exit_price) - (volume * entryPrice);
+                                amount -= fee; // Deduct transaction fee
 
-                    entity.ExitPositionCallback(amount, volume, exit_price);
-                    break;
-                case PositionTypes.Short_Sell:
-                    amount = (volume * exit_price) - (volume * entryPrice);
-                    amount -= fee; // Deduct transaction fee from short position earnings
+                                entity.ExitPositionCallback(amount, volume, exit_price);
+                                break;
+                            case PositionTypes.Short_Sell:
+                                amount = (volume * exit_price) - (volume * entryPrice);
+                                amount -= fee; // Deduct transaction fee from short position earnings
 
-                    entity.ExitPositionCallback(-amount, volume, exit_price);
+                                entity.ExitPositionCallback(-amount, volume, exit_price);
 
-                    break;
-            }*/
+                                break;
+                        }*/
         }
 
         public decimal ComputePrice(decimal base_price)
@@ -550,7 +630,6 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         }
 
         #endregion
-
 
         #region Execution / Manual
 
@@ -649,7 +728,31 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
                 i++;
             }
             line.AppendLine(ema10, Color.red, 1.5f);
+
+
+            var suppRes = new PivotPoint();
+            i = 0;
+
+            foreach (var item in slice)
+            {
+                suppRes.Compute(item.High, item.Low, item.Close);
+            }
+
+            double[,] support = new double[,]
+            {
+                { 0, (double)suppRes.Support1 },
+                { slice.Count,  (double)suppRes.Support1 }
+            };
+            double[,] res = new double[,]
+            {
+                { 0, (double)suppRes.Resistance1 },
+                { slice.Count,  (double)suppRes.Resistance1 }
+            };
+            line.AppendLine(support, Color.blue, 1.5f);
+            line.AppendLine(res, Color.green, 1.5f);
+
             line.Refresh();
+
 
             double[,] rsi = new double[slice.Count, 2];
             i = 0;
@@ -667,6 +770,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             line2.SetPadding(50, 50, 50, 50);
             line2.SetTitle("RSI");
             line2.DrawAutomaticGrid();
+
 
             /* var line2 = _visualizationSheet.Add_SimpleLine(rsi, 2, new Vector2Int(100, 100), container);
              line2.backgroundColor = new Color(0, 0, 0, 0);*/
@@ -687,10 +791,10 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             var datas = GetMarketDatas(false);
             var price = datas[MLRandom.Shared.Range(0, datas.Count)];
             var points = new double[pointsCount, 2];
-            for(int i = 0; i < points.GetLength(0); i++)
+            for (int i = 0; i < points.GetLength(0); i++)
             {
                 points[i, 0] = i;
-                points[i, 1] = (double)PriceUtils.GenerateGaussianPrice(price.Open, price.Low, price.High, price.Close, (float)i/pointsCount, spread);
+                points[i, 1] = (double)PriceUtils.GenerateGaussianPrice(price.Open, price.Low, price.High, price.Close, (float)i / pointsCount, spread);
             }
             var line = _visualizationSheet.Add_SimpleLine(points, 2, new Vector2Int(100, 100), container);
             line.strokeColor = Color.yellow;

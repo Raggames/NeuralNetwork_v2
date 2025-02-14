@@ -24,7 +24,6 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
 
         private TradingBotManager _manager;
         private Func<TradingBotEntity> _tradingBotCreateDelegate;
-        private CancellationToken _cancellationToken;
 
         public double adaptiveLearningRate => MLMath.InverseLerp(_minMaxLearningRate[0], _minMaxLearningRate[1], (float)CurrentIteration / (float)MaxIterations);
         public double adaptiveBatchSizeRatio => MLMath.InverseLerp(_minMaxBatchesSize[0], _minMaxBatchesSize[1], (float)CurrentIteration / (float)MaxIterations);
@@ -33,6 +32,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         {
             _manager = manager;
             _tradingBotCreateDelegate = tradingBotCreateDelegate;
+            this.cancellationToken = cancellationToken;
         }
 
         public override TradingBotEntity CreateEntity()
@@ -43,7 +43,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         public override async Task ComputeGeneration()
         {
             // run a complete epoch on market datas with all entities
-            await _manager.RunEpochParallel(CurrentGenerationEntities, _cancellationToken, true, adaptiveBatchSizeRatio);
+            await _manager.RunEpochParallel(CurrentGenerationEntities, cancellationToken, true, adaptiveBatchSizeRatio);
         }
 
         public override double GetEntityScore(TradingBotEntity entity)

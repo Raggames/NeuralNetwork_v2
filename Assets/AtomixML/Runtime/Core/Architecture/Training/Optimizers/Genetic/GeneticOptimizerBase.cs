@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -52,6 +53,7 @@ namespace Atom.MachineLearning.Core.Optimization
 
         public Action<T> epochBestFitCallback { get; set; }
 
+        public CancellationToken cancellationToken { get; set; }
 
         // model not needed here, the optimizer creates it
         public async Task<T> OptimizeAsync()
@@ -73,6 +75,12 @@ namespace Atom.MachineLearning.Core.Optimization
 
             while (_currentIteration < _maxIterations)
             {
+                if(cancellationToken != null && cancellationToken.IsCancellationRequested)
+                {
+                    Debug.LogError("Stopped training");
+                    break;
+                }
+
                 Debug.Log($"Compute iteration {_currentIteration}");
 
                 await ComputeGeneration();
