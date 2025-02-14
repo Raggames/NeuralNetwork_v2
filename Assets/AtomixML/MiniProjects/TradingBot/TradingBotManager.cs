@@ -153,6 +153,27 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             return null;
         }
 
+        public List<MarketData> GetMarketDatas()
+        {
+            if (_datasetPath.Contains("csv"))
+                return new CSVReaderService().GetData<MarketDatas>(_datasetPath).Datas;
+            else if (_datasetPath.Contains("td"))
+            {
+                var data = new CSVReaderService().GetData<MarketDatas>(_datasetPath);
+                string fileData = System.IO.File.ReadAllText(_datasetPath, Encoding.UTF8);
+                return JsonConvert.DeserializeObject<StockDataResponse>(fileData).Values.Select(t => new MarketData()
+                {
+                    Close = t.Close,
+                    High = t.High,
+                    Low = t.Low,
+                    Open = t.Open,
+                    Timestamp = t.DateTime,
+                    Volume = t.Volume,
+                }).ToList();
+            }
+
+            return null;
+        }
 
         public List<MarketData> SplitDatas(List<MarketData> allDatas, bool train)
         {
@@ -183,7 +204,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         public MoneyFlowIndexIndicator mfi => _technicalAnalysis.mfi;
         public ADXIndicator adx => _technicalAnalysis.adx;
         public BollingerBandsIndicator bollinger => _technicalAnalysis.bollinger;
-        public ExponentialMovingAverage ema => _technicalAnalysis.ema;
+        public ExponentialMovingAverage ema => _technicalAnalysis.ema5;
 
         private void InitializeIndicators()
         {
@@ -230,11 +251,13 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         {
             _market_samples = GetMarketDatas(true);
             InitializeIndicators();
+            _tokenSource = new CancellationTokenSource();
 
             // register best fit of each generation in local variable
             _optimizer.epochBestFitCallback += (bestFit) => _tradingBotEntity = new TradingBotEntity(bestFit);
 
             _optimizer.Initialize(this,
+                _tokenSource.Token,
                 // entity generation
                 GenerateTradingBot_Momentum_MACD);
 
@@ -266,6 +289,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         private async void ExecuteParrallelTesting(bool overallElite = false)
         {
             _market_samples = GetMarketDatas(false);
+            _tokenSource = new CancellationTokenSource();
 
             InitializeIndicators();
 
@@ -282,7 +306,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
 
             }
 
-            await RunEpochParallel(bots, false);
+            await RunEpochParallel(bots, _tokenSource.Token, false);
 
             decimal total_profit = 0;
             int total_transactions = 0;
@@ -301,6 +325,8 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         /// </summary>
         public async Task RunEpoch(List<TradingBotEntity> entities, CancellationToken cancellationToken)
         {
+            int offset = 15;
+
             currentMarketSamples.Clear();
 
             // for each timestamp in the trading datas we got
@@ -309,21 +335,24 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
                 _periodIndex = i;
                 currentMarketSamples.Add(currentPeriod);
 
-                for (int e = 0; e < entities.Count; e++)
+                if(i > offset)
                 {
-                    if (cancellationToken.IsCancellationRequested)
-                        break;
-
-                    entities[e].UpdateOHLC(currentPeriod);
-
-                    // generate a price batch 
-                    // it is a random set of potential prices that could appear in that timestamp
-                    // we ignore complicated stuff (volume , etc..) for the moment and focus on the core of the problem (OHLC)
-                    var prices = PriceUtils.GenerateGaussianPriceBatch(currentPeriod.Open, currentPeriod.Low, currentPeriod.High, MLRandom.Shared.Range(_transactionsPerTimeStampMin, _transactionsPerTimeStampMax));
-
-                    foreach (var current_price in prices)
+                    for (int e = 0; e < entities.Count; e++)
                     {
-                        entities[e].Predict(current_price);
+                        if (cancellationToken.IsCancellationRequested)
+                            break;
+
+                        entities[e].UpdateOHLC(currentPeriod);
+
+                        // generate a price batch 
+                        // it is a random set of potential prices that could appear in that timestamp
+                        // we ignore complicated stuff (volume , etc..) for the moment and focus on the core of the problem (OHLC)
+                        var prices = PriceUtils.GenerateGaussianPriceBatch(currentPeriod.Open, currentPeriod.Low, currentPeriod.High, currentPeriod.Close, MLRandom.Shared.Range(_transactionsPerTimeStampMin, _transactionsPerTimeStampMax));
+
+                        foreach (var current_price in prices)
+                        {
+                            entities[e].Predict(current_price);
+                        }
                     }
                 }
 
@@ -356,12 +385,12 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         /// <summary>
         /// Runs a complete pass on a collection of market datas (stamps)
         /// </summary>
-        public async Task RunEpochParallel(List<TradingBotEntity> entities, bool train = true, double batchSizeRatio = 1f)
+        public async Task RunEpochParallel(List<TradingBotEntity> entities, CancellationToken cancellationToken, bool train = true, double batchSizeRatio = 1f)
         {
             currentMarketSamples.Clear();
 
             var tasks = new Task[entities.Count];
-
+            int offset = 15;
             // we take only a batchSizeRatio part of the total sample each epoch
             // the range is selected randomly to train on different part of the total datas during training
             int batchLength = (int)(_market_samples.Count * batchSizeRatio);
@@ -378,12 +407,19 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
                 _periodIndex = i;
                 currentMarketSamples.Add(currentPeriod);
 
-                for (int e = 0; e < entities.Count; e++)
-                {
-                    tasks[e] = RunEntity(entities[e], currentPeriod, i);
-                }
+                if (cancellationToken.IsCancellationRequested)
+                    break;
 
-                await Task.WhenAll(tasks);
+                // we run a set of points to stabilize indicators first
+                if (i > start_index + offset)
+                {
+                    for (int e = 0; e < entities.Count; e++)
+                    {
+                        tasks[e] = RunEntity(entities[e], currentPeriod, i);
+                    }
+
+                    await Task.WhenAll(tasks);
+                }
 
                 //_prices_historic.AddRange(prices);
 
@@ -416,7 +452,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             // generate a price batch 
             // it is a random set of potential prices that could appear in that timestamp
             // we ignore complicated stuff (volume , etc..) for the moment and focus on the core of the problem (OHLC)
-            var prices = PriceUtils.GenerateGaussianPriceBatch(timestampData.Open, timestampData.Low, timestampData.High, MLRandom.Shared.Range(_transactionsPerTimeStampMin, _transactionsPerTimeStampMax));
+            var prices = PriceUtils.GenerateGaussianPriceBatch(timestampData.Open, timestampData.Low, timestampData.High, currentPeriod.Close, MLRandom.Shared.Range(_transactionsPerTimeStampMin, _transactionsPerTimeStampMax));
 
             foreach (var current_price in prices)
             {
@@ -503,7 +539,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         {
             if (MLRandom.Shared.Chances(_slippageChances, 100))
             {
-                var slipped_price = PriceUtils.GenerateGaussianPrice(currentPeriod.Open, currentPeriod.Low, currentPeriod.High);
+                var slipped_price = PriceUtils.GenerateGaussianPrice(currentPeriod.Open, currentPeriod.Low, currentPeriod.High, currentPeriod.Close, .5);
 
                 return slipped_price;
             }
@@ -564,10 +600,81 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         }
 
         [Button]
-        private void VisualizeDataset(float position = 0, int range = 100)
+        private void VisualizeDataset(float position = 0, float range = 1)
         {
             _market_samples = GetMarketDatas(false);
 
+            _visualizationSheet.Awake();
+            var root = _visualizationSheet.AddPixelSizedContainer("c0", new Vector2Int(1920, 1080));
+            root.style.flexDirection = new UnityEngine.UIElements.StyleEnum<UnityEngine.UIElements.FlexDirection>(UnityEngine.UIElements.FlexDirection.Column);
+            root.style.flexWrap = new StyleEnum<Wrap>(StyleKeyword.Auto);
+
+            var container = _visualizationSheet.AddContainer("c0", Color.black, new Vector2Int(100, 70), root);
+            container.SetPadding(10, 10, 10, 10);
+
+            int start = (int)(_market_samples.Count * position);
+            int sample = (int)(range * (_market_samples.Count - start));
+
+            var slice = _market_samples.GetRange(start, sample);
+            var slice_close = slice.Select(t => Convert.ToDouble(t.Close)).ToArray();
+
+            var tech = new TechnicalAnalysis();
+            tech.Initialize();
+
+
+            var line = _visualizationSheet.Add_SimpleLine(slice_close, 2, new Vector2Int(100, 100), container);
+            line.SetPadding(50, 50, 50, 50);
+            line.SetTitle("Market Prices + ema");
+            line.DrawAutomaticGrid();
+
+            double[,] ema5 = new double[slice.Count, 2];
+            int i = 0;
+            foreach (var item in slice)
+            {
+                tech.Update(item);
+                ema5[i, 0] = i;
+                ema5[i, 1] = Convert.ToDouble(tech.ema5.current);
+                i++;
+            }
+
+            line.AppendLine(ema5, Color.green, 1.5f);
+
+            double[,] ema10 = new double[slice.Count, 2];
+            i = 0;
+            foreach (var item in slice)
+            {
+                tech.Update(item);
+                ema10[i, 0] = i;
+                ema10[i, 1] = Convert.ToDouble(tech.ema10.current);
+                i++;
+            }
+            line.AppendLine(ema10, Color.red, 1.5f);
+            line.Refresh();
+
+            double[,] rsi = new double[slice.Count, 2];
+            i = 0;
+            foreach (var item in slice)
+            {
+                tech.Update(item);
+                rsi[i, 0] = i;
+                rsi[i, 1] = Convert.ToDouble(tech.rsi.current);
+                i++;
+            }
+            var container2 = _visualizationSheet.AddContainer("c1", Color.black, new Vector2Int(100, 30), root);
+            container2.SetPadding(10, 10, 10, 10);
+            var line2 = _visualizationSheet.Add_SimpleLine(rsi, 2, new Vector2Int(100, 100), container2);
+            line2.strokeColor = Color.yellow;
+            line2.SetPadding(50, 50, 50, 50);
+            line2.SetTitle("RSI");
+            line2.DrawAutomaticGrid();
+
+            /* var line2 = _visualizationSheet.Add_SimpleLine(rsi, 2, new Vector2Int(100, 100), container);
+             line2.backgroundColor = new Color(0, 0, 0, 0);*/
+        }
+
+        [Button]
+        private void ShowGaussianPrice(int pointsCount = 25, double spread = 4)
+        {
             _visualizationSheet.Awake();
 
             var root = _visualizationSheet.AddPixelSizedContainer("c0", new Vector2Int(1000, 1000));
@@ -577,36 +684,24 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             var container = _visualizationSheet.AddContainer("c0", Color.black, new Vector2Int(100, 100), root);
             container.SetPadding(10, 10, 10, 10);
 
-            int start = (int)(_market_samples.Count * position);
-            var slice = _market_samples.GetRange(start, range);
-            var slice_close = slice.Select(t => Convert.ToDouble(t.Close)).ToArray();
-            var line = _visualizationSheet.Add_SimpleLine(slice_close, 2, new Vector2Int(100, 100), container);
-
-            var tech = new TechnicalAnalysis();
-            tech.Initialize();
-
-            double[,] rsi = new double[slice.Count, 2];
-            int i = 0;
-            foreach (var sample in slice)
+            var datas = GetMarketDatas(false);
+            var price = datas[MLRandom.Shared.Range(0, datas.Count)];
+            var points = new double[pointsCount, 2];
+            for(int i = 0; i < points.GetLength(0); i++)
             {
-                tech.Update(sample);
-                rsi[i, 0] = i;
-                rsi[i, 1] = Convert.ToDouble(tech.rsi.current);
-                i++;
+                points[i, 0] = i;
+                points[i, 1] = (double)PriceUtils.GenerateGaussianPrice(price.Open, price.Low, price.High, price.Close, (float)i/pointsCount, spread);
             }
-
+            var line = _visualizationSheet.Add_SimpleLine(points, 2, new Vector2Int(100, 100), container);
+            line.strokeColor = Color.yellow;
+            line.lineWidth = 3;
             line.SetPadding(50, 50, 50, 50);
-            line.SetTitle("Market Prices");
+            line.SetTitle("Prices : " + price.Volume);
             line.DrawAutomaticGrid();
 
-            line.AppendLine(rsi, Color.blue, 2.75f);
-
+            line.AppendLine(new double[,] { { 0, (double)price.Open }, { pointsCount, (double)price.Close } }, Color.red, 3);
             line.Refresh();
-
-            var line2 = _visualizationSheet.Add_SimpleLine(rsi, 2, new Vector2Int(100, 100), container);
-            line2.backgroundColor = new Color(0, 0, 0, 0);
         }
-
         #endregion
     }
 
