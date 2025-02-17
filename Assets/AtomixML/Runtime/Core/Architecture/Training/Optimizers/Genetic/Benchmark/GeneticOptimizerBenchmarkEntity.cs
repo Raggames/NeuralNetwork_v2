@@ -19,7 +19,7 @@ namespace Atom.MachineLearning.Core.Optimization
 
         public string ModelName { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public string ModelVersion { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-
+        public double Score { get; set; }
 
         private string _genome = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOP" +
                                   "QRSTUVWXYZ 1234567890, .-;:_!#%&/()=?@${[]}";

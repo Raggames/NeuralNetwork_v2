@@ -32,6 +32,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         public int Generation { get; set; }
         public string ModelName { get; set; } = "trading_bot_v1_aplha";
         public string ModelVersion { get; set; } = "0.0.1";
+        public double Score { get; set; }
 
 
         [Header("Parameters")]
@@ -107,6 +108,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         [JsonIgnore] public decimal currentPositionEntryPrice => _entryPrice;
         [JsonIgnore] public decimal currentOwnedVolume => _currentOwnedVolume;
         [JsonIgnore] public int sellTransactionsCount => _shortTransactionsCount;
+        [JsonIgnore] public int buyTransactionsCount => _longTransactionsCount;
         [JsonIgnore] public int totalHoldingTime => _totalHoldingTime;
         [JsonIgnore] public bool isHoldingPosition => currentPositionType != PositionTypes.None;
 

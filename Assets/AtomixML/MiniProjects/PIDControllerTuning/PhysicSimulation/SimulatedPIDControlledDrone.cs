@@ -118,6 +118,7 @@ namespace Atom.MachineLearning.MiniProjects.PIDControllerTuning
 
         public string ModelName { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public string ModelVersion { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public double Score { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
         private void Awake()
         {

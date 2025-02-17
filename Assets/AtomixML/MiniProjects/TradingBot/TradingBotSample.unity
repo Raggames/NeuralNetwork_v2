@@ -130,7 +130,7 @@ GameObject:
   - component: {fileID: 338641947}
   - component: {fileID: 338641946}
   m_Layer: 0
-  m_Name: TradingBotManager_hyperparams_2
+  m_Name: TradingBotManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -149,38 +149,35 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _tradingBotEntity: {}
-  _datasetPath: C:\Users\enboud\Documents\UNITY\AtomixML\Assets\AtomixML\MiniProjects\TradingBot\Resources\td_aapl_1mn_20250101_to_20250210.txt
-  _transactionsPerTimeStampMin: 14
-  _transactionsPerTimeStampMax: 26
+  _datasetPath: C:\Users\Rag\wkspaces\NeuralNetwork_v2\Assets\AtomixML\MiniProjects\TradingBot\Resources\td_aapl_1mn_20250101_to_20250210.txt
+  _transactionsPerTimeStampMin: 50
+  _transactionsPerTimeStampMax: 50
   _slippageChances: 1
   _trainTestSplit: 0.745
-  _spread: 0.00001
+  _spread: 0.01
+  _priceNoiseLevel: 0.13
   _symbol: AAPL
   _startWallet: 1000
   _maxTransactionAmount: 1000
   _maxLeverage: 10
-  _visualizationSheet: {fileID: 420925724}
   _optimizer:
-    _elitPurcentage: 6.29
-    _elitMutationChances: 7.82
-    _crossoverSelectionLimitPurcentage: 42.29
-    _crossoverMutationChances: 43.9
-    _randomSelectionPurcentage: 3.4
+    _elitPurcentage: 5
+    _elitMutationChances: 10
+    _crossoverSelectionLimitPurcentage: 30
+    _crossoverMutationChances: 15
+    _randomSelectionPurcentage: 4
     _populationCount: 50
-    _maxIterations: 100
+    _maxIterations: 2000
     _fitnessObjective: 2000000
     _batchSizeRatio: 0.022
     _profitScoreBonusMultiplier: 3
     _gainLossRatioMultiplier: 2
     _minMaxLearningRate:
-    - 1
-    - 0.1
+    - 25
+    - 0.01
     _minMaxBatchesSize:
     - 0.01
     - 0.3
-  _priceNoiseLevel: 0.19
-  _horizontal: 0.201
-  _zoom: 0
 --- !u!4 &338641947
 Transform:
   m_ObjectHideFlags: 0
@@ -451,7 +448,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
---- !u!1 &1809157369
+--- !u!1 &2015151073
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -459,67 +456,41 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1809157371}
-  - component: {fileID: 1809157370}
+  - component: {fileID: 2015151075}
+  - component: {fileID: 2015151074}
   m_Layer: 0
-  m_Name: TradingBotManager_hyperparams_default
+  m_Name: PatternAnalysisTestings
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1809157370
+--- !u!114 &2015151074
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1809157369}
+  m_GameObject: {fileID: 2015151073}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 170b76b05d4f5d14fb3d75c4aa35a56e, type: 3}
+  m_Script: {fileID: 11500000, guid: feed32ff2ce05f04ab1d8fe73705ef51, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _tradingBotEntity: {}
-  _datasetPath: C:\Users\enboud\Documents\UNITY\AtomixML\Assets\AtomixML\MiniProjects\TradingBot\Resources\crypto_low_volatility_day.csv
-  _transactionsPerTimeStampMin: 3
-  _transactionsPerTimeStampMax: 7
-  _slippageChances: 10
-  _trainTestSplit: 0.5
-  _spread: 0.005
-  _symbol: AAPL
-  _startWallet: 50
-  _maxTransactionAmount: 200
-  _maxLeverage: 10
-  _visualizationSheet: {fileID: 0}
-  _optimizer:
-    _elitPurcentage: 10
-    _elitMutationChances: 10
-    _crossoverSelectionLimitPurcentage: 50
-    _crossoverMutationChances: 30
-    _randomSelectionPurcentage: 5
-    _populationCount: 50
-    _maxIterations: 5
-    _fitnessObjective: 20000
-    _batchSizeRatio: 0.02
-    _profitScoreBonusMultiplier: 3
-    _gainLossRatioMultiplier: 2
-    _minMaxLearningRate:
-    - 1.5
-    - 0.1
-    _minMaxBatchesSize:
-    - 1.5
-    - 0.1
+  _visualizationSheet: {fileID: 420925724}
+  _tradingBotManager: {fileID: 338641946}
+  _horizontal: 0.584
+  _zoom: 0.188
   _priceNoiseLevel: 0.1
-  _horizontal: 0
-  _zoom: 0
---- !u!4 &1809157371
+  _bullishColor: {r: 0.0053273328, g: 0.6792453, b: 0, a: 1}
+  _bearishColor: {r: 0.7830189, g: 0, b: 0.00921222, a: 1}
+--- !u!4 &2015151075
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1809157369}
+  m_GameObject: {fileID: 2015151073}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -0.063879, y: 2.0078514, z: 0.5959201}
@@ -534,6 +505,6 @@ SceneRoots:
   m_Roots:
   - {fileID: 506331742}
   - {fileID: 1220108068}
-  - {fileID: 1809157371}
   - {fileID: 338641947}
+  - {fileID: 2015151075}
   - {fileID: 420925725}

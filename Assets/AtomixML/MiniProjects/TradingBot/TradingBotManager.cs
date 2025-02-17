@@ -1,4 +1,3 @@
-using Assets.AtomixML.MiniProjects.TradingBot.Bot.Strategies;
 using Atom.MachineLearning.Core;
 using Atom.MachineLearning.Core.Maths;
 using Atom.MachineLearning.Core.Optimization;
@@ -71,6 +70,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         [SerializeField, Range(1, 100)] private int _slippageChances = 10;
         [SerializeField, Range(0f, 1f)] private float _trainTestSplit = .5f;
         [SerializeField, Range(0f, .2f)] private float _spread = .005f;
+        [SerializeField] private float _priceNoiseLevel = .1f;
 
         [SerializeField] private string _symbol = "AAPL";
 
@@ -78,11 +78,6 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         [SerializeField] private float _startWallet = 0;
         [SerializeField] private float _maxTransactionAmount = 0;
         [SerializeField] private int _maxLeverage = 10;
-
-        [Header("Visualization")]
-        [SerializeField] private VisualizationSheet _visualizationSheet;
-
-
 
         [Header("Optimizer")]
         [SerializeField, HideLabel] private TradingBotsOptimizer _optimizer;
@@ -133,13 +128,14 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         [Button]
         public List<MarketData> GetMarketDatas(bool train)
         {
+            var list = new List<MarketData>();
             if (_datasetPath.Contains("csv"))
-                return SplitDatas(new CSVReaderService().GetData<MarketDatas>(_datasetPath).Datas, train);
+                list = SplitDatas(new CSVReaderService().GetData<MarketDatas>(_datasetPath).Datas, train);
             else if (_datasetPath.Contains("td"))
             {
                 var data = new CSVReaderService().GetData<MarketDatas>(_datasetPath);
                 string fileData = System.IO.File.ReadAllText(_datasetPath, Encoding.UTF8);
-                return SplitDatas(JsonConvert.DeserializeObject<StockDataResponse>(fileData).Values.Select(t => new MarketData()
+                list = SplitDatas(JsonConvert.DeserializeObject<StockDataResponse>(fileData).Values.Select(t => new MarketData()
                 {
                     Close = t.Close,
                     High = t.High,
@@ -150,7 +146,10 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
                 }).ToList(), train);
             }
 
-            return null;
+            if (list[^1].Timestamp < list[0].Timestamp)
+                list.Reverse();
+
+            return list;
         }
 
         public List<MarketData> GetMarketDatas()
@@ -231,12 +230,22 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             ModelSerializer.SaveModel(_tradingBotEntity, Guid.NewGuid().ToString());
         }
 
-        private TradingBotEntity GenerateTradingBot_Momentum_MACD()
+        public TradingBotEntity GenerateTradingBot_EmaScalping()
         {
             var entity = new TradingBotEntity();
             entity.Initialize(this, Convert.ToDecimal(_startWallet), _maxLeverage);
             //entity.SetStrategy(new SMAPivotPointsStrategy());
             entity.SetStrategy(new EMAScalpingStrategy());
+
+            return entity;
+        }
+
+        public TradingBotEntity GenerateTradingBot_MomentumScalping()
+        {
+            var entity = new TradingBotEntity();
+            entity.Initialize(this, Convert.ToDecimal(_startWallet), _maxLeverage);
+            //entity.SetStrategy(new SMAPivotPointsStrategy());
+            entity.SetStrategy(new MomentumScalpingStrategy());
 
             return entity;
         }
@@ -259,7 +268,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             _optimizer.Initialize(this,
                 _tokenSource.Token,
                 // entity generation
-                GenerateTradingBot_Momentum_MACD);
+                GenerateTradingBot_MomentumScalping);
 
             // register best overall entity/dna
             var best = await _optimizer.OptimizeAsync();
@@ -343,7 +352,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
                             break;
 
                         entities[e].UpdateOHLC(currentPeriod);
-                       
+
                         int prices_count = MLRandom.Shared.Range(_transactionsPerTimeStampMin, _transactionsPerTimeStampMax);
 
                         for (int j = 0; j < prices_count; j++)
@@ -522,7 +531,6 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             }
         }
 
-        [SerializeField] private float _priceNoiseLevel = .1f;
 
         private async Task RunEntity(TradingBotEntity entity, MarketData timestampData, int stampIndex)
         {
@@ -616,7 +624,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             if (MLRandom.Shared.Chances(_slippageChances, 100))
             {
                 int rand = MLRandom.Shared.Range(0, 50);
-                var slipped_price = PriceUtils.GenerateMovementPrice(currentPeriod.Open, currentPeriod.Low, currentPeriod.High, currentPeriod.Close, _priceNoiseLevel, rand, 50); 
+                var slipped_price = PriceUtils.GenerateMovementPrice(currentPeriod.Open, currentPeriod.Low, currentPeriod.High, currentPeriod.Close, _priceNoiseLevel, rand, 50);
 
                 return slipped_price;
             }
@@ -641,7 +649,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             _tokenSource = new CancellationTokenSource();
             _market_samples = GetMarketDatas(true);
             InitializeIndicators();
-            _tradingBotEntity = GenerateTradingBot_Momentum_MACD();
+            _tradingBotEntity = GenerateTradingBot_EmaScalping();
 
             Debug.Log("Execute Debug Mode");
 
@@ -659,169 +667,6 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             _tokenSource?.Cancel();
         }
 
-        #region Visualization
-
-        [SerializeField, Range(0f, 1f), OnValueChanged(nameof(updateCurrentView))] private float _horizontal;
-        [SerializeField, Range(0f, 1f), OnValueChanged(nameof(updateCurrentView))] private float _zoom;
-
-        private void updateCurrentView()
-        {
-            int minmum_points = 10;
-
-            int zoom_total = minmum_points + (int)((1f - _market_samples.Count) * _zoom);
-            int start = (int)(_market_samples.Count * _horizontal);
-
-            int range = Math.Min(_market_samples.Count - start, zoom_total);
-            var slice = _market_samples.GetRange(start, range);
-        }
-
-        [Button]
-        private void VisualizeDataset(float position = 0, float range = 1)
-        {
-            _market_samples = GetMarketDatas(false);
-
-            _visualizationSheet.Awake();
-            var root = _visualizationSheet.AddPixelSizedContainer("c0", new Vector2Int(1920, 1080));
-            root.style.flexDirection = new UnityEngine.UIElements.StyleEnum<UnityEngine.UIElements.FlexDirection>(UnityEngine.UIElements.FlexDirection.Column);
-            root.style.flexWrap = new StyleEnum<Wrap>(StyleKeyword.Auto);
-
-            var container = _visualizationSheet.AddContainer("c0", Color.black, new Vector2Int(100, 70), root);
-            container.SetPadding(10, 10, 10, 10);
-
-            int start = (int)(_market_samples.Count * position);
-            int sample = (int)(range * (_market_samples.Count - start));
-
-            var slice = _market_samples.GetRange(start, sample);
-            var slice_close = slice.Select(t => Convert.ToDouble(t.Close)).ToArray();
-
-            var tech = new TechnicalAnalysis();
-            tech.Initialize();
-
-
-            var line = _visualizationSheet.Add_SimpleLine(slice_close, 2, new Vector2Int(100, 100), container);
-            line.SetPadding(50, 50, 50, 50);
-            line.SetTitle("Market Prices + ema");
-            line.DrawAutomaticGrid();
-
-            double[,] ema5 = new double[slice.Count, 2];
-            int i = 0;
-            foreach (var item in slice)
-            {
-                tech.Update(item);
-                ema5[i, 0] = i;
-                ema5[i, 1] = Convert.ToDouble(tech.ema5.current);
-                i++;
-            }
-
-            line.AppendLine(ema5, Color.green, 1.5f);
-
-            double[,] ema10 = new double[slice.Count, 2];
-            i = 0;
-            foreach (var item in slice)
-            {
-                tech.Update(item);
-                ema10[i, 0] = i;
-                ema10[i, 1] = Convert.ToDouble(tech.ema10.current);
-                i++;
-            }
-            line.AppendLine(ema10, Color.red, 1.5f);
-
-
-            var suppRes = new PivotPoint();
-            i = 0;
-
-            foreach (var item in slice)
-            {
-                suppRes.Compute(item.High, item.Low, item.Close);
-            }
-
-            double[,] support = new double[,]
-            {
-                { 0, (double)suppRes.Support1 },
-                { slice.Count,  (double)suppRes.Support1 }
-            };
-            double[,] res = new double[,]
-            {
-                { 0, (double)suppRes.Resistance1 },
-                { slice.Count,  (double)suppRes.Resistance1 }
-            };
-            line.AppendLine(support, Color.blue, 1.5f);
-            line.AppendLine(res, Color.green, 1.5f);
-
-            line.Refresh();
-
-
-           
-            var container2 = _visualizationSheet.AddContainer("c1", Color.black, new Vector2Int(100, 30), root);
-            container2.SetPadding(10, 10, 10, 10);
-
-            double[,] rsi = new double[slice.Count, 2];
-            i = 0;
-            foreach (var item in slice)
-            {
-                tech.Update(item);
-                rsi[i, 0] = i;
-                rsi[i, 1] = Convert.ToDouble(tech.rsi.current);
-                i++;
-            }
-            var line2 = _visualizationSheet.Add_SimpleLine(rsi, 2, new Vector2Int(100, 100), container2);
-            line2.strokeColor = Color.yellow;
-            line2.SetPadding(50, 50, 50, 50);
-            line2.SetTitle("RSI");
-            line2.DrawAutomaticGrid();
-
-
-            double[,] cmf = new double[slice.Count, 2];
-            i = 0;
-            foreach (var item in slice)
-            {
-                tech.Update(item);
-                cmf[i, 0] = i;
-                cmf[i, 1] = Convert.ToDouble(tech.cmf.current);
-                i++;
-            }
-
-            var line3 = _visualizationSheet.Add_SimpleLine(rsi, 2, new Vector2Int(100, 100), container2);
-            line3.strokeColor = Color.magenta;
-            line3.SetPadding(50, 50, 50, 50);
-            line3.SetTitle("CMI");
-            line3.DrawAutomaticGrid();
-
-            /* var line2 = _visualizationSheet.Add_SimpleLine(rsi, 2, new Vector2Int(100, 100), container);
-             line2.backgroundColor = new Color(0, 0, 0, 0);*/
-        }
-
-        [Button]
-        private void ShowGaussianPrice(int pointsCount = 25)
-        {
-            _visualizationSheet.Awake();
-
-            var root = _visualizationSheet.AddPixelSizedContainer("c0", new Vector2Int(1000, 1000));
-            root.style.flexDirection = new UnityEngine.UIElements.StyleEnum<UnityEngine.UIElements.FlexDirection>(UnityEngine.UIElements.FlexDirection.Row);
-            root.style.flexWrap = new StyleEnum<Wrap>(StyleKeyword.Auto);
-
-            var container = _visualizationSheet.AddContainer("c0", Color.black, new Vector2Int(100, 100), root);
-            container.SetPadding(10, 10, 10, 10);
-
-            var datas = GetMarketDatas(false);
-            var price = datas[MLRandom.Shared.Range(0, datas.Count)];
-            var points = new double[pointsCount, 2];
-            for (int i = 0; i < points.GetLength(0); i++)
-            {
-                points[i, 0] = i;
-                points[i, 1] = (double)PriceUtils.GenerateMovementPrice(price.Open, price.Low, price.High, price.Close, _priceNoiseLevel, i, pointsCount);
-            }
-            var line = _visualizationSheet.Add_SimpleLine(points, 2, new Vector2Int(100, 100), container);
-            line.strokeColor = Color.yellow;
-            line.lineWidth = 3;
-            line.SetPadding(50, 50, 50, 50);
-            line.SetTitle("Prices : " + price.Volume);
-            line.DrawAutomaticGrid();
-
-            line.AppendLine(new double[,] { { 0, (double)price.Open }, { pointsCount, (double)price.Close } }, Color.red, 3);
-            line.Refresh();
-        }
-        #endregion
     }
 
 

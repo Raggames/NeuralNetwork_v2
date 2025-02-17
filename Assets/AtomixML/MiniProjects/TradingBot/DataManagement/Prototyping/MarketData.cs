@@ -51,6 +51,11 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         /// </summary>
         [JsonProperty("Volume")]
         public int Volume { get; set; }
+
+
+        [JsonIgnore] public bool isBullish => Open < Close;
+        [JsonIgnore] public bool isBearish => Open > Close;
+                    
     }
 
 }

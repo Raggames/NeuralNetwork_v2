@@ -43,7 +43,7 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         public override async Task ComputeGeneration()
         {
             // run a complete epoch on market datas with all entities
-            await _manager.RunEpochParallel(CurrentGenerationEntities, cancellationToken, true, adaptiveBatchSizeRatio);
+            await _manager.RunEpochParallel2(CurrentGenerationEntities, cancellationToken, true, adaptiveBatchSizeRatio);
         }
 
         public override double GetEntityScore(TradingBotEntity entity)
@@ -64,8 +64,8 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
 
             score += entity.totalHoldingTime * _transactionHoldingTimeMultiplier;*/
 
-            var score = Convert.ToDouble(entity.totalBalance) * _profitScoreBonusMultiplier * 
-                Math.Log(Math.Pow(1 + entity.gainLossRatio * _gainLossRatioMultiplier, 2));
+            var score = Convert.ToDouble(entity.totalBalance) * _profitScoreBonusMultiplier - entity.sellTransactionsCount - entity.buyTransactionsCount;
+                //Math.Log(Math.Pow(1 + entity.gainLossRatio * _gainLossRatioMultiplier, 2));
 
             return score;
         }

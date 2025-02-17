@@ -14,6 +14,7 @@ namespace Atom.MachineLearning.Core.Optimization
     {
 
         public int Generation { get; set; }
+        public double Score { get; set; }
 
         public double MutateGene(int geneIndex);
     }
