@@ -1,4 +1,5 @@
 ﻿using Atom.MachineLearning.Core.Maths;
+using Atom.MachineLearning.MiniProjects.TradingBot.Data.TwelveDataAPI;
 using Atomix.ChartBuilder;
 using Sirenix.OdinInspector;
 using System;
@@ -36,21 +37,45 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
         [SerializeField] private Color _bearishColor;
 
         [Button]
+        private void GetTradingManagerMarketData()
+        {
+            _currentMarketSamples = _tradingBotManager.GetMarketDatas(false);
+        }
+
+        [Button] 
+        private async void GetTwelveDataMarketData(string symbol = "BTC/USD", string interval = "5min")
+        {
+            var streamer = new TwelveDataAPIStreamer();
+            var data = await streamer.GetHistoricalData(symbol, interval);
+            _currentMarketSamples = data.Values.Select(t => new MarketData()
+            {
+                Close = t.Close,
+                Open = t.Open,
+                High = t.High,
+                Low = t.Low,
+                Volume = t.Volume,
+            }).ToList();
+            Debug.Log(data);
+        }
+
+        [Button]
         private void Test_CandlePatterns(float sigma = .02f, float threshold  =1)
         {
             int ticks = 50;
 
             var position = _horizontal;
             var range = _zoom;
-            _currentMarketSamples = _tradingBotManager.GetMarketDatas(false);
 
             _visualizationSheet.Awake();
             var root = _visualizationSheet.AddPixelSizedContainer("c0", new Vector2Int(1920, 1080));
             root.style.flexDirection = new UnityEngine.UIElements.StyleEnum<UnityEngine.UIElements.FlexDirection>(UnityEngine.UIElements.FlexDirection.Column);
             root.style.flexWrap = new StyleEnum<Wrap>(StyleKeyword.Auto);
 
-            var container = _visualizationSheet.AddContainer("c0", Color.black, new Vector2Int(100, 100), root);
+            var container = _visualizationSheet.AddContainer("c0", Color.black, new Vector2Int(100, 70), root);
             container.SetPadding(10, 10, 10, 10);
+
+            var container2 = _visualizationSheet.AddContainer("c1", Color.black, new Vector2Int(100, 30), root);
+            container2.SetPadding(10, 10, 10, 10);
 
             var entity = _tradingBotManager.GenerateTradingBot_EmaScalping();
             var strategy = new MomentumScalpingStrategy();
@@ -68,8 +93,9 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             var engulfing_bullish_points = new Dictionary<int, MarketData>();
             var engulfing_bearish_points = new Dictionary<int, MarketData>();
 
-            var fractal_bullish_points = new Dictionary<int, MarketData>();
-            var fractal_bearish_points = new Dictionary<int, MarketData>();
+            var fast_d_9 = new FastStochasticIndicator(9, 3);
+            var stochs_d_9 = new double[slice.Count, 2];
+
             foreach (var item in slice)
             {
                 slice_close[i, 0] = i;
@@ -80,8 +106,9 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
                 volume[i, 0] = i;
                 volume[i, 1] = item.Open > item.Close ? -item.Volume : item.Volume;
 
-                if(i > 3)
+                if (i > 3)
                 {
+                   
                     if (CandlePatternFinder.BullishEngulfing(slice, i, item.Close, Convert.ToDecimal(threshold)) > 1)
                     {
                         Debug.LogError("bullish engulf at" + i);
@@ -93,12 +120,16 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
                         Debug.LogError("bullish engulf at" + i);
                         engulfing_bearish_points.Add(i, item);
                     }
-
                 }
 
+                if(i > 9)
+                {
+                    fast_d_9.Compute(slice, i);
+                    stochs_d_9[i, 0] = i;
+                    stochs_d_9[i, 1] = (double)fast_d_9.D;
+                }
                 i++;
             }
-
 
             var line = _visualizationSheet.Add_CandleBars(slice_close, new Vector2Int(100, 100), container);
             line.SetPadding(50, 50, 50, 50);
@@ -106,10 +137,15 @@ namespace Atom.MachineLearning.MiniProjects.TradingBot
             line.DrawAutomaticGrid();
 
             line.AppendScatter(ToPointMatrix(engulfing_bullish_points), _bullishColor, 4);
-            line.Refresh();
-
             line.AppendScatter(ToPointMatrix(engulfing_bearish_points), _bearishColor, 4);
-            line.Refresh();
+
+            var line2 = _visualizationSheet.Add_SimpleLine(stochs_d_9, 2, new Vector2Int(100, 100), container2);
+            line2.strokeColor = Color.green;
+            line2.SetPadding(50, 50, 50, 50);
+            line2.SetTitle("Stochastic Fast 9/3");
+            line2.DrawAutomaticGrid();
+
+
 
         }
 

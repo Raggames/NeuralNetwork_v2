@@ -1,13 +1,53 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Atom.MachineLearning.MiniProjects.TradingBot
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
+    
+    public class FastStochasticIndicator
+    {
+        private int _periodK;
+        private int _periodD;
+        private Queue<decimal> _kValues;
+        public decimal K { get; private set; }
+        public decimal D { get; private set; }
+
+        public FastStochasticIndicator(int periodK = 14, int periodD = 3)
+        {
+            _periodK = periodK;
+            _periodD = periodD;
+            _kValues = new Queue<decimal>(periodD);
+        }
+
+        public void Compute(List<MarketData> data, int currentIndex )
+        {
+            if (data.Count < _periodK) return;
+
+            decimal highestHigh = decimal.MinValue;
+            decimal lowestLow = decimal.MaxValue;
+
+            for (int i = currentIndex - _periodK; i < currentIndex; ++i)
+            {
+                highestHigh = Math.Max(highestHigh, data[i].High);
+                lowestLow = Math.Min(lowestLow, data[i].Low);
+            }
+
+            decimal close = data[currentIndex].Close;
+
+            K = ((close - lowestLow) / (highestHigh - lowestLow)) * 100;
+
+            if (_kValues.Count == _periodD)
+            {
+                _kValues.Dequeue();
+            }
+            _kValues.Enqueue(K);
+
+            D = _kValues.Average();
+        }
+    }
 
     public class SupportResistanceIndicator
     {
